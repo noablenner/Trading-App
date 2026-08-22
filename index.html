@@ -60,6 +60,41 @@
   .poweredBy{margin-top:8px;font-size:11px;color:var(--txt-faint);}
   .poweredBy a{color:var(--accent);font-weight:700;text-decoration:none;}
 
+  /* --- modules avancés : éditeurs de liste (paramètres) --- */
+  .le-row{display:flex;gap:8px;margin-top:8px;}
+  .le-input{flex:1;}
+  .le-del{width:44px;border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);border-radius:11px;font-size:14px;cursor:pointer;flex:0 0 auto;font-family:inherit;}
+  .le-del:active{transform:scale(.94);}
+  .le-add{display:flex;align-items:center;gap:8px;margin-top:10px;background:none;border:none;color:var(--accent);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;padding:2px 0;}
+  .le-add .plus{width:26px;height:26px;border-radius:8px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .le-empty{font-size:12.5px;color:var(--txt-faint);margin-top:8px;}
+  /* --- règles en séance --- */
+  .rule-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line);}
+  .rule-row:first-child{border-top:none;}
+  .rule-txt{flex:1;font-size:14.5px;}
+  .rule-btns{display:flex;gap:6px;flex:0 0 auto;}
+  .rbtn{width:40px;height:36px;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;font-size:16px;cursor:pointer;color:var(--txt-dim);}
+  .rbtn.ok-on{background:var(--green-dim);border-color:var(--green);color:var(--green);}
+  .rbtn.no-on{background:var(--red-dim);border-color:var(--red);color:var(--red);}
+  /* --- check-list en séance --- */
+  .cl-row{display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;}
+  .cl-box{width:24px;height:24px;border-radius:7px;border:1.5px solid var(--line);background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:14px;color:transparent;flex:0 0 auto;}
+  .cl-row.on .cl-box{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .cl-txt{font-size:14.5px;color:var(--txt-dim);}
+  .cl-row.on .cl-txt{color:var(--txt);}
+  /* --- humeur --- */
+  .mood-row{display:flex;justify-content:space-between;gap:6px;}
+  .mbtn{flex:1;padding:10px 0;border:1px solid var(--line);background:var(--surface-2);border-radius:12px;font-size:24px;cursor:pointer;filter:grayscale(1);opacity:.55;transition:opacity .12s;}
+  .mbtn.on{filter:none;opacity:1;border-color:var(--accent);background:var(--accent-dim);}
+  /* --- tags en séance --- */
+  .tags-row{display:flex;flex-wrap:wrap;gap:8px;}
+  /* --- bandeau STOP perte journalière --- */
+  .stop-banner{display:none;margin-bottom:12px;background:var(--red-dim);border:1px solid var(--red);color:var(--red);border-radius:12px;padding:12px 14px;font-weight:800;font-size:14px;line-height:1.35;}
+  .stop-banner.show{display:block;}
+  /* --- stats discipline (vue compte) --- */
+  .mini-stat{font-size:13px;color:var(--txt-dim);margin-top:8px;}
+  .mini-stat b{color:var(--txt);font-weight:700;}
+
   textarea{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:15px;padding:12px;resize:vertical;min-height:64px;line-height:1.5;}
   textarea:focus{outline:none;border-color:var(--accent);}
   textarea::placeholder{color:var(--txt-faint);}
@@ -356,6 +391,17 @@
       </div>
     </div>
 
+    <div class="card hidden" id="cardAcctModules">
+      <h2>Discipline</h2>
+      <div id="mRulesWrap" class="hidden">
+        <div class="kpi wide"><div class="kl">Règles respectées</div><div class="kv" id="mRulesPct">—</div></div>
+        <div class="mini-stat" id="mMostBroken"></div>
+      </div>
+      <div id="mStreakWrap" class="hidden" style="margin-top:10px;">
+        <div class="kpi wide"><div class="kl">Streak discipline</div><div class="kv" id="mStreak">—</div></div>
+      </div>
+    </div>
+
     <div class="card">
       <h2>Calendrier du compte <span class="hint">consultable à tout moment</span></h2>
       <div id="aCal"></div>
@@ -369,6 +415,16 @@
 
   <!-- ========== LEVEL 2 : SESSION ========== -->
   <div id="screenSession" class="hidden">
+    <div class="card hidden" id="cardMoodBefore">
+      <h2>Humeur avant <span class="hint">comment tu te sens</span></h2>
+      <div class="mood-row" id="moodBeforeRow"></div>
+    </div>
+
+    <div class="card hidden" id="cardChecklist">
+      <h2>Check-list pré-séance <span class="hint">avant de trader</span></h2>
+      <div id="sessChecklist"></div>
+    </div>
+
     <div class="card" id="cardObjectives">
       <h2>Objectifs du jour <span class="hint">tu écris toi-même</span></h2>
       <textarea id="objText" placeholder="Ex : 3 trades max, 2,5 points chacun. Rester discipliné."></textarea>
@@ -388,9 +444,25 @@
       <div class="tap-hint" id="tapHint">Tape une case : vide → ✓ gagnant → ✗ perdant → vide</div>
     </div>
 
+    <div class="card hidden" id="cardRules">
+      <h2>Règles de trading <span class="hint">respectée ✓ / enfreinte ✗</span></h2>
+      <div id="sessRules"></div>
+    </div>
+
     <div class="card" id="cardResult">
       <h2>Résultat de séance <span class="hint">optionnel</span></h2>
+      <div class="stop-banner" id="stopBanner">🛑 Limite de perte du jour atteinte — tu arrêtes maintenant.</div>
       <div class="field"><label id="resultLabel">Résultat</label><input id="resultIn" type="text" inputmode="decimal" placeholder="0"></div>
+    </div>
+
+    <div class="card hidden" id="cardTags">
+      <h2>Tags émotionnels <span class="hint">sélection multiple</span></h2>
+      <div class="tags-row" id="sessTags"></div>
+    </div>
+
+    <div class="card hidden" id="cardMoodAfter">
+      <h2>Humeur après <span class="hint">en fin de séance</span></h2>
+      <div class="mood-row" id="moodAfterRow"></div>
     </div>
 
     <div class="card" id="cardNotes">
@@ -441,6 +513,31 @@
     </div>
     <div class="toggle-row" style="margin-top:12px;"><div><div class="tl">Journal de fin de séance</div><div class="td">Tes notes libres après la session.</div></div><div class="switch" data-key="showNotes"><i></i></div></div>
   </div>
+
+  <div class="set-group"><div class="set-label">Modules avancés <span style="font-size:11px;font-weight:500;color:var(--txt-faint);text-transform:none;letter-spacing:0;">tout est optionnel, éteint par défaut</span></div>
+    <div class="toggle-row"><div><div class="tl">Règles de trading</div><div class="td">Une liste de tes règles, notées respectée/enfreinte à chaque séance.</div></div><div class="switch" data-key="showRules"><i></i></div></div>
+    <div class="sub-setting hidden" id="rulesEditor">
+      <div class="set-label">Tes règles</div>
+      <div id="rulesList"></div>
+    </div>
+    <div class="toggle-row" style="margin-top:12px;"><div><div class="tl">Check-list pré-séance</div><div class="td">Des cases à cocher avant de trader.</div></div><div class="switch" data-key="showChecklist"><i></i></div></div>
+    <div class="sub-setting hidden" id="checklistEditor">
+      <div class="set-label">Tes items</div>
+      <div id="checklistList"></div>
+    </div>
+    <div class="toggle-row" style="margin-top:12px;"><div><div class="tl">Humeur</div><div class="td">Note ton humeur avant et après la séance (1–5).</div></div><div class="switch" data-key="showMood"><i></i></div></div>
+    <div class="toggle-row" style="margin-top:12px;"><div><div class="tl">Tags émotionnels</div><div class="td">Étiquette ta séance (discipliné, FOMO, revenge…).</div></div><div class="switch" data-key="showTags"><i></i></div></div>
+    <div class="sub-setting hidden" id="tagsEditor">
+      <div class="set-label">Tes tags</div>
+      <div id="tagsList"></div>
+    </div>
+    <div class="toggle-row" style="margin-top:12px;"><div><div class="tl">Streak de discipline</div><div class="td">Jours consécutifs où toutes les règles ET le quota sont respectés.</div></div><div class="switch" data-key="showStreak"><i></i></div></div>
+    <div class="sub-setting" id="lossLimitSetting">
+      <div class="set-label">Limite de perte du jour <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(vide = désactivé, dans l'unité du compte)</span></div>
+      <input class="set-input" id="lossLimitIn" type="text" inputmode="decimal" placeholder="Ex : 300">
+    </div>
+  </div>
+
   <div class="set-group"><div class="set-label">Zone de danger</div><button class="danger-btn" id="deleteAcctBtn">Supprimer ce compte</button></div>
   <button class="drawer-done" id="drawerDone">Terminé</button>
 </div>
@@ -515,7 +612,7 @@
   function todayKey(){ return ymd(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate()); }
   var MONTHS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
   var WD=["L","M","M","J","V","S","D"];
-  function newSession(){ return {objective:"", trades:[], result:"", notes:""}; }
+  function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[]}; }
 
   // navigation
   var view={level:"global", accId:null, editKey:null};
@@ -527,7 +624,13 @@
   function rowToAccount(r){
     return {id:r.id,name:r.name,type:r.type,maxTrades:r.max_trades,
       showObjectives:r.show_objectives,showTracker:r.show_tracker,trackWinLoss:r.track_win_loss,
-      showResult:r.show_result,showNotes:r.show_notes,resultUnit:r.result_unit,position:r.position,sessions:{}};
+      showResult:r.show_result,showNotes:r.show_notes,resultUnit:r.result_unit,position:r.position,
+      showRules:!!r.show_rules, rules:Array.isArray(r.rules)?r.rules:[],
+      showChecklist:!!r.show_checklist, checklistItems:Array.isArray(r.checklist_items)?r.checklist_items:[],
+      showMood:!!r.show_mood, showTags:!!r.show_tags, tagsOptions:Array.isArray(r.tags_options)?r.tags_options:[],
+      dailyLossLimit:(r.daily_loss_limit===null||r.daily_loss_limit===undefined)?"":String(r.daily_loss_limit),
+      showStreak:!!r.show_streak,
+      sessions:{}};
   }
   async function loadAll(){
     var sr = await db.from('user_settings').select('*').eq('user_id',currentUser.id).maybeSingle();
@@ -541,7 +644,9 @@
     var qr = await db.from('sessions').select('*');
     (qr.data||[]).forEach(function(s){
       var a=accounts.find(function(x){return x.id===s.account_id;});
-      if(a){ a.sessions[s.date]={objective:s.objective||"",result:s.result||"",notes:s.notes||"",trades:Array.isArray(s.trades)?s.trades:[]}; }
+      if(a){ a.sessions[s.date]={objective:s.objective||"",result:s.result||"",notes:s.notes||"",trades:Array.isArray(s.trades)?s.trades:[],
+        rules:Array.isArray(s.rules)?s.rules:[], checklist:Array.isArray(s.checklist)?s.checklist:[],
+        moodBefore:s.mood_before||0, moodAfter:s.mood_after||0, tags:Array.isArray(s.tags)?s.tags:[]}; }
     });
   }
   function saveSettings(patch){
@@ -550,9 +655,15 @@
   }
   function saveAccount(a){
     if(!a) return;
+    var dll=parseFloat(String(a.dailyLossLimit).replace(",","."));
     db.from('accounts').update({name:a.name,type:a.type,max_trades:a.maxTrades,
       show_objectives:a.showObjectives,show_tracker:a.showTracker,track_win_loss:a.trackWinLoss,
-      show_result:a.showResult,show_notes:a.showNotes,result_unit:a.resultUnit}).eq('id',a.id)
+      show_result:a.showResult,show_notes:a.showNotes,result_unit:a.resultUnit,
+      show_rules:a.showRules, rules:a.rules,
+      show_checklist:a.showChecklist, checklist_items:a.checklistItems,
+      show_mood:a.showMood, show_tags:a.showTags, tags_options:a.tagsOptions,
+      daily_loss_limit:(a.dailyLossLimit===""||isNaN(dll))?null:dll,
+      show_streak:a.showStreak}).eq('id',a.id)
       .then(function(){},function(e){console.warn('account',e);});
   }
   async function persistSession(a,key){
@@ -563,7 +674,9 @@
       if(s) delete a.sessions[key];
     } else {
       await db.from('sessions').upsert({user_id:currentUser.id,account_id:a.id,date:key,
-        objective:s.objective,result:s.result,notes:s.notes,trades:s.trades},{onConflict:'account_id,date'});
+        objective:s.objective,result:s.result,notes:s.notes,trades:s.trades,
+        rules:s.rules||[], checklist:s.checklist||[],
+        mood_before:s.moodBefore||null, mood_after:s.moodAfter||null, tags:s.tags||[]},{onConflict:'account_id,date'});
     }
   }
 
@@ -646,7 +759,15 @@
   function fmtVal(n,a){ var u=unitOf(a); var s=(n>0?"+":n<0?"−":"")+Math.abs(n); return u.suffix? s+u.sym : u.sym+s; }
   function sessionNet(s){ if(!s) return 0; var v=parseFloat((s.result||"").replace(",",".")); return isNaN(v)?0:v; }
   function hasResult(s){ return s && s.result!=="" && !isNaN(parseFloat((s.result||"").replace(",","."))); }
-  function isEmptySession(s){ return s && !s.objective && !s.result && !s.notes && (s.trades||[]).every(function(t){return !t||t==="empty";}); }
+  function isEmptySession(s){
+    if(!s) return false;
+    var tradesEmpty=(s.trades||[]).every(function(t){return !t||t==="empty";});
+    var rulesTouched=(s.rules||[]).some(function(r){return r&&(r.ok===true||r.ok===false);});
+    var checkTouched=(s.checklist||[]).some(function(c){return c&&c.checked;});
+    var tagsTouched=((s.tags||[]).length>0);
+    var moodTouched=!!(s.moodBefore||s.moodAfter);
+    return !s.objective && !s.result && !s.notes && tradesEmpty && !rulesTouched && !checkTouched && !tagsTouched && !moodTouched;
+  }
   function statsForTrades(tr){ var t=0,w=0,l=0; (tr||[]).forEach(function(s){ if(s&&s!=="empty")t++; if(s==="win")w++; if(s==="loss")l++; }); return {taken:t,win:w,loss:l}; }
   function accStats(a){
     var net=0,pos=0,neg=0,best=0,has=false,sessions=0;
@@ -716,8 +837,45 @@
   }
 
   // ---------- ACCOUNT OVERVIEW ----------
+  function ruleStats(a){
+    var respected=0, broken=0, brokenBy={};
+    Object.keys(a.sessions).forEach(function(k){
+      (a.sessions[k].rules||[]).forEach(function(r){
+        if(r&&r.ok===true) respected++;
+        else if(r&&r.ok===false){ broken++; brokenBy[r.rule]=(brokenBy[r.rule]||0)+1; }
+      });
+    });
+    var total=respected+broken, most=null, mostN=0;
+    Object.keys(brokenBy).forEach(function(rl){ if(brokenBy[rl]>mostN){mostN=brokenBy[rl];most=rl;} });
+    return {total:total, pct: total? Math.round(respected/total*100):null, most:most, mostN:mostN};
+  }
+  function disciplineStreak(a){
+    var keys=Object.keys(a.sessions).sort().reverse(), streak=0;
+    for(var i=0;i<keys.length;i++){
+      var s=a.sessions[keys[i]];
+      var judged=(s.rules||[]).filter(function(r){return r&&(r.ok===true||r.ok===false);});
+      var allOk = judged.length>0 && judged.every(function(r){return r.ok===true;});
+      var quotaOk = (!a.showTracker) ? true : (statsForTrades(s.trades).taken<=a.maxTrades);
+      if(allOk && quotaOk) streak++; else break;
+    }
+    return streak;
+  }
+  function renderDisciplineCard(a){
+    var showR=!!a.showRules, showS=!!a.showStreak;
+    el("cardAcctModules").classList.toggle("hidden", !(showR||showS));
+    el("mRulesWrap").classList.toggle("hidden", !showR);
+    el("mStreakWrap").classList.toggle("hidden", !showS);
+    if(showR){
+      var rs=ruleStats(a);
+      el("mRulesPct").textContent = rs.pct===null ? "—" : rs.pct+"%";
+      if(rs.most){ el("mMostBroken").innerHTML='Règle la plus enfreinte : <b></b>'; el("mMostBroken").querySelector("b").textContent=rs.most+" ("+rs.mostN+"×)"; }
+      else { el("mMostBroken").textContent = rs.total? "Aucune règle enfreinte 👏" : "Pas encore de données."; }
+    }
+    if(showS){ var st=disciplineStreak(a); el("mStreak").textContent = st + (st>1?" jours":" jour"); }
+  }
   function renderAccount(){
     var a=acc(); if(!a) return;
+    renderDisciplineCard(a);
     var st=accStats(a);
     var net=el("aNet"); net.textContent=fmtVal(st.net,a); net.className="kv "+(st.net>0?"pos":st.net<0?"neg":"");
     el("aSessions").textContent=st.sessions;
@@ -769,12 +927,96 @@
     el("cardTracker").classList.toggle("hidden",!a.showTracker);
     el("cardResult").classList.toggle("hidden",!a.showResult);
     el("cardNotes").classList.toggle("hidden",!a.showNotes);
+    el("cardMoodBefore").classList.toggle("hidden",!a.showMood);
+    el("cardMoodAfter").classList.toggle("hidden",!a.showMood);
+    el("cardChecklist").classList.toggle("hidden",!a.showChecklist);
+    el("cardRules").classList.toggle("hidden",!a.showRules);
+    el("cardTags").classList.toggle("hidden",!a.showTags);
+  }
+
+  // ---------- modules avancés : séance ----------
+  var MOOD_EMOJI=["😞","😕","😐","🙂","😄"];
+  function refreshSaveBtn(){ var s=curSession(); if(!s) return; var b=el("bottomBtn"); b.classList.remove("done"); b.textContent=isEmptySession(s)?"Valider la séance":"Enregistrer"; }
+  // snapshot : on fige les règles/items dans la séance à la 1re ouverture, pour que l'historique reste juste
+  function seedRuleSnapshot(a,s){
+    if(!a.showRules) return;
+    if(!s.rules || s.rules.length===0){
+      s.rules=(a.rules||[]).map(function(r){return String(r||"").trim();}).filter(Boolean).map(function(r){return {rule:r,ok:null};});
+    }
+  }
+  function seedChecklistSnapshot(a,s){
+    if(!a.showChecklist) return;
+    if(!s.checklist || s.checklist.length===0){
+      s.checklist=(a.checklistItems||[]).map(function(i){return String(i||"").trim();}).filter(Boolean).map(function(i){return {item:i,checked:false};});
+    }
+  }
+  function renderSessRules(){
+    var s=curSession(); if(!s) return;
+    var box=el("sessRules"); box.innerHTML="";
+    if(!s.rules || s.rules.length===0){ box.innerHTML='<div class="le-empty">Aucune règle définie. Ajoute-les dans les Paramètres du compte.</div>'; return; }
+    s.rules.forEach(function(r,idx){
+      var row=document.createElement("div"); row.className="rule-row";
+      var t=document.createElement("div"); t.className="rule-txt"; t.textContent=r.rule;
+      var btns=document.createElement("div"); btns.className="rule-btns";
+      var ok=document.createElement("button"); ok.type="button"; ok.className="rbtn"+(r.ok===true?" ok-on":""); ok.textContent="✓";
+      var no=document.createElement("button"); no.type="button"; no.className="rbtn"+(r.ok===false?" no-on":""); no.textContent="✗";
+      ok.onclick=function(){ s.rules[idx].ok=(s.rules[idx].ok===true?null:true); renderSessRules(); refreshSaveBtn(); };
+      no.onclick=function(){ s.rules[idx].ok=(s.rules[idx].ok===false?null:false); renderSessRules(); refreshSaveBtn(); };
+      btns.appendChild(ok); btns.appendChild(no); row.appendChild(t); row.appendChild(btns); box.appendChild(row);
+    });
+  }
+  function renderSessChecklist(){
+    var s=curSession(); if(!s) return;
+    var box=el("sessChecklist"); box.innerHTML="";
+    if(!s.checklist || s.checklist.length===0){ box.innerHTML='<div class="le-empty">Aucun item. Ajoute-les dans les Paramètres du compte.</div>'; return; }
+    s.checklist.forEach(function(c,idx){
+      var row=document.createElement("div"); row.className="cl-row"+(c.checked?" on":"");
+      var bx=document.createElement("div"); bx.className="cl-box"; bx.textContent="✓";
+      var tx=document.createElement("div"); tx.className="cl-txt"; tx.textContent=c.item;
+      row.appendChild(bx); row.appendChild(tx);
+      row.onclick=function(){ s.checklist[idx].checked=!s.checklist[idx].checked; renderSessChecklist(); refreshSaveBtn(); };
+      box.appendChild(row);
+    });
+  }
+  function renderMood(rowId,field){
+    var s=curSession(); if(!s) return;
+    var row=el(rowId); row.innerHTML="";
+    for(var i=1;i<=5;i++){(function(n){
+      var b=document.createElement("button"); b.type="button"; b.className="mbtn"+(s[field]===n?" on":""); b.textContent=MOOD_EMOJI[n-1];
+      b.onclick=function(){ s[field]=(s[field]===n?0:n); renderMood(rowId,field); refreshSaveBtn(); };
+      row.appendChild(b);
+    })(i);}
+  }
+  function renderSessTags(){
+    var a=acc(), s=curSession(); if(!a||!s) return;
+    var box=el("sessTags"); box.innerHTML="";
+    var opts=(a.tagsOptions||[]).map(function(t){return String(t||"").trim();}).filter(Boolean);
+    if(opts.length===0){ box.innerHTML='<div class="le-empty">Aucun tag. Ajoute-les dans les Paramètres du compte.</div>'; return; }
+    if(!Array.isArray(s.tags)) s.tags=[];
+    opts.forEach(function(t){
+      var on=s.tags.indexOf(t)>=0;
+      var b=document.createElement("button"); b.type="button"; b.className="chip"+(on?" sel":""); b.textContent=t;
+      b.onclick=function(){ var i=s.tags.indexOf(t); if(i>=0)s.tags.splice(i,1); else s.tags.push(t); renderSessTags(); refreshSaveBtn(); };
+      box.appendChild(b);
+    });
+  }
+  function updateStopBanner(){
+    var a=acc(), s=curSession(); if(!a||!s) return;
+    var lim=parseFloat(String(a.dailyLossLimit).replace(",","."));
+    var show = a.showResult && a.dailyLossLimit!=="" && !isNaN(lim) && lim>0 && hasResult(s) && (sessionNet(s) <= -lim);
+    el("stopBanner").classList.toggle("show", !!show);
   }
   function renderSession(){
     var a=acc(); var s=curSession(); if(!a||!s) return;
     el("objText").value=s.objective; el("resultIn").value=s.result; el("notesText").value=s.notes;
     el("resultLabel").textContent="Résultat ("+unitOf(a).label+")";
     applyBricks(); renderGrid();
+    seedRuleSnapshot(a,s); seedChecklistSnapshot(a,s);
+    if(a.showRules) renderSessRules();
+    if(a.showChecklist) renderSessChecklist();
+    if(a.showMood){ renderMood("moodBeforeRow","moodBefore"); renderMood("moodAfterRow","moodAfter"); }
+    if(a.showTags) renderSessTags();
+    updateStopBanner();
     var b=el("bottomBtn"); b.classList.remove("done");
     b.textContent = isEmptySession(s) ? "Valider la séance" : "Enregistrer";
   }
@@ -880,7 +1122,7 @@
 
   // session field bindings
   el("objText").addEventListener("input",function(){ var s=curSession(); if(s)s.objective=this.value; });
-  el("resultIn").addEventListener("input",function(){ var s=curSession(); if(s)s.result=this.value; });
+  el("resultIn").addEventListener("input",function(){ var s=curSession(); if(s){s.result=this.value; updateStopBanner(); refreshSaveBtn();} });
   el("notesText").addEventListener("input",function(){ var s=curSession(); if(s)s.notes=this.value; });
 
   var toastT;
@@ -897,17 +1139,50 @@
     document.querySelectorAll("#drawer .switch").forEach(function(sw){ sw.classList.toggle("on", !!a[sw.dataset.key]); });
     document.querySelectorAll("#unitSeg button").forEach(function(b){ b.classList.toggle("sel", b.dataset.unit===a.resultUnit); });
     el("unitSetting").classList.toggle("hidden", !a.showResult);
+    // modules avancés
+    el("rulesEditor").classList.toggle("hidden", !a.showRules);
+    el("checklistEditor").classList.toggle("hidden", !a.showChecklist);
+    el("tagsEditor").classList.toggle("hidden", !a.showTags);
+    el("lossLimitIn").value = a.dailyLossLimit || "";
+    renderListEditor(el("rulesList"),"rules","Ex : Pas de trade avant 15h30","Ajouter une règle");
+    renderListEditor(el("checklistList"),"checklistItems","Ex : Plan du jour écrit","Ajouter un item");
+    renderListEditor(el("tagsList"),"tagsOptions","Ex : discipliné","Ajouter un tag");
     el("overlay").classList.add("open"); el("drawer").classList.add("open");
+  }
+  // éditeur générique de liste de textes (règles / items / tags), stocké sur acc()[field]
+  function renderListEditor(container,field,placeholder,addLabel){
+    var a=acc(); if(!a) return;
+    if(!Array.isArray(a[field])) a[field]=[];
+    container.innerHTML="";
+    a[field].forEach(function(val,idx){
+      var row=document.createElement("div"); row.className="le-row";
+      var inp=document.createElement("input"); inp.className="set-input le-input"; inp.type="text"; inp.value=val; inp.placeholder=placeholder;
+      inp.addEventListener("input",function(){ a[field][idx]=this.value; });
+      inp.addEventListener("change",function(){ a[field][idx]=this.value; saveAccount(a); });
+      var del=document.createElement("button"); del.type="button"; del.className="le-del"; del.textContent="✕";
+      del.addEventListener("click",function(){ a[field].splice(idx,1); saveAccount(a); renderListEditor(container,field,placeholder,addLabel); });
+      row.appendChild(inp); row.appendChild(del); container.appendChild(row);
+    });
+    var add=document.createElement("button"); add.type="button"; add.className="le-add"; add.innerHTML='<span class="plus">+</span> '+addLabel;
+    add.addEventListener("click",function(){ a[field].push(""); renderListEditor(container,field,placeholder,addLabel); var ins=container.querySelectorAll(".le-input"); var last=ins[ins.length-1]; if(last) last.focus(); });
+    container.appendChild(add);
   }
   function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",closeDrawer);
-  el("drawerDone").addEventListener("click",function(){ closeDrawer(); render(); });
+  el("drawerDone").addEventListener("click",function(){ var a=acc(); if(a){ ["rules","checklistItems","tagsOptions"].forEach(function(f){ a[f]=(a[f]||[]).map(function(x){return String(x||"").trim();}).filter(Boolean); }); saveAccount(a); } closeDrawer(); render(); });
   el("setName").addEventListener("input",function(){ acc().name=this.value; });
   el("setName").addEventListener("change",function(){ saveAccount(acc()); });
   document.querySelectorAll("#setType button").forEach(function(b){ b.addEventListener("click",function(){ acc().type=b.dataset.type; document.querySelectorAll("#setType button").forEach(function(x){x.classList.remove("sel");}); b.classList.add("sel"); saveAccount(acc()); }); });
   el("stepUp").addEventListener("click",function(){ var a=acc(); if(a.maxTrades<100){a.maxTrades++;el("stepVal").textContent=a.maxTrades; saveAccount(a);} });
   el("stepDown").addEventListener("click",function(){ var a=acc(); if(a.maxTrades>1){a.maxTrades--;el("stepVal").textContent=a.maxTrades; saveAccount(a);} });
-  document.querySelectorAll("#drawer .switch").forEach(function(sw){ sw.addEventListener("click",function(){ var a=acc(),k=sw.dataset.key; a[k]=!a[k]; sw.classList.toggle("on",a[k]); if(k==="showResult") el("unitSetting").classList.toggle("hidden",!a.showResult); saveAccount(a); }); });
+  document.querySelectorAll("#drawer .switch").forEach(function(sw){ sw.addEventListener("click",function(){ var a=acc(),k=sw.dataset.key; a[k]=!a[k]; sw.classList.toggle("on",a[k]);
+    if(k==="showResult") el("unitSetting").classList.toggle("hidden",!a.showResult);
+    if(k==="showRules") el("rulesEditor").classList.toggle("hidden",!a.showRules);
+    if(k==="showChecklist") el("checklistEditor").classList.toggle("hidden",!a.showChecklist);
+    if(k==="showTags") el("tagsEditor").classList.toggle("hidden",!a.showTags);
+    saveAccount(a); }); });
+  el("lossLimitIn").addEventListener("input",function(){ var a=acc(); if(a)a.dailyLossLimit=this.value; });
+  el("lossLimitIn").addEventListener("change",function(){ saveAccount(acc()); });
   document.querySelectorAll("#unitSeg button").forEach(function(b){ b.addEventListener("click",function(){ acc().resultUnit=b.dataset.unit; document.querySelectorAll("#unitSeg button").forEach(function(x){x.classList.remove("sel");}); b.classList.add("sel"); saveAccount(acc()); }); });
 
   // app settings drawer
