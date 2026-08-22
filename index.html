@@ -41,6 +41,18 @@
   .card h2{margin:0 0 12px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-dim);font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .card h2 .hint{font-size:11px;color:var(--txt-faint);text-transform:none;letter-spacing:0;font-weight:500;text-align:right;}
 
+  /* écran Calendrier économique */
+  .nav-tile{display:flex;align-items:center;gap:14px;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-top:12px;color:var(--txt);cursor:pointer;text-align:left;font-family:inherit;}
+  .nav-tile:active{transform:scale(.99);}
+  .nav-tile .nt-ic{width:44px;height:44px;border-radius:12px;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 auto;}
+  .nav-tile .nt-t{font-size:15.5px;font-weight:800;}
+  .nav-tile .nt-s{font-size:12.5px;color:var(--txt-dim);margin-top:1px;}
+  .nav-tile .nt-arr{margin-left:auto;color:var(--txt-faint);font-size:22px;}
+  .econ-offline{font-size:13px;color:var(--txt-dim);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .econ-wrap{position:relative;height:72vh;min-height:460px;width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface-2);}
+  .tradingview-widget-copyright{font-size:11px;line-height:32px;text-align:center;color:var(--txt-faint);}
+  .tradingview-widget-copyright a{color:var(--txt-dim);text-decoration:none;}
+
   textarea{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:15px;padding:12px;resize:vertical;min-height:64px;line-height:1.5;}
   textarea:focus{outline:none;border-color:var(--accent);}
   textarea::placeholder{color:var(--txt-faint);}
@@ -288,6 +300,15 @@
       </div>
     </div>
 
+    <button class="nav-tile" id="econBtn" type="button">
+      <span class="nt-ic">📅</span>
+      <span>
+        <span class="nt-t">Calendrier économique</span>
+        <span class="nt-s">Événements macro US · EU · FR · UK · JP</span>
+      </span>
+      <span class="nt-arr">›</span>
+    </button>
+
     <div class="card">
       <h2>Mes comptes <span class="hint">touche un compte pour l'ouvrir</span></h2>
       <div id="acctList"></div>
@@ -296,6 +317,15 @@
     <div class="card">
       <h2>Calendrier cumulé <span class="hint">tous comptes additionnés</span></h2>
       <div id="gCal"></div>
+    </div>
+  </div>
+
+  <!-- ========== CALENDRIER ÉCONOMIQUE (widget TradingView) ========== -->
+  <div id="screenCalendar" class="hidden">
+    <div class="card">
+      <h2>Calendrier économique <span class="hint">source : TradingView</span></h2>
+      <div id="econOffline" class="econ-offline hidden">Le calendrier n'a pas pu se charger. Vérifie ta connexion internet, puis reviens sur cet écran.</div>
+      <div id="econWidgetWrap" class="econ-wrap"></div>
     </div>
   </div>
 
@@ -741,12 +771,13 @@
   // ---------- navigation / master render ----------
   function render(){
     el("screenGlobal").classList.toggle("hidden", view.level!=="global");
+    el("screenCalendar").classList.toggle("hidden", view.level!=="calendar");
     el("screenAccount").classList.toggle("hidden", view.level!=="account");
     el("screenSession").classList.toggle("hidden", view.level!=="session");
     el("backBtn").classList.toggle("hidden", view.level==="global");
 
     var bar=el("bottomBar"), btn=el("bottomBtn");
-    if(view.level==="global"){ bar.classList.add("hidden"); }
+    if(view.level==="global"||view.level==="calendar"){ bar.classList.add("hidden"); }
     else if(view.level==="account"){ bar.classList.remove("hidden"); btn.textContent="Nouvelle séance"; btn.classList.remove("done"); }
     else { bar.classList.remove("hidden"); }
 
@@ -754,6 +785,9 @@
       el("screenTitle").innerHTML="Vue d'ensemble";
       el("screenSub").textContent=frDate();
       renderGlobal();
+    } else if(view.level==="calendar"){
+      el("screenTitle").innerHTML="Calendrier économique";
+      el("screenSub").textContent="Événements macro à venir";
     } else if(view.level==="account"){
       var a=acc();
       el("screenTitle").innerHTML=(a?a.name:"")+' <span class="badge">'+(a?a.type:"")+'</span>';
@@ -768,7 +802,7 @@
     }
   }
   function animate(dir){
-    var id=view.level==="global"?"screenGlobal":view.level==="account"?"screenAccount":"screenSession";
+    var id=view.level==="global"?"screenGlobal":view.level==="calendar"?"screenCalendar":view.level==="account"?"screenAccount":"screenSession";
     var e=el(id); e.classList.remove("anim-r","anim-l"); void e.offsetWidth; e.classList.add(dir==="back"?"anim-l":"anim-r");
     window.scrollTo(0,0);
   }
@@ -780,8 +814,31 @@
   // back button
   el("backBtn").addEventListener("click",function(){
     if(view.level==="session"){ var a=acc(),k=view.editKey,s=a?a.sessions[k]:null; if(s&&isEmptySession(s)) delete a.sessions[k]; persistSession(a,k); navigate("account","back"); }
+    else if(view.level==="calendar") navigate("global","back");
     else if(view.level==="account") navigate("global","back");
   });
+
+  // ---------- Calendrier économique (widget TradingView, chargé depuis le réseau) ----------
+  el("econBtn").addEventListener("click",function(){ navigate("calendar","forward"); loadEconWidget(); });
+  function loadEconWidget(){
+    var wrap=el("econWidgetWrap"), off=el("econOffline");
+    off.classList.add("hidden");
+    // on reconstruit le conteneur à chaque ouverture (évite les iframes en double)
+    wrap.innerHTML='<div class="tradingview-widget-container" style="height:100%;width:100%">'
+      +'<div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>'
+      +'<div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span>Track all markets on TradingView</span></a></div>'
+      +'</div>';
+    if(!navigator.onLine){ off.classList.remove("hidden"); return; }
+    var s=document.createElement("script");
+    s.type="text/javascript";
+    s.src="https://s3.tradingview.com/external-embedding/embed-widget-events.js";
+    s.async=true;
+    s.onerror=function(){ off.classList.remove("hidden"); };
+    s.text=JSON.stringify({colorTheme:"dark",isTransparent:true,locale:"fr",countryFilter:"us,eu,fr,gb,jp",importanceFilter:"0,1",width:"100%",height:"100%"});
+    wrap.querySelector(".tradingview-widget-container").appendChild(s);
+    // filet de sécurité : si aucun iframe n'apparaît (réseau lent/bloqué), on affiche le message discret
+    setTimeout(function(){ if(view.level==="calendar" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
+  }
 
   // bottom button
   el("bottomBtn").addEventListener("click",function(){
