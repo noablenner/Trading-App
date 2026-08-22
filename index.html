@@ -52,6 +52,13 @@
   .econ-wrap{position:relative;height:72vh;min-height:460px;width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface-2);}
   .tradingview-widget-copyright{font-size:11px;line-height:32px;text-align:center;color:var(--txt-faint);}
   .tradingview-widget-copyright a{color:var(--txt-dim);text-decoration:none;}
+  .econ-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .econ-flabel{font-size:12px;color:var(--txt-dim);font-weight:600;}
+  .chip{border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;font-size:13px;font-weight:700;padding:7px 13px;border-radius:20px;cursor:pointer;}
+  .chip.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
+  .econ-wrap-light{background:#fff;}
+  .poweredBy{margin-top:8px;font-size:11px;color:var(--txt-faint);}
+  .poweredBy a{color:var(--accent);font-weight:700;text-decoration:none;}
 
   textarea{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:15px;padding:12px;resize:vertical;min-height:64px;line-height:1.5;}
   textarea:focus{outline:none;border-color:var(--accent);}
@@ -320,12 +327,25 @@
     </div>
   </div>
 
-  <!-- ========== CALENDRIER ÉCONOMIQUE (widget TradingView) ========== -->
+  <!-- ========== CALENDRIER ÉCONOMIQUE ========== -->
   <div id="screenCalendar" class="hidden">
     <div class="card">
-      <h2>Calendrier économique <span class="hint">source : TradingView</span></h2>
+      <h2>TradingView <span class="hint">calendrier économique</span></h2>
+      <div class="econ-filters" id="econFilters">
+        <span class="econ-flabel">Impact :</span>
+        <button type="button" class="chip" data-imp="-1,0,1">Tous</button>
+        <button type="button" class="chip" data-imp="0,1">Moyen +</button>
+        <button type="button" class="chip" data-imp="1">Élevé</button>
+      </div>
       <div id="econOffline" class="econ-offline hidden">Le calendrier n'a pas pu se charger. Vérifie ta connexion internet, puis reviens sur cet écran.</div>
       <div id="econWidgetWrap" class="econ-wrap"></div>
+    </div>
+
+    <div class="card">
+      <h2>Investing.com <span class="hint">comparaison · fond clair</span></h2>
+      <div id="invOffline" class="econ-offline hidden">Le calendrier Investing.com n'a pas pu se charger (hors-ligne ou bloqué par le réseau).</div>
+      <div id="invWidgetWrap" class="econ-wrap econ-wrap-light"></div>
+      <div class="poweredBy">Calendrier économique en temps réel fourni par <a href="https://fr.investing.com/" rel="nofollow noopener" target="_blank">Investing.com France</a></div>
     </div>
   </div>
 
@@ -775,6 +795,7 @@
     el("screenAccount").classList.toggle("hidden", view.level!=="account");
     el("screenSession").classList.toggle("hidden", view.level!=="session");
     el("backBtn").classList.toggle("hidden", view.level==="global");
+    el("gearBtn").classList.toggle("hidden", view.level==="calendar");
 
     var bar=el("bottomBar"), btn=el("bottomBtn");
     if(view.level==="global"||view.level==="calendar"){ bar.classList.add("hidden"); }
@@ -818,12 +839,28 @@
     else if(view.level==="account") navigate("global","back");
   });
 
-  // ---------- Calendrier économique (widget TradingView, chargé depuis le réseau) ----------
+  // ---------- Calendrier économique (widgets chargés depuis le réseau, jamais mis en cache) ----------
+  var econImp = localStorage.getItem('econImp') || '0,1';   // filtre d'importance TradingView
+
   el("econBtn").addEventListener("click",function(){ navigate("calendar","forward"); loadEconWidget(); });
-  function loadEconWidget(){
+
+  // filtres d'impact -> reconstruit uniquement le widget TradingView
+  el("econFilters").addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b) return;
+    econImp=b.getAttribute("data-imp"); localStorage.setItem('econImp',econImp);
+    markEconChips(); buildTV();
+  });
+  function markEconChips(){
+    var chips=el("econFilters").querySelectorAll(".chip");
+    for(var i=0;i<chips.length;i++){ chips[i].classList.toggle("sel", chips[i].getAttribute("data-imp")===econImp); }
+  }
+
+  function loadEconWidget(){ markEconChips(); buildTV(); buildInvesting(); }
+
+  function buildTV(){
     var wrap=el("econWidgetWrap"), off=el("econOffline");
     off.classList.add("hidden");
-    // on reconstruit le conteneur à chaque ouverture (évite les iframes en double)
+    // on reconstruit le conteneur à chaque fois (évite les iframes en double)
     wrap.innerHTML='<div class="tradingview-widget-container" style="height:100%;width:100%">'
       +'<div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>'
       +'<div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span>Track all markets on TradingView</span></a></div>'
@@ -834,9 +871,21 @@
     s.src="https://s3.tradingview.com/external-embedding/embed-widget-events.js";
     s.async=true;
     s.onerror=function(){ off.classList.remove("hidden"); };
-    s.text=JSON.stringify({colorTheme:"dark",isTransparent:true,locale:"fr",countryFilter:"us,eu,fr,gb,jp",importanceFilter:"0,1",width:"100%",height:"100%"});
+    s.text=JSON.stringify({colorTheme:"dark",isTransparent:true,locale:"fr",countryFilter:"us,eu,fr,gb,jp",importanceFilter:econImp,width:"100%",height:"100%"});
     wrap.querySelector(".tradingview-widget-container").appendChild(s);
-    // filet de sécurité : si aucun iframe n'apparaît (réseau lent/bloqué), on affiche le message discret
+    setTimeout(function(){ if(view.level==="calendar" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
+  }
+
+  function buildInvesting(){
+    var wrap=el("invWidgetWrap"), off=el("invOffline");
+    off.classList.add("hidden"); wrap.innerHTML='';
+    if(!navigator.onLine){ off.classList.remove("hidden"); return; }
+    var f=document.createElement("iframe");
+    f.src="https://sslecal2.investing.com?columns=exc_flags,exc_currency,exc_importance,exc_actual,exc_forecast,exc_previous&features=datepicker,timezone&countries=5,72,4,22,17&calType=week&timeZone=58&lang=5";
+    f.style.cssText="width:100%;height:100%;border:0;display:block;";
+    f.setAttribute("allowtransparency","true");
+    f.onload=function(){ off.classList.add("hidden"); };
+    wrap.appendChild(f);
     setTimeout(function(){ if(view.level==="calendar" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
   }
 
