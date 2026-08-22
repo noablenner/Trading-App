@@ -82,6 +82,11 @@
   .cl-row.on .cl-box{background:var(--accent);border-color:var(--accent);color:#fff;}
   .cl-txt{font-size:14.5px;color:var(--txt-dim);}
   .cl-row.on .cl-txt{color:var(--txt);}
+  .cl-progress{height:10px;border-radius:20px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden;margin-bottom:8px;}
+  .cl-progress > i{display:block;height:100%;width:0;border-radius:20px;background:linear-gradient(90deg,#1f9d63,#22c98a);transition:width .4s cubic-bezier(.2,.8,.2,1);}
+  .cl-progress.done > i{background:linear-gradient(90deg,#22c98a,#3ee6a4);box-shadow:0 0 12px rgba(34,201,138,.55);}
+  .cl-status{font-size:12.5px;color:var(--txt-dim);font-weight:600;margin-bottom:12px;transition:color .2s;}
+  .cl-status.done{color:var(--green);font-weight:800;}
   /* --- humeur --- */
   .mood-row{display:flex;justify-content:space-between;gap:6px;}
   .mbtn{flex:1;padding:10px 0;border:1px solid var(--line);background:var(--surface-2);border-radius:12px;font-size:24px;cursor:pointer;filter:grayscale(1);opacity:.55;transition:opacity .12s;}
@@ -422,6 +427,8 @@
 
     <div class="card hidden" id="cardChecklist">
       <h2>Check-list pré-séance <span class="hint">avant de trader</span></h2>
+      <div class="cl-progress" id="clProgress"><i id="clBar"></i></div>
+      <div class="cl-status" id="clStatus"></div>
       <div id="sessChecklist"></div>
     </div>
 
@@ -965,10 +972,23 @@
       btns.appendChild(ok); btns.appendChild(no); row.appendChild(t); row.appendChild(btns); box.appendChild(row);
     });
   }
+  function updateChecklistProgress(){
+    var s=curSession(); if(!s) return;
+    var items=s.checklist||[], total=items.length;
+    var done=items.filter(function(c){return c&&c.checked;}).length;
+    var pct= total? Math.round(done/total*100):0;
+    el("clBar").style.width=pct+"%";
+    var complete = total>0 && done===total;
+    el("clProgress").classList.toggle("done", complete);
+    var st=el("clStatus");
+    if(total===0){ st.textContent=""; st.classList.remove("done"); return; }
+    if(complete){ st.textContent="✅ Check-list complète — prêt à trader !"; st.classList.add("done"); }
+    else { st.classList.remove("done"); st.textContent = done+" / "+total+" — "+(done===0?"coche pour te préparer 💪":"continue, tu y es presque 🔥"); }
+  }
   function renderSessChecklist(){
     var s=curSession(); if(!s) return;
     var box=el("sessChecklist"); box.innerHTML="";
-    if(!s.checklist || s.checklist.length===0){ box.innerHTML='<div class="le-empty">Aucun item. Ajoute-les dans les Paramètres du compte.</div>'; return; }
+    if(!s.checklist || s.checklist.length===0){ box.innerHTML='<div class="le-empty">Aucun item. Ajoute-les dans les Paramètres du compte.</div>'; updateChecklistProgress(); return; }
     s.checklist.forEach(function(c,idx){
       var row=document.createElement("div"); row.className="cl-row"+(c.checked?" on":"");
       var bx=document.createElement("div"); bx.className="cl-box"; bx.textContent="✓";
@@ -977,6 +997,7 @@
       row.onclick=function(){ s.checklist[idx].checked=!s.checklist[idx].checked; renderSessChecklist(); refreshSaveBtn(); };
       box.appendChild(row);
     });
+    updateChecklistProgress();
   }
   function renderMood(rowId,field){
     var s=curSession(); if(!s) return;
