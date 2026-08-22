@@ -110,6 +110,7 @@
   .an-txt b{color:var(--txt);font-weight:700;}
   .an-svg{margin-top:12px;}
   .an-empty{font-size:13px;color:var(--txt-faint);}
+  .an-group{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:22px 2px 2px;}
 
   textarea{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:15px;padding:12px;resize:vertical;min-height:64px;line-height:1.5;}
   textarea:focus{outline:none;border-color:var(--accent);}
@@ -358,22 +359,25 @@
       </div>
     </div>
 
+    <div class="card">
+      <h2>Mes comptes <span class="hint">touche un compte pour l'ouvrir</span></h2>
+      <div id="acctList"></div>
+    </div>
+
+    <button class="nav-tile" id="anGlobalBtn" type="button">
+      <span class="nt-ic">📊</span>
+      <span>
+        <span class="nt-t">Analyse</span>
+        <span class="nt-s">Discipline & psychologie · choisis tes comptes</span>
+      </span>
+      <span class="nt-arr">›</span>
+    </button>
+
     <button class="nav-tile" id="econBtn" type="button">
       <span class="nt-ic">📅</span>
       <span class="nt-t">Calendrier économique</span>
       <span class="nt-arr">›</span>
     </button>
-
-    <button class="nav-tile" id="anGlobalBtn" type="button">
-      <span class="nt-ic">📊</span>
-      <span class="nt-t">Analyse — tous comptes</span>
-      <span class="nt-arr">›</span>
-    </button>
-
-    <div class="card">
-      <h2>Mes comptes <span class="hint">touche un compte pour l'ouvrir</span></h2>
-      <div id="acctList"></div>
-    </div>
 
     <div class="card">
       <h2>Calendrier cumulé <span class="hint">tous comptes additionnés</span></h2>
@@ -410,7 +414,7 @@
       <span class="nt-arr">›</span>
     </button>
     <div class="card">
-      <h2>Vue d'ensemble du compte</h2>
+      <h2>Résultats <span class="hint">chiffré · performance</span></h2>
       <div class="kpis">
         <div class="kpi wide">
           <div class="kl">Résultat net</div>
@@ -424,7 +428,7 @@
     </div>
 
     <div class="card hidden" id="cardAcctModules">
-      <h2>Discipline</h2>
+      <h2>Rigueur &amp; discipline <span class="hint">psycho &amp; discipline</span></h2>
       <div id="mRulesWrap" class="hidden">
         <div class="kpi wide"><div class="kl">Règles respectées</div><div class="kv" id="mRulesPct">—</div></div>
         <div class="mini-stat" id="mMostBroken"></div>
@@ -595,6 +599,15 @@
   </div>
   <div class="set-group"><div class="set-label">Apparence — couleur de l'app</div><div class="sw-lg" id="appSwatches"></div></div>
   <button class="drawer-done" id="appDrawerDone">Terminé</button>
+</div>
+
+<!-- Analyse : sélecteur de comptes -->
+<div class="drawer" id="analysisPicker">
+  <div class="grab"></div>
+  <h3>Analyse comportementale</h3>
+  <div class="dsub">Discipline & psychologie — pas de statistiques de résultat pur. Choisis les comptes à analyser.</div>
+  <div class="set-group"><div id="anPickList"></div></div>
+  <button class="drawer-done" id="anPickGo">Analyser</button>
 </div>
 
 <!-- Confirm modal -->
@@ -1079,10 +1092,7 @@
     arr.forEach(function(s){ var v=sessionNet(s); sum+=v; if(v>0)w++; else if(v<0)l++; });
     return {n:n, avg:n?sum/n:0, win:w, loss:l, winRate:n?Math.round(w/n*100):0, lossRate:n?Math.round(l/n*100):0};
   }
-  function sessionsOf(scope){
-    if(scope.account) return Object.keys(scope.account.sessions).map(function(k){return scope.account.sessions[k];});
-    var all=[]; accounts.forEach(function(a){ Object.keys(a.sessions).forEach(function(k){ all.push(a.sessions[k]); }); }); return all;
-  }
+  function sessionsOf(scope){ return scope.sessions; }
   function anCard(h, num, tone, txtHtml, svg){
     var c=document.createElement("div"); c.className="an-card";
     var html='<div class="an-h">'+esc(h)+'</div>';
@@ -1117,9 +1127,9 @@
     var gA=anGrp(allOk), gB=anGrp(broke);
     if(gA.n<3 || gB.n<3) return anInsufficient("Respect des règles");
     var num, txt;
-    if(scope.account){
-      num=fmtVal(anRound(gA.avg),scope.account);
-      txt='Quand tu respectes <b>toutes tes règles</b> : <b>'+fmtVal(anRound(gA.avg),scope.account)+'</b> en moyenne ('+gA.winRate+'% gagnantes). Quand tu en casses au moins une : <b>'+fmtVal(anRound(gB.avg),scope.account)+'</b> ('+gB.winRate+'% gagnantes).';
+    if(scope.unit){
+      num=fmtVal(anRound(gA.avg),scope.unit);
+      txt='Quand tu respectes <b>toutes tes règles</b> : <b>'+fmtVal(anRound(gA.avg),scope.unit)+'</b> en moyenne ('+gA.winRate+'% gagnantes). Quand tu en casses au moins une : <b>'+fmtVal(anRound(gB.avg),scope.unit)+'</b> ('+gB.winRate+'% gagnantes).';
     } else {
       num=gA.winRate+'%';
       txt='Quand tu respectes <b>toutes tes règles</b> : <b>'+gA.winRate+'%</b> de séances gagnantes. Quand tu en casses au moins une : <b>'+gB.winRate+'%</b>.';
@@ -1137,8 +1147,8 @@
     var best=null;
     Object.keys(m).forEach(function(k){ var o=m[k]; if(o.n>=3){ var avg=o.sum/o.n; if(!best || avg<best.avg) best={rule:k,n:o.n,loss:o.loss,avg:avg,lossRate:Math.round(o.loss/o.n*100)}; } });
     if(!best) return null;
-    var num = scope.account? fmtVal(anRound(best.avg),scope.account) : best.lossRate+'%';
-    var txt='La règle qui te coûte le plus : <b>« '+esc(best.rule)+' »</b>. Quand tu l\'enfreins'+(scope.account?' : <b>'+fmtVal(anRound(best.avg),scope.account)+'</b> en moyenne, ':', ')+best.lossRate+'% de séances perdantes <b>('+best.n+' séances)</b>.';
+    var num = scope.unit? fmtVal(anRound(best.avg),scope.unit) : best.lossRate+'%';
+    var txt='La règle qui te coûte le plus : <b>« '+esc(best.rule)+' »</b>. Quand tu l\'enfreins'+(scope.unit?' : <b>'+fmtVal(anRound(best.avg),scope.unit)+'</b> en moyenne, ':', ')+best.lossRate+'% de séances perdantes <b>('+best.n+' séances)</b>.';
     return anCard('Ta règle la plus coûteuse', num, 'neg', txt, null);
   }
 
@@ -1152,7 +1162,7 @@
       var without=sessions.filter(function(s){return (s.tags||[]).indexOf(t)<0;});
       if(withT.length>=3 && without.length>=3){
         var gw=anGrp(withT), go=anGrp(without);
-        var mw=scope.account?gw.avg:gw.winRate, mo=scope.account?go.avg:go.winRate;
+        var mw=scope.unit?gw.avg:gw.winRate, mo=scope.unit?go.avg:go.winRate;
         res.push({tag:t,n:withT.length,delta:mw-mo,gw:gw,go:go});
       }
     });
@@ -1161,30 +1171,30 @@
     res=res.slice(0,3);
     var lines='', rows=[];
     res.forEach(function(r){
-      if(scope.account){
-        lines+='<div style="margin-top:8px;">Séances <b>« '+esc(r.tag)+' »</b> : <b>'+fmtVal(anRound(r.gw.avg),scope.account)+'</b> en moyenne, contre <b>'+fmtVal(anRound(r.go.avg),scope.account)+'</b> sans <b>('+r.n+' séances)</b>.</div>';
-        rows.push({label:'« '+r.tag+' »', value:r.gw.avg, disp:fmtVal(anRound(r.gw.avg),scope.account), tone:anTone(r.gw.avg)});
+      if(scope.unit){
+        lines+='<div style="margin-top:8px;">Séances <b>« '+esc(r.tag)+' »</b> : <b>'+fmtVal(anRound(r.gw.avg),scope.unit)+'</b> en moyenne, contre <b>'+fmtVal(anRound(r.go.avg),scope.unit)+'</b> sans <b>('+r.n+' séances)</b>.</div>';
+        rows.push({label:'« '+r.tag+' »', value:r.gw.avg, disp:fmtVal(anRound(r.gw.avg),scope.unit), tone:anTone(r.gw.avg)});
       } else {
         lines+='<div style="margin-top:8px;">Séances <b>« '+esc(r.tag)+' »</b> : <b>'+r.gw.winRate+'%</b> gagnantes, contre <b>'+r.go.winRate+'%</b> sans <b>('+r.n+' séances)</b>.</div>';
         rows.push({label:'« '+r.tag+' »', value:r.gw.winRate, disp:r.gw.winRate+'%', tone:r.gw.winRate>=r.go.winRate?'pos':'neg'});
       }
     });
     var top=res[0];
-    var num = scope.account? fmtVal(anRound(top.gw.avg),scope.account) : top.gw.winRate+'%';
-    return anCard('Impact de tes tags', num, anTone(top.delta), lines, svgCompare(rows, scope.account?{}:{max:100}));
+    var num = scope.unit? fmtVal(anRound(top.gw.avg),scope.unit) : top.gw.winRate+'%';
+    return anCard('Impact de tes tags', num, anTone(top.delta), lines, svgCompare(rows, scope.unit?{}:{max:100}));
   }
 
   function secMood(scope){
     var sessions=anWithResult(sessionsOf(scope)).filter(function(s){return s.moodBefore>0;});
     if(sessions.length<5) return anInsufficient("Impact de l'humeur");
     var rows=[];
-    function add(label,arr){ if(arr.length>=3){ var g=anGrp(arr); rows.push({label:label+' ('+arr.length+')', value:scope.account?g.avg:g.winRate, disp:scope.account?fmtVal(anRound(g.avg),scope.account):g.winRate+'%', tone:scope.account?anTone(g.avg):(g.winRate>=50?'pos':'neg')}); } }
+    function add(label,arr){ if(arr.length>=3){ var g=anGrp(arr); rows.push({label:label+' ('+arr.length+')', value:scope.unit?g.avg:g.winRate, disp:scope.unit?fmtVal(anRound(g.avg),scope.unit):g.winRate+'%', tone:scope.unit?anTone(g.avg):(g.winRate>=50?'pos':'neg')}); } }
     add('Humeur basse (1-2)', sessions.filter(function(s){return s.moodBefore<=2;}));
     add('Humeur moyenne (3)', sessions.filter(function(s){return s.moodBefore===3;}));
     add('Humeur haute (4-5)', sessions.filter(function(s){return s.moodBefore>=4;}));
     if(rows.length<2) return anInsufficient("Impact de l'humeur");
-    var txt='Ton résultat selon ton humeur <b>avant</b> la séance'+(scope.account?'':' (% gagnantes)')+' :';
-    return anCard("Impact de l'humeur", null, 'neutral', txt, svgCompare(rows, scope.account?{}:{max:100}));
+    var txt='Ton résultat selon ton humeur <b>avant</b> la séance'+(scope.unit?'':' (% gagnantes)')+' :';
+    return anCard("Impact de l'humeur", null, 'neutral', txt, svgCompare(rows, scope.unit?{}:{max:100}));
   }
 
   function secChecklist(scope){
@@ -1194,9 +1204,9 @@
     var incomplete=sessions.filter(function(s){return !s.checklist.every(function(c){return c&&c.checked;});});
     if(complete.length<3 || incomplete.length<3) return anInsufficient("Check-list");
     var gc=anGrp(complete), gi=anGrp(incomplete);
-    var num = scope.account? fmtVal(anRound(gc.avg),scope.account) : gc.winRate+'%';
-    var txt = scope.account
-      ? 'Check-list <b>complète</b> : <b>'+fmtVal(anRound(gc.avg),scope.account)+'</b> ('+gc.winRate+'% gagnantes). <b>Incomplète</b> : <b>'+fmtVal(anRound(gi.avg),scope.account)+'</b> ('+gi.winRate+'%).'
+    var num = scope.unit? fmtVal(anRound(gc.avg),scope.unit) : gc.winRate+'%';
+    var txt = scope.unit
+      ? 'Check-list <b>complète</b> : <b>'+fmtVal(anRound(gc.avg),scope.unit)+'</b> ('+gc.winRate+'% gagnantes). <b>Incomplète</b> : <b>'+fmtVal(anRound(gi.avg),scope.unit)+'</b> ('+gi.winRate+'%).'
       : 'Check-list <b>complète</b> : <b>'+gc.winRate+'%</b> gagnantes. <b>Incomplète</b> : <b>'+gi.winRate+'%</b>.';
     return anCard('Effet de la check-list', num, anTone(gc.avg-gi.avg), txt, svgCompare([
       {label:'Check-list complète', value:gc.winRate, disp:gc.winRate+'%', tone:'pos'},
@@ -1205,8 +1215,8 @@
   }
 
   function secDiscipline(scope){
-    if(!scope.account) return null;
-    var a=scope.account;
+    if(scope.accounts.length!==1) return null;
+    var a=scope.accounts[0];
     var judgedKeys=Object.keys(a.sessions).sort().filter(function(k){ return (a.sessions[k].rules||[]).some(function(r){return r&&(r.ok===true||r.ok===false);}); });
     if(judgedKeys.length<5) return anInsufficient("Discipline dans le temps");
     function rate(ks){ var resp=0,tot=0; ks.forEach(function(k){ (a.sessions[k].rules||[]).forEach(function(r){ if(r&&r.ok===true){resp++;tot++;} else if(r&&r.ok===false){tot++;} }); }); return tot?Math.round(resp/tot*100):null; }
@@ -1219,33 +1229,75 @@
   }
 
   function renderAnalysisScreen(){
-    var scope;
-    if(view.anScope==='global'){ scope={account:null}; }
-    else { var a=acc(); if(!a){ navigate('global','back'); return; } scope={account:a}; }
+    var ids=view.anIds||[];
+    var accs=accounts.filter(function(a){return ids.indexOf(a.id)>=0;});
+    if(accs.length===0) accs=accounts.slice();
     var body=el('analysisBody'); body.innerHTML='';
+    if(accs.length===0){ body.innerHTML='<div class="an-card"><div class="an-txt"><span class="an-empty">Aucun compte à analyser.</span></div></div>'; return; }
+    var sessions=[]; accs.forEach(function(a){ Object.keys(a.sessions).forEach(function(k){ sessions.push(a.sessions[k]); }); });
+    var units={}; accs.forEach(function(a){ units[a.resultUnit]=true; });
+    var unit = (Object.keys(units).length===1) ? accs[0] : null;   // même unité -> résultat moyen ; sinon % gagnantes
+    var scope={accounts:accs, sessions:sessions, unit:unit};
+
     var intro=document.createElement('div'); intro.className='an-intro';
-    intro.textContent = scope.account ? "Ce que tes données disent de ta discipline et de ta psychologie — pas de tes marchés." : "Vue coach sur tous tes comptes.";
+    intro.innerHTML="<b>Analyse comportementale</b> — ta discipline et ta psychologie. Les statistiques de résultat chiffrées, elles, restent dans la vue de chaque compte.";
     body.appendChild(intro);
-    if(!scope.account){ var note=document.createElement('div'); note.className='an-note'; note.textContent="Tous comptes confondus : comme chaque compte peut avoir une unité différente (USD, points…), on compare ici en pourcentage de séances gagnantes plutôt qu'en résultat moyen."; body.appendChild(note); }
-    var showRules = scope.account ? !!scope.account.showRules : true;
-    var showTags = scope.account ? !!scope.account.showTags : true;
-    var showMood = scope.account ? !!scope.account.showMood : true;
-    var showChecklist = scope.account ? !!scope.account.showChecklist : true;
-    var cards=[];
-    if(showRules){ cards.push(secRulesRespect(scope)); cards.push(secCostliestRule(scope)); cards.push(secDiscipline(scope)); }
-    if(showTags) cards.push(secTags(scope));
-    if(showMood) cards.push(secMood(scope));
-    if(showChecklist) cards.push(secChecklist(scope));
-    cards=cards.filter(Boolean);
-    if(cards.length===0){
+    var who=document.createElement('div'); who.className='an-note';
+    who.textContent = (accs.length===1 ? "Compte analysé : "+accs[0].name : accs.length+" comptes analysés : "+accs.map(function(a){return a.name;}).join(", ")) + (unit? "" : " — unités différentes, comparaisons en % de séances gagnantes.");
+    body.appendChild(who);
+
+    var showRules=accs.some(function(a){return a.showRules;});
+    var showTags=accs.some(function(a){return a.showTags;});
+    var showMood=accs.some(function(a){return a.showMood;});
+    var showChecklist=accs.some(function(a){return a.showChecklist;});
+    function grp(title,cards){ cards=cards.filter(Boolean); if(!cards.length) return; var h=document.createElement('div'); h.className='an-group'; h.textContent=title; body.appendChild(h); cards.forEach(function(c){body.appendChild(c);}); }
+    var disc=[], psy=[];
+    if(showRules){ disc.push(secRulesRespect(scope)); disc.push(secCostliestRule(scope)); disc.push(secDiscipline(scope)); }
+    if(showChecklist){ disc.push(secChecklist(scope)); }
+    if(showMood){ psy.push(secMood(scope)); }
+    if(showTags){ psy.push(secTags(scope)); }
+    grp("Rigueur & discipline", disc);
+    grp("Psychologie", psy);
+    if(!showRules && !showTags && !showMood && !showChecklist){
       var e=document.createElement('div'); e.className='an-card';
-      e.innerHTML='<div class="an-txt"><span class="an-empty">Active des modules (règles, tags, humeur, check-list) et enregistre quelques séances : tes constats apparaîtront ici.</span></div>';
-      body.appendChild(e); return;
+      e.innerHTML='<div class="an-txt"><span class="an-empty">Active des modules (règles, tags, humeur, check-list) sur au moins un compte et enregistre quelques séances : tes constats apparaîtront ici.</span></div>';
+      body.appendChild(e);
     }
-    cards.forEach(function(c){ body.appendChild(c); });
   }
-  el("anAcctBtn").addEventListener("click",function(){ view.anScope='account'; navigate("analysis","forward"); renderAnalysisScreen(); });
-  el("anGlobalBtn").addEventListener("click",function(){ view.anScope='global'; navigate("analysis","forward"); renderAnalysisScreen(); });
+  el("anAcctBtn").addEventListener("click",function(){ var a=acc(); if(!a)return; view.anIds=[a.id]; view.anFrom='account'; navigate("analysis","forward"); renderAnalysisScreen(); });
+  el("anGlobalBtn").addEventListener("click",function(){
+    view.anFrom='global';
+    if(accounts.length===0){ showToast("Aucun compte à analyser"); return; }
+    if(accounts.length===1){ view.anIds=[accounts[0].id]; navigate("analysis","forward"); renderAnalysisScreen(); return; }
+    openAnalysisPicker();
+  });
+
+  // sélecteur de comptes pour l'analyse
+  var anPickSel={};
+  function openAnalysisPicker(){ anPickSel={}; accounts.forEach(function(a){ anPickSel[a.id]=true; }); renderAnalysisPicker(); el("overlay").classList.add("open"); el("analysisPicker").classList.add("open"); }
+  function renderAnalysisPicker(){
+    var box=el("anPickList"); box.innerHTML="";
+    var allOn=accounts.length>0 && accounts.every(function(a){return anPickSel[a.id];});
+    var m=document.createElement("div"); m.className="cl-row"+(allOn?" on":"");
+    var mb=document.createElement("div"); mb.className="cl-box"; mb.textContent="✓";
+    var mt=document.createElement("div"); mt.className="cl-txt"; mt.style.fontWeight="800"; mt.textContent="Tous les comptes";
+    m.appendChild(mb); m.appendChild(mt);
+    m.onclick=function(){ var v=!allOn; accounts.forEach(function(a){anPickSel[a.id]=v;}); renderAnalysisPicker(); };
+    box.appendChild(m);
+    accounts.forEach(function(a){
+      var row=document.createElement("div"); row.className="cl-row"+(anPickSel[a.id]?" on":"");
+      var bx=document.createElement("div"); bx.className="cl-box"; bx.textContent="✓";
+      var tx=document.createElement("div"); tx.className="cl-txt"; tx.textContent=a.name+" ("+a.type+")";
+      row.appendChild(bx); row.appendChild(tx);
+      row.onclick=function(){ anPickSel[a.id]=!anPickSel[a.id]; renderAnalysisPicker(); };
+      box.appendChild(row);
+    });
+  }
+  el("anPickGo").addEventListener("click",function(){
+    var ids=accounts.filter(function(a){return anPickSel[a.id];}).map(function(a){return a.id;});
+    if(ids.length===0){ showToast("Sélectionne au moins un compte"); return; }
+    view.anIds=ids; closeDrawer(); navigate("analysis","forward"); renderAnalysisScreen();
+  });
 
   // ---------- navigation / master render ----------
   function render(){
@@ -1271,7 +1323,7 @@
       el("screenSub").textContent="Événements macro à venir";
     } else if(view.level==="analysis"){
       el("screenTitle").innerHTML="Analyse";
-      el("screenSub").textContent = view.anScope==='global' ? "Tous comptes" : (acc()?acc().name:"");
+      el("screenSub").textContent = "Discipline & psychologie";
       renderAnalysisScreen();
     } else if(view.level==="account"){
       var a=acc();
@@ -1300,7 +1352,7 @@
   el("backBtn").addEventListener("click",function(){
     if(view.level==="session"){ var a=acc(),k=view.editKey,s=a?a.sessions[k]:null; if(s&&isEmptySession(s)) delete a.sessions[k]; persistSession(a,k); navigate("account","back"); }
     else if(view.level==="calendar") navigate("global","back");
-    else if(view.level==="analysis") navigate(view.anScope==="global"?"global":"account","back");
+    else if(view.level==="analysis") navigate(view.anFrom==="account"?"account":"global","back");
     else if(view.level==="account") navigate("global","back");
   });
 
@@ -1399,7 +1451,7 @@
     add.addEventListener("click",function(){ a[field].push(""); renderListEditor(container,field,placeholder,addLabel); var ins=container.querySelectorAll(".le-input"); var last=ins[ins.length-1]; if(last) last.focus(); });
     container.appendChild(add);
   }
-  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); }
+  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); }
   el("overlay").addEventListener("click",closeDrawer);
   el("drawerDone").addEventListener("click",function(){ var a=acc(); if(a){ ["rules","checklistItems","tagsOptions"].forEach(function(f){ a[f]=(a[f]||[]).map(function(x){return String(x||"").trim();}).filter(Boolean); }); saveAccount(a); } closeDrawer(); render(); });
   el("setName").addEventListener("input",function(){ acc().name=this.value; });
