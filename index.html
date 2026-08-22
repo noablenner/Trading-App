@@ -99,6 +99,17 @@
   /* --- stats discipline (vue compte) --- */
   .mini-stat{font-size:13px;color:var(--txt-dim);margin-top:8px;}
   .mini-stat b{color:var(--txt);font-weight:700;}
+  /* --- écran Analyse (coach) --- */
+  .an-intro{font-size:13.5px;color:var(--txt-dim);margin:2px 2px 4px;line-height:1.5;}
+  .an-note{font-size:12px;color:var(--txt-faint);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:12px;line-height:1.45;}
+  .an-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-top:12px;}
+  .an-h{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-dim);font-weight:700;margin:0 0 10px;}
+  .an-num{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.1;}
+  .an-num.pos{color:var(--green);} .an-num.neg{color:var(--red);} .an-num.neutral{color:var(--txt);}
+  .an-txt{font-size:14px;color:var(--txt-dim);margin-top:6px;line-height:1.55;}
+  .an-txt b{color:var(--txt);font-weight:700;}
+  .an-svg{margin-top:12px;}
+  .an-empty{font-size:13px;color:var(--txt-faint);}
 
   textarea{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:15px;padding:12px;resize:vertical;min-height:64px;line-height:1.5;}
   textarea:focus{outline:none;border-color:var(--accent);}
@@ -353,6 +364,12 @@
       <span class="nt-arr">›</span>
     </button>
 
+    <button class="nav-tile" id="anGlobalBtn" type="button">
+      <span class="nt-ic">📊</span>
+      <span class="nt-t">Analyse — tous comptes</span>
+      <span class="nt-arr">›</span>
+    </button>
+
     <div class="card">
       <h2>Mes comptes <span class="hint">touche un compte pour l'ouvrir</span></h2>
       <div id="acctList"></div>
@@ -380,8 +397,18 @@
     </div>
   </div>
 
+  <!-- ========== ANALYSE (coach psycho) ========== -->
+  <div id="screenAnalysis" class="hidden">
+    <div id="analysisBody"></div>
+  </div>
+
   <!-- ========== LEVEL 1 : ACCOUNT OVERVIEW ========== -->
   <div id="screenAccount" class="hidden">
+    <button class="nav-tile" id="anAcctBtn" type="button">
+      <span class="nt-ic">📊</span>
+      <span class="nt-t">Analyse</span>
+      <span class="nt-arr">›</span>
+    </button>
     <div class="card">
       <h2>Vue d'ensemble du compte</h2>
       <div class="kpis">
@@ -1042,17 +1069,196 @@
     b.textContent = isEmptySession(s) ? "Valider la séance" : "Enregistrer";
   }
 
+  // ============ ANALYSE (assistant psycho / coach) ============
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function anRound(v){ return Math.round(v*10)/10; }
+  function anTone(v){ return v>0?"pos":v<0?"neg":"neutral"; }
+  function anWithResult(list){ return list.filter(function(s){return hasResult(s);}); }
+  function anGrp(list){
+    var arr=anWithResult(list), n=arr.length, sum=0, w=0, l=0;
+    arr.forEach(function(s){ var v=sessionNet(s); sum+=v; if(v>0)w++; else if(v<0)l++; });
+    return {n:n, avg:n?sum/n:0, win:w, loss:l, winRate:n?Math.round(w/n*100):0, lossRate:n?Math.round(l/n*100):0};
+  }
+  function sessionsOf(scope){
+    if(scope.account) return Object.keys(scope.account.sessions).map(function(k){return scope.account.sessions[k];});
+    var all=[]; accounts.forEach(function(a){ Object.keys(a.sessions).forEach(function(k){ all.push(a.sessions[k]); }); }); return all;
+  }
+  function anCard(h, num, tone, txtHtml, svg){
+    var c=document.createElement("div"); c.className="an-card";
+    var html='<div class="an-h">'+esc(h)+'</div>';
+    if(num!==null && num!==undefined) html+='<div class="an-num '+(tone||'neutral')+'">'+num+'</div>';
+    html+='<div class="an-txt">'+txtHtml+'</div>';
+    if(svg) html+='<div class="an-svg">'+svg+'</div>';
+    c.innerHTML=html; return c;
+  }
+  function anInsufficient(title){ return anCard(title, null, 'neutral', '<span class="an-empty">Pas encore assez de données pour ce constat.</span>', null); }
+  // barres comparatives horizontales (SVG inline)
+  function svgCompare(rows, opts){
+    opts=opts||{}; var W=280, rh=42, h=rows.length*rh, max=opts.max||1;
+    rows.forEach(function(r){ max=Math.max(max, Math.abs(r.value)); });
+    var s='<svg viewBox="0 0 '+W+' '+h+'" width="100%" height="'+h+'" preserveAspectRatio="xMidYMid meet" font-family="inherit">';
+    rows.forEach(function(r,i){
+      var y=i*rh;
+      var col=r.tone==='pos'?'#22c98a':r.tone==='neg'?'#f2545b':'#8a97a6';
+      var bw=Math.max(4, Math.round(Math.abs(r.value)/max*(W-6)));
+      var tx=Math.min(bw+8, W-52);
+      s+='<text x="0" y="'+(y+13)+'" fill="#8a97a6" font-size="12">'+esc(r.label)+'</text>';
+      s+='<rect x="0" y="'+(y+19)+'" rx="5.5" width="'+bw+'" height="11" fill="'+col+'"/>';
+      s+='<text x="'+tx+'" y="'+(y+29)+'" fill="#e7edf3" font-size="12" font-weight="700">'+esc(r.disp)+'</text>';
+    });
+    return s+'</svg>';
+  }
+
+  function secRulesRespect(scope){
+    var judged=sessionsOf(scope).filter(function(s){ return hasResult(s) && (s.rules||[]).some(function(r){return r&&(r.ok===true||r.ok===false);}); });
+    if(judged.length<5) return anInsufficient("Respect des règles");
+    var allOk=judged.filter(function(s){ var j=(s.rules||[]).filter(function(r){return r&&(r.ok===true||r.ok===false);}); return j.length>0 && j.every(function(r){return r.ok===true;}); });
+    var broke=judged.filter(function(s){ return (s.rules||[]).some(function(r){return r&&r.ok===false;}); });
+    var gA=anGrp(allOk), gB=anGrp(broke);
+    if(gA.n<3 || gB.n<3) return anInsufficient("Respect des règles");
+    var num, txt;
+    if(scope.account){
+      num=fmtVal(anRound(gA.avg),scope.account);
+      txt='Quand tu respectes <b>toutes tes règles</b> : <b>'+fmtVal(anRound(gA.avg),scope.account)+'</b> en moyenne ('+gA.winRate+'% gagnantes). Quand tu en casses au moins une : <b>'+fmtVal(anRound(gB.avg),scope.account)+'</b> ('+gB.winRate+'% gagnantes).';
+    } else {
+      num=gA.winRate+'%';
+      txt='Quand tu respectes <b>toutes tes règles</b> : <b>'+gA.winRate+'%</b> de séances gagnantes. Quand tu en casses au moins une : <b>'+gB.winRate+'%</b>.';
+    }
+    var svg=svgCompare([
+      {label:'Toutes règles respectées', value:gA.winRate, disp:gA.winRate+'%', tone:'pos'},
+      {label:'≥1 règle enfreinte', value:gB.winRate, disp:gB.winRate+'%', tone:'neg'}
+    ],{max:100});
+    return anCard('Respect des règles', num, anTone(gA.avg-gB.avg), txt, svg);
+  }
+
+  function secCostliestRule(scope){
+    var sessions=anWithResult(sessionsOf(scope)), m={};
+    sessions.forEach(function(s){ (s.rules||[]).forEach(function(r){ if(r&&r.ok===false){ var k=r.rule; if(!m[k])m[k]={n:0,loss:0,sum:0}; m[k].n++; var v=sessionNet(s); m[k].sum+=v; if(v<0)m[k].loss++; } }); });
+    var best=null;
+    Object.keys(m).forEach(function(k){ var o=m[k]; if(o.n>=3){ var avg=o.sum/o.n; if(!best || avg<best.avg) best={rule:k,n:o.n,loss:o.loss,avg:avg,lossRate:Math.round(o.loss/o.n*100)}; } });
+    if(!best) return null;
+    var num = scope.account? fmtVal(anRound(best.avg),scope.account) : best.lossRate+'%';
+    var txt='La règle qui te coûte le plus : <b>« '+esc(best.rule)+' »</b>. Quand tu l\'enfreins'+(scope.account?' : <b>'+fmtVal(anRound(best.avg),scope.account)+'</b> en moyenne, ':', ')+best.lossRate+'% de séances perdantes <b>('+best.n+' séances)</b>.';
+    return anCard('Ta règle la plus coûteuse', num, 'neg', txt, null);
+  }
+
+  function secTags(scope){
+    var sessions=anWithResult(sessionsOf(scope));
+    if(sessions.length<5) return anInsufficient("Impact des tags");
+    var tags={}; sessions.forEach(function(s){ (s.tags||[]).forEach(function(t){ tags[t]=true; }); });
+    var res=[];
+    Object.keys(tags).forEach(function(t){
+      var withT=sessions.filter(function(s){return (s.tags||[]).indexOf(t)>=0;});
+      var without=sessions.filter(function(s){return (s.tags||[]).indexOf(t)<0;});
+      if(withT.length>=3 && without.length>=3){
+        var gw=anGrp(withT), go=anGrp(without);
+        var mw=scope.account?gw.avg:gw.winRate, mo=scope.account?go.avg:go.winRate;
+        res.push({tag:t,n:withT.length,delta:mw-mo,gw:gw,go:go});
+      }
+    });
+    if(res.length===0) return anInsufficient("Impact des tags");
+    res.sort(function(a,b){return Math.abs(b.delta)-Math.abs(a.delta);});
+    res=res.slice(0,3);
+    var lines='', rows=[];
+    res.forEach(function(r){
+      if(scope.account){
+        lines+='<div style="margin-top:8px;">Séances <b>« '+esc(r.tag)+' »</b> : <b>'+fmtVal(anRound(r.gw.avg),scope.account)+'</b> en moyenne, contre <b>'+fmtVal(anRound(r.go.avg),scope.account)+'</b> sans <b>('+r.n+' séances)</b>.</div>';
+        rows.push({label:'« '+r.tag+' »', value:r.gw.avg, disp:fmtVal(anRound(r.gw.avg),scope.account), tone:anTone(r.gw.avg)});
+      } else {
+        lines+='<div style="margin-top:8px;">Séances <b>« '+esc(r.tag)+' »</b> : <b>'+r.gw.winRate+'%</b> gagnantes, contre <b>'+r.go.winRate+'%</b> sans <b>('+r.n+' séances)</b>.</div>';
+        rows.push({label:'« '+r.tag+' »', value:r.gw.winRate, disp:r.gw.winRate+'%', tone:r.gw.winRate>=r.go.winRate?'pos':'neg'});
+      }
+    });
+    var top=res[0];
+    var num = scope.account? fmtVal(anRound(top.gw.avg),scope.account) : top.gw.winRate+'%';
+    return anCard('Impact de tes tags', num, anTone(top.delta), lines, svgCompare(rows, scope.account?{}:{max:100}));
+  }
+
+  function secMood(scope){
+    var sessions=anWithResult(sessionsOf(scope)).filter(function(s){return s.moodBefore>0;});
+    if(sessions.length<5) return anInsufficient("Impact de l'humeur");
+    var rows=[];
+    function add(label,arr){ if(arr.length>=3){ var g=anGrp(arr); rows.push({label:label+' ('+arr.length+')', value:scope.account?g.avg:g.winRate, disp:scope.account?fmtVal(anRound(g.avg),scope.account):g.winRate+'%', tone:scope.account?anTone(g.avg):(g.winRate>=50?'pos':'neg')}); } }
+    add('Humeur basse (1-2)', sessions.filter(function(s){return s.moodBefore<=2;}));
+    add('Humeur moyenne (3)', sessions.filter(function(s){return s.moodBefore===3;}));
+    add('Humeur haute (4-5)', sessions.filter(function(s){return s.moodBefore>=4;}));
+    if(rows.length<2) return anInsufficient("Impact de l'humeur");
+    var txt='Ton résultat selon ton humeur <b>avant</b> la séance'+(scope.account?'':' (% gagnantes)')+' :';
+    return anCard("Impact de l'humeur", null, 'neutral', txt, svgCompare(rows, scope.account?{}:{max:100}));
+  }
+
+  function secChecklist(scope){
+    var sessions=anWithResult(sessionsOf(scope)).filter(function(s){return (s.checklist||[]).length>0;});
+    if(sessions.length<5) return anInsufficient("Check-list");
+    var complete=sessions.filter(function(s){return s.checklist.every(function(c){return c&&c.checked;});});
+    var incomplete=sessions.filter(function(s){return !s.checklist.every(function(c){return c&&c.checked;});});
+    if(complete.length<3 || incomplete.length<3) return anInsufficient("Check-list");
+    var gc=anGrp(complete), gi=anGrp(incomplete);
+    var num = scope.account? fmtVal(anRound(gc.avg),scope.account) : gc.winRate+'%';
+    var txt = scope.account
+      ? 'Check-list <b>complète</b> : <b>'+fmtVal(anRound(gc.avg),scope.account)+'</b> ('+gc.winRate+'% gagnantes). <b>Incomplète</b> : <b>'+fmtVal(anRound(gi.avg),scope.account)+'</b> ('+gi.winRate+'%).'
+      : 'Check-list <b>complète</b> : <b>'+gc.winRate+'%</b> gagnantes. <b>Incomplète</b> : <b>'+gi.winRate+'%</b>.';
+    return anCard('Effet de la check-list', num, anTone(gc.avg-gi.avg), txt, svgCompare([
+      {label:'Check-list complète', value:gc.winRate, disp:gc.winRate+'%', tone:'pos'},
+      {label:'Check-list incomplète', value:gi.winRate, disp:gi.winRate+'%', tone:'neg'}
+    ],{max:100}));
+  }
+
+  function secDiscipline(scope){
+    if(!scope.account) return null;
+    var a=scope.account;
+    var judgedKeys=Object.keys(a.sessions).sort().filter(function(k){ return (a.sessions[k].rules||[]).some(function(r){return r&&(r.ok===true||r.ok===false);}); });
+    if(judgedKeys.length<5) return anInsufficient("Discipline dans le temps");
+    function rate(ks){ var resp=0,tot=0; ks.forEach(function(k){ (a.sessions[k].rules||[]).forEach(function(r){ if(r&&r.ok===true){resp++;tot++;} else if(r&&r.ok===false){tot++;} }); }); return tot?Math.round(resp/tot*100):null; }
+    var last=judgedKeys.slice(-10), before=judgedKeys.slice(0,-10);
+    var pLast=rate(last), pBefore=before.length>=3? rate(before):null;
+    var streak=disciplineStreak(a), txt;
+    if(pBefore!==null){ var d=pLast-pBefore, trend=d>3?'en progrès 📈':d<-3?'en baisse 📉':'stable'; txt='Streak actuel : <b>'+streak+(streak>1?' jours':' jour')+'</b>. Sur tes 10 dernières séances tu respectes <b>'+pLast+'%</b> de tes règles, contre <b>'+pBefore+'%</b> avant — <b>'+trend+'</b>.'; }
+    else { txt='Streak actuel : <b>'+streak+(streak>1?' jours':' jour')+'</b>. Tu respectes <b>'+pLast+'%</b> de tes règles sur tes dernières séances.'; }
+    return anCard('Discipline dans le temps', pLast+'%', pLast>=70?'pos':pLast>=40?'neutral':'neg', txt, null);
+  }
+
+  function renderAnalysisScreen(){
+    var scope;
+    if(view.anScope==='global'){ scope={account:null}; }
+    else { var a=acc(); if(!a){ navigate('global','back'); return; } scope={account:a}; }
+    var body=el('analysisBody'); body.innerHTML='';
+    var intro=document.createElement('div'); intro.className='an-intro';
+    intro.textContent = scope.account ? "Ce que tes données disent de ta discipline et de ta psychologie — pas de tes marchés." : "Vue coach sur tous tes comptes.";
+    body.appendChild(intro);
+    if(!scope.account){ var note=document.createElement('div'); note.className='an-note'; note.textContent="Tous comptes confondus : comme chaque compte peut avoir une unité différente (USD, points…), on compare ici en pourcentage de séances gagnantes plutôt qu'en résultat moyen."; body.appendChild(note); }
+    var showRules = scope.account ? !!scope.account.showRules : true;
+    var showTags = scope.account ? !!scope.account.showTags : true;
+    var showMood = scope.account ? !!scope.account.showMood : true;
+    var showChecklist = scope.account ? !!scope.account.showChecklist : true;
+    var cards=[];
+    if(showRules){ cards.push(secRulesRespect(scope)); cards.push(secCostliestRule(scope)); cards.push(secDiscipline(scope)); }
+    if(showTags) cards.push(secTags(scope));
+    if(showMood) cards.push(secMood(scope));
+    if(showChecklist) cards.push(secChecklist(scope));
+    cards=cards.filter(Boolean);
+    if(cards.length===0){
+      var e=document.createElement('div'); e.className='an-card';
+      e.innerHTML='<div class="an-txt"><span class="an-empty">Active des modules (règles, tags, humeur, check-list) et enregistre quelques séances : tes constats apparaîtront ici.</span></div>';
+      body.appendChild(e); return;
+    }
+    cards.forEach(function(c){ body.appendChild(c); });
+  }
+  el("anAcctBtn").addEventListener("click",function(){ view.anScope='account'; navigate("analysis","forward"); renderAnalysisScreen(); });
+  el("anGlobalBtn").addEventListener("click",function(){ view.anScope='global'; navigate("analysis","forward"); renderAnalysisScreen(); });
+
   // ---------- navigation / master render ----------
   function render(){
     el("screenGlobal").classList.toggle("hidden", view.level!=="global");
     el("screenCalendar").classList.toggle("hidden", view.level!=="calendar");
+    el("screenAnalysis").classList.toggle("hidden", view.level!=="analysis");
     el("screenAccount").classList.toggle("hidden", view.level!=="account");
     el("screenSession").classList.toggle("hidden", view.level!=="session");
     el("backBtn").classList.toggle("hidden", view.level==="global");
-    el("gearBtn").classList.toggle("hidden", view.level==="calendar");
+    el("gearBtn").classList.toggle("hidden", view.level==="calendar"||view.level==="analysis");
 
     var bar=el("bottomBar"), btn=el("bottomBtn");
-    if(view.level==="global"||view.level==="calendar"){ bar.classList.add("hidden"); }
+    if(view.level==="global"||view.level==="calendar"||view.level==="analysis"){ bar.classList.add("hidden"); }
     else if(view.level==="account"){ bar.classList.remove("hidden"); btn.textContent="Nouvelle séance"; btn.classList.remove("done"); }
     else { bar.classList.remove("hidden"); }
 
@@ -1063,6 +1269,10 @@
     } else if(view.level==="calendar"){
       el("screenTitle").innerHTML="Calendrier économique";
       el("screenSub").textContent="Événements macro à venir";
+    } else if(view.level==="analysis"){
+      el("screenTitle").innerHTML="Analyse";
+      el("screenSub").textContent = view.anScope==='global' ? "Tous comptes" : (acc()?acc().name:"");
+      renderAnalysisScreen();
     } else if(view.level==="account"){
       var a=acc();
       el("screenTitle").innerHTML=(a?a.name:"")+' <span class="badge">'+(a?a.type:"")+'</span>';
@@ -1077,7 +1287,7 @@
     }
   }
   function animate(dir){
-    var id=view.level==="global"?"screenGlobal":view.level==="calendar"?"screenCalendar":view.level==="account"?"screenAccount":"screenSession";
+    var id=view.level==="global"?"screenGlobal":view.level==="calendar"?"screenCalendar":view.level==="analysis"?"screenAnalysis":view.level==="account"?"screenAccount":"screenSession";
     var e=el(id); e.classList.remove("anim-r","anim-l"); void e.offsetWidth; e.classList.add(dir==="back"?"anim-l":"anim-r");
     window.scrollTo(0,0);
   }
@@ -1090,6 +1300,7 @@
   el("backBtn").addEventListener("click",function(){
     if(view.level==="session"){ var a=acc(),k=view.editKey,s=a?a.sessions[k]:null; if(s&&isEmptySession(s)) delete a.sessions[k]; persistSession(a,k); navigate("account","back"); }
     else if(view.level==="calendar") navigate("global","back");
+    else if(view.level==="analysis") navigate(view.anScope==="global"?"global":"account","back");
     else if(view.level==="account") navigate("global","back");
   });
 
