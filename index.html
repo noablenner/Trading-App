@@ -410,7 +410,10 @@
   <div id="screenAccount" class="hidden">
     <button class="nav-tile" id="anAcctBtn" type="button">
       <span class="nt-ic">📊</span>
-      <span class="nt-t">Analyse</span>
+      <span>
+        <span class="nt-t">Analyse</span>
+        <span class="nt-s">Discipline & psychologie</span>
+      </span>
       <span class="nt-arr">›</span>
     </button>
     <div class="card">
@@ -424,17 +427,6 @@
         <div class="kpi"><div class="kl">Jours gagnants</div><div class="kv" id="aWinDays">0</div></div>
         <div class="kpi"><div class="kl">Jours perdants</div><div class="kv" id="aLossDays">0</div></div>
         <div class="kpi"><div class="kl">Meilleur jour</div><div class="kv" id="aBest">—</div></div>
-      </div>
-    </div>
-
-    <div class="card hidden" id="cardAcctModules">
-      <h2>Rigueur &amp; discipline <span class="hint">psycho &amp; discipline</span></h2>
-      <div id="mRulesWrap" class="hidden">
-        <div class="kpi wide"><div class="kl">Règles respectées</div><div class="kv" id="mRulesPct">—</div></div>
-        <div class="mini-stat" id="mMostBroken"></div>
-      </div>
-      <div id="mStreakWrap" class="hidden" style="margin-top:10px;">
-        <div class="kpi wide"><div class="kl">Streak discipline</div><div class="kv" id="mStreak">—</div></div>
       </div>
     </div>
 
@@ -569,7 +561,7 @@
       <div class="set-label">Tes tags</div>
       <div id="tagsList"></div>
     </div>
-    <div class="toggle-row" style="margin-top:12px;"><div><div class="tl">Streak de discipline</div><div class="td">Jours consécutifs où toutes les règles ET le quota sont respectés.</div></div><div class="switch" data-key="showStreak"><i></i></div></div>
+    <div class="toggle-row" style="margin-top:12px;"><div><div class="tl">Série de discipline</div><div class="td">Séances consécutives sans faute (règles respectées) — visible dans l'Analyse.</div></div><div class="switch" data-key="showStreak"><i></i></div></div>
     <div class="sub-setting" id="lossLimitSetting">
       <div class="set-label">Limite de perte du jour <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(vide = désactivé, dans l'unité du compte)</span></div>
       <input class="set-input" id="lossLimitIn" type="text" inputmode="decimal" placeholder="Ex : 300">
@@ -884,18 +876,6 @@
   }
 
   // ---------- ACCOUNT OVERVIEW ----------
-  function ruleStats(a){
-    var respected=0, broken=0, brokenBy={};
-    Object.keys(a.sessions).forEach(function(k){
-      (a.sessions[k].rules||[]).forEach(function(r){
-        if(r&&r.ok===true) respected++;
-        else if(r&&r.ok===false){ broken++; brokenBy[r.rule]=(brokenBy[r.rule]||0)+1; }
-      });
-    });
-    var total=respected+broken, most=null, mostN=0;
-    Object.keys(brokenBy).forEach(function(rl){ if(brokenBy[rl]>mostN){mostN=brokenBy[rl];most=rl;} });
-    return {total:total, pct: total? Math.round(respected/total*100):null, most:most, mostN:mostN};
-  }
   function disciplineStreak(a){
     var keys=Object.keys(a.sessions).sort().reverse(), streak=0;
     for(var i=0;i<keys.length;i++){
@@ -907,22 +887,8 @@
     }
     return streak;
   }
-  function renderDisciplineCard(a){
-    var showR=!!a.showRules, showS=!!a.showStreak;
-    el("cardAcctModules").classList.toggle("hidden", !(showR||showS));
-    el("mRulesWrap").classList.toggle("hidden", !showR);
-    el("mStreakWrap").classList.toggle("hidden", !showS);
-    if(showR){
-      var rs=ruleStats(a);
-      el("mRulesPct").textContent = rs.pct===null ? "—" : rs.pct+"%";
-      if(rs.most){ el("mMostBroken").innerHTML='Règle la plus enfreinte : <b></b>'; el("mMostBroken").querySelector("b").textContent=rs.most+" ("+rs.mostN+"×)"; }
-      else { el("mMostBroken").textContent = rs.total? "Aucune règle enfreinte 👏" : "Pas encore de données."; }
-    }
-    if(showS){ var st=disciplineStreak(a); el("mStreak").textContent = st + (st>1?" jours":" jour"); }
-  }
   function renderAccount(){
     var a=acc(); if(!a) return;
-    renderDisciplineCard(a);
     var st=accStats(a);
     var net=el("aNet"); net.textContent=fmtVal(st.net,a); net.className="kv "+(st.net>0?"pos":st.net<0?"neg":"");
     el("aSessions").textContent=st.sessions;
@@ -1223,8 +1189,8 @@
     var last=judgedKeys.slice(-10), before=judgedKeys.slice(0,-10);
     var pLast=rate(last), pBefore=before.length>=3? rate(before):null;
     var streak=disciplineStreak(a), txt;
-    if(pBefore!==null){ var d=pLast-pBefore, trend=d>3?'en progrès 📈':d<-3?'en baisse 📉':'stable'; txt='Streak actuel : <b>'+streak+(streak>1?' jours':' jour')+'</b>. Sur tes 10 dernières séances tu respectes <b>'+pLast+'%</b> de tes règles, contre <b>'+pBefore+'%</b> avant — <b>'+trend+'</b>.'; }
-    else { txt='Streak actuel : <b>'+streak+(streak>1?' jours':' jour')+'</b>. Tu respectes <b>'+pLast+'%</b> de tes règles sur tes dernières séances.'; }
+    if(pBefore!==null){ var d=pLast-pBefore, trend=d>3?'en progrès 📈':d<-3?'en baisse 📉':'stable'; txt='Série en cours : <b>'+streak+(streak>1?' séances':' séance')+'</b> sans faute. Sur tes 10 dernières séances tu respectes <b>'+pLast+'%</b> de tes règles, contre <b>'+pBefore+'%</b> avant — <b>'+trend+'</b>.'; }
+    else { txt='Série en cours : <b>'+streak+(streak>1?' séances':' séance')+'</b> sans faute. Tu respectes <b>'+pLast+'%</b> de tes règles sur tes dernières séances.'; }
     return anCard('Discipline dans le temps', pLast+'%', pLast>=70?'pos':pLast>=40?'neutral':'neg', txt, null);
   }
 
@@ -1252,7 +1218,8 @@
     var showChecklist=accs.some(function(a){return a.showChecklist;});
     function grp(title,cards){ cards=cards.filter(Boolean); if(!cards.length) return; var h=document.createElement('div'); h.className='an-group'; h.textContent=title; body.appendChild(h); cards.forEach(function(c){body.appendChild(c);}); }
     var disc=[], psy=[];
-    if(showRules){ disc.push(secRulesRespect(scope)); disc.push(secCostliestRule(scope)); disc.push(secDiscipline(scope)); }
+    if(showRules){ disc.push(secRulesRespect(scope)); disc.push(secCostliestRule(scope)); }
+    if(accs.some(function(a){return a.showStreak;})) disc.push(secDiscipline(scope));
     if(showChecklist){ disc.push(secChecklist(scope)); }
     if(showMood){ psy.push(secMood(scope)); }
     if(showTags){ psy.push(secTags(scope)); }
