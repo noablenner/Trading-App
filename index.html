@@ -22,10 +22,11 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
-  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45;max-width:520px;margin:0 auto;padding:0 0 calc(84px + env(safe-area-inset-bottom));min-height:100vh;position:relative;overflow-x:hidden;}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45;max-width:520px;margin:0 auto;padding:0 0 calc(108px + env(safe-area-inset-bottom));min-height:100vh;position:relative;overflow-x:hidden;}
   .app{padding:0 20px;}
 
-  .topbar{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,var(--bg) 82%,rgba(11,14,17,0));padding:16px 20px 12px;}
+  .topbar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:16px 20px 12px;}
+  .ttl.big{font-size:25px;letter-spacing:-.02em;}
   .topbar-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
   .tb-left{display:flex;align-items:center;gap:12px;min-width:0;}
   .backbtn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--surface);color:var(--txt);font-size:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:0;flex:0 0 auto;padding-bottom:3px;}
@@ -220,13 +221,14 @@
   .main-btn:active{transform:scale(.98);}
   .main-btn.done{background:var(--green);}
   /* ===== barre d'onglets (nav bas) ===== */
-  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:45;max-width:520px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom));gap:2px;}
-  .tab{flex:1;background:none;border:none;font-family:inherit;color:var(--txt-faint);display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;cursor:pointer;font-size:10.5px;font-weight:700;-webkit-tap-highlight-color:transparent;}
-  .tab .ti{font-size:20px;line-height:1;filter:grayscale(1);opacity:.65;transition:opacity .15s;}
-  .tab.on{color:var(--accent);} .tab.on .ti{filter:none;opacity:1;}
-  .tab.fab{flex:0 0 auto;}
-  .tab.fab > span{display:flex;align-items:center;justify-content:center;width:56px;height:56px;margin-top:-26px;border-radius:50%;background:var(--accent);color:#fff;font-size:32px;font-weight:300;line-height:0;box-shadow:0 6px 18px rgba(0,0,0,.45);border:3px solid var(--bg);}
-  .tab.fab:active > span{transform:scale(.93);}
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:45;max-width:520px;margin:0 auto;display:flex;align-items:stretch;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line);padding:9px 8px calc(18px + env(safe-area-inset-bottom));gap:4px;box-shadow:0 -6px 18px rgba(0,0,0,.28);}
+  .tab{flex:1;background:none;border:none;font-family:inherit;color:var(--txt-faint);display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 0;cursor:pointer;font-size:10.5px;font-weight:700;-webkit-tap-highlight-color:transparent;border-radius:14px;transition:color .15s,background .15s;}
+  .tab .ti{width:23px;height:23px;display:block;opacity:.7;transition:opacity .15s;}
+  .tab .ti svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+  .tab.on{color:var(--accent);} .tab.on .ti{opacity:1;}
+  .tab.primary{color:var(--txt);} .tab.primary.on{color:#fff;background:var(--accent);}
+  .tab.primary.on .ti{opacity:1;}
+  .tab:active{transform:scale(.95);}
   /* ===== Plan ===== */
   .plan-obj{display:flex;align-items:center;gap:10px;}
   .plan-obj input{flex:1;}
@@ -270,8 +272,10 @@
   .onb-choice{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:10px;color:var(--txt);font-family:inherit;cursor:pointer;}
   .onb-choice:active{transform:scale(.99);}
   .onb-choice .oc-ic{font-size:24px;flex:0 0 auto;}
-  .onb-choice .oc-t{font-weight:800;font-size:15.5px;}
-  .onb-choice .oc-s{font-size:12.5px;color:var(--txt-dim);margin-top:1px;}
+  .onb-choice{align-items:flex-start;gap:14px;padding:16px;}
+  .onb-choice .oc-t{font-weight:800;font-size:16px;display:block;}
+  .onb-choice .oc-s{font-size:12.5px;color:var(--txt-dim);margin-top:5px;line-height:1.4;display:block;}
+  .onb-choice .oc-list{font-size:11.5px;color:var(--txt-faint);margin-top:7px;line-height:1.5;display:block;}
   .onb-skip{display:block;width:100%;text-align:center;background:none;border:none;color:var(--txt-dim);font-family:inherit;font-size:14px;font-weight:700;padding:14px;margin-top:6px;cursor:pointer;}
   .onb-illus{font-size:44px;text-align:center;margin:6px 0 10px;}
   .onb-dots{display:flex;gap:6px;justify-content:center;margin:14px 0 4px;}
@@ -312,6 +316,14 @@
   .type-seg button{flex:1;padding:10px;border-radius:11px;border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;}
   .type-seg button.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--txt);}
   .drawer-done{width:100%;margin-top:8px;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:800;background:var(--accent);color:#fff;cursor:pointer;}
+  .drawer-done.sticky{position:sticky;bottom:0;margin-top:12px;box-shadow:0 -10px 20px -6px var(--surface);}
+  /* CTA principal (ajouter une séance) */
+  .main-cta{width:100%;border:none;border-radius:15px;padding:16px;font-size:16px;font-weight:800;font-family:inherit;background:var(--accent);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.35);margin-bottom:4px;}
+  .main-cta:active{transform:scale(.99);}
+  /* confettis (gamification) */
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:90;overflow:hidden;}
+  .conf{position:absolute;top:-14px;width:9px;height:14px;border-radius:2px;will-change:transform,opacity;animation:conffall linear forwards;}
+  @keyframes conffall{0%{transform:translateY(0) rotate(0);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:.9;}}
   .acct-box{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:14px;}
   .avatar{width:44px;height:44px;border-radius:50%;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;flex:0 0 auto;}
   .acct-box .ab-t{font-weight:700;font-size:15px;}
@@ -336,7 +348,7 @@
   .cmodal .confirm{background:var(--red);color:#fff;border-color:var(--red);}
 
   .hidden{display:none !important;}
-  .toast{position:fixed;bottom:calc(96px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:#04160f;font-weight:800;font-size:14px;padding:12px 20px;border-radius:12px;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;max-width:90%;text-align:center;}
+  .toast{position:fixed;bottom:calc(120px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:#04160f;font-weight:800;font-size:14px;padding:12px 20px;border-radius:12px;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;max-width:90%;text-align:center;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* auth / loading screens */
@@ -418,7 +430,7 @@
     </div>
 
     <div class="card">
-      <h2>Mes comptes <span class="hint">touche un compte pour l'ouvrir</span></h2>
+      <h2>Mes journaux de trading <span class="hint">touche un compte pour l'ouvrir</span></h2>
       <div id="acctList"></div>
     </div>
 
@@ -426,18 +438,29 @@
       <h2>Calendrier cumulé <span class="hint">tous comptes additionnés</span></h2>
       <div id="gCal"></div>
     </div>
+  </div>
 
-    <button class="nav-tile" id="econBtn" type="button">
-      <span class="nt-ic">📅</span>
-      <span class="nt-t">Calendrier économique <span class="premchip">Premium</span></span>
-      <span class="nt-arr">›</span>
-    </button>
-
-    <button class="nav-tile" id="appSettingsBtn" type="button">
-      <span class="nt-ic">⚙️</span>
-      <span class="nt-t">Réglages de l'app</span>
-      <span class="nt-arr">›</span>
-    </button>
+  <!-- ========== VUE D'UN COMPTE (journal du compte) ========== -->
+  <div id="screenAccount" class="hidden">
+    <button class="main-cta" id="addSessionBtn" type="button">+ Ouvrir la séance du jour</button>
+    <div class="card">
+      <h2>Résultats <span class="hint">chiffré · performance</span></h2>
+      <div class="kpis">
+        <div class="kpi wide"><div class="kl">Résultat net</div><div class="kv" id="oNet">—</div></div>
+        <div class="kpi"><div class="kl">Séances</div><div class="kv" id="oSessions">0</div></div>
+        <div class="kpi"><div class="kl">Jours gagnants</div><div class="kv" id="oWinDays">0</div></div>
+        <div class="kpi"><div class="kl">Jours perdants</div><div class="kv" id="oLossDays">0</div></div>
+        <div class="kpi"><div class="kl">Meilleur jour</div><div class="kv" id="oBest">—</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Calendrier du compte <span class="hint">touche un jour pour l'ouvrir</span></h2>
+      <div id="aCal"></div>
+    </div>
+    <div class="card">
+      <h2>Séances récentes <span class="hint">touche pour rouvrir</span></h2>
+      <div id="aSessList"></div>
+    </div>
   </div>
 
   <!-- ========== CALENDRIER ÉCONOMIQUE ========== -->
@@ -575,26 +598,18 @@
       <h2>Journal de fin de séance</h2>
       <textarea id="notesText" placeholder="Comment j'ai été aujourd'hui ? Ce qui a marché, ce qui a merdé, les erreurs à corriger demain…"></textarea>
     </div>
-
-    <div class="card">
-      <h2>Historique <span class="hint">touche un jour pour l'ouvrir</span></h2>
-      <div id="aCal"></div>
-    </div>
-    <div class="card">
-      <h2>Séances récentes</h2>
-      <div id="aSessList"></div>
-    </div>
   </div>
 
 </div>
 
 <nav class="tabbar hidden" id="tabbar">
-  <button class="tab" data-tab="journal" type="button"><span class="ti">📓</span><span class="tt">Journal</span></button>
-  <button class="tab" data-tab="plan" type="button"><span class="ti">📋</span><span class="tt">Plan</span></button>
-  <button class="tab fab" id="tabFab" type="button" aria-label="Action rapide"><span>+</span></button>
-  <button class="tab" data-tab="analyses" type="button"><span class="ti">📊</span><span class="tt">Analyses</span></button>
-  <button class="tab" data-tab="comptes" type="button"><span class="ti">👤</span><span class="tt">Comptes</span></button>
+  <button class="tab" data-tab="plan" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 10h7M8.5 14h7M8.5 18h4"/></svg></span><span class="tt">Plan</span></button>
+  <button class="tab" data-tab="calendar" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg></span><span class="tt">Calendrier</span></button>
+  <button class="tab primary" data-tab="journal" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="13" height="18" rx="2"/><path d="M9.5 3v18"/><path d="M12.5 8.5h4M12.5 12.5h4"/></svg></span><span class="tt">Journal</span></button>
+  <button class="tab" data-tab="analyses" type="button"><span class="ti"><svg viewBox="0 0 24 24"><path d="M4 20h16"/><rect x="6" y="11" width="3" height="7"/><rect x="11" y="6.5" width="3" height="11.5"/><rect x="16" y="13.5" width="3" height="4.5"/></svg></span><span class="tt">Analyses</span></button>
 </nav>
+
+<div id="confetti" class="hidden"></div>
 
 <div class="toast" id="toast">Séance enregistrée ✓</div>
 
@@ -624,6 +639,13 @@
         <button data-mode="quick">Coches rapides</button>
         <button data-mode="detailed">Trades détaillés</button>
         <button data-mode="both">Les deux</button>
+      </div>
+      <div class="set-label" style="margin-top:16px;">Repartir d'un modèle prêt à l'emploi</div>
+      <div class="cat-help" style="padding:0 0 8px;">Applique en un clic les réglages conseillés pour ce style (tu peux tout réajuster après).</div>
+      <div class="type-seg" id="tplSeg" style="flex-wrap:wrap;gap:8px;">
+        <button data-tpl="scalping">⚡ Scalping</button>
+        <button data-tpl="daytrading">📊 Day trading</button>
+        <button data-tpl="swing">🌊 Swing</button>
       </div>
     </div>
   </div>
@@ -671,7 +693,7 @@
   </div>
 
   <div class="set-group" style="margin-top:6px;"><div class="set-label">Zone de danger</div><button class="danger-btn" id="deleteAcctBtn">Supprimer ce compte</button></div>
-  <button class="drawer-done" id="drawerDone">Terminé</button>
+  <button class="drawer-done sticky" id="drawerDone">✓ Terminé <span style="font-weight:500;opacity:.85;">(tout est déjà enregistré)</span></button>
 </div>
 
 <!-- App settings -->
@@ -685,11 +707,6 @@
       <div style="min-width:0;"><div class="ab-t" id="userEmail">—</div><div class="ab-s">Connecté · données synchronisées ☁️</div></div>
     </div>
     <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
-  </div>
-  <div class="set-group"><div class="set-label">Notifications</div>
-    <div class="toggle-row"><div><div class="tl">Rappel de fin de séance</div><div class="td">Un rappel pour remplir ton journal en fin de journée.</div></div><div class="switch appsw" data-key="notifRecap"><i></i></div></div>
-    <div class="toggle-row"><div><div class="tl">Alerte quota atteint</div><div class="td">Te prévenir quand tu as coché toutes tes cases.</div></div><div class="switch appsw" data-key="notifQuota"><i></i></div></div>
-    <div class="toggle-row"><div><div class="tl">Récap quotidien</div><div class="td">Un résumé de ta journée le soir.</div></div><div class="switch appsw" data-key="notifDaily"><i></i></div></div>
   </div>
   <div class="set-group"><div class="set-label">Apparence — couleur de l'app</div><div class="sw-lg" id="appSwatches"></div></div>
   <button class="drawer-done" id="appDrawerDone">Terminé</button>
@@ -781,16 +798,21 @@
   function defaultFieldConfig(){ return {instrument:true, side:true, times:true, prices:true, result:true, tags:false, note:false}; }
   // ---- templates d'onboarding par style ----
   var TEMPLATES={
-    scalping:{ label:"Scalping", ic:"⚡", sub:"Coches ultra-rapides, gros volume de trades",
+    scalping:{ label:"Scalping", ic:"⚡", sub:"Beaucoup de trades très courts, tu veux aller vite.",
+      pts:"Coches rapides ✓/✗ · quota 30 · marquage gagnant/perdant · humeur & tags · limite de perte",
       apply:{loggingMode:"quick", maxTrades:30, showTracker:true, trackWinLoss:true, showResult:true, showObjectives:true, showNotes:true, showMood:true, showTags:true} },
-    intraday:{ label:"Intraday", ic:"📈", sub:"Coches rapides + quelques trades détaillés",
+    intraday:{ label:"Intraday", ic:"📈", sub:"Plusieurs trades dans la journée, un peu de détail.",
+      pts:"Coches rapides + trades détaillés · quota 15 · humeur & tags",
       apply:{loggingMode:"both", maxTrades:15, showTracker:true, trackWinLoss:true, showResult:true, showObjectives:true, showNotes:true, showMood:true, showTags:true} },
-    daytrading:{ label:"Day trading", ic:"📊", sub:"Trades détaillés (instrument, heures, prix)",
+    daytrading:{ label:"Day trading", ic:"📊", sub:"Peu de trades, mais chacun bien documenté.",
+      pts:"Trades détaillés (instrument, heures, prix) · pas de grille · humeur & tags",
       apply:{loggingMode:"detailed", maxTrades:8, showTracker:false, showResult:true, showObjectives:true, showNotes:true, showMood:true, showTags:true} },
-    swing:{ label:"Swing", ic:"🌊", sub:"Peu de trades, détaillés, tenus plusieurs jours",
+    swing:{ label:"Swing", ic:"🌊", sub:"Positions tenues sur plusieurs jours.",
+      pts:"Trades détaillés · pas de grille ni d'humeur · tags",
       apply:{loggingMode:"detailed", maxTrades:5, showTracker:false, showResult:true, showObjectives:true, showNotes:true, showMood:false, showTags:true} },
-    autre:{ label:"Autre", ic:"🎯", sub:"Je configure moi-même",
-      apply:{} }
+    autre:{ label:"Autre / je configure", ic:"🎯", sub:"Repartir d'une base neutre et tout régler soi-même.",
+      pts:"Rien n'est imposé, tu actives ce que tu veux dans les réglages",
+      apply:{loggingMode:"quick", showTracker:true, trackWinLoss:true, showResult:true, showObjectives:true, showNotes:true} }
   };
   function isDetailed(a){ return a && (a.loggingMode==="detailed"||a.loggingMode==="both"); }
   function isQuick(a){ return a && (a.loggingMode==="quick"||a.loggingMode==="both"||!a.loggingMode); }
@@ -811,7 +833,7 @@
   function premBadge(){ return '<span class="premchip">Premium</span>'; }
 
   // navigation (onglets)
-  var view={tab:"journal", accId:null, editKey:null, sub:null, anIds:[]};
+  var view={tab:"journal", jlevel:"accounts", accId:null, editKey:null, anIds:[]};
   function setActiveAccount(id){ view.accId=id; try{ localStorage.setItem('activeAcct', id||""); }catch(e){} }
   function acc(){ return accounts.find(function(a){return a.id===view.accId;}); }
   function curSession(){ var a=acc(); if(!a) return null; if(!a.sessions[view.editKey]) a.sessions[view.editKey]=newSession(); return a.sessions[view.editKey]; }
@@ -952,8 +974,8 @@
     el('userAvatar').textContent=(currentUser.email||"?").charAt(0).toUpperCase();
     var stored=null; try{ stored=localStorage.getItem('activeAcct'); }catch(e){}
     var active = accounts.find(function(a){return a.id===stored;}) || accounts[0] || null;
-    view={tab: accounts.length? 'journal':'comptes', accId: active?active.id:null, editKey: todayKey(), sub:null, anIds: active?[active.id]:[]};
-    applyTab(view.tab);
+    view={tab:'journal', jlevel:'accounts', accId: active?active.id:null, editKey: todayKey(), anIds: active?[active.id]:[]};
+    applyTab('journal');
     el('loadingScreen').style.display='none';
   }
   async function boot(){
@@ -1052,7 +1074,7 @@
       row.innerHTML='<div><div class="al">'+a.name+' <span class="badge">'+a.type+'</span>'+activeTag+'</div>'+
         '<div class="as">'+st.taken+'/'+a.maxTrades+' trades · '+st.win+'✓ '+st.loss+'✗</div></div>'+
         '<div style="display:flex;align-items:center;"><div class="ar-val '+rc+'">'+rv+'</div><span class="chev">›</span></div>';
-      row.onclick=function(){ setActiveAccount(a.id); showTab("journal"); };
+      row.onclick=function(){ openAccountView(a.id); };
       list.appendChild(row);
     });
     if(accounts.length===0){ var e=document.createElement("div"); e.className="empty-note"; e.textContent="Aucun compte pour l'instant."; list.appendChild(e); }
@@ -1179,9 +1201,25 @@
     var complete = total>0 && done===total;
     el("clProgress").classList.toggle("done", complete);
     var st=el("clStatus");
-    if(total===0){ st.textContent=""; st.classList.remove("done"); return; }
-    if(complete){ st.textContent="✅ Check-list complète — prêt à trader !"; st.classList.add("done"); }
-    else { st.classList.remove("done"); st.textContent = done+" / "+total+" — "+(done===0?"coche pour te préparer 💪":"continue, tu y es presque 🔥"); }
+    if(total===0){ st.textContent=""; st.classList.remove("done"); s._clDone=false; return; }
+    if(complete){ st.textContent="✅ Check-list complète — prêt à trader !"; st.classList.add("done"); if(!s._clDone){ s._clDone=true; confetti(); } }
+    else { st.classList.remove("done"); st.textContent = done+" / "+total+" — "+(done===0?"coche pour te préparer 💪":"continue, tu y es presque 🔥"); s._clDone=false; }
+  }
+  // petits confettis (gamification) — déclenchés à la complétion d'une check-list
+  function confetti(){
+    var host=el("confetti"); if(!host) return; host.classList.remove("hidden"); host.innerHTML="";
+    var cols=["#a26bff","#22c98a","#f4b740","#35c4d6","#ff5c9d","#4f8cff"];
+    for(var i=0;i<70;i++){
+      var d=document.createElement("i"); d.className="conf";
+      d.style.left=Math.random()*100+"%";
+      d.style.background=cols[i%cols.length];
+      d.style.animationDuration=(1.6+Math.random()*1.4)+"s";
+      d.style.animationDelay=(Math.random()*0.25)+"s";
+      d.style.transform="rotate("+(Math.random()*360)+"deg)";
+      if(Math.random()<0.5) d.style.borderRadius="50%";
+      host.appendChild(d);
+    }
+    setTimeout(function(){ host.classList.add("hidden"); host.innerHTML=""; }, 3200);
   }
   function renderSessChecklist(){
     var s=curSession(); if(!s) return;
@@ -1567,78 +1605,65 @@
   });
 
   // ============ NAVIGATION PAR ONGLETS ============
-  var SCREEN_OF={journal:"screenSession", plan:"screenPlan", analyses:"screenAnalysis", comptes:"screenGlobal"};
   function saveJournal(){ var a=acc(); if(a && view.editKey) persistSession(a,view.editKey); }
+  function hideMainScreens(){ ["screenGlobal","screenAccount","screenSession","screenPlan","screenAnalysis","screenCalendar"].forEach(function(id){ el(id).classList.add("hidden"); }); }
+  function setTitle(t,sub,big){ var e=el("screenTitle"); e.textContent=t; e.classList.toggle("big",!!big); el("screenSub").textContent=sub||""; }
 
   function applyTab(tab){
-    view.tab=tab; view.sub=null;
-    el("screenSession").classList.toggle("hidden", tab!=="journal");
-    el("screenPlan").classList.toggle("hidden", tab!=="plan");
-    el("screenAnalysis").classList.toggle("hidden", tab!=="analyses");
-    el("screenGlobal").classList.toggle("hidden", tab!=="comptes");
-    el("screenCalendar").classList.add("hidden");
+    view.tab=tab;
+    hideMainScreens();
     el("tabbar").classList.remove("hidden");
     el("gearBtn").classList.remove("hidden");
     el("backBtn").classList.add("hidden");
-    document.querySelectorAll('#tabbar .tab[data-tab]').forEach(function(t){ t.classList.toggle("on", t.dataset.tab===tab); });
     var a=acc();
-    if(tab!=="comptes" && !a){ // pas de compte actif -> renvoie vers Comptes
-      applyTab("comptes"); showToast("Choisis ou crée un compte"); return;
-    }
-    if(tab==="journal"){
-      el("screenTitle").innerHTML="Journal";
-      el("screenSub").textContent = a ? (a.name+" · "+(view.editKey===todayKey()?"aujourd'hui":labelKey(view.editKey))) : "—";
-      el("backBtn").classList.toggle("hidden", view.editKey===todayKey());
-      renderJournal();
-    } else if(tab==="plan"){
-      el("screenTitle").innerHTML="Plan de trading";
-      el("screenSub").textContent = a ? a.name : "—";
-      renderPlan();
-    } else if(tab==="analyses"){
-      el("screenTitle").innerHTML='Analyses '+premBadge();
-      el("screenSub").textContent="Résultats · discipline · psychologie";
-      renderAnalyses();
-    } else {
-      el("screenTitle").innerHTML="Mes comptes";
-      el("screenSub").textContent=frDate();
-      renderGlobal();
-    }
+    if((tab==="plan"||tab==="analyses") && !a){ showToast("Choisis d'abord un compte"); tab="journal"; view.jlevel="accounts"; }
+    view.tab=tab;
+    document.querySelectorAll('#tabbar .tab[data-tab]').forEach(function(t){ t.classList.toggle("on", t.dataset.tab===tab); });
+    if(tab==="journal"){ renderJournalTab(); }
+    else if(tab==="plan"){ el("screenPlan").classList.remove("hidden"); setTitle("Plan de trading", a?a.name:"", true); renderPlan(); }
+    else if(tab==="calendar"){ el("screenCalendar").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Calendrier économique","Événements macro", true); loadEconWidget(); }
+    else if(tab==="analyses"){ el("screenAnalysis").classList.remove("hidden"); setTitle("Analyses","Résultats · discipline · psychologie", true); renderAnalyses(); }
   }
-  function animateTab(){
-    var id=SCREEN_OF[view.tab]; var e=el(id); if(!e) return;
-    e.classList.remove("anim-r","anim-l"); void e.offsetWidth; e.classList.add("anim-r"); window.scrollTo(0,0);
+  // 3 niveaux du Journal : tous comptes -> un compte -> une séance
+  function renderJournalTab(){
+    var a=acc(), lvl=view.jlevel||"accounts";
+    if(lvl!=="accounts" && !a){ lvl="accounts"; view.jlevel="accounts"; }
+    el("screenGlobal").classList.toggle("hidden", lvl!=="accounts");
+    el("screenAccount").classList.toggle("hidden", lvl!=="account");
+    el("screenSession").classList.toggle("hidden", lvl!=="session");
+    if(lvl==="accounts"){ el("backBtn").classList.add("hidden"); setTitle("Journal", frDate(), true); renderGlobal(); }
+    else if(lvl==="account"){ el("backBtn").classList.remove("hidden"); setTitle(a.name, a.type+" · journal du compte", true); renderAccountOverview(a); }
+    else { el("backBtn").classList.remove("hidden"); var isToday=view.editKey===todayKey(); setTitle(isToday?"Séance du jour":labelKey(view.editKey), a.name+" · "+(isToday?"aujourd'hui":labelKey(view.editKey)), false); renderSession(); }
   }
+  function currentScreenId(){
+    if(view.tab==="plan")return "screenPlan"; if(view.tab==="analyses")return "screenAnalysis"; if(view.tab==="calendar")return "screenCalendar";
+    var lvl=view.jlevel||"accounts"; return lvl==="accounts"?"screenGlobal":lvl==="account"?"screenAccount":"screenSession";
+  }
+  function animateTab(){ var e=el(currentScreenId()); if(!e) return; e.classList.remove("anim-r","anim-l"); void e.offsetWidth; e.classList.add("anim-r"); window.scrollTo(0,0); }
   function showTab(tab){ applyTab(tab); animateTab(); }
-  function render(){ applyTab(view.tab); }   // compat : ré-affiche l'onglet courant
+  function render(){ applyTab(view.tab); }
 
-  // ouvrir une journée précise dans le Journal (aujourd'hui = séance du jour)
-  function openSession(key){ if(view.editKey && view.editKey!==key) saveJournal(); view.editKey=key; showTab("journal"); }
-
-  function renderJournal(){ var a=acc(); if(!a) return; if(!view.editKey) view.editKey=todayKey(); renderSession(); renderJournalHistory(a); }
+  function openAccountView(id){ setActiveAccount(id); view.tab="journal"; view.jlevel="account"; showTab("journal"); }
+  function openSession(key){ saveJournal(); view.editKey=key; view.tab="journal"; view.jlevel="session"; showTab("journal"); }
+  function renderAccountOverview(a){
+    var st=accStats(a);
+    var net=el("oNet"); net.textContent=fmtVal(st.net,a); net.className="kv "+(st.net>0?"pos":st.net<0?"neg":"");
+    el("oSessions").textContent=st.sessions; el("oWinDays").textContent=st.pos; el("oLossDays").textContent=st.neg;
+    el("oBest").textContent= st.sessions? fmtVal(st.best,a) : "—";
+    renderJournalHistory(a);
+  }
 
   // ---- onglets : clics ----
   document.querySelectorAll('#tabbar .tab[data-tab]').forEach(function(t){
     t.addEventListener("click",function(){
-      if(view.tab==="journal") saveJournal();
-      if(t.dataset.tab==="analyses"){ var a=acc(); view.anIds = a? [a.id] : []; }
-      showTab(t.dataset.tab);
+      if(view.tab==="journal" && view.jlevel==="session") saveJournal();
+      var target=t.dataset.tab;
+      if(target==="journal") view.jlevel="accounts";
+      if(target==="analyses"){ var a=acc(); view.anIds = a? [a.id] : []; }
+      showTab(target);
     });
   });
-  // bouton central (+) : ouvre/continue la séance du jour + coche rapide
-  el("tabFab").addEventListener("click",function(){
-    var a=acc(); if(!a){ showTab("comptes"); showToast("Crée d'abord un compte"); return; }
-    if(view.tab==="journal") saveJournal();
-    view.editKey=todayKey(); showTab("journal");
-    if(a.showTracker){ quickCoche(); } else { showToast("Séance du jour ouverte"); }
-  });
-  function quickCoche(){
-    var a=acc(), s=curSession();
-    if(s.trades.length!==a.maxTrades){ var old=s.trades; s.trades=[]; for(var i=0;i<a.maxTrades;i++)s.trades.push(old[i]||"empty"); }
-    var idx=s.trades.indexOf("empty");
-    if(idx<0){ showToast("Grille pleine ✓"); return; }
-    s.trades[idx]= a.trackWinLoss ? "win" : "taken";
-    renderGrid(); saveJournal(); showToast("Trade coché ✓ — ajuste-le dans la grille");
-  }
+  el("addSessionBtn").addEventListener("click",function(){ openSession(todayKey()); });
 
   // ---- Analyses (compte actif, + vue cumulée) ----
   function renderAnalyses(){
@@ -1670,28 +1695,14 @@
   el("planLossIn").addEventListener("input",function(){ var a=acc(); if(a)a.dailyLossLimit=this.value; });
   el("planLossIn").addEventListener("change",function(){ saveAccount(acc()); });
 
-  // ---- Calendrier économique (sous-écran, Premium — non bloquant tant que isPremium) ----
-  function openEcon(){
-    if(!canUse()){ showToast("Fonctionnalité Premium"); return; }
-    view.sub="econ";
-    ["screenSession","screenPlan","screenAnalysis","screenGlobal"].forEach(function(id){ el(id).classList.add("hidden"); });
-    el("screenCalendar").classList.remove("hidden");
-    el("tabbar").classList.add("hidden"); el("gearBtn").classList.add("hidden");
-    el("backBtn").classList.remove("hidden");
-    el("screenTitle").innerHTML="Calendrier économique"; el("screenSub").textContent="Événements macro";
-    loadEconWidget();
-    var e=el("screenCalendar"); e.classList.remove("anim-r","anim-l"); void e.offsetWidth; e.classList.add("anim-r"); window.scrollTo(0,0);
-  }
-  el("appSettingsBtn").addEventListener("click",openAppDrawer);
-
-  // back button (sous-écrans + retour à aujourd'hui)
+  // back button : remonte d'un niveau dans le Journal (séance -> compte -> tous comptes)
   el("backBtn").addEventListener("click",function(){
-    if(view.sub==="econ"){ showTab("comptes"); return; }
-    if(view.tab==="journal" && view.editKey!==todayKey()){ saveJournal(); view.editKey=todayKey(); showTab("journal"); }
+    if(view.tab!=="journal") return;
+    if(view.jlevel==="session"){ saveJournal(); view.jlevel="account"; showTab("journal"); }
+    else if(view.jlevel==="account"){ view.jlevel="accounts"; showTab("journal"); }
   });
 
   // ---------- Calendrier économique (widgets chargés depuis le réseau, jamais mis en cache) ----------
-  el("econBtn").addEventListener("click",openEcon);
 
   function loadEconWidget(){ buildTV(); buildInvesting(); }
 
@@ -1711,7 +1722,7 @@
     s.onerror=function(){ off.classList.remove("hidden"); };
     s.text=JSON.stringify({colorTheme:"dark",isTransparent:true,locale:"fr",countryFilter:"us,eu,fr,gb,jp",importanceFilter:"-1,0,1",width:"100%",height:"100%"});
     wrap.querySelector(".tradingview-widget-container").appendChild(s);
-    setTimeout(function(){ if(view.sub==="econ" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
+    setTimeout(function(){ if(view.tab==="calendar" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
   }
 
   function buildInvesting(){
@@ -1724,7 +1735,7 @@
     f.setAttribute("allowtransparency","true");
     f.onload=function(){ off.classList.add("hidden"); };
     wrap.appendChild(f);
-    setTimeout(function(){ if(view.sub==="econ" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
+    setTimeout(function(){ if(view.tab==="calendar" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
   }
 
   // session field bindings
@@ -1736,7 +1747,7 @@
   function showToast(msg){ var t=el("toast"); t.textContent=msg||"Séance enregistrée ✓"; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove("show");},1800); }
 
   // ---------- gear routing ----------
-  el("gearBtn").addEventListener("click",function(){ if(view.tab==="comptes") openAppDrawer(); else openDrawer(); });
+  el("gearBtn").addEventListener("click",function(){ if(view.tab==="journal" && (view.jlevel||"accounts")==="accounts") openAppDrawer(); else openDrawer(); });
 
   // account settings drawer
   function openDrawer(){
@@ -1772,6 +1783,7 @@
     });
   }
   document.querySelectorAll("#modeSeg button").forEach(function(b){ b.addEventListener("click",function(){ var a=acc(); a.loggingMode=b.dataset.mode; document.querySelectorAll("#modeSeg button").forEach(function(x){x.classList.remove("sel");}); b.classList.add("sel"); el("catFields").classList.toggle("hidden", !isDetailed(a)); saveAccountMeta(a); }); });
+  document.querySelectorAll("#tplSeg button").forEach(function(b){ b.addEventListener("click",function(){ var a=acc(); if(!a)return; applyTemplate(a,b.dataset.tpl); openDrawer(); showToast("Modèle « "+(TEMPLATES[b.dataset.tpl].label)+" » appliqué"); }); });
   // éditeur générique de liste de textes (règles / items / tags), stocké sur acc()[field]
   function renderListEditor(container,field,placeholder,addLabel){
     var a=acc(); if(!a) return;
@@ -1832,12 +1844,12 @@
     {ic:"📊",t:"Tes analyses",d:"Edgio te montre ce que ta discipline et ta psycho changent à tes résultats. Plus tu remplis, plus c'est parlant."}
   ];
   function openOnboarding(a){ onbActive=true; el("overlay").classList.add("open"); el("onbDrawer").classList.add("open"); onbStyleStep(a); }
-  function finishOnboarding(a){ a.onboarded=true; saveAccountMeta(a); onbActive=false; el("overlay").classList.remove("open"); el("onbDrawer").classList.remove("open"); setActiveAccount(a.id); showTab("journal"); showToast("Compte prêt — bienvenue !"); }
+  function finishOnboarding(a){ a.onboarded=true; saveAccountMeta(a); onbActive=false; el("overlay").classList.remove("open"); el("onbDrawer").classList.remove("open"); setActiveAccount(a.id); view.jlevel="account"; showTab("journal"); showToast("Compte prêt — bienvenue !"); }
   function onbStyleStep(a){
     var b=el("onbBody"); b.innerHTML='<h3>Quel est ton style ?</h3><div class="dsub">On pré-règle ton compte en conséquence. Tu pourras tout changer ensuite dans les réglages.</div>';
     Object.keys(TEMPLATES).forEach(function(key){
       var tpl=TEMPLATES[key], btn=document.createElement("button"); btn.type="button"; btn.className="onb-choice";
-      btn.innerHTML='<span class="oc-ic">'+tpl.ic+'</span><span><span class="oc-t">'+tpl.label+'</span><span class="oc-s">'+tpl.sub+'</span></span>';
+      btn.innerHTML='<span class="oc-ic">'+tpl.ic+'</span><span style="min-width:0;"><span class="oc-t">'+tpl.label+'</span><span class="oc-s">'+tpl.sub+'</span><span class="oc-list">⚙︎ '+tpl.pts+'</span></span>';
       btn.onclick=function(){ applyTemplate(a,key); onbTutorial(a,0); };
       b.appendChild(btn);
     });
@@ -1862,7 +1874,7 @@
   function deleteAccount(id){
     var i=accounts.findIndex(function(a){return a.id===id;}); if(i>=0)accounts.splice(i,1);
     if(view.accId===id){ setActiveAccount(accounts.length? accounts[0].id : null); }
-    closeDrawer(); showTab("comptes");
+    closeDrawer(); view.jlevel="accounts"; showTab("journal");
     db.from('accounts').delete().eq('id',id).then(function(){},function(e){console.warn('del',e);});
   }
 
