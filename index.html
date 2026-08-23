@@ -22,7 +22,7 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
-  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45;max-width:520px;margin:0 auto;padding:0 0 118px;min-height:100vh;position:relative;overflow-x:hidden;}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45;max-width:520px;margin:0 auto;padding:0 0 calc(84px + env(safe-area-inset-bottom));min-height:100vh;position:relative;overflow-x:hidden;}
   .app{padding:0 20px;}
 
   .topbar{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,var(--bg) 82%,rgba(11,14,17,0));padding:16px 20px 12px;}
@@ -219,6 +219,21 @@
   .main-btn{width:100%;border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:800;background:var(--accent);color:#fff;cursor:pointer;letter-spacing:.01em;box-shadow:0 6px 22px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;gap:8px;}
   .main-btn:active{transform:scale(.98);}
   .main-btn.done{background:var(--green);}
+  /* ===== barre d'onglets (nav bas) ===== */
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:45;max-width:520px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom));gap:2px;}
+  .tab{flex:1;background:none;border:none;font-family:inherit;color:var(--txt-faint);display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;cursor:pointer;font-size:10.5px;font-weight:700;-webkit-tap-highlight-color:transparent;}
+  .tab .ti{font-size:20px;line-height:1;filter:grayscale(1);opacity:.65;transition:opacity .15s;}
+  .tab.on{color:var(--accent);} .tab.on .ti{filter:none;opacity:1;}
+  .tab.fab{flex:0 0 auto;}
+  .tab.fab > span{display:flex;align-items:center;justify-content:center;width:56px;height:56px;margin-top:-26px;border-radius:50%;background:var(--accent);color:#fff;font-size:32px;font-weight:300;line-height:0;box-shadow:0 6px 18px rgba(0,0,0,.45);border:3px solid var(--bg);}
+  .tab.fab:active > span{transform:scale(.93);}
+  /* ===== Plan ===== */
+  .plan-obj{display:flex;align-items:center;gap:10px;}
+  .plan-obj input{flex:1;}
+  .plan-unit{font-size:13px;color:var(--txt-dim);font-weight:700;flex:0 0 auto;min-width:52px;}
+  .plan-sub{font-size:12.5px;color:var(--txt-dim);margin:-6px 0 12px;line-height:1.45;}
+  /* ===== Premium ===== */
+  .premchip{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(90deg,#f4b740,#f4913f);color:#241a00;padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:6px;}
 
   /* screen slide animations */
   @keyframes slideR{from{opacity:0;transform:translateX(26px);}to{opacity:1;transform:none;}}
@@ -278,7 +293,7 @@
   .cmodal .confirm{background:var(--red);color:#fff;border-color:var(--red);}
 
   .hidden{display:none !important;}
-  .toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:#04160f;font-weight:800;font-size:14px;padding:12px 20px;border-radius:12px;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;max-width:90%;text-align:center;}
+  .toast{position:fixed;bottom:calc(96px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:#04160f;font-weight:800;font-size:14px;padding:12px 20px;border-radius:12px;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;max-width:90%;text-align:center;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* auth / loading screens */
@@ -364,25 +379,22 @@
       <div id="acctList"></div>
     </div>
 
-    <button class="nav-tile" id="anGlobalBtn" type="button">
-      <span class="nt-ic">📊</span>
-      <span>
-        <span class="nt-t">Analyse</span>
-        <span class="nt-s">Discipline & psychologie · choisis tes comptes</span>
-      </span>
-      <span class="nt-arr">›</span>
-    </button>
-
-    <button class="nav-tile" id="econBtn" type="button">
-      <span class="nt-ic">📅</span>
-      <span class="nt-t">Calendrier économique</span>
-      <span class="nt-arr">›</span>
-    </button>
-
     <div class="card">
       <h2>Calendrier cumulé <span class="hint">tous comptes additionnés</span></h2>
       <div id="gCal"></div>
     </div>
+
+    <button class="nav-tile" id="econBtn" type="button">
+      <span class="nt-ic">📅</span>
+      <span class="nt-t">Calendrier économique <span class="premchip">Premium</span></span>
+      <span class="nt-arr">›</span>
+    </button>
+
+    <button class="nav-tile" id="appSettingsBtn" type="button">
+      <span class="nt-ic">⚙️</span>
+      <span class="nt-t">Réglages de l'app</span>
+      <span class="nt-arr">›</span>
+    </button>
   </div>
 
   <!-- ========== CALENDRIER ÉCONOMIQUE ========== -->
@@ -401,47 +413,61 @@
     </div>
   </div>
 
-  <!-- ========== ANALYSE (coach psycho) ========== -->
+  <!-- ========== ANALYSES (chiffré + coach psycho) ========== -->
   <div id="screenAnalysis" class="hidden">
-    <div id="analysisBody"></div>
-  </div>
-
-  <!-- ========== LEVEL 1 : ACCOUNT OVERVIEW ========== -->
-  <div id="screenAccount" class="hidden">
-    <button class="nav-tile" id="anAcctBtn" type="button">
-      <span class="nt-ic">📊</span>
-      <span>
-        <span class="nt-t">Analyse</span>
-        <span class="nt-s">Discipline & psychologie</span>
-      </span>
-      <span class="nt-arr">›</span>
-    </button>
-    <div class="card">
+    <div class="card" id="anKpisCard">
       <h2>Résultats <span class="hint">chiffré · performance</span></h2>
       <div class="kpis">
-        <div class="kpi wide">
-          <div class="kl">Résultat net</div>
-          <div class="kv" id="aNet">—</div>
-        </div>
+        <div class="kpi wide"><div class="kl">Résultat net</div><div class="kv" id="aNet">—</div></div>
         <div class="kpi"><div class="kl">Séances</div><div class="kv" id="aSessions">0</div></div>
         <div class="kpi"><div class="kl">Jours gagnants</div><div class="kv" id="aWinDays">0</div></div>
         <div class="kpi"><div class="kl">Jours perdants</div><div class="kv" id="aLossDays">0</div></div>
         <div class="kpi"><div class="kl">Meilleur jour</div><div class="kv" id="aBest">—</div></div>
       </div>
     </div>
+    <div id="analysisBody"></div>
+    <button class="nav-tile" id="anCumulBtn" type="button">
+      <span class="nt-ic">🧮</span>
+      <span class="nt-t">Vue cumulée — choisir plusieurs comptes</span>
+      <span class="nt-arr">›</span>
+    </button>
+  </div>
 
+  <!-- ========== PLAN DE TRADING ========== -->
+  <div id="screenPlan" class="hidden">
     <div class="card">
-      <h2>Calendrier du compte <span class="hint">consultable à tout moment</span></h2>
-      <div id="aCal"></div>
+      <h2>Style de trading</h2>
+      <textarea id="planStyle" placeholder="Ex : Scalping indices US en séance, momentum sur cassure, 1 à 3 trades/jour."></textarea>
     </div>
-
     <div class="card">
-      <h2>Séances récentes</h2>
-      <div id="aSessList"></div>
+      <h2>Règles d'entrée / sortie</h2>
+      <div class="plan-sub">Décris tes conditions. Tes <b>règles</b> ci-dessous sont réutilisées telles quelles et notées à chaque séance.</div>
+      <div class="set-label">Conditions d'entrée</div>
+      <textarea id="planEntry" placeholder="Ex : setup validé + confirmation volume + niveau clé."></textarea>
+      <div class="set-label" style="margin-top:12px;">Conditions de sortie</div>
+      <textarea id="planExit" placeholder="Ex : TP au prochain niveau, SL sous le dernier creux, coupe à −X."></textarea>
+      <div class="set-label" style="margin-top:14px;">Mes règles <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(notées ✓/✗ en séance)</span></div>
+      <div id="planRulesList"></div>
+    </div>
+    <div class="card">
+      <h2>Objectifs</h2>
+      <div class="set-label">Objectif mensuel</div>
+      <div class="plan-obj"><input class="set-input" id="planObjM" type="text" inputmode="decimal" placeholder="0"><span class="plan-unit" id="planObjMUnit">—</span></div>
+      <div class="set-label" style="margin-top:12px;">Objectif journalier</div>
+      <div class="plan-obj"><input class="set-input" id="planObjD" type="text" inputmode="decimal" placeholder="0"><span class="plan-unit" id="planObjDUnit">—</span></div>
+    </div>
+    <div class="card">
+      <h2>Gestion du risque</h2>
+      <div class="set-label">Ratio R:R visé</div>
+      <input class="set-input" id="planRR" type="text" placeholder="Ex : 1:2">
+      <div class="set-label" style="margin-top:12px;">Limite de perte du jour</div>
+      <div class="plan-obj"><input class="set-input" id="planLossIn" type="text" inputmode="decimal" placeholder="Ex : 300"><span class="plan-unit" id="planLossUnit">—</span></div>
+      <div class="set-label" style="margin-top:12px;">Drawdown / perte max</div>
+      <div class="plan-obj"><input class="set-input" id="planMaxDD" type="text" inputmode="decimal" placeholder="Ex : 1000"><span class="plan-unit" id="planMaxDDUnit">—</span></div>
     </div>
   </div>
 
-  <!-- ========== LEVEL 2 : SESSION ========== -->
+  <!-- ========== JOURNAL (séance du jour) ========== -->
   <div id="screenSession" class="hidden">
     <div class="card hidden" id="cardMoodBefore">
       <h2>Humeur avant <span class="hint">comment tu te sens</span></h2>
@@ -499,13 +525,26 @@
       <h2>Journal de fin de séance</h2>
       <textarea id="notesText" placeholder="Comment j'ai été aujourd'hui ? Ce qui a marché, ce qui a merdé, les erreurs à corriger demain…"></textarea>
     </div>
+
+    <div class="card">
+      <h2>Historique <span class="hint">touche un jour pour l'ouvrir</span></h2>
+      <div id="aCal"></div>
+    </div>
+    <div class="card">
+      <h2>Séances récentes</h2>
+      <div id="aSessList"></div>
+    </div>
   </div>
 
 </div>
 
-<div class="bottombar hidden" id="bottomBar">
-  <button class="main-btn" id="bottomBtn">Nouvelle séance</button>
-</div>
+<nav class="tabbar hidden" id="tabbar">
+  <button class="tab" data-tab="journal" type="button"><span class="ti">📓</span><span class="tt">Journal</span></button>
+  <button class="tab" data-tab="plan" type="button"><span class="ti">📋</span><span class="tt">Plan</span></button>
+  <button class="tab fab" id="tabFab" type="button" aria-label="Action rapide"><span>+</span></button>
+  <button class="tab" data-tab="analyses" type="button"><span class="ti">📊</span><span class="tt">Analyses</span></button>
+  <button class="tab" data-tab="comptes" type="button"><span class="ti">👤</span><span class="tt">Comptes</span></button>
+</nav>
 
 <div class="toast" id="toast">Séance enregistrée ✓</div>
 
@@ -653,8 +692,14 @@
   var WD=["L","M","M","J","V","S","D"];
   function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[]}; }
 
-  // navigation
-  var view={level:"global", accId:null, editKey:null};
+  // ---- premium (placeholder, à brancher sur Stripe plus tard) ----
+  var isPremium = true;   // TODO Stripe : passer à false + brancher openUpsell()
+  function canUse(){ return isPremium; }               // un seul test à activer plus tard
+  function premBadge(){ return '<span class="premchip">Premium</span>'; }
+
+  // navigation (onglets)
+  var view={tab:"journal", accId:null, editKey:null, sub:null, anIds:[]};
+  function setActiveAccount(id){ view.accId=id; try{ localStorage.setItem('activeAcct', id||""); }catch(e){} }
   function acc(){ return accounts.find(function(a){return a.id===view.accId;}); }
   function curSession(){ var a=acc(); if(!a) return null; if(!a.sessions[view.editKey]) a.sessions[view.editKey]=newSession(); return a.sessions[view.editKey]; }
   var el=function(id){return document.getElementById(id);};
@@ -669,8 +714,12 @@
       showMood:!!r.show_mood, showTags:!!r.show_tags, tagsOptions:Array.isArray(r.tags_options)?r.tags_options:[],
       dailyLossLimit:(r.daily_loss_limit===null||r.daily_loss_limit===undefined)?"":String(r.daily_loss_limit),
       showStreak:!!r.show_streak,
+      plan:(r.plan&&typeof r.plan==='object'&&!Array.isArray(r.plan))?r.plan:{},
       sessions:{}};
   }
+  // sauvegarde isolée du plan (colonne jsonb 'plan') : si la colonne n'existe pas encore,
+  // seule cette requête échoue, le reste du compte reste sauvegardable
+  function savePlan(a){ if(!a) return; db.from('accounts').update({plan:a.plan||{}}).eq('id',a.id).then(function(){},function(e){console.warn('plan (colonne manquante ?)',e);}); }
   async function loadAll(){
     var sr = await db.from('user_settings').select('*').eq('user_id',currentUser.id).maybeSingle();
     var sett = sr.data;
@@ -766,8 +815,10 @@
     try{ await loadAll(); }catch(e){ console.error(e); }
     el('userEmail').textContent=currentUser.email||"—";
     el('userAvatar').textContent=(currentUser.email||"?").charAt(0).toUpperCase();
-    view={level:'global',accId:null,editKey:null};
-    render();
+    var stored=null; try{ stored=localStorage.getItem('activeAcct'); }catch(e){}
+    var active = accounts.find(function(a){return a.id===stored;}) || accounts[0] || null;
+    view={tab: accounts.length? 'journal':'comptes', accId: active?active.id:null, editKey: todayKey(), sub:null, anIds: active?[active.id]:[]};
+    applyTab(view.tab);
     el('loadingScreen').style.display='none';
   }
   async function boot(){
@@ -862,10 +913,11 @@
       var rv="—",rc="flat";
       if(s&&hasResult(s)){ var v=sessionNet(s); rv=fmtVal(v,a); rc=v>0?"pos":v<0?"neg":"flat"; }
       var row=document.createElement("div"); row.className="acct-row";
-      row.innerHTML='<div><div class="al">'+a.name+' <span class="badge">'+a.type+'</span></div>'+
+      var activeTag = a.id===view.accId ? ' <span class="badge" style="background:var(--accent-dim);color:var(--accent);">actif</span>' : '';
+      row.innerHTML='<div><div class="al">'+a.name+' <span class="badge">'+a.type+'</span>'+activeTag+'</div>'+
         '<div class="as">'+st.taken+'/'+a.maxTrades+' trades · '+st.win+'✓ '+st.loss+'✗</div></div>'+
         '<div style="display:flex;align-items:center;"><div class="ar-val '+rc+'">'+rv+'</div><span class="chev">›</span></div>';
-      row.onclick=function(){ view.accId=a.id; navigate("account","forward"); };
+      row.onclick=function(){ setActiveAccount(a.id); showTab("journal"); };
       list.appendChild(row);
     });
     if(accounts.length===0){ var e=document.createElement("div"); e.className="empty-note"; e.textContent="Aucun compte pour l'instant."; list.appendChild(e); }
@@ -887,19 +939,22 @@
     }
     return streak;
   }
-  function renderAccount(){
-    var a=acc(); if(!a) return;
+  function renderKpis(a){
+    if(!a) return;
     var st=accStats(a);
     var net=el("aNet"); net.textContent=fmtVal(st.net,a); net.className="kv "+(st.net>0?"pos":st.net<0?"neg":"");
     el("aSessions").textContent=st.sessions;
     el("aWinDays").textContent=st.pos;
     el("aLossDays").textContent=st.neg;
     el("aBest").textContent= st.sessions? fmtVal(st.best,a) : "—";
+  }
+  function renderJournalHistory(a){
+    if(!a) return;
     var map={}; Object.keys(a.sessions).forEach(function(k){ map[k]=sessionNet(a.sessions[k]); });
     renderMonth(el("aCal"), map, function(key){ openSession(key); });
     var sl=el("aSessList"); sl.innerHTML="";
     var keys=Object.keys(a.sessions).sort().reverse();
-    if(keys.length===0){ var e=document.createElement("div"); e.className="empty-note"; e.textContent="Pas encore de séance. Lance-toi avec « Nouvelle séance »."; sl.appendChild(e); }
+    if(keys.length===0){ var e=document.createElement("div"); e.className="empty-note"; e.textContent="Pas encore de séance enregistrée."; sl.appendChild(e); }
     keys.slice(0,8).forEach(function(k){
       var v=sessionNet(a.sessions[k]); var row=document.createElement("div"); row.className="sess-row";
       var sc=v>0?"pos":v<0?"neg":"flat";
@@ -949,7 +1004,7 @@
 
   // ---------- modules avancés : séance ----------
   var MOOD_EMOJI=["😞","😕","😐","🙂","😄"];
-  function refreshSaveBtn(){ var s=curSession(); if(!s) return; var b=el("bottomBtn"); b.classList.remove("done"); b.textContent=isEmptySession(s)?"Valider la séance":"Enregistrer"; }
+  function refreshSaveBtn(){ /* auto-save : plus de bouton dédié, la séance est persistée au changement d'onglet/jour */ }
   // snapshot : on fige les règles/items dans la séance à la 1re ouverture, pour que l'historique reste juste
   function seedRuleSnapshot(a,s){
     if(!a.showRules) return;
@@ -1044,8 +1099,6 @@
     if(a.showMood){ renderMood("moodBeforeRow","moodBefore"); renderMood("moodAfterRow","moodAfter"); }
     if(a.showTags) renderSessTags();
     updateStopBanner();
-    var b=el("bottomBtn"); b.classList.remove("done");
-    b.textContent = isEmptySession(s) ? "Valider la séance" : "Enregistrer";
   }
 
   // ============ ANALYSE (assistant psycho / coach) ============
@@ -1231,15 +1284,7 @@
       body.appendChild(e);
     }
   }
-  el("anAcctBtn").addEventListener("click",function(){ var a=acc(); if(!a)return; view.anIds=[a.id]; view.anFrom='account'; navigate("analysis","forward"); renderAnalysisScreen(); });
-  el("anGlobalBtn").addEventListener("click",function(){
-    view.anFrom='global';
-    if(accounts.length===0){ showToast("Aucun compte à analyser"); return; }
-    if(accounts.length===1){ view.anIds=[accounts[0].id]; navigate("analysis","forward"); renderAnalysisScreen(); return; }
-    openAnalysisPicker();
-  });
-
-  // sélecteur de comptes pour l'analyse
+  // sélecteur de comptes pour l'analyse (vue cumulée)
   var anPickSel={};
   function openAnalysisPicker(){ anPickSel={}; accounts.forEach(function(a){ anPickSel[a.id]=true; }); renderAnalysisPicker(); el("overlay").classList.add("open"); el("analysisPicker").classList.add("open"); }
   function renderAnalysisPicker(){
@@ -1263,68 +1308,135 @@
   el("anPickGo").addEventListener("click",function(){
     var ids=accounts.filter(function(a){return anPickSel[a.id];}).map(function(a){return a.id;});
     if(ids.length===0){ showToast("Sélectionne au moins un compte"); return; }
-    view.anIds=ids; closeDrawer(); navigate("analysis","forward"); renderAnalysisScreen();
+    view.anIds=ids; closeDrawer(); showTab("analyses");
   });
 
-  // ---------- navigation / master render ----------
-  function render(){
-    el("screenGlobal").classList.toggle("hidden", view.level!=="global");
-    el("screenCalendar").classList.toggle("hidden", view.level!=="calendar");
-    el("screenAnalysis").classList.toggle("hidden", view.level!=="analysis");
-    el("screenAccount").classList.toggle("hidden", view.level!=="account");
-    el("screenSession").classList.toggle("hidden", view.level!=="session");
-    el("backBtn").classList.toggle("hidden", view.level==="global");
-    el("gearBtn").classList.toggle("hidden", view.level==="calendar"||view.level==="analysis");
+  // ============ NAVIGATION PAR ONGLETS ============
+  var SCREEN_OF={journal:"screenSession", plan:"screenPlan", analyses:"screenAnalysis", comptes:"screenGlobal"};
+  function saveJournal(){ var a=acc(); if(a && view.editKey) persistSession(a,view.editKey); }
 
-    var bar=el("bottomBar"), btn=el("bottomBtn");
-    if(view.level==="global"||view.level==="calendar"||view.level==="analysis"){ bar.classList.add("hidden"); }
-    else if(view.level==="account"){ bar.classList.remove("hidden"); btn.textContent="Nouvelle séance"; btn.classList.remove("done"); }
-    else { bar.classList.remove("hidden"); }
-
-    if(view.level==="global"){
-      el("screenTitle").innerHTML="Vue d'ensemble";
+  function applyTab(tab){
+    view.tab=tab; view.sub=null;
+    el("screenSession").classList.toggle("hidden", tab!=="journal");
+    el("screenPlan").classList.toggle("hidden", tab!=="plan");
+    el("screenAnalysis").classList.toggle("hidden", tab!=="analyses");
+    el("screenGlobal").classList.toggle("hidden", tab!=="comptes");
+    el("screenCalendar").classList.add("hidden");
+    el("tabbar").classList.remove("hidden");
+    el("gearBtn").classList.remove("hidden");
+    el("backBtn").classList.add("hidden");
+    document.querySelectorAll('#tabbar .tab[data-tab]').forEach(function(t){ t.classList.toggle("on", t.dataset.tab===tab); });
+    var a=acc();
+    if(tab!=="comptes" && !a){ // pas de compte actif -> renvoie vers Comptes
+      applyTab("comptes"); showToast("Choisis ou crée un compte"); return;
+    }
+    if(tab==="journal"){
+      el("screenTitle").innerHTML="Journal";
+      el("screenSub").textContent = a ? (a.name+" · "+(view.editKey===todayKey()?"aujourd'hui":labelKey(view.editKey))) : "—";
+      el("backBtn").classList.toggle("hidden", view.editKey===todayKey());
+      renderJournal();
+    } else if(tab==="plan"){
+      el("screenTitle").innerHTML="Plan de trading";
+      el("screenSub").textContent = a ? a.name : "—";
+      renderPlan();
+    } else if(tab==="analyses"){
+      el("screenTitle").innerHTML='Analyses '+premBadge();
+      el("screenSub").textContent="Résultats · discipline · psychologie";
+      renderAnalyses();
+    } else {
+      el("screenTitle").innerHTML="Mes comptes";
       el("screenSub").textContent=frDate();
       renderGlobal();
-    } else if(view.level==="calendar"){
-      el("screenTitle").innerHTML="Calendrier économique";
-      el("screenSub").textContent="Événements macro à venir";
-    } else if(view.level==="analysis"){
-      el("screenTitle").innerHTML="Analyse";
-      el("screenSub").textContent = "Discipline & psychologie";
-      renderAnalysisScreen();
-    } else if(view.level==="account"){
-      var a=acc();
-      el("screenTitle").innerHTML=(a?a.name:"")+' <span class="badge">'+(a?a.type:"")+'</span>';
-      el("screenSub").textContent="Vue du compte";
-      renderAccount();
-    } else {
-      var a2=acc();
-      var isToday=view.editKey===todayKey();
-      el("screenTitle").innerHTML=isToday?"Séance du jour":"Séance";
-      el("screenSub").textContent=(isToday?"Aujourd'hui":labelKey(view.editKey))+" · "+(a2?a2.name:"");
-      renderSession();
     }
   }
-  function animate(dir){
-    var id=view.level==="global"?"screenGlobal":view.level==="calendar"?"screenCalendar":view.level==="analysis"?"screenAnalysis":view.level==="account"?"screenAccount":"screenSession";
-    var e=el(id); e.classList.remove("anim-r","anim-l"); void e.offsetWidth; e.classList.add(dir==="back"?"anim-l":"anim-r");
-    window.scrollTo(0,0);
+  function animateTab(){
+    var id=SCREEN_OF[view.tab]; var e=el(id); if(!e) return;
+    e.classList.remove("anim-r","anim-l"); void e.offsetWidth; e.classList.add("anim-r"); window.scrollTo(0,0);
   }
-  function navigate(level,dir){ view.level=level; render(); animate(dir); }
+  function showTab(tab){ applyTab(tab); animateTab(); }
+  function render(){ applyTab(view.tab); }   // compat : ré-affiche l'onglet courant
 
-  // open a session (today = nouvelle/continuer ; date passée = consulter/modifier)
-  function openSession(key){ view.editKey=key; navigate("session","forward"); }
+  // ouvrir une journée précise dans le Journal (aujourd'hui = séance du jour)
+  function openSession(key){ if(view.editKey && view.editKey!==key) saveJournal(); view.editKey=key; showTab("journal"); }
 
-  // back button
+  function renderJournal(){ var a=acc(); if(!a) return; if(!view.editKey) view.editKey=todayKey(); renderSession(); renderJournalHistory(a); }
+
+  // ---- onglets : clics ----
+  document.querySelectorAll('#tabbar .tab[data-tab]').forEach(function(t){
+    t.addEventListener("click",function(){
+      if(view.tab==="journal") saveJournal();
+      if(t.dataset.tab==="analyses"){ var a=acc(); view.anIds = a? [a.id] : []; }
+      showTab(t.dataset.tab);
+    });
+  });
+  // bouton central (+) : ouvre/continue la séance du jour + coche rapide
+  el("tabFab").addEventListener("click",function(){
+    var a=acc(); if(!a){ showTab("comptes"); showToast("Crée d'abord un compte"); return; }
+    if(view.tab==="journal") saveJournal();
+    view.editKey=todayKey(); showTab("journal");
+    if(a.showTracker){ quickCoche(); } else { showToast("Séance du jour ouverte"); }
+  });
+  function quickCoche(){
+    var a=acc(), s=curSession();
+    if(s.trades.length!==a.maxTrades){ var old=s.trades; s.trades=[]; for(var i=0;i<a.maxTrades;i++)s.trades.push(old[i]||"empty"); }
+    var idx=s.trades.indexOf("empty");
+    if(idx<0){ showToast("Grille pleine ✓"); return; }
+    s.trades[idx]= a.trackWinLoss ? "win" : "taken";
+    renderGrid(); saveJournal(); showToast("Trade coché ✓ — ajuste-le dans la grille");
+  }
+
+  // ---- Analyses (compte actif, + vue cumulée) ----
+  function renderAnalyses(){
+    var a=acc(); if(!a) return;
+    if(!view.anIds || view.anIds.length===0) view.anIds=[a.id];
+    var single = view.anIds.length===1;
+    el("anKpisCard").classList.toggle("hidden", !single);
+    if(single){ var only=accounts.find(function(x){return x.id===view.anIds[0];})||a; renderKpis(only); }
+    renderAnalysisScreen();
+  }
+  el("anCumulBtn").addEventListener("click",function(){
+    if(accounts.length<=1){ showToast("Un seul compte pour l'instant"); return; }
+    openAnalysisPicker();
+  });
+
+  // ---- Plan ----
+  function renderPlan(){
+    var a=acc(); if(!a) return; a.plan=a.plan||{};
+    el("planStyle").value=a.plan.style||""; el("planEntry").value=a.plan.entry||""; el("planExit").value=a.plan.exit||"";
+    el("planObjM").value=a.plan.objMonthly||""; el("planObjD").value=a.plan.objDaily||"";
+    el("planRR").value=a.plan.rr||""; el("planMaxDD").value=a.plan.maxDrawdown||"";
+    el("planLossIn").value=a.dailyLossLimit||"";
+    var u=unitOf(a).label; el("planObjMUnit").textContent=u; el("planObjDUnit").textContent=u; el("planMaxDDUnit").textContent=u; el("planLossUnit").textContent=u;
+    renderListEditor(el("planRulesList"),"rules","Ex : Pas de trade avant 15h30","Ajouter une règle");
+  }
+  function bindPlanField(id,key){ var e=el(id); e.addEventListener("input",function(){ var a=acc(); if(!a)return; a.plan=a.plan||{}; a.plan[key]=this.value; }); e.addEventListener("change",function(){ savePlan(acc()); }); }
+  bindPlanField("planStyle","style"); bindPlanField("planEntry","entry"); bindPlanField("planExit","exit");
+  bindPlanField("planObjM","objMonthly"); bindPlanField("planObjD","objDaily"); bindPlanField("planRR","rr"); bindPlanField("planMaxDD","maxDrawdown");
+  el("planLossIn").addEventListener("input",function(){ var a=acc(); if(a)a.dailyLossLimit=this.value; });
+  el("planLossIn").addEventListener("change",function(){ saveAccount(acc()); });
+
+  // ---- Calendrier économique (sous-écran, Premium — non bloquant tant que isPremium) ----
+  function openEcon(){
+    if(!canUse()){ showToast("Fonctionnalité Premium"); return; }
+    view.sub="econ";
+    ["screenSession","screenPlan","screenAnalysis","screenGlobal"].forEach(function(id){ el(id).classList.add("hidden"); });
+    el("screenCalendar").classList.remove("hidden");
+    el("tabbar").classList.add("hidden"); el("gearBtn").classList.add("hidden");
+    el("backBtn").classList.remove("hidden");
+    el("screenTitle").innerHTML="Calendrier économique"; el("screenSub").textContent="Événements macro";
+    loadEconWidget();
+    var e=el("screenCalendar"); e.classList.remove("anim-r","anim-l"); void e.offsetWidth; e.classList.add("anim-r"); window.scrollTo(0,0);
+  }
+  el("appSettingsBtn").addEventListener("click",openAppDrawer);
+
+  // back button (sous-écrans + retour à aujourd'hui)
   el("backBtn").addEventListener("click",function(){
-    if(view.level==="session"){ var a=acc(),k=view.editKey,s=a?a.sessions[k]:null; if(s&&isEmptySession(s)) delete a.sessions[k]; persistSession(a,k); navigate("account","back"); }
-    else if(view.level==="calendar") navigate("global","back");
-    else if(view.level==="analysis") navigate(view.anFrom==="account"?"account":"global","back");
-    else if(view.level==="account") navigate("global","back");
+    if(view.sub==="econ"){ showTab("comptes"); return; }
+    if(view.tab==="journal" && view.editKey!==todayKey()){ saveJournal(); view.editKey=todayKey(); showTab("journal"); }
   });
 
   // ---------- Calendrier économique (widgets chargés depuis le réseau, jamais mis en cache) ----------
-  el("econBtn").addEventListener("click",function(){ navigate("calendar","forward"); loadEconWidget(); });
+  el("econBtn").addEventListener("click",openEcon);
 
   function loadEconWidget(){ buildTV(); buildInvesting(); }
 
@@ -1344,7 +1456,7 @@
     s.onerror=function(){ off.classList.remove("hidden"); };
     s.text=JSON.stringify({colorTheme:"dark",isTransparent:true,locale:"fr",countryFilter:"us,eu,fr,gb,jp",importanceFilter:"-1,0,1",width:"100%",height:"100%"});
     wrap.querySelector(".tradingview-widget-container").appendChild(s);
-    setTimeout(function(){ if(view.level==="calendar" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
+    setTimeout(function(){ if(view.sub==="econ" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
   }
 
   function buildInvesting(){
@@ -1357,19 +1469,8 @@
     f.setAttribute("allowtransparency","true");
     f.onload=function(){ off.classList.add("hidden"); };
     wrap.appendChild(f);
-    setTimeout(function(){ if(view.level==="calendar" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
+    setTimeout(function(){ if(view.sub==="econ" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
   }
-
-  // bottom button
-  el("bottomBtn").addEventListener("click",function(){
-    if(view.level==="account"){ openSession(todayKey()); return; }
-    // session : valider / enregistrer
-    var a=acc(), k=view.editKey, s=a.sessions[k];
-    if(s && isEmptySession(s)){ delete a.sessions[k]; showToast("Séance vide — rien à enregistrer"); }
-    else { showToast("Séance enregistrée ✓"); }
-    persistSession(a,k);
-    navigate("account","back");
-  });
 
   // session field bindings
   el("objText").addEventListener("input",function(){ var s=curSession(); if(s)s.objective=this.value; });
@@ -1380,7 +1481,7 @@
   function showToast(msg){ var t=el("toast"); t.textContent=msg||"Séance enregistrée ✓"; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove("show");},1800); }
 
   // ---------- gear routing ----------
-  el("gearBtn").addEventListener("click",function(){ if(view.level==="global") openAppDrawer(); else openDrawer(); });
+  el("gearBtn").addEventListener("click",function(){ if(view.tab==="comptes") openAppDrawer(); else openDrawer(); });
 
   // account settings drawer
   function openDrawer(){
@@ -1453,13 +1554,19 @@
 
   // add / delete accounts
   async function addAccount(){
+    if(!canUse() && accounts.length>=1){ showToast("Plusieurs comptes = Premium"); return; }  // gating prêt (non bloquant tant que isPremium)
     var ins=await db.from('accounts').insert({user_id:currentUser.id,name:"Nouveau compte",type:"Réel",max_trades:10,result_unit:"usd",position:accounts.length}).select().single();
     if(ins.error){ showToast("Erreur : compte non créé"); console.warn(ins.error); return; }
     var a=rowToAccount(ins.data); accounts.push(a);
-    view.accId=a.id; navigate("account","forward"); openDrawer();
+    setActiveAccount(a.id); showTab("comptes"); openDrawer();
     setTimeout(function(){ var n=el("setName"); if(n){n.focus();n.select();} },260);
   }
-  function deleteAccount(id){ var i=accounts.findIndex(function(a){return a.id===id;}); if(i>=0)accounts.splice(i,1); closeDrawer(); navigate("global","back"); db.from('accounts').delete().eq('id',id).then(function(){},function(e){console.warn('del',e);}); }
+  function deleteAccount(id){
+    var i=accounts.findIndex(function(a){return a.id===id;}); if(i>=0)accounts.splice(i,1);
+    if(view.accId===id){ setActiveAccount(accounts.length? accounts[0].id : null); }
+    closeDrawer(); showTab("comptes");
+    db.from('accounts').delete().eq('id',id).then(function(){},function(e){console.warn('del',e);});
+  }
 
   // confirm modal
   var pending=null;
