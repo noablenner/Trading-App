@@ -234,6 +234,49 @@
   .plan-sub{font-size:12.5px;color:var(--txt-dim);margin:-6px 0 12px;line-height:1.45;}
   /* ===== Premium ===== */
   .premchip{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(90deg,#f4b740,#f4913f);color:#241a00;padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:6px;}
+  .rec-badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;background:var(--accent-dim);color:var(--accent);padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:6px;}
+  .rec-badge.day{background:#12303a;color:#35c4d6;}
+  /* ===== accordéon réglages ===== */
+  .cat{border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden;background:var(--surface-2);}
+  .cat-h{display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;user-select:none;}
+  .cat-h .cat-ic{font-size:18px;flex:0 0 auto;}
+  .cat-h .cat-t{font-weight:800;font-size:15px;flex:1;}
+  .cat-h .cat-ch{color:var(--txt-dim);transition:transform .2s;flex:0 0 auto;}
+  .cat.open .cat-h .cat-ch{transform:rotate(90deg);}
+  .cat-help{font-size:12px;color:var(--txt-dim);padding:0 14px 4px;margin-top:-4px;line-height:1.45;}
+  .cat-b{display:none;padding:4px 14px 14px;}
+  .cat.open .cat-b{display:block;}
+  /* ===== trades détaillés ===== */
+  .trade-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line);cursor:pointer;}
+  .trade-row:first-child{border-top:none;}
+  .trade-side{font-size:11px;font-weight:800;padding:3px 8px;border-radius:8px;flex:0 0 auto;}
+  .trade-side.buy{background:var(--green-dim);color:var(--green);}
+  .trade-side.sell{background:var(--red-dim);color:var(--red);}
+  .trade-main{flex:1;min-width:0;}
+  .trade-instr{font-weight:700;font-size:14.5px;}
+  .trade-meta{font-size:12px;color:var(--txt-dim);margin-top:1px;}
+  .trade-res{font-weight:800;font-size:15px;flex:0 0 auto;}
+  .trade-res.pos{color:var(--green);} .trade-res.neg{color:var(--red);}
+  .field-2{display:flex;gap:10px;} .field-2 > *{flex:1;}
+  .fromtrades{font-size:12.5px;color:var(--accent);font-weight:700;cursor:pointer;margin-top:10px;display:inline-block;}
+  /* ===== sélecteur d'instrument ===== */
+  .instr-search{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:15px;padding:12px;margin-bottom:10px;}
+  .instr-list{max-height:46vh;overflow-y:auto;}
+  .instr-cat{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt-faint);font-weight:700;margin:12px 0 4px;}
+  .instr-item{display:flex;justify-content:space-between;align-items:center;padding:11px 4px;border-top:1px solid var(--line);cursor:pointer;}
+  .instr-item .ii-sym{font-weight:700;} .instr-item .ii-name{font-size:12.5px;color:var(--txt-dim);}
+  .instr-item.sel{color:var(--accent);}
+  /* ===== onboarding ===== */
+  .onb-choice{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:10px;color:var(--txt);font-family:inherit;cursor:pointer;}
+  .onb-choice:active{transform:scale(.99);}
+  .onb-choice .oc-ic{font-size:24px;flex:0 0 auto;}
+  .onb-choice .oc-t{font-weight:800;font-size:15.5px;}
+  .onb-choice .oc-s{font-size:12.5px;color:var(--txt-dim);margin-top:1px;}
+  .onb-skip{display:block;width:100%;text-align:center;background:none;border:none;color:var(--txt-dim);font-family:inherit;font-size:14px;font-weight:700;padding:14px;margin-top:6px;cursor:pointer;}
+  .onb-illus{font-size:44px;text-align:center;margin:6px 0 10px;}
+  .onb-dots{display:flex;gap:6px;justify-content:center;margin:14px 0 4px;}
+  .onb-dots i{width:7px;height:7px;border-radius:50%;background:var(--line);}
+  .onb-dots i.on{background:var(--accent);}
 
   /* screen slide animations */
   @keyframes slideR{from{opacity:0;transform:translateX(26px);}to{opacity:1;transform:none;}}
@@ -505,10 +548,17 @@
       <div id="sessRules"></div>
     </div>
 
+    <div class="card hidden" id="cardTrades">
+      <h2>Trades <span class="hint">détaillés</span></h2>
+      <div id="tradesList"></div>
+      <button class="le-add" id="addTradeBtn" type="button"><span class="plus">+</span> Trade</button>
+    </div>
+
     <div class="card" id="cardResult">
       <h2>Résultat de séance <span class="hint">optionnel</span></h2>
       <div class="stop-banner" id="stopBanner">🛑 Limite de perte du jour atteinte — tu arrêtes maintenant.</div>
       <div class="field"><label id="resultLabel">Résultat</label><input id="resultIn" type="text" inputmode="decimal" placeholder="0"></div>
+      <span class="fromtrades hidden" id="fromTradesBtn">↧ Calculer depuis mes trades détaillés</span>
     </div>
 
     <div class="card hidden" id="cardTags">
@@ -553,61 +603,74 @@
 <div class="drawer" id="drawer">
   <div class="grab"></div>
   <h3>Paramètres du compte</h3>
-  <div class="dsub">Chaque compte se personnalise indépendamment. L'écran se met à jour en direct.</div>
-  <div class="set-group"><div class="set-label">Nom du compte</div><input class="set-input" id="setName" type="text"></div>
-  <div class="set-group"><div class="set-label">Type</div>
-    <div class="type-seg" id="setType">
-      <button data-type="Réel">Réel</button>
-      <button data-type="Prop firm">Prop firm</button>
-      <button data-type="Démo">Démo</button>
-    </div>
-  </div>
-  <div class="set-group"><div class="set-label">Nombre de trades max (cases à cocher)</div>
-    <div class="stepper"><button id="stepDown">−</button><span class="val" id="stepVal">30</span><button id="stepUp">+</button></div>
-  </div>
-  <div class="set-group"><div class="set-label">Briques activées</div>
-    <div class="toggle-row"><div><div class="tl">Objectifs du jour</div><div class="td">La zone où tu écris tes objectifs.</div></div><div class="switch" data-key="showObjectives"><i></i></div></div>
-    <div class="toggle-row"><div><div class="tl">Grille de trades <span style="font-size:11px;font-weight:500;color:var(--txt-faint);">(pour le scalping)</span></div><div class="td">Les cases à cocher pour suivre chaque trade en live.</div></div><div class="switch" data-key="showTracker"><i></i></div></div>
-    <div class="toggle-row"><div><div class="tl">Marquer gagnant / perdant</div><div class="td">Bascule ✓ vert / ✗ rouge. Sinon, simple comptage.</div></div><div class="switch" data-key="trackWinLoss"><i></i></div></div>
-    <div class="toggle-row"><div><div class="tl">Résultat de séance</div><div class="td">Un champ pour ton résultat en fin de séance.</div></div><div class="switch" data-key="showResult"><i></i></div></div>
-    <div class="sub-setting" id="unitSetting">
-      <div class="set-label">Affichage du résultat</div>
-      <div class="type-seg unit-seg" id="unitSeg">
-        <button data-unit="usd">USD $</button>
-        <button data-unit="eur">EUR €</button>
-        <button data-unit="gbp">GBP £</button>
-        <button data-unit="points">Points</button>
-        <button data-unit="pips">Pips</button>
+  <div class="dsub">Tout est optionnel et par compte. Déplie une catégorie pour l'ajuster.</div>
+
+  <div class="cat open"><div class="cat-h"><span class="cat-ic">📇</span><span class="cat-t">Base</span><span class="cat-ch">›</span></div>
+    <div class="cat-b">
+      <div class="set-group"><div class="set-label">Nom du compte</div><input class="set-input" id="setName" type="text"></div>
+      <div class="set-group"><div class="set-label">Type</div>
+        <div class="type-seg" id="setType"><button data-type="Réel">Réel</button><button data-type="Prop firm">Prop firm</button><button data-type="Démo">Démo</button></div>
+      </div>
+      <div class="set-group"><div class="set-label">Unité du résultat</div>
+        <div class="type-seg unit-seg" id="unitSeg"><button data-unit="usd">USD $</button><button data-unit="eur">EUR €</button><button data-unit="gbp">GBP £</button><button data-unit="points">Points</button><button data-unit="pips">Pips</button></div>
       </div>
     </div>
-    <div class="toggle-row" style="margin-top:12px;"><div><div class="tl">Journal de fin de séance</div><div class="td">Tes notes libres après la session.</div></div><div class="switch" data-key="showNotes"><i></i></div></div>
   </div>
 
-  <div class="set-group"><div class="set-label">Modules avancés <span style="font-size:11px;font-weight:500;color:var(--txt-faint);text-transform:none;letter-spacing:0;">tout est optionnel, éteint par défaut</span></div>
-    <div class="toggle-row"><div><div class="tl">Règles de trading</div><div class="td">Une liste de tes règles, notées respectée/enfreinte à chaque séance.</div></div><div class="switch" data-key="showRules"><i></i></div></div>
-    <div class="sub-setting hidden" id="rulesEditor">
-      <div class="set-label">Tes règles</div>
-      <div id="rulesList"></div>
-    </div>
-    <div class="toggle-row" style="margin-top:12px;"><div><div class="tl">Check-list pré-séance</div><div class="td">Des cases à cocher avant de trader.</div></div><div class="switch" data-key="showChecklist"><i></i></div></div>
-    <div class="sub-setting hidden" id="checklistEditor">
-      <div class="set-label">Tes items</div>
-      <div id="checklistList"></div>
-    </div>
-    <div class="toggle-row" style="margin-top:12px;"><div><div class="tl">Humeur</div><div class="td">Note ton humeur avant et après la séance (1–5).</div></div><div class="switch" data-key="showMood"><i></i></div></div>
-    <div class="toggle-row" style="margin-top:12px;"><div><div class="tl">Tags émotionnels</div><div class="td">Étiquette ta séance (discipliné, FOMO, revenge…).</div></div><div class="switch" data-key="showTags"><i></i></div></div>
-    <div class="sub-setting hidden" id="tagsEditor">
-      <div class="set-label">Tes tags</div>
-      <div id="tagsList"></div>
-    </div>
-    <div class="toggle-row" style="margin-top:12px;"><div><div class="tl">Série de discipline</div><div class="td">Séances consécutives sans faute (règles respectées) — visible dans l'Analyse.</div></div><div class="switch" data-key="showStreak"><i></i></div></div>
-    <div class="sub-setting" id="lossLimitSetting">
-      <div class="set-label">Limite de perte du jour <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(vide = désactivé, dans l'unité du compte)</span></div>
-      <input class="set-input" id="lossLimitIn" type="text" inputmode="decimal" placeholder="Ex : 300">
+  <div class="cat"><div class="cat-h"><span class="cat-ic">📝</span><span class="cat-t">Mode de saisie</span><span class="cat-ch">›</span></div>
+    <div class="cat-help">Comment tu enregistres tes trades. « Coches rapides » = scalping (ultra léger). « Trades détaillés » = une ligne par trade (instrument, heures, prix). « Les deux » = coches + détails.</div>
+    <div class="cat-b">
+      <div class="type-seg" id="modeSeg" style="flex-wrap:wrap;gap:8px;">
+        <button data-mode="quick">Coches rapides</button>
+        <button data-mode="detailed">Trades détaillés</button>
+        <button data-mode="both">Les deux</button>
+      </div>
     </div>
   </div>
 
-  <div class="set-group"><div class="set-label">Zone de danger</div><button class="danger-btn" id="deleteAcctBtn">Supprimer ce compte</button></div>
+  <div class="cat"><div class="cat-h"><span class="cat-ic">⚡</span><span class="cat-t">Scalping</span><span class="rec-badge">conseillé scalping</span><span class="cat-ch">›</span></div>
+    <div class="cat-help">Le cœur du mode léger : une grille de cases, un quota et une limite de perte pour te discipliner.</div>
+    <div class="cat-b">
+      <div class="toggle-row"><div><div class="tl">Grille de trades (coches)</div><div class="td">Cases ✓/✗ pour suivre chaque trade en live.</div></div><div class="switch" data-key="showTracker"><i></i></div></div>
+      <div class="toggle-row"><div><div class="tl">Marquer gagnant / perdant</div><div class="td">Bascule ✓ vert / ✗ rouge. Sinon simple comptage.</div></div><div class="switch" data-key="trackWinLoss"><i></i></div></div>
+      <div class="set-group" style="margin-top:14px;"><div class="set-label">Nombre de trades max (quota)</div>
+        <div class="stepper"><button id="stepDown">−</button><span class="val" id="stepVal">30</span><button id="stepUp">+</button></div>
+      </div>
+      <div class="set-group"><div class="set-label">Limite de perte du jour <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(vide = off)</span></div>
+        <input class="set-input" id="lossLimitIn" type="text" inputmode="decimal" placeholder="Ex : 300">
+      </div>
+    </div>
+  </div>
+
+  <div class="cat"><div class="cat-h"><span class="cat-ic">🧠</span><span class="cat-t">Journal & psycho</span><span class="cat-ch">›</span></div>
+    <div class="cat-help">Ce que tu notes autour de la séance : objectifs, ressenti, résultat.</div>
+    <div class="cat-b">
+      <div class="toggle-row"><div><div class="tl">Objectifs du jour</div><div class="td">La zone où tu écris tes objectifs.</div></div><div class="switch" data-key="showObjectives"><i></i></div></div>
+      <div class="toggle-row"><div><div class="tl">Résultat de séance</div><div class="td">Un champ pour ton résultat en fin de séance.</div></div><div class="switch" data-key="showResult"><i></i></div></div>
+      <div class="toggle-row"><div><div class="tl">Humeur avant / après</div><div class="td">Note ton humeur (1–5).</div></div><div class="switch" data-key="showMood"><i></i></div></div>
+      <div class="toggle-row"><div><div class="tl">Tags émotionnels</div><div class="td">Étiquette ta séance (discipliné, FOMO…).</div></div><div class="switch" data-key="showTags"><i></i></div></div>
+      <div class="sub-setting hidden" id="tagsEditor"><div class="set-label">Tes tags</div><div id="tagsList"></div></div>
+      <div class="toggle-row"><div><div class="tl">Journal de fin de séance</div><div class="td">Tes notes libres après la session.</div></div><div class="switch" data-key="showNotes"><i></i></div></div>
+    </div>
+  </div>
+
+  <div class="cat"><div class="cat-h"><span class="cat-ic">📏</span><span class="cat-t">Discipline & règles</span><span class="cat-ch">›</span></div>
+    <div class="cat-help">Tes règles notées à chaque séance, et ta série de jours disciplinés.</div>
+    <div class="cat-b">
+      <div class="toggle-row"><div><div class="tl">Règles de trading</div><div class="td">Notées respectée/enfreinte à chaque séance.</div></div><div class="switch" data-key="showRules"><i></i></div></div>
+      <div class="sub-setting hidden" id="rulesEditor"><div class="set-label">Tes règles</div><div id="rulesList"></div></div>
+      <div class="toggle-row"><div><div class="tl">Check-list pré-séance</div><div class="td">Des cases à cocher avant de trader.</div></div><div class="switch" data-key="showChecklist"><i></i></div></div>
+      <div class="sub-setting hidden" id="checklistEditor"><div class="set-label">Tes items</div><div id="checklistList"></div></div>
+      <div class="toggle-row"><div><div class="tl">Série de discipline</div><div class="td">Séances consécutives sans faute — visible dans Analyses.</div></div><div class="switch" data-key="showStreak"><i></i></div></div>
+    </div>
+  </div>
+
+  <div class="cat hidden" id="catFields"><div class="cat-h"><span class="cat-ic">🧾</span><span class="cat-t">Champs de trade détaillé</span><span class="rec-badge day">day / swing</span><span class="cat-ch">›</span></div>
+    <div class="cat-help">Quels champs afficher quand tu ajoutes un trade détaillé. Coche seulement ce qui te sert.</div>
+    <div class="cat-b" id="fieldToggles"></div>
+  </div>
+
+  <div class="set-group" style="margin-top:6px;"><div class="set-label">Zone de danger</div><button class="danger-btn" id="deleteAcctBtn">Supprimer ce compte</button></div>
   <button class="drawer-done" id="drawerDone">Terminé</button>
 </div>
 
@@ -639,6 +702,29 @@
   <div class="dsub">Discipline & psychologie — pas de statistiques de résultat pur. Choisis les comptes à analyser.</div>
   <div class="set-group"><div id="anPickList"></div></div>
   <button class="drawer-done" id="anPickGo">Analyser</button>
+</div>
+
+<!-- Éditeur de trade détaillé -->
+<div class="drawer" id="tradeDrawer">
+  <div class="grab"></div>
+  <h3 id="tradeDrawerTitle">Trade</h3>
+  <div id="tradeFields"></div>
+  <button class="drawer-done" id="tradeSave">Enregistrer le trade</button>
+  <button class="onb-skip" id="tradeDelete" style="color:var(--red);">Supprimer ce trade</button>
+</div>
+
+<!-- Sélecteur d'instrument -->
+<div class="drawer" id="instrDrawer">
+  <div class="grab"></div>
+  <h3>Instrument</h3>
+  <input class="instr-search" id="instrSearch" type="text" placeholder="Rechercher (ES, NQ, EUR/USD, BTC…)" autocomplete="off">
+  <div class="instr-list" id="instrList"></div>
+</div>
+
+<!-- Onboarding création de compte -->
+<div class="drawer" id="onbDrawer">
+  <div class="grab"></div>
+  <div id="onbBody"></div>
 </div>
 
 <!-- Confirm modal -->
@@ -682,6 +768,33 @@
 
   var accounts=[];
 
+  // ---- instruments (liste par défaut, facile à étendre) ----
+  var INSTRUMENTS={
+    "Futures indices":["ES","MES","NQ","MNQ","YM","MYM","RTY","M2K"],
+    "Futures énergie / métaux":["CL","MCL","NG","GC","MGC","SI","SIL","HG"],
+    "Forex":["EUR/USD","GBP/USD","USD/JPY","USD/CHF","AUD/USD","USD/CAD","NZD/USD","EUR/JPY","GBP/JPY","XAU/USD","XAG/USD"],
+    "Crypto":["BTC","ETH","SOL","XRP","BNB","DOGE"],
+    "Indices":["US30","US100","US500","GER40","UK100","FRA40","JP225"],
+    "Actions":["AAPL","TSLA","NVDA","AMZN","MSFT","META","AMD","GOOGL"]
+  };
+  // ---- config par défaut des champs de trade détaillé ----
+  function defaultFieldConfig(){ return {instrument:true, side:true, times:true, prices:true, result:true, tags:false, note:false}; }
+  // ---- templates d'onboarding par style ----
+  var TEMPLATES={
+    scalping:{ label:"Scalping", ic:"⚡", sub:"Coches ultra-rapides, gros volume de trades",
+      apply:{loggingMode:"quick", maxTrades:30, showTracker:true, trackWinLoss:true, showResult:true, showObjectives:true, showNotes:true, showMood:true, showTags:true} },
+    intraday:{ label:"Intraday", ic:"📈", sub:"Coches rapides + quelques trades détaillés",
+      apply:{loggingMode:"both", maxTrades:15, showTracker:true, trackWinLoss:true, showResult:true, showObjectives:true, showNotes:true, showMood:true, showTags:true} },
+    daytrading:{ label:"Day trading", ic:"📊", sub:"Trades détaillés (instrument, heures, prix)",
+      apply:{loggingMode:"detailed", maxTrades:8, showTracker:false, showResult:true, showObjectives:true, showNotes:true, showMood:true, showTags:true} },
+    swing:{ label:"Swing", ic:"🌊", sub:"Peu de trades, détaillés, tenus plusieurs jours",
+      apply:{loggingMode:"detailed", maxTrades:5, showTracker:false, showResult:true, showObjectives:true, showNotes:true, showMood:false, showTags:true} },
+    autre:{ label:"Autre", ic:"🎯", sub:"Je configure moi-même",
+      apply:{} }
+  };
+  function isDetailed(a){ return a && (a.loggingMode==="detailed"||a.loggingMode==="both"); }
+  function isQuick(a){ return a && (a.loggingMode==="quick"||a.loggingMode==="both"||!a.loggingMode); }
+
   // ---- dates & demo data ----
   var TODAY=new Date();
   var calYear=TODAY.getFullYear(), calMonth=TODAY.getMonth();
@@ -715,11 +828,25 @@
       dailyLossLimit:(r.daily_loss_limit===null||r.daily_loss_limit===undefined)?"":String(r.daily_loss_limit),
       showStreak:!!r.show_streak,
       plan:(r.plan&&typeof r.plan==='object'&&!Array.isArray(r.plan))?r.plan:{},
-      sessions:{}};
+      style:r.style||"", loggingMode:r.logging_mode||"quick", onboarded:!!r.onboarded,
+      fieldConfig:Object.assign(defaultFieldConfig(), (r.field_config&&typeof r.field_config==='object'&&!Array.isArray(r.field_config))?r.field_config:{}),
+      sessions:{}, tradesByDate:{}};
   }
-  // sauvegarde isolée du plan (colonne jsonb 'plan') : si la colonne n'existe pas encore,
-  // seule cette requête échoue, le reste du compte reste sauvegardable
+  // sauvegardes isolées des colonnes récentes (si une colonne manque, seule cette requête échoue)
   function savePlan(a){ if(!a) return; db.from('accounts').update({plan:a.plan||{}}).eq('id',a.id).then(function(){},function(e){console.warn('plan (colonne manquante ?)',e);}); }
+  function saveAccountMeta(a){ if(!a) return; db.from('accounts').update({style:a.style||null, logging_mode:a.loggingMode||"quick", onboarded:!!a.onboarded, field_config:a.fieldConfig||{}}).eq('id',a.id).then(function(){},function(e){console.warn('meta (colonnes manquantes ?)',e);}); }
+  // ---- trades détaillés ----
+  function rowToTrade(r){ return {id:r.id, date:r.session_date, instrument:r.instrument||"", side:r.side||"", entryTime:r.entry_time||"", exitTime:r.exit_time||"", entryPrice:(r.entry_price==null?"":String(r.entry_price)), exitPrice:(r.exit_price==null?"":String(r.exit_price)), result:(r.result==null?"":String(r.result)), tags:Array.isArray(r.tags)?r.tags:[], note:r.note||""}; }
+  function tradesOf(a,date){ if(!a.tradesByDate[date]) a.tradesByDate[date]=[]; return a.tradesByDate[date]; }
+  function saveTrade(a,t){
+    var num=function(v){ var n=parseFloat(String(v).replace(",",".")); return isNaN(n)?null:n; };
+    var payload={user_id:currentUser.id, account_id:a.id, session_date:t.date, instrument:t.instrument||null, side:t.side||null,
+      entry_time:t.entryTime||null, exit_time:t.exitTime||null, entry_price:num(t.entryPrice), exit_price:num(t.exitPrice),
+      result:num(t.result), tags:t.tags||[], note:t.note||null};
+    if(t.id){ payload.id=t.id; }
+    return db.from('trades').upsert(payload).select().single().then(function(r){ if(r.data&&!t.id) t.id=r.data.id; },function(e){ console.warn('trade (table manquante ?)',e); });
+  }
+  function deleteTrade(a,t){ var arr=tradesOf(a,t.date); var i=arr.indexOf(t); if(i>=0)arr.splice(i,1); if(t.id) db.from('trades').delete().eq('id',t.id).then(function(){},function(e){console.warn('del trade',e);}); }
   async function loadAll(){
     var sr = await db.from('user_settings').select('*').eq('user_id',currentUser.id).maybeSingle();
     var sett = sr.data;
@@ -736,6 +863,14 @@
         rules:Array.isArray(s.rules)?s.rules:[], checklist:Array.isArray(s.checklist)?s.checklist:[],
         moodBefore:s.mood_before||0, moodAfter:s.mood_after||0, tags:Array.isArray(s.tags)?s.tags:[]}; }
     });
+    // trades détaillés (table 'trades' ; si absente, on ignore silencieusement)
+    try{
+      var tr = await db.from('trades').select('*').order('created_at',{ascending:true});
+      (tr.data||[]).forEach(function(row){
+        var a=accounts.find(function(x){return x.id===row.account_id;});
+        if(a){ tradesOf(a,row.session_date).push(rowToTrade(row)); }
+      });
+    }catch(e){ console.warn('trades non chargés (table manquante ?)',e); }
   }
   function saveSettings(patch){
     var row=Object.assign({user_id:currentUser.id},patch);
@@ -1000,6 +1135,8 @@
     el("cardChecklist").classList.toggle("hidden",!a.showChecklist);
     el("cardRules").classList.toggle("hidden",!a.showRules);
     el("cardTags").classList.toggle("hidden",!a.showTags);
+    el("cardTrades").classList.toggle("hidden",!isDetailed(a));
+    el("fromTradesBtn").classList.toggle("hidden", !(isDetailed(a) && a.showResult));
   }
 
   // ---------- modules avancés : séance ----------
@@ -1098,8 +1235,126 @@
     if(a.showChecklist) renderSessChecklist();
     if(a.showMood){ renderMood("moodBeforeRow","moodBefore"); renderMood("moodAfterRow","moodAfter"); }
     if(a.showTags) renderSessTags();
+    if(isDetailed(a)) renderTrades(a);
     updateStopBanner();
   }
+
+  // ============ TRADES DÉTAILLÉS (mode détaillé) ============
+  function tradeDur(t){
+    if(!t.entryTime||!t.exitTime) return "";
+    var p=function(x){ var m=/^(\d{1,2}):(\d{2})/.exec(x); return m? parseInt(m[1],10)*60+parseInt(m[2],10):null; };
+    var a=p(t.entryTime), b=p(t.exitTime); if(a==null||b==null) return "";
+    var d=b-a; if(d<0) d+=1440;
+    return d<60? d+" min" : Math.floor(d/60)+"h"+(d%60?(" "+(d%60)+"min"):"");
+  }
+  function renderTrades(a){
+    var list=el("tradesList"); list.innerHTML="";
+    var arr=tradesOf(a,view.editKey);
+    if(arr.length===0){ list.innerHTML='<div class="le-empty">Aucun trade détaillé. Touche « + Trade ».</div>'; return; }
+    arr.forEach(function(t){
+      var row=document.createElement("div"); row.className="trade-row";
+      var side= t.side==="buy"?'<span class="trade-side buy">Achat</span>': t.side==="sell"?'<span class="trade-side sell">Vente</span>':'';
+      var rv=parseFloat(String(t.result).replace(",","."));
+      var res = isNaN(rv)?'':'<span class="trade-res '+(rv>0?"pos":rv<0?"neg":"")+'">'+fmtVal(rv,a)+'</span>';
+      var meta=[]; if(t.entryPrice||t.exitPrice) meta.push((t.entryPrice||"?")+" → "+(t.exitPrice||"?")); var dur=tradeDur(t); if(dur) meta.push(dur);
+      var main='<div class="trade-main"><div class="trade-instr">'+esc(t.instrument||"Trade")+'</div>'+(meta.length?'<div class="trade-meta">'+esc(meta.join(" · "))+'</div>':'')+'</div>';
+      row.innerHTML=side+main+res;
+      row.onclick=function(){ openTradeDrawer(a,t); };
+      list.appendChild(row);
+    });
+  }
+  function tradesResultSum(a,date){ var sum=0,has=false; tradesOf(a,date).forEach(function(t){ var v=parseFloat(String(t.result).replace(",",".")); if(!isNaN(v)){sum+=v;has=true;} }); return has? Math.round(sum*100)/100 : null; }
+
+  // éditeur d'un trade (drawer), champs selon fieldConfig
+  var editingTrade=null;
+  function openTradeDrawer(a,t){
+    editingTrade = t || {date:view.editKey, instrument:"", side:"", entryTime:"", exitTime:"", entryPrice:"", exitPrice:"", result:"", tags:[], note:""};
+    var isNew=!t;
+    el("tradeDrawerTitle").textContent = isNew? "Nouveau trade":"Modifier le trade";
+    el("tradeDelete").classList.toggle("hidden", isNew);
+    renderTradeFields(a);
+    el("overlay").classList.add("open"); el("tradeDrawer").classList.add("open");
+  }
+  function renderTradeFields(a){
+    var fc=a.fieldConfig||defaultFieldConfig(), t=editingTrade, box=el("tradeFields"); box.innerHTML="";
+    function group(html){ var d=document.createElement("div"); d.className="set-group"; d.innerHTML=html; return d; }
+    if(fc.instrument){
+      var g=group('<div class="set-label">Instrument</div><button class="set-input" id="tfInstr" type="button" style="text-align:left;cursor:pointer;">'+(t.instrument?esc(t.instrument):'<span style="color:var(--txt-faint)">Choisir…</span>')+'</button>');
+      box.appendChild(g); g.querySelector("#tfInstr").addEventListener("click",function(){ openInstrPicker(); });
+    }
+    if(fc.side){
+      var gs=group('<div class="set-label">Sens</div><div class="type-seg" id="tfSide"><button data-side="buy">Achat</button><button data-side="sell">Vente</button></div>');
+      box.appendChild(gs);
+      gs.querySelectorAll("button").forEach(function(b){ b.classList.toggle("sel", b.dataset.side===t.side); b.addEventListener("click",function(){ t.side=b.dataset.side; gs.querySelectorAll("button").forEach(function(x){x.classList.remove("sel");}); b.classList.add("sel"); }); });
+    }
+    if(fc.times){
+      var gt=group('<div class="set-label">Heures <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(durée calculée)</span></div><div class="field-2"><input class="set-input" id="tfEntryT" type="time"><input class="set-input" id="tfExitT" type="time"></div>');
+      box.appendChild(gt); gt.querySelector("#tfEntryT").value=t.entryTime||""; gt.querySelector("#tfExitT").value=t.exitTime||"";
+      gt.querySelector("#tfEntryT").addEventListener("input",function(){ t.entryTime=this.value; }); gt.querySelector("#tfExitT").addEventListener("input",function(){ t.exitTime=this.value; });
+    }
+    if(fc.prices){
+      var gp=group('<div class="set-label">Prix entrée / sortie</div><div class="field-2"><input class="set-input" id="tfEntryP" type="text" inputmode="decimal" placeholder="Entrée"><input class="set-input" id="tfExitP" type="text" inputmode="decimal" placeholder="Sortie"></div>');
+      box.appendChild(gp); gp.querySelector("#tfEntryP").value=t.entryPrice||""; gp.querySelector("#tfExitP").value=t.exitPrice||"";
+      gp.querySelector("#tfEntryP").addEventListener("input",function(){ t.entryPrice=this.value; }); gp.querySelector("#tfExitP").addEventListener("input",function(){ t.exitPrice=this.value; });
+    }
+    var gr=group('<div class="set-label">Résultat ('+unitOf(a).label+')</div><input class="set-input" id="tfRes" type="text" inputmode="decimal" placeholder="Ex : +12 ou −8">');
+    box.appendChild(gr); gr.querySelector("#tfRes").value=t.result||""; gr.querySelector("#tfRes").addEventListener("input",function(){ t.result=this.value; });
+    if(fc.tags && (a.tagsOptions||[]).filter(Boolean).length){
+      var gg=group('<div class="set-label">Tags</div><div class="tags-row" id="tfTags"></div>'); box.appendChild(gg);
+      var tb=gg.querySelector("#tfTags");
+      (a.tagsOptions||[]).map(function(x){return String(x||"").trim();}).filter(Boolean).forEach(function(tag){
+        var on=(t.tags||[]).indexOf(tag)>=0; var b=document.createElement("button"); b.type="button"; b.className="chip"+(on?" sel":""); b.textContent=tag;
+        b.onclick=function(){ if(!t.tags)t.tags=[]; var i=t.tags.indexOf(tag); if(i>=0)t.tags.splice(i,1); else t.tags.push(tag); b.classList.toggle("sel"); };
+        tb.appendChild(b);
+      });
+    }
+    if(fc.note){
+      var gn=group('<div class="set-label">Note</div><textarea id="tfNote" placeholder="Ce qui s\'est passé sur ce trade…"></textarea>'); box.appendChild(gn);
+      gn.querySelector("#tfNote").value=t.note||""; gn.querySelector("#tfNote").addEventListener("input",function(){ t.note=this.value; });
+    }
+  }
+  el("tradeSave").addEventListener("click",function(){
+    var a=acc(); if(!a||!editingTrade) return;
+    var t=editingTrade;
+    if(!t.id){ tradesOf(a,t.date).push(t); }
+    saveTrade(a,t);
+    el("tradeDrawer").classList.remove("open"); el("overlay").classList.remove("open");
+    renderTrades(a); showToast("Trade enregistré ✓");
+  });
+  el("tradeDelete").addEventListener("click",function(){
+    var a=acc(); if(!a||!editingTrade) return;
+    deleteTrade(a,editingTrade);
+    el("tradeDrawer").classList.remove("open"); el("overlay").classList.remove("open");
+    renderTrades(a); showToast("Trade supprimé");
+  });
+  el("addTradeBtn").addEventListener("click",function(){ var a=acc(); if(a) openTradeDrawer(a,null); });
+  el("fromTradesBtn").addEventListener("click",function(){
+    var a=acc(); if(!a) return; var sum=tradesResultSum(a,view.editKey);
+    if(sum===null){ showToast("Aucun résultat de trade à additionner"); return; }
+    var s=curSession(); s.result=String(sum); el("resultIn").value=s.result; updateStopBanner(); saveJournal(); showToast("Résultat = somme des trades");
+  });
+  // sélecteur d'instrument
+  function openInstrPicker(){ renderInstrList(""); el("instrSearch").value=""; el("instrDrawer").classList.add("open"); setTimeout(function(){ el("instrSearch").focus(); },250); }
+  function renderInstrList(q){
+    q=(q||"").toLowerCase().trim(); var box=el("instrList"); box.innerHTML="";
+    Object.keys(INSTRUMENTS).forEach(function(cat){
+      var items=INSTRUMENTS[cat].filter(function(sym){ return !q || sym.toLowerCase().indexOf(q)>=0 || cat.toLowerCase().indexOf(q)>=0; });
+      if(!items.length) return;
+      var h=document.createElement("div"); h.className="instr-cat"; h.textContent=cat; box.appendChild(h);
+      items.forEach(function(sym){
+        var it=document.createElement("div"); it.className="instr-item"+((editingTrade&&editingTrade.instrument===sym)?" sel":"");
+        it.innerHTML='<span class="ii-sym">'+esc(sym)+'</span>';
+        it.onclick=function(){ if(editingTrade){ editingTrade.instrument=sym; renderTradeFields(acc()); } el("instrDrawer").classList.remove("open"); };
+        box.appendChild(it);
+      });
+    });
+    if(q && !box.children.length){
+      var it=document.createElement("div"); it.className="instr-item"; it.innerHTML='<span class="ii-sym">« '+esc(q)+' »</span><span class="ii-name">utiliser tel quel</span>';
+      it.onclick=function(){ if(editingTrade){ editingTrade.instrument=q.toUpperCase(); renderTradeFields(acc()); } el("instrDrawer").classList.remove("open"); };
+      box.appendChild(it);
+    }
+  }
+  el("instrSearch").addEventListener("input",function(){ renderInstrList(this.value); });
 
   // ============ ANALYSE (assistant psycho / coach) ============
   function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
@@ -1488,10 +1743,11 @@
     var a=acc(); if(!a) return;
     el("setName").value=a.name; el("stepVal").textContent=a.maxTrades;
     document.querySelectorAll("#setType button").forEach(function(b){ b.classList.toggle("sel", b.dataset.type===a.type); });
-    document.querySelectorAll("#drawer .switch").forEach(function(sw){ sw.classList.toggle("on", !!a[sw.dataset.key]); });
+    document.querySelectorAll("#drawer .switch[data-key]").forEach(function(sw){ sw.classList.toggle("on", !!a[sw.dataset.key]); });
     document.querySelectorAll("#unitSeg button").forEach(function(b){ b.classList.toggle("sel", b.dataset.unit===a.resultUnit); });
-    el("unitSetting").classList.toggle("hidden", !a.showResult);
-    // modules avancés
+    document.querySelectorAll("#modeSeg button").forEach(function(b){ b.classList.toggle("sel", b.dataset.mode===(a.loggingMode||"quick")); });
+    el("catFields").classList.toggle("hidden", !isDetailed(a));
+    renderFieldToggles(a);
     el("rulesEditor").classList.toggle("hidden", !a.showRules);
     el("checklistEditor").classList.toggle("hidden", !a.showChecklist);
     el("tagsEditor").classList.toggle("hidden", !a.showTags);
@@ -1501,6 +1757,21 @@
     renderListEditor(el("tagsList"),"tagsOptions","Ex : discipliné","Ajouter un tag");
     el("overlay").classList.add("open"); el("drawer").classList.add("open");
   }
+  // accordéon : déplier/replier une catégorie
+  document.querySelectorAll("#drawer .cat-h").forEach(function(h){ h.addEventListener("click",function(){ h.parentNode.classList.toggle("open"); }); });
+  // mode de saisie
+  var FIELD_DEFS=[["instrument","Instrument"],["side","Sens (achat/vente)"],["times","Heures (durée auto)"],["prices","Prix entrée/sortie"],["tags","Tags du trade"],["note","Note du trade"]];
+  function renderFieldToggles(a){
+    var box=el("fieldToggles"); box.innerHTML="";
+    FIELD_DEFS.forEach(function(fd){
+      var on=!!a.fieldConfig[fd[0]];
+      var row=document.createElement("div"); row.className="toggle-row";
+      row.innerHTML='<div><div class="tl">'+fd[1]+'</div></div><div class="switch'+(on?' on':'')+'"><i></i></div>';
+      row.querySelector(".switch").addEventListener("click",function(){ a.fieldConfig[fd[0]]=!a.fieldConfig[fd[0]]; this.classList.toggle("on",a.fieldConfig[fd[0]]); saveAccountMeta(a); });
+      box.appendChild(row);
+    });
+  }
+  document.querySelectorAll("#modeSeg button").forEach(function(b){ b.addEventListener("click",function(){ var a=acc(); a.loggingMode=b.dataset.mode; document.querySelectorAll("#modeSeg button").forEach(function(x){x.classList.remove("sel");}); b.classList.add("sel"); el("catFields").classList.toggle("hidden", !isDetailed(a)); saveAccountMeta(a); }); });
   // éditeur générique de liste de textes (règles / items / tags), stocké sur acc()[field]
   function renderListEditor(container,field,placeholder,addLabel){
     var a=acc(); if(!a) return;
@@ -1519,16 +1790,16 @@
     add.addEventListener("click",function(){ a[field].push(""); renderListEditor(container,field,placeholder,addLabel); var ins=container.querySelectorAll(".le-input"); var last=ins[ins.length-1]; if(last) last.focus(); });
     container.appendChild(add);
   }
-  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); }
-  el("overlay").addEventListener("click",closeDrawer);
+  var onbActive=false;
+  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); }
+  el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   el("drawerDone").addEventListener("click",function(){ var a=acc(); if(a){ ["rules","checklistItems","tagsOptions"].forEach(function(f){ a[f]=(a[f]||[]).map(function(x){return String(x||"").trim();}).filter(Boolean); }); saveAccount(a); } closeDrawer(); render(); });
   el("setName").addEventListener("input",function(){ acc().name=this.value; });
   el("setName").addEventListener("change",function(){ saveAccount(acc()); });
   document.querySelectorAll("#setType button").forEach(function(b){ b.addEventListener("click",function(){ acc().type=b.dataset.type; document.querySelectorAll("#setType button").forEach(function(x){x.classList.remove("sel");}); b.classList.add("sel"); saveAccount(acc()); }); });
   el("stepUp").addEventListener("click",function(){ var a=acc(); if(a.maxTrades<100){a.maxTrades++;el("stepVal").textContent=a.maxTrades; saveAccount(a);} });
   el("stepDown").addEventListener("click",function(){ var a=acc(); if(a.maxTrades>1){a.maxTrades--;el("stepVal").textContent=a.maxTrades; saveAccount(a);} });
-  document.querySelectorAll("#drawer .switch").forEach(function(sw){ sw.addEventListener("click",function(){ var a=acc(),k=sw.dataset.key; a[k]=!a[k]; sw.classList.toggle("on",a[k]);
-    if(k==="showResult") el("unitSetting").classList.toggle("hidden",!a.showResult);
+  document.querySelectorAll("#drawer .switch[data-key]").forEach(function(sw){ sw.addEventListener("click",function(){ var a=acc(),k=sw.dataset.key; a[k]=!a[k]; sw.classList.toggle("on",a[k]);
     if(k==="showRules") el("rulesEditor").classList.toggle("hidden",!a.showRules);
     if(k==="showChecklist") el("checklistEditor").classList.toggle("hidden",!a.showChecklist);
     if(k==="showTags") el("tagsEditor").classList.toggle("hidden",!a.showTags);
@@ -1552,14 +1823,41 @@
   el("logoutBtn").addEventListener("click",async function(){ try{ await db.auth.signOut(); }catch(e){} location.reload(); });
   el("appDrawerDone").addEventListener("click",function(){ closeDrawer(); render(); });
 
+  // ---- onboarding (parcours guidé à la création) ----
+  function applyTemplate(a,key){ a.style=key; var ap=TEMPLATES[key]?TEMPLATES[key].apply:{}; Object.keys(ap).forEach(function(k){ a[k]=ap[k]; }); saveAccount(a); saveAccountMeta(a); }
+  var TUTO=[
+    {ic:"📓",t:"Ton Journal",d:"Chaque jour = une séance. Tu y notes tes trades, ton ressenti et ton résultat, en un coup d'œil."},
+    {ic:"➕",t:"Ajoute un trade",d:"En scalping : coche une case ✓/✗ par trade. En mode détaillé : ajoute une ligne (instrument, prix, heures)."},
+    {ic:"📏",t:"Tes règles",d:"Définis tes règles : tu les notes respectée/enfreinte à chaque séance. C'est le cœur de la discipline."},
+    {ic:"📊",t:"Tes analyses",d:"Edgio te montre ce que ta discipline et ta psycho changent à tes résultats. Plus tu remplis, plus c'est parlant."}
+  ];
+  function openOnboarding(a){ onbActive=true; el("overlay").classList.add("open"); el("onbDrawer").classList.add("open"); onbStyleStep(a); }
+  function finishOnboarding(a){ a.onboarded=true; saveAccountMeta(a); onbActive=false; el("overlay").classList.remove("open"); el("onbDrawer").classList.remove("open"); setActiveAccount(a.id); showTab("journal"); showToast("Compte prêt — bienvenue !"); }
+  function onbStyleStep(a){
+    var b=el("onbBody"); b.innerHTML='<h3>Quel est ton style ?</h3><div class="dsub">On pré-règle ton compte en conséquence. Tu pourras tout changer ensuite dans les réglages.</div>';
+    Object.keys(TEMPLATES).forEach(function(key){
+      var tpl=TEMPLATES[key], btn=document.createElement("button"); btn.type="button"; btn.className="onb-choice";
+      btn.innerHTML='<span class="oc-ic">'+tpl.ic+'</span><span><span class="oc-t">'+tpl.label+'</span><span class="oc-s">'+tpl.sub+'</span></span>';
+      btn.onclick=function(){ applyTemplate(a,key); onbTutorial(a,0); };
+      b.appendChild(btn);
+    });
+    var skip=document.createElement("button"); skip.className="onb-skip"; skip.textContent="Passer"; skip.onclick=function(){ finishOnboarding(a); }; b.appendChild(skip);
+  }
+  function onbTutorial(a,i){
+    var b=el("onbBody"), step=TUTO[i], dots=''; for(var j=0;j<TUTO.length;j++) dots+='<i class="'+(j===i?'on':'')+'"></i>';
+    b.innerHTML='<div class="onb-illus">'+step.ic+'</div><h3 style="text-align:center;">'+step.t+'</h3><div class="dsub" style="text-align:center;">'+step.d+'</div><div class="onb-dots">'+dots+'</div>';
+    var next=document.createElement("button"); next.className="drawer-done"; next.textContent = i<TUTO.length-1? "Suivant":"C'est parti !";
+    next.onclick=function(){ if(i<TUTO.length-1) onbTutorial(a,i+1); else finishOnboarding(a); }; b.appendChild(next);
+    var skip=document.createElement("button"); skip.className="onb-skip"; skip.textContent="Passer le tuto"; skip.onclick=function(){ finishOnboarding(a); }; b.appendChild(skip);
+  }
+
   // add / delete accounts
   async function addAccount(){
     if(!canUse() && accounts.length>=1){ showToast("Plusieurs comptes = Premium"); return; }  // gating prêt (non bloquant tant que isPremium)
     var ins=await db.from('accounts').insert({user_id:currentUser.id,name:"Nouveau compte",type:"Réel",max_trades:10,result_unit:"usd",position:accounts.length}).select().single();
     if(ins.error){ showToast("Erreur : compte non créé"); console.warn(ins.error); return; }
     var a=rowToAccount(ins.data); accounts.push(a);
-    setActiveAccount(a.id); showTab("comptes"); openDrawer();
-    setTimeout(function(){ var n=el("setName"); if(n){n.focus();n.select();} },260);
+    setActiveAccount(a.id); openOnboarding(a);
   }
   function deleteAccount(id){
     var i=accounts.findIndex(function(a){return a.id===id;}); if(i>=0)accounts.splice(i,1);
