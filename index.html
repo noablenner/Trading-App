@@ -23,9 +23,9 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
   body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45;max-width:520px;margin:0 auto;padding:0 0 calc(108px + env(safe-area-inset-bottom));min-height:100vh;position:relative;overflow-x:hidden;}
-  .app{padding:0 20px;}
+  .app{padding:calc(var(--topbarH, 82px) + 12px) 20px 0;}
 
-  .topbar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:16px 20px 12px;}
+  .topbar{position:fixed;top:0;left:0;right:0;margin:0 auto;max-width:520px;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);padding:calc(12px + env(safe-area-inset-top)) 20px 12px;}
   .ttl.big{font-size:25px;letter-spacing:-.02em;}
   .topbar-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
   .tb-left{display:flex;align-items:center;gap:12px;min-width:0;}
@@ -289,9 +289,9 @@
   .anim-l{animation:slideL .28s cubic-bezier(.2,.8,.2,1);}
 
   /* drawers + modal */
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s;}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:105;opacity:0;pointer-events:none;transition:opacity .2s;}
   .overlay.open{opacity:1;pointer-events:auto;}
-  .drawer{position:fixed;left:0;right:0;bottom:0;z-index:50;max-width:520px;margin:0 auto;background:var(--surface);border-radius:22px 22px 0 0;border-top:1px solid var(--line);transform:translateY(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1);max-height:88vh;overflow-y:auto;padding:8px 18px 30px;}
+  .drawer{position:fixed;left:0;right:0;bottom:0;z-index:108;max-width:520px;margin:0 auto;background:var(--surface);border-radius:22px 22px 0 0;border-top:1px solid var(--line);transform:translateY(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1);max-height:88vh;overflow-y:auto;padding:8px 18px 30px;}
   .drawer.open{transform:translateY(0);}
   .grab{width:40px;height:4px;border-radius:4px;background:var(--line);margin:8px auto 14px;}
   .drawer h3{margin:0 0 4px;font-size:18px;font-weight:800;}
@@ -318,10 +318,10 @@
   .drawer-done{width:100%;margin-top:8px;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:800;background:var(--accent);color:#fff;cursor:pointer;}
   .drawer-done.sticky{position:sticky;bottom:0;margin-top:12px;box-shadow:0 -10px 20px -6px var(--surface);}
   /* CTA principal (ajouter une séance) */
-  .main-cta{width:100%;border:none;border-radius:15px;padding:16px;font-size:16px;font-weight:800;font-family:inherit;background:var(--accent);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.35);margin-bottom:4px;}
+  .main-cta{width:100%;border:none;border-radius:15px;padding:16px;font-size:16px;font-weight:800;font-family:inherit;background:var(--accent);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.35);margin:4px 0;}
   .main-cta:active{transform:scale(.99);}
   /* confettis (gamification) */
-  #confetti{position:fixed;inset:0;pointer-events:none;z-index:90;overflow:hidden;}
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:150;overflow:hidden;}
   .conf{position:absolute;top:-14px;width:9px;height:14px;border-radius:2px;will-change:transform,opacity;animation:conffall linear forwards;}
   @keyframes conffall{0%{transform:translateY(0) rotate(0);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:.9;}}
   .acct-box{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:14px;}
@@ -337,7 +337,7 @@
   .danger-btn{width:100%;margin-top:4px;border:1px solid var(--red);background:var(--red-dim);color:var(--red);font-family:inherit;font-weight:800;font-size:15px;padding:14px;border-radius:13px;cursor:pointer;}
   .danger-btn:active{transform:scale(.98);}
 
-  .cmodal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:70;display:none;align-items:center;justify-content:center;padding:24px;}
+  .cmodal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:130;display:none;align-items:center;justify-content:center;padding:24px;}
   .cmodal-overlay.open{display:flex;}
   .cmodal{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5);}
   .cmodal h4{margin:0 0 8px;font-size:18px;font-weight:800;}
@@ -352,7 +352,7 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* auth / loading screens */
-  #authScreen,#loadingScreen{position:fixed;inset:0;z-index:80;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;}
+  #authScreen,#loadingScreen{position:fixed;inset:0;z-index:140;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;}
   #loadingScreen{gap:16px;color:var(--txt-dim);}
   .spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
@@ -438,6 +438,15 @@
       <h2>Calendrier cumulé <span class="hint">tous comptes additionnés</span></h2>
       <div id="gCal"></div>
     </div>
+
+    <button class="nav-tile" id="anCumulBtn" type="button">
+      <span class="nt-ic">📊</span>
+      <span>
+        <span class="nt-t">Analyse cumulée</span>
+        <span class="nt-s">Discipline & psychologie · choisis tes comptes</span>
+      </span>
+      <span class="nt-arr">›</span>
+    </button>
   </div>
 
   <!-- ========== VUE D'UN COMPTE (journal du compte) ========== -->
@@ -461,6 +470,14 @@
       <h2>Séances récentes <span class="hint">touche pour rouvrir</span></h2>
       <div id="aSessList"></div>
     </div>
+    <button class="nav-tile" id="anAcctBtn" type="button">
+      <span class="nt-ic">📊</span>
+      <span>
+        <span class="nt-t">Analyse de ce compte</span>
+        <span class="nt-s">Discipline & psychologie</span>
+      </span>
+      <span class="nt-arr">›</span>
+    </button>
   </div>
 
   <!-- ========== CALENDRIER ÉCONOMIQUE ========== -->
@@ -479,24 +496,9 @@
     </div>
   </div>
 
-  <!-- ========== ANALYSES (chiffré + coach psycho) ========== -->
+  <!-- ========== ANALYSE (coach psycho, intégrée au Journal) ========== -->
   <div id="screenAnalysis" class="hidden">
-    <div class="card" id="anKpisCard">
-      <h2>Résultats <span class="hint">chiffré · performance</span></h2>
-      <div class="kpis">
-        <div class="kpi wide"><div class="kl">Résultat net</div><div class="kv" id="aNet">—</div></div>
-        <div class="kpi"><div class="kl">Séances</div><div class="kv" id="aSessions">0</div></div>
-        <div class="kpi"><div class="kl">Jours gagnants</div><div class="kv" id="aWinDays">0</div></div>
-        <div class="kpi"><div class="kl">Jours perdants</div><div class="kv" id="aLossDays">0</div></div>
-        <div class="kpi"><div class="kl">Meilleur jour</div><div class="kv" id="aBest">—</div></div>
-      </div>
-    </div>
     <div id="analysisBody"></div>
-    <button class="nav-tile" id="anCumulBtn" type="button">
-      <span class="nt-ic">🧮</span>
-      <span class="nt-t">Vue cumulée — choisir plusieurs comptes</span>
-      <span class="nt-arr">›</span>
-    </button>
   </div>
 
   <!-- ========== PLAN DE TRADING ========== -->
@@ -598,15 +600,16 @@
       <h2>Journal de fin de séance</h2>
       <textarea id="notesText" placeholder="Comment j'ai été aujourd'hui ? Ce qui a marché, ce qui a merdé, les erreurs à corriger demain…"></textarea>
     </div>
+
+    <button class="danger-btn" id="deleteSessionBtn" type="button" style="margin-top:4px;">Supprimer cette séance</button>
   </div>
 
 </div>
 
 <nav class="tabbar hidden" id="tabbar">
   <button class="tab" data-tab="plan" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 10h7M8.5 14h7M8.5 18h4"/></svg></span><span class="tt">Plan</span></button>
-  <button class="tab" data-tab="calendar" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg></span><span class="tt">Calendrier</span></button>
   <button class="tab primary" data-tab="journal" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="13" height="18" rx="2"/><path d="M9.5 3v18"/><path d="M12.5 8.5h4M12.5 12.5h4"/></svg></span><span class="tt">Journal</span></button>
-  <button class="tab" data-tab="analyses" type="button"><span class="ti"><svg viewBox="0 0 24 24"><path d="M4 20h16"/><rect x="6" y="11" width="3" height="7"/><rect x="11" y="6.5" width="3" height="11.5"/><rect x="16" y="13.5" width="3" height="4.5"/></svg></span><span class="tt">Analyses</span></button>
+  <button class="tab" data-tab="calendar" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg></span><span class="tt">Calendrier</span></button>
 </nav>
 
 <div id="confetti" class="hidden"></div>
@@ -869,6 +872,12 @@
     return db.from('trades').upsert(payload).select().single().then(function(r){ if(r.data&&!t.id) t.id=r.data.id; },function(e){ console.warn('trade (table manquante ?)',e); });
   }
   function deleteTrade(a,t){ var arr=tradesOf(a,t.date); var i=arr.indexOf(t); if(i>=0)arr.splice(i,1); if(t.id) db.from('trades').delete().eq('id',t.id).then(function(){},function(e){console.warn('del trade',e);}); }
+  function deleteSession(a,key){
+    if(a.sessions[key]) delete a.sessions[key];
+    db.from('sessions').delete().eq('account_id',a.id).eq('date',key).then(function(){},function(e){console.warn('del session',e);});
+    tradesOf(a,key).slice().forEach(function(t){ if(t.id) db.from('trades').delete().eq('id',t.id).then(function(){},function(e){}); });
+    a.tradesByDate[key]=[];
+  }
   async function loadAll(){
     var sr = await db.from('user_settings').select('*').eq('user_id',currentUser.id).maybeSingle();
     var sett = sr.data;
@@ -1095,15 +1104,6 @@
       if(allOk && quotaOk) streak++; else break;
     }
     return streak;
-  }
-  function renderKpis(a){
-    if(!a) return;
-    var st=accStats(a);
-    var net=el("aNet"); net.textContent=fmtVal(st.net,a); net.className="kv "+(st.net>0?"pos":st.net<0?"neg":"");
-    el("aSessions").textContent=st.sessions;
-    el("aWinDays").textContent=st.pos;
-    el("aLossDays").textContent=st.neg;
-    el("aBest").textContent= st.sessions? fmtVal(st.best,a) : "—";
   }
   function renderJournalHistory(a){
     if(!a) return;
@@ -1601,7 +1601,7 @@
   el("anPickGo").addEventListener("click",function(){
     var ids=accounts.filter(function(a){return anPickSel[a.id];}).map(function(a){return a.id;});
     if(ids.length===0){ showToast("Sélectionne au moins un compte"); return; }
-    view.anIds=ids; closeDrawer(); showTab("analyses");
+    closeDrawer(); openAnalysis(ids,"accounts");
   });
 
   // ============ NAVIGATION PAR ONGLETS ============
@@ -1609,6 +1609,7 @@
   function hideMainScreens(){ ["screenGlobal","screenAccount","screenSession","screenPlan","screenAnalysis","screenCalendar"].forEach(function(id){ el(id).classList.add("hidden"); }); }
   function setTitle(t,sub,big){ var e=el("screenTitle"); e.textContent=t; e.classList.toggle("big",!!big); el("screenSub").textContent=sub||""; }
 
+  function updateTopbarHeight(){ var tb=document.querySelector(".topbar"); if(tb) document.documentElement.style.setProperty("--topbarH", tb.offsetHeight+"px"); }
   function applyTab(tab){
     view.tab=tab;
     hideMainScreens();
@@ -1616,28 +1617,30 @@
     el("gearBtn").classList.remove("hidden");
     el("backBtn").classList.add("hidden");
     var a=acc();
-    if((tab==="plan"||tab==="analyses") && !a){ showToast("Choisis d'abord un compte"); tab="journal"; view.jlevel="accounts"; }
+    if(tab==="plan" && !a){ showToast("Choisis d'abord un compte"); tab="journal"; view.jlevel="accounts"; }
     view.tab=tab;
     document.querySelectorAll('#tabbar .tab[data-tab]').forEach(function(t){ t.classList.toggle("on", t.dataset.tab===tab); });
     if(tab==="journal"){ renderJournalTab(); }
     else if(tab==="plan"){ el("screenPlan").classList.remove("hidden"); setTitle("Plan de trading", a?a.name:"", true); renderPlan(); }
     else if(tab==="calendar"){ el("screenCalendar").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Calendrier économique","Événements macro", true); loadEconWidget(); }
-    else if(tab==="analyses"){ el("screenAnalysis").classList.remove("hidden"); setTitle("Analyses","Résultats · discipline · psychologie", true); renderAnalyses(); }
+    requestAnimationFrame(updateTopbarHeight);
   }
-  // 3 niveaux du Journal : tous comptes -> un compte -> une séance
+  // niveaux du Journal : tous comptes -> un compte -> une séance ; + analyse intégrée
   function renderJournalTab(){
     var a=acc(), lvl=view.jlevel||"accounts";
     if(lvl!=="accounts" && !a){ lvl="accounts"; view.jlevel="accounts"; }
     el("screenGlobal").classList.toggle("hidden", lvl!=="accounts");
     el("screenAccount").classList.toggle("hidden", lvl!=="account");
     el("screenSession").classList.toggle("hidden", lvl!=="session");
+    el("screenAnalysis").classList.toggle("hidden", lvl!=="analysis");
     if(lvl==="accounts"){ el("backBtn").classList.add("hidden"); setTitle("Journal", frDate(), true); renderGlobal(); }
     else if(lvl==="account"){ el("backBtn").classList.remove("hidden"); setTitle(a.name, a.type+" · journal du compte", true); renderAccountOverview(a); }
+    else if(lvl==="analysis"){ el("backBtn").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); var multi=(view.anIds||[]).length>1; setTitle("Analyse", multi?"Tous comptes · discipline & psycho":(a?a.name:"")+" · discipline & psycho", true); renderAnalysisScreen(); }
     else { el("backBtn").classList.remove("hidden"); var isToday=view.editKey===todayKey(); setTitle(isToday?"Séance du jour":labelKey(view.editKey), a.name+" · "+(isToday?"aujourd'hui":labelKey(view.editKey)), false); renderSession(); }
   }
   function currentScreenId(){
-    if(view.tab==="plan")return "screenPlan"; if(view.tab==="analyses")return "screenAnalysis"; if(view.tab==="calendar")return "screenCalendar";
-    var lvl=view.jlevel||"accounts"; return lvl==="accounts"?"screenGlobal":lvl==="account"?"screenAccount":"screenSession";
+    if(view.tab==="plan")return "screenPlan"; if(view.tab==="calendar")return "screenCalendar";
+    var lvl=view.jlevel||"accounts"; return lvl==="accounts"?"screenGlobal":lvl==="account"?"screenAccount":lvl==="analysis"?"screenAnalysis":"screenSession";
   }
   function animateTab(){ var e=el(currentScreenId()); if(!e) return; e.classList.remove("anim-r","anim-l"); void e.offsetWidth; e.classList.add("anim-r"); window.scrollTo(0,0); }
   function showTab(tab){ applyTab(tab); animateTab(); }
@@ -1645,6 +1648,7 @@
 
   function openAccountView(id){ setActiveAccount(id); view.tab="journal"; view.jlevel="account"; showTab("journal"); }
   function openSession(key){ saveJournal(); view.editKey=key; view.tab="journal"; view.jlevel="session"; showTab("journal"); }
+  function openAnalysis(ids,from){ view.anIds=ids; view.anFrom=from; view.tab="journal"; view.jlevel="analysis"; showTab("journal"); }
   function renderAccountOverview(a){
     var st=accStats(a);
     var net=el("oNet"); net.textContent=fmtVal(st.net,a); net.className="kv "+(st.net>0?"pos":st.net<0?"neg":"");
@@ -1659,24 +1663,23 @@
       if(view.tab==="journal" && view.jlevel==="session") saveJournal();
       var target=t.dataset.tab;
       if(target==="journal") view.jlevel="accounts";
-      if(target==="analyses"){ var a=acc(); view.anIds = a? [a.id] : []; }
       showTab(target);
     });
   });
   el("addSessionBtn").addEventListener("click",function(){ openSession(todayKey()); });
-
-  // ---- Analyses (compte actif, + vue cumulée) ----
-  function renderAnalyses(){
-    var a=acc(); if(!a) return;
-    if(!view.anIds || view.anIds.length===0) view.anIds=[a.id];
-    var single = view.anIds.length===1;
-    el("anKpisCard").classList.toggle("hidden", !single);
-    if(single){ var only=accounts.find(function(x){return x.id===view.anIds[0];})||a; renderKpis(only); }
-    renderAnalysisScreen();
-  }
+  window.addEventListener("resize", updateTopbarHeight);
+  // points d'entrée Analyse
+  el("anAcctBtn").addEventListener("click",function(){ var a=acc(); if(!a)return; openAnalysis([a.id],"account"); });
   el("anCumulBtn").addEventListener("click",function(){
-    if(accounts.length<=1){ showToast("Un seul compte pour l'instant"); return; }
+    if(accounts.length===0){ showToast("Aucun compte"); return; }
+    if(accounts.length===1){ openAnalysis([accounts[0].id],"accounts"); return; }
     openAnalysisPicker();
+  });
+  el("deleteSessionBtn").addEventListener("click",function(){
+    var a=acc(), k=view.editKey; if(!a||!k) return;
+    openConfirm("Supprimer cette séance ?","La séance du "+labelKey(k)+" et ses trades détaillés seront définitivement supprimés.","Supprimer",function(){
+      deleteSession(a,k); view.jlevel="account"; showTab("journal"); showToast("Séance supprimée");
+    });
   });
 
   // ---- Plan ----
@@ -1699,6 +1702,7 @@
   el("backBtn").addEventListener("click",function(){
     if(view.tab!=="journal") return;
     if(view.jlevel==="session"){ saveJournal(); view.jlevel="account"; showTab("journal"); }
+    else if(view.jlevel==="analysis"){ view.jlevel = (view.anFrom==="account")?"account":"accounts"; showTab("journal"); }
     else if(view.jlevel==="account"){ view.jlevel="accounts"; showTab("journal"); }
   });
 
