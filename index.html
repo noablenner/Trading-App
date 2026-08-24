@@ -151,11 +151,13 @@
   .an-group{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:22px 2px 2px;}
 
   textarea{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:15px;padding:12px;resize:none;overflow:hidden;min-height:64px;line-height:1.5;}
-  /* champ numérique avec bouton de signe ± (pour saisir des résultats négatifs) */
+  /* champ numérique + bouton Gain/Perte (pour saisir un résultat négatif clairement) */
   .num-row{display:flex;gap:8px;align-items:stretch;}
   .num-row input{flex:1;min-width:0;}
-  .sign-btn{flex:0 0 auto;width:52px;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);font-family:inherit;font-size:20px;font-weight:800;border-radius:12px;cursor:pointer;line-height:1;}
-  .sign-btn:active{background:var(--line);transform:scale(.96);}
+  .sign-btn{flex:0 0 auto;min-width:94px;padding:0 12px;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);font-family:inherit;font-size:14px;font-weight:800;border-radius:12px;cursor:pointer;line-height:1;white-space:nowrap;}
+  .sign-btn:active{transform:scale(.96);}
+  .sign-btn.pos{color:var(--green);border-color:var(--green);background:var(--green-dim);}
+  .sign-btn.neg{color:var(--red);border-color:var(--red);background:var(--red-dim);}
   textarea:focus{outline:none;border-color:var(--accent);}
   textarea::placeholder{color:var(--txt-faint);}
 
@@ -172,13 +174,17 @@
   .wl-inline .w{color:var(--green);}.wl-inline .l{color:var(--red);}
 
   /* account rows (global) */
-  .acct-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-top:1px solid var(--line);cursor:pointer;gap:10px;}
-  .acct-row:first-of-type{border-top:none;}
-  .acct-row .al{font-weight:700;font-size:15.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-  .acct-row .as{font-size:12.5px;color:var(--txt-dim);margin-top:3px;}
-  .acct-row .ar-val{text-align:right;font-weight:800;font-size:16px;white-space:nowrap;}
-  .acct-row .ar-val.pos{color:var(--green);}.acct-row .ar-val.neg{color:var(--red);}.acct-row .ar-val.flat{color:var(--txt-faint);}
-  .chev{color:var(--txt-faint);font-size:20px;margin-left:8px;flex:0 0 auto;}
+  /* cartes de comptes (journal global) — bien visibles et clairement cliquables */
+  .acct-card{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 16px 15px 18px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);cursor:pointer;margin-bottom:10px;position:relative;overflow:hidden;transition:border-color .15s,transform .05s;}
+  .acct-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent);opacity:.75;}
+  .acct-card:active{transform:scale(.99);}
+  .acct-card.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
+  .acct-card .al{font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .acct-card .as{font-size:12.5px;color:var(--txt-dim);margin-top:4px;}
+  .acct-card .ar-val{text-align:right;font-weight:800;font-size:16px;white-space:nowrap;}
+  .acct-card .ar-val.pos{color:var(--green);}.acct-card .ar-val.neg{color:var(--red);}.acct-card .ar-val.flat{color:var(--txt-faint);}
+  .acct-card .open-tag{font-size:11px;font-weight:700;color:var(--accent);margin-top:3px;}
+  .chev{color:var(--accent);font-size:22px;margin-left:8px;flex:0 0 auto;}
   .add-row{display:flex;align-items:center;gap:12px;padding:15px 0 2px;border-top:1px solid var(--line);margin-top:2px;color:var(--accent);font-weight:700;font-size:15px;cursor:pointer;}
   .add-row .plus{width:32px;height:32px;border-radius:9px;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:20px;flex:0 0 auto;}
 
@@ -213,6 +219,12 @@
   .cal-cell .cv{font-size:8.5px;font-weight:800;line-height:1;}
   .cal-cell.clickable{cursor:pointer;}
   .cal-cell.clickable:active{transform:scale(.92);}
+  .cal-cell.clickable .cd{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:2px;}
+  /* calendrier cumulé en lecture seule : visuellement distinct (atténué, non cliquable) */
+  .cal-ro-note{font-size:12px;color:var(--txt-faint);line-height:1.4;margin:-4px 0 12px;}
+  .cal-readonly{opacity:.82;}
+  .cal-readonly .cal-grid{filter:saturate(.7);}
+  .cal-readonly .cal-cell{cursor:default;}
   .unit-seg{display:flex;flex-wrap:wrap;gap:8px;}
   .unit-seg button{flex:0 0 auto;padding:9px 13px;}
   .sub-setting{margin-top:12px;}
@@ -515,8 +527,9 @@
     </div>
 
     <div class="card">
-      <h2>Calendrier cumulé <span class="hint">tous comptes additionnés</span></h2>
-      <div id="gCal"></div>
+      <h2>Calendrier cumulé <span class="hint">tous comptes · lecture seule</span></h2>
+      <div class="cal-ro-note">Vue d'ensemble non cliquable. Pour ouvrir une séance, touche un compte ci-dessus puis un jour de son calendrier.</div>
+      <div id="gCal" class="cal-readonly"></div>
     </div>
 
     <button class="nav-tile" id="anCumulBtn" type="button">
@@ -643,7 +656,7 @@
     <div class="card" id="cardResult">
       <h2>Résultat de séance <span class="hint">optionnel</span></h2>
       <div class="stop-banner" id="stopBanner">🛑 Limite de perte du jour atteinte — tu arrêtes maintenant.</div>
-      <div class="field"><label id="resultLabel">Résultat</label><div class="num-row"><button type="button" class="sign-btn" id="resultSign" title="Positif / négatif">±</button><input id="resultIn" type="text" inputmode="decimal" placeholder="0"></div></div>
+      <div class="field"><label id="resultLabel">Résultat</label><div class="num-row"><button type="button" class="sign-btn pos" id="resultSign">Gain +</button><input id="resultIn" type="text" inputmode="decimal" placeholder="0"></div></div>
       <span class="fromtrades hidden" id="fromTradesBtn">↧ Calculer depuis mes trades détaillés</span>
     </div>
 
@@ -662,7 +675,8 @@
       <textarea id="notesText" placeholder="Comment j'ai été aujourd'hui ? Ce qui a marché, ce qui a merdé, les erreurs à corriger demain…"></textarea>
     </div>
 
-    <button class="danger-btn" id="deleteSessionBtn" type="button" style="margin-top:18px;">Supprimer cette séance</button>
+    <button class="main-cta" id="finishSessionBtn" type="button" style="margin-top:18px;">✓ Terminer la séance</button>
+    <button class="danger-btn" id="deleteSessionBtn" type="button" style="margin-top:10px;">Supprimer cette séance</button>
   </div>
 
 </div>
@@ -1232,11 +1246,12 @@
       var s=a.sessions[tk]; var st=statsForTrades(s?s.trades:[]);
       var rv="—",rc="flat";
       if(s&&hasResult(s)){ var v=sessionNet(s); rv=fmtVal(v,a); rc=v>0?"pos":v<0?"neg":"flat"; }
-      var row=document.createElement("div"); row.className="acct-row";
+      var row=document.createElement("div"); row.className="acct-card"+(a.id===view.accId?" active":"");
       var activeTag = a.id===view.accId ? ' <span class="badge" style="background:var(--accent-dim);color:var(--accent);">actif</span>' : '';
-      row.innerHTML='<div><div class="al">'+a.name+' <span class="badge">'+a.type+'</span>'+activeTag+'</div>'+
-        '<div class="as">'+st.taken+'/'+a.maxTrades+' trades · '+st.win+'✓ '+st.loss+'✗</div></div>'+
-        '<div style="display:flex;align-items:center;"><div class="ar-val '+rc+'">'+rv+'</div><span class="chev">›</span></div>';
+      row.innerHTML='<div style="min-width:0;"><div class="al">'+a.name+' <span class="badge">'+a.type+'</span>'+activeTag+'</div>'+
+        '<div class="as">'+st.taken+'/'+a.maxTrades+' trades · '+st.win+'✓ '+st.loss+'✗</div>'+
+        '<div class="open-tag">→ ouvrir le journal du compte</div></div>'+
+        '<div style="display:flex;align-items:center;flex:0 0 auto;"><div class="ar-val '+rc+'">'+rv+'</div><span class="chev">›</span></div>';
       row.onclick=function(){ openAccountView(a.id); };
       list.appendChild(row);
     });
@@ -1346,7 +1361,7 @@
       btns.appendChild(ok); btns.appendChild(no); row.appendChild(t); row.appendChild(btns); box.appendChild(row);
     });
   }
-  function updateChecklistProgress(){
+  function updateChecklistProgress(celebrate){
     var s=curSession(); if(!s) return;
     var items=s.checklist||[], total=items.length;
     var done=items.filter(function(c){return c&&c.checked;}).length;
@@ -1356,7 +1371,7 @@
     el("clProgress").classList.toggle("done", complete);
     var st=el("clStatus");
     if(total===0){ st.textContent=""; st.classList.remove("done"); s._clDone=false; return; }
-    if(complete){ st.textContent="✅ Check-list complète — prêt à trader !"; st.classList.add("done"); if(!s._clDone){ s._clDone=true; confetti(); } }
+    if(complete){ st.textContent="✅ Check-list complète — prêt à trader !"; st.classList.add("done"); if(celebrate && !s._clDone){ confetti(); } s._clDone=true; }
     else { st.classList.remove("done"); st.textContent = done+" / "+total+" — "+(done===0?"coche pour te préparer 💪":"continue, tu y es presque 🔥"); s._clDone=false; }
   }
   // petits confettis (gamification) — déclenchés à la complétion d'une check-list
@@ -1375,19 +1390,19 @@
     }
     setTimeout(function(){ host.classList.add("hidden"); host.innerHTML=""; }, 3200);
   }
-  function renderSessChecklist(){
+  function renderSessChecklist(celebrate){
     var s=curSession(); if(!s) return;
     var box=el("sessChecklist"); box.innerHTML="";
-    if(!s.checklist || s.checklist.length===0){ box.innerHTML='<div class="le-empty">Aucun item. Ajoute-les dans les Paramètres du compte.</div>'; updateChecklistProgress(); return; }
+    if(!s.checklist || s.checklist.length===0){ box.innerHTML='<div class="le-empty">Aucun item. Ajoute-les dans les Paramètres du compte.</div>'; updateChecklistProgress(false); return; }
     s.checklist.forEach(function(c,idx){
       var row=document.createElement("div"); row.className="cl-row"+(c.checked?" on":"");
       var bx=document.createElement("div"); bx.className="cl-box"; bx.textContent="✓";
       var tx=document.createElement("div"); tx.className="cl-txt"; tx.textContent=c.item;
       row.appendChild(bx); row.appendChild(tx);
-      row.onclick=function(){ s.checklist[idx].checked=!s.checklist[idx].checked; renderSessChecklist(); refreshSaveBtn(); };
+      row.onclick=function(){ s.checklist[idx].checked=!s.checklist[idx].checked; renderSessChecklist(true); refreshSaveBtn(); };
       box.appendChild(row);
     });
-    updateChecklistProgress();
+    updateChecklistProgress(celebrate);
   }
   function renderMood(rowId,field){
     var s=curSession(); if(!s) return;
@@ -1421,6 +1436,7 @@
     var a=acc(); var s=curSession(); if(!a||!s) return;
     if(el("sessDateIn")) el("sessDateIn").value=view.editKey;
     el("objText").value=s.objective; el("resultIn").value=s.result; el("notesText").value=s.notes;
+    refreshSignBtn(el("resultIn"),el("resultSign"));
     requestAnimationFrame(function(){ autoGrow(el("objText")); autoGrow(el("notesText")); });
     el("resultLabel").textContent="Résultat ("+unitOf(a).label+")";
     applyBricks(); renderGrid();
@@ -1491,9 +1507,10 @@
       box.appendChild(gp); gp.querySelector("#tfEntryP").value=t.entryPrice||""; gp.querySelector("#tfExitP").value=t.exitPrice||"";
       gp.querySelector("#tfEntryP").addEventListener("input",function(){ t.entryPrice=this.value; }); gp.querySelector("#tfExitP").addEventListener("input",function(){ t.exitPrice=this.value; });
     }
-    var gr=group('<div class="set-label">Résultat ('+unitOf(a).label+')</div><div class="num-row"><button type="button" class="sign-btn" id="tfResSign" title="Positif / négatif">±</button><input class="set-input" id="tfRes" type="text" inputmode="decimal" placeholder="Ex : +12 ou −8"></div>');
-    box.appendChild(gr); gr.querySelector("#tfRes").value=t.result||""; gr.querySelector("#tfRes").addEventListener("input",function(){ t.result=this.value; });
-    gr.querySelector("#tfResSign").addEventListener("click",function(){ signToggle(gr.querySelector("#tfRes")); });
+    var gr=group('<div class="set-label">Résultat ('+unitOf(a).label+')</div><div class="num-row"><button type="button" class="sign-btn pos" id="tfResSign">Gain +</button><input class="set-input" id="tfRes" type="text" inputmode="decimal" placeholder="Ex : 12 ou 8"></div>');
+    box.appendChild(gr); var tfr=gr.querySelector("#tfRes"), tfrS=gr.querySelector("#tfResSign"); tfr.value=t.result||""; refreshSignBtn(tfr,tfrS);
+    tfr.addEventListener("input",function(){ t.result=this.value; refreshSignBtn(tfr,tfrS); });
+    tfrS.addEventListener("click",function(){ signToggle(tfr,tfrS); });
     if(fc.tags && (a.tagsOptions||[]).filter(Boolean).length){
       var gg=group('<div class="set-label">Tags</div><div class="tags-row" id="tfTags"></div>'); box.appendChild(gg);
       var tb=gg.querySelector("#tfTags");
@@ -1834,6 +1851,9 @@
     if(accounts.length===0){ showToast("Aucun compte"); return; }
     if(accounts.length===1){ openAnalysis([accounts[0].id],"accounts"); return; }
     openAnalysisPicker();
+  });
+  el("finishSessionBtn").addEventListener("click",function(){
+    saveJournal(); view.jlevel="account"; showTab("journal"); showToast("Séance enregistrée ✓");
   });
   el("deleteSessionBtn").addEventListener("click",function(){
     var a=acc(), k=view.editKey; if(!a||!k) return;
@@ -2281,11 +2301,12 @@
 
   // session field bindings
   el("objText").addEventListener("input",function(){ var s=curSession(); if(s)s.objective=this.value; });
-  el("resultIn").addEventListener("input",function(){ var s=curSession(); if(s){s.result=this.value; updateStopBanner(); refreshSaveBtn();} });
+  el("resultIn").addEventListener("input",function(){ var s=curSession(); if(s){s.result=this.value; updateStopBanner(); refreshSaveBtn();} refreshSignBtn(el("resultIn"),el("resultSign")); });
   el("notesText").addEventListener("input",function(){ var s=curSession(); if(s)s.notes=this.value; });
-  // Bouton ± : bascule le signe (permet de saisir un résultat négatif sur tout clavier)
-  function signToggle(input){ if(!input) return; var v=String(input.value).trim().replace(/\s+/g,""); if(v===""||v==="-"){ v="-"; } else if(v.charAt(0)==="-"){ v=v.slice(1); } else { v="-"+v; } input.value=v; input.dispatchEvent(new Event("input",{bubbles:true})); input.focus(); }
-  el("resultSign").addEventListener("click",function(){ signToggle(el("resultIn")); });
+  // Bouton Gain/Perte : reflète et bascule le signe du résultat (saisie d'un négatif claire, tout clavier)
+  function refreshSignBtn(input,btn){ if(!input||!btn) return; var neg=String(input.value).trim().charAt(0)==="-"; btn.textContent=neg?"Perte −":"Gain +"; btn.classList.toggle("neg",neg); btn.classList.toggle("pos",!neg); }
+  function signToggle(input,btn){ if(!input) return; var v=String(input.value).trim().replace(/\s+/g,""); var neg=v.charAt(0)==="-"; var mag=neg?v.slice(1):v; input.value = neg ? mag : ("-"+mag); input.dispatchEvent(new Event("input",{bubbles:true})); refreshSignBtn(input,btn); input.focus(); }
+  el("resultSign").addEventListener("click",function(){ signToggle(el("resultIn"),el("resultSign")); });
   // Textareas auto-extensibles : la section grandit avec le texte, pas de scroll interne
   function autoGrow(t){ if(!t) return; t.style.height="auto"; t.style.height=(t.scrollHeight+2)+"px"; }
   function attachAutoGrow(t){ if(!t||t._ag) return; t._ag=1; t.addEventListener("input",function(){ autoGrow(t); }); }
