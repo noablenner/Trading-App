@@ -38,6 +38,18 @@
   .sub{font-size:12.5px;color:var(--txt-dim);margin-top:1px;}
   .gear{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--surface);color:var(--txt-dim);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;}
   .gear:active{transform:scale(.94);}
+  .gear{position:relative;}
+  .gear-badge{position:absolute;top:-6px;right:-6px;font-size:12px;line-height:1;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:2px 3px;pointer-events:none;}
+  .gear-badge:empty{display:none;}
+  /* Plan en lecture seule */
+  .plan-ro{font-size:14.5px;color:var(--txt);line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+  .plan-ro.empty{color:var(--txt-faint);font-size:13px;font-style:italic;}
+  .plan-rolist{margin:2px 0 0;padding-left:20px;}
+  .plan-rolist li{font-size:14.5px;color:var(--txt);line-height:1.5;margin-bottom:4px;}
+  .plan-roline{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line);}
+  .plan-roline:first-child{border-top:none;}
+  .plan-roline span{font-size:13.5px;color:var(--txt-dim);}
+  .plan-roline b{font-size:15px;font-weight:800;}
 
   .badge{font-size:10px;font-weight:700;letter-spacing:.04em;padding:2px 7px;border-radius:20px;text-transform:uppercase;background:var(--accent-dim);color:var(--accent);}
 
@@ -447,7 +459,7 @@
         <div class="sub" id="screenSub">—</div>
       </div>
     </div>
-    <div class="gear" id="gearBtn">⚙</div>
+    <div class="gear" id="gearBtn">⚙<span class="gear-badge" id="gearBadge"></span></div>
   </div>
 </div>
 
@@ -542,43 +554,9 @@
     <div id="analysisBody"></div>
   </div>
 
-  <!-- ========== PLAN DE TRADING ========== -->
+  <!-- ========== PLAN DE TRADING (lecture seule ; édition via la roue crantée) ========== -->
   <div id="screenPlan" class="hidden">
-    <div class="card">
-      <h2>Style de trading</h2>
-      <textarea id="planStyle" placeholder="Ex : Scalping indices US en séance, momentum sur cassure, 1 à 3 trades/jour."></textarea>
-    </div>
-    <div class="card">
-      <h2>Règles d'entrée / sortie</h2>
-      <div class="plan-sub">Décris tes conditions. Tes <b>règles</b> ci-dessous sont réutilisées telles quelles et notées à chaque séance.</div>
-      <div class="set-label">Conditions d'entrée</div>
-      <textarea id="planEntry" placeholder="Ex : setup validé + confirmation volume + niveau clé."></textarea>
-      <div class="set-label" style="margin-top:12px;">Conditions de sortie</div>
-      <textarea id="planExit" placeholder="Ex : TP au prochain niveau, SL sous le dernier creux, coupe à −X."></textarea>
-      <div class="set-label" style="margin-top:14px;">Mes règles <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(notées ✓/✗ en séance)</span></div>
-      <div id="planRulesList"></div>
-    </div>
-    <div class="card">
-      <h2>Check-list de préséance</h2>
-      <div class="plan-sub">Ta routine avant de trader (vérif des annonces éco, mise en place du setup, ordinateur prêt…). Activée dans les réglages d'une séance, elle s'y affiche en cases à cocher.</div>
-      <div id="planChecklistList"></div>
-    </div>
-    <div class="card">
-      <h2>Objectifs</h2>
-      <div class="set-label">Objectif mensuel</div>
-      <div class="plan-obj"><input class="set-input" id="planObjM" type="text" inputmode="decimal" placeholder="0"><span class="plan-unit" id="planObjMUnit">—</span></div>
-      <div class="set-label" style="margin-top:12px;">Objectif journalier</div>
-      <div class="plan-obj"><input class="set-input" id="planObjD" type="text" inputmode="decimal" placeholder="0"><span class="plan-unit" id="planObjDUnit">—</span></div>
-    </div>
-    <div class="card">
-      <h2>Gestion du risque</h2>
-      <div class="set-label">Ratio R:R visé</div>
-      <input class="set-input" id="planRR" type="text" placeholder="Ex : 1:2">
-      <div class="set-label" style="margin-top:12px;">Limite de perte du jour</div>
-      <div class="plan-obj"><input class="set-input" id="planLossIn" type="text" inputmode="decimal" placeholder="Ex : 300"><span class="plan-unit" id="planLossUnit">—</span></div>
-      <div class="set-label" style="margin-top:12px;">Drawdown / perte max</div>
-      <div class="plan-obj"><input class="set-input" id="planMaxDD" type="text" inputmode="decimal" placeholder="Ex : 1000"><span class="plan-unit" id="planMaxDDUnit">—</span></div>
-    </div>
+    <div id="planView"></div>
   </div>
 
   <!-- ========== PROP FIRM (briefing pré-séance) ========== -->
@@ -588,6 +566,10 @@
 
   <!-- ========== JOURNAL (séance du jour) ========== -->
   <div id="screenSession" class="hidden">
+    <div class="card" id="cardSessDate">
+      <div class="field"><label>Date de la séance</label><input id="sessDateIn" type="date"></div>
+    </div>
+
     <div class="card hidden" id="cardMoodBefore">
       <h2>Humeur avant <span class="hint">comment tu te sens</span></h2>
       <div class="mood-row" id="moodBeforeRow"></div>
@@ -684,6 +666,44 @@
 <div class="drawer" id="pfDrawer">
   <div class="grab"></div>
   <div id="pfDrawerBody"></div>
+</div>
+
+<!-- Plan de trading : édition (ouverte par la roue crantée de l'onglet Plan) -->
+<div class="drawer" id="planDrawer">
+  <div class="grab"></div>
+  <h3>Modifier le plan</h3>
+  <div class="dsub">Ton plan de trading. Il s'affiche figé ; reviens ici pour l'ajuster. Les changements s'appliquent quand tu appuies sur « Terminé ».</div>
+  <div class="set-group"><div class="set-label">Style de trading</div>
+    <textarea id="planStyle" placeholder="Ex : Scalping indices US en séance, momentum sur cassure, 1 à 3 trades/jour."></textarea>
+  </div>
+  <div class="set-group"><div class="set-label">Conditions d'entrée</div>
+    <textarea id="planEntry" placeholder="Ex : setup validé + confirmation volume + niveau clé."></textarea>
+  </div>
+  <div class="set-group"><div class="set-label">Conditions de sortie</div>
+    <textarea id="planExit" placeholder="Ex : TP au prochain niveau, SL sous le dernier creux, coupe à −X."></textarea>
+  </div>
+  <div class="set-group"><div class="set-label">Mes règles <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(notées ✓/✗ en séance)</span></div>
+    <div id="planRulesList"></div>
+  </div>
+  <div class="set-group"><div class="set-label">Check-list de préséance <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(routine avant de trader)</span></div>
+    <div id="planChecklistList"></div>
+  </div>
+  <div class="set-group"><div class="set-label">Objectif mensuel</div>
+    <div class="plan-obj"><input class="set-input" id="planObjM" type="text" inputmode="decimal" placeholder="0"><span class="plan-unit" id="planObjMUnit">—</span></div>
+  </div>
+  <div class="set-group"><div class="set-label">Objectif journalier</div>
+    <div class="plan-obj"><input class="set-input" id="planObjD" type="text" inputmode="decimal" placeholder="0"><span class="plan-unit" id="planObjDUnit">—</span></div>
+  </div>
+  <div class="set-group"><div class="set-label">Ratio R:R visé</div>
+    <input class="set-input" id="planRR" type="text" placeholder="Ex : 1:2">
+  </div>
+  <div class="set-group"><div class="set-label">Limite de perte du jour</div>
+    <div class="plan-obj"><input class="set-input" id="planLossIn" type="text" inputmode="decimal" placeholder="Ex : 300"><span class="plan-unit" id="planLossUnit">—</span></div>
+  </div>
+  <div class="set-group"><div class="set-label">Drawdown / perte max</div>
+    <div class="plan-obj"><input class="set-input" id="planMaxDD" type="text" inputmode="decimal" placeholder="Ex : 1000"><span class="plan-unit" id="planMaxDDUnit">—</span></div>
+  </div>
+  <button class="drawer-done sticky" id="planDone">✓ Terminé</button>
 </div>
 
 <div class="drawer" id="drawer">
@@ -1326,6 +1346,7 @@
   }
   function renderSession(){
     var a=acc(); var s=curSession(); if(!a||!s) return;
+    if(el("sessDateIn")) el("sessDateIn").value=view.editKey;
     el("objText").value=s.objective; el("resultIn").value=s.result; el("notesText").value=s.notes;
     el("resultLabel").textContent="Résultat ("+unitOf(a).label+")";
     applyBricks(); renderGrid();
@@ -1682,7 +1703,7 @@
     view.tab=tab;
     document.querySelectorAll('#tabbar .tab[data-tab]').forEach(function(t){ t.classList.toggle("on", t.dataset.tab===tab); });
     if(tab==="journal"){ renderJournalTab(); }
-    else if(tab==="plan"){ el("screenPlan").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Plan de trading", a?a.name:"", true); renderPlan(); }
+    else if(tab==="plan"){ el("screenPlan").classList.remove("hidden"); if(a){ setGearBadge("📋"); } else { el("gearBtn").classList.add("hidden"); } setTitle("Plan de trading", a?a.name:"", true); renderPlan(); }
     else if(tab==="calendar"){ el("screenCalendar").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Calendrier économique","Événements macro", true); loadEconWidget(); }
     else if(tab==="propfirm"){ el("screenPropfirm").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Prop firm", a?a.name+" · briefing pré-séance":"", true); renderPropfirm(); }
     requestAnimationFrame(updateTopbarHeight);
@@ -1695,10 +1716,10 @@
     el("screenAccount").classList.toggle("hidden", lvl!=="account");
     el("screenSession").classList.toggle("hidden", lvl!=="session");
     el("screenAnalysis").classList.toggle("hidden", lvl!=="analysis");
-    if(lvl==="accounts"){ el("backBtn").classList.add("hidden"); setTitle("Journal", frDate(), true); renderGlobal(); }
-    else if(lvl==="account"){ el("backBtn").classList.remove("hidden"); setTitle(a.name, a.type+" · journal du compte", true); renderAccountOverview(a); }
+    if(lvl==="accounts"){ el("backBtn").classList.add("hidden"); setGearBadge("👤"); setTitle("Journal", frDate(), true); renderGlobal(); }
+    else if(lvl==="account"){ el("backBtn").classList.remove("hidden"); setGearBadge("📓"); setTitle(a.name, a.type+" · journal du compte", true); renderAccountOverview(a); }
     else if(lvl==="analysis"){ el("backBtn").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); var multi=(view.anIds||[]).length>1; setTitle("Analyse", multi?"Tous comptes · discipline & psycho":(a?a.name:"")+" · discipline & psycho", true); renderAnalysisScreen(); }
-    else { el("backBtn").classList.remove("hidden"); var isToday=view.editKey===todayKey(); setTitle(isToday?"Séance du jour":labelKey(view.editKey), a.name+" · "+(isToday?"aujourd'hui":labelKey(view.editKey)), false); renderSession(); }
+    else { el("backBtn").classList.remove("hidden"); setGearBadge("📓"); var isToday=view.editKey===todayKey(); setTitle(isToday?"Séance du jour":labelKey(view.editKey), a.name+" · "+(isToday?"aujourd'hui":labelKey(view.editKey)), false); renderSession(); }
   }
   function currentScreenId(){
     if(view.tab==="plan")return "screenPlan"; if(view.tab==="calendar")return "screenCalendar"; if(view.tab==="propfirm")return "screenPropfirm";
@@ -1746,9 +1767,26 @@
     });
   });
 
-  // ---- Plan ----
+  // ---- Plan : affichage figé en lecture seule (l'édition passe par la roue crantée) ----
   function renderPlan(){
-    var a=acc(); if(!a) return; a.plan=a.plan||{};
+    var a=acc(); if(!a){ el("planView").innerHTML=""; return; } a.plan=a.plan||{};
+    var u=unitOf(a).label;
+    function ro(val){ return (val&&String(val).trim())?'<div class="plan-ro">'+esc(val).replace(/\n/g,"<br>")+'</div>':'<div class="plan-ro empty">Rien pour l\'instant — appuie sur ⚙ en haut à droite pour l\'écrire.</div>'; }
+    function list(arr,ph){ var it=(arr||[]).map(function(x){return String(x||"").trim();}).filter(Boolean); return it.length?'<ul class="plan-rolist">'+it.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul>':'<div class="plan-ro empty">'+ph+'</div>'; }
+    function line(lab,val){ return '<div class="plan-roline"><span>'+lab+'</span><b>'+((val&&String(val).trim())?esc(val):"—")+'</b></div>'; }
+    var h='';
+    h+='<div class="card"><h2>Style de trading</h2>'+ro(a.plan.style)+'</div>';
+    h+='<div class="card"><h2>Règles d\'entrée / sortie</h2>'
+      +'<div class="set-label">Conditions d\'entrée</div>'+ro(a.plan.entry)
+      +'<div class="set-label" style="margin-top:12px;">Conditions de sortie</div>'+ro(a.plan.exit)+'</div>';
+    h+='<div class="card"><h2>Mes règles <span class="hint">notées ✓/✗ en séance</span></h2>'+list(a.rules,"Aucune règle définie.")+'</div>';
+    h+='<div class="card"><h2>Check-list de préséance <span class="hint">routine avant de trader</span></h2>'+list(a.checklistItems,"Aucun item.")+'</div>';
+    h+='<div class="card"><h2>Objectifs</h2>'+line("Objectif mensuel",a.plan.objMonthly?a.plan.objMonthly+" "+u:"")+line("Objectif journalier",a.plan.objDaily?a.plan.objDaily+" "+u:"")+'</div>';
+    h+='<div class="card"><h2>Gestion du risque</h2>'+line("Ratio R:R visé",a.plan.rr)+line("Limite de perte du jour",a.dailyLossLimit?a.dailyLossLimit+" "+u:"")+line("Drawdown / perte max",a.plan.maxDrawdown?a.plan.maxDrawdown+" "+u:"")+'</div>';
+    el("planView").innerHTML=h;
+  }
+  function openPlanDrawer(){
+    var a=acc(); if(!a){ showToast("Choisis d'abord un compte"); return; } a.plan=a.plan||{};
     el("planStyle").value=a.plan.style||""; el("planEntry").value=a.plan.entry||""; el("planExit").value=a.plan.exit||"";
     el("planObjM").value=a.plan.objMonthly||""; el("planObjD").value=a.plan.objDaily||"";
     el("planRR").value=a.plan.rr||""; el("planMaxDD").value=a.plan.maxDrawdown||"";
@@ -1756,7 +1794,9 @@
     var u=unitOf(a).label; el("planObjMUnit").textContent=u; el("planObjDUnit").textContent=u; el("planMaxDDUnit").textContent=u; el("planLossUnit").textContent=u;
     renderListEditor(el("planRulesList"),"rules","Ex : Pas de trade avant 15h30","Ajouter une règle");
     renderListEditor(el("planChecklistList"),"checklistItems","Ex : Vérifier les annonces éco","Ajouter un item");
+    el("overlay").classList.add("open"); el("planDrawer").classList.add("open");
   }
+  el("planDone").addEventListener("click",function(){ var a=acc(); if(a){ savePlan(a); saveAccount(a); } closeDrawer(); renderPlan(); });
   function bindPlanField(id,key){ var e=el(id); e.addEventListener("input",function(){ var a=acc(); if(!a)return; a.plan=a.plan||{}; a.plan[key]=this.value; }); e.addEventListener("change",function(){ savePlan(acc()); }); }
   bindPlanField("planStyle","style"); bindPlanField("planEntry","entry"); bindPlanField("planExit","exit");
   bindPlanField("planObjM","objMonthly"); bindPlanField("planObjD","objDaily"); bindPlanField("planRR","rr"); bindPlanField("planMaxDD","maxDrawdown");
@@ -2063,12 +2103,37 @@
   el("objText").addEventListener("input",function(){ var s=curSession(); if(s)s.objective=this.value; });
   el("resultIn").addEventListener("input",function(){ var s=curSession(); if(s){s.result=this.value; updateStopBanner(); refreshSaveBtn();} });
   el("notesText").addEventListener("input",function(){ var s=curSession(); if(s)s.notes=this.value; });
+  // Changer la date d'une séance = la déplacer (données + trades détaillés) vers la nouvelle date
+  function moveSession(a,oldKey,newKey){
+    if(!a||!newKey||newKey===oldKey) return false;
+    var ts=a.sessions[newKey], tt=a.tradesByDate[newKey];
+    if((ts&&!isEmptySession(ts))||(tt&&tt.length)){ showToast("Une séance existe déjà au "+labelKey(newKey)); return false; }
+    saveJournal(); // persiste les saisies en cours sur l'ancienne date
+    if(a.sessions[oldKey]){ a.sessions[newKey]=a.sessions[oldKey]; delete a.sessions[oldKey]; }
+    db.from('sessions').delete().eq('account_id',a.id).eq('date',oldKey).then(function(){},function(e){});
+    persistSession(a,newKey);
+    var tr=a.tradesByDate[oldKey]||[];
+    if(tr.length){ a.tradesByDate[newKey]=(a.tradesByDate[newKey]||[]).concat(tr); a.tradesByDate[oldKey]=[];
+      a.tradesByDate[newKey].forEach(function(t){ t.date=newKey; saveTrade(a,t); }); }
+    return true;
+  }
+  el("sessDateIn").addEventListener("change",function(){
+    var a=acc(); if(!a){ return; }
+    var nv=this.value; if(!nv){ this.value=view.editKey; return; }
+    if(nv===view.editKey) return;
+    if(moveSession(a,view.editKey,nv)){ view.editKey=nv; showTab("journal"); showToast("Séance déplacée au "+labelKey(nv)); }
+    else { this.value=view.editKey; }
+  });
 
   var toastT;
   function showToast(msg){ var t=el("toast"); t.textContent=msg||"Séance enregistrée ✓"; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove("show");},1800); }
 
   // ---------- gear routing ----------
-  el("gearBtn").addEventListener("click",function(){ if(view.tab==="journal" && (view.jlevel||"accounts")==="accounts") openAppDrawer(); else openDrawer(); });
+  function setGearBadge(txt){ var b=el("gearBadge"); if(b) b.textContent=txt||""; }
+  el("gearBtn").addEventListener("click",function(){
+    if(view.tab==="plan"){ openPlanDrawer(); return; }
+    if(view.tab==="journal" && (view.jlevel||"accounts")==="accounts") openAppDrawer(); else openDrawer();
+  });
 
   // account settings drawer
   function openDrawer(){
@@ -2143,7 +2208,7 @@
     container.appendChild(add);
   }
   var onbActive=false;
-  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); }
+  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   el("drawerDone").addEventListener("click",function(){ var a=acc(); if(a){ ["rules","checklistItems","tagsOptions"].forEach(function(f){ a[f]=(a[f]||[]).map(function(x){return String(x||"").trim();}).filter(Boolean); }); saveAccount(a); } closeDrawer(); render(); });
   el("setName").addEventListener("input",function(){ acc().name=this.value; });
