@@ -150,7 +150,12 @@
   .an-empty{font-size:13px;color:var(--txt-faint);}
   .an-group{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:22px 2px 2px;}
 
-  textarea{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:15px;padding:12px;resize:vertical;min-height:64px;line-height:1.5;}
+  textarea{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:15px;padding:12px;resize:none;overflow:hidden;min-height:64px;line-height:1.5;}
+  /* champ numérique avec bouton de signe ± (pour saisir des résultats négatifs) */
+  .num-row{display:flex;gap:8px;align-items:stretch;}
+  .num-row input{flex:1;min-width:0;}
+  .sign-btn{flex:0 0 auto;width:52px;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);font-family:inherit;font-size:20px;font-weight:800;border-radius:12px;cursor:pointer;line-height:1;}
+  .sign-btn:active{background:var(--line);transform:scale(.96);}
   textarea:focus{outline:none;border-color:var(--accent);}
   textarea::placeholder{color:var(--txt-faint);}
 
@@ -638,7 +643,7 @@
     <div class="card" id="cardResult">
       <h2>Résultat de séance <span class="hint">optionnel</span></h2>
       <div class="stop-banner" id="stopBanner">🛑 Limite de perte du jour atteinte — tu arrêtes maintenant.</div>
-      <div class="field"><label id="resultLabel">Résultat</label><input id="resultIn" type="text" inputmode="decimal" placeholder="0"></div>
+      <div class="field"><label id="resultLabel">Résultat</label><div class="num-row"><button type="button" class="sign-btn" id="resultSign" title="Positif / négatif">±</button><input id="resultIn" type="text" inputmode="decimal" placeholder="0"></div></div>
       <span class="fromtrades hidden" id="fromTradesBtn">↧ Calculer depuis mes trades détaillés</span>
     </div>
 
@@ -1416,6 +1421,7 @@
     var a=acc(); var s=curSession(); if(!a||!s) return;
     if(el("sessDateIn")) el("sessDateIn").value=view.editKey;
     el("objText").value=s.objective; el("resultIn").value=s.result; el("notesText").value=s.notes;
+    requestAnimationFrame(function(){ autoGrow(el("objText")); autoGrow(el("notesText")); });
     el("resultLabel").textContent="Résultat ("+unitOf(a).label+")";
     applyBricks(); renderGrid();
     seedRuleSnapshot(a,s); seedChecklistSnapshot(a,s);
@@ -1485,8 +1491,9 @@
       box.appendChild(gp); gp.querySelector("#tfEntryP").value=t.entryPrice||""; gp.querySelector("#tfExitP").value=t.exitPrice||"";
       gp.querySelector("#tfEntryP").addEventListener("input",function(){ t.entryPrice=this.value; }); gp.querySelector("#tfExitP").addEventListener("input",function(){ t.exitPrice=this.value; });
     }
-    var gr=group('<div class="set-label">Résultat ('+unitOf(a).label+')</div><input class="set-input" id="tfRes" type="text" inputmode="decimal" placeholder="Ex : +12 ou −8">');
+    var gr=group('<div class="set-label">Résultat ('+unitOf(a).label+')</div><div class="num-row"><button type="button" class="sign-btn" id="tfResSign" title="Positif / négatif">±</button><input class="set-input" id="tfRes" type="text" inputmode="decimal" placeholder="Ex : +12 ou −8"></div>');
     box.appendChild(gr); gr.querySelector("#tfRes").value=t.result||""; gr.querySelector("#tfRes").addEventListener("input",function(){ t.result=this.value; });
+    gr.querySelector("#tfResSign").addEventListener("click",function(){ signToggle(gr.querySelector("#tfRes")); });
     if(fc.tags && (a.tagsOptions||[]).filter(Boolean).length){
       var gg=group('<div class="set-label">Tags</div><div class="tags-row" id="tfTags"></div>'); box.appendChild(gg);
       var tb=gg.querySelector("#tfTags");
@@ -1498,7 +1505,7 @@
     }
     if(fc.note){
       var gn=group('<div class="set-label">Note</div><textarea id="tfNote" placeholder="Ce qui s\'est passé sur ce trade…"></textarea>'); box.appendChild(gn);
-      gn.querySelector("#tfNote").value=t.note||""; gn.querySelector("#tfNote").addEventListener("input",function(){ t.note=this.value; });
+      var tn=gn.querySelector("#tfNote"); tn.value=t.note||""; tn.addEventListener("input",function(){ t.note=this.value; }); attachAutoGrow(tn); requestAnimationFrame(function(){ autoGrow(tn); });
     }
   }
   el("tradeSave").addEventListener("click",function(){
@@ -1863,6 +1870,7 @@
   function openPlanDrawer(){
     var a=acc(); if(!a){ showToast("Choisis d'abord un compte"); return; } a.plan=a.plan||{};
     el("planStyle").value=a.plan.style||""; el("planEntry").value=a.plan.entry||""; el("planExit").value=a.plan.exit||"";
+    requestAnimationFrame(function(){ autoGrow(el("planStyle")); autoGrow(el("planEntry")); autoGrow(el("planExit")); });
     el("planObjM").value=a.plan.objMonthly||""; el("planObjW").value=a.plan.objWeekly||""; el("planObjD").value=a.plan.objDaily||"";
     el("planRR").value=a.plan.rr||""; el("planRiskPerTrade").value=a.plan.riskPerTrade||""; el("planWeeklyLoss").value=a.plan.weeklyLoss||""; el("planMaxDD").value=a.plan.maxDrawdown||"";
     el("planLossIn").value=a.dailyLossLimit||"";
@@ -2275,6 +2283,13 @@
   el("objText").addEventListener("input",function(){ var s=curSession(); if(s)s.objective=this.value; });
   el("resultIn").addEventListener("input",function(){ var s=curSession(); if(s){s.result=this.value; updateStopBanner(); refreshSaveBtn();} });
   el("notesText").addEventListener("input",function(){ var s=curSession(); if(s)s.notes=this.value; });
+  // Bouton ± : bascule le signe (permet de saisir un résultat négatif sur tout clavier)
+  function signToggle(input){ if(!input) return; var v=String(input.value).trim().replace(/\s+/g,""); if(v===""||v==="-"){ v="-"; } else if(v.charAt(0)==="-"){ v=v.slice(1); } else { v="-"+v; } input.value=v; input.dispatchEvent(new Event("input",{bubbles:true})); input.focus(); }
+  el("resultSign").addEventListener("click",function(){ signToggle(el("resultIn")); });
+  // Textareas auto-extensibles : la section grandit avec le texte, pas de scroll interne
+  function autoGrow(t){ if(!t) return; t.style.height="auto"; t.style.height=(t.scrollHeight+2)+"px"; }
+  function attachAutoGrow(t){ if(!t||t._ag) return; t._ag=1; t.addEventListener("input",function(){ autoGrow(t); }); }
+  ["objText","notesText","planStyle","planEntry","planExit"].forEach(function(id){ attachAutoGrow(el(id)); });
   // Changer la date d'une séance = la déplacer (données + trades détaillés) vers la nouvelle date
   function moveSession(a,oldKey,newKey){
     if(!a||!newKey||newKey===oldKey) return false;
