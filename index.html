@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Tracker">
@@ -22,8 +22,11 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
-  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45;max-width:520px;margin:0 auto;padding:0 0 calc(108px + env(safe-area-inset-bottom));min-height:100vh;position:relative;overflow-x:hidden;}
+  html{background:var(--bg);overscroll-behavior-y:none;}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45;max-width:520px;margin:0 auto;padding:0 0 calc(108px + env(safe-area-inset-bottom));min-height:100vh;position:relative;overflow-x:hidden;overscroll-behavior-y:none;}
   .app{padding:calc(var(--topbarH, 82px) + 12px) 20px 0;}
+  /* Cale opaque derrière la barre d'état iOS : couvre toute la zone safe-area au-dessus du header */
+  .topbar::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:100vh;background:var(--bg);}
 
   .topbar{position:fixed;top:0;left:0;right:0;margin:0 auto;max-width:520px;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);padding:calc(12px + env(safe-area-inset-top)) 20px 12px;}
   .ttl.big{font-size:25px;letter-spacing:-.02em;}
@@ -291,6 +294,13 @@
   /* drawers + modal */
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:105;opacity:0;pointer-events:none;transition:opacity .2s;}
   .overlay.open{opacity:1;pointer-events:auto;}
+  /* Sécurité : tant qu'un tiroir est ouvert, l'arrière-plan (header, contenu, barre d'onglets)
+     ne reçoit aucun tap et ne défile pas. Empêche les clics de « traverser » sur le journal ou le menu du bas. */
+  body:has(.overlay.open){overflow:hidden;}
+  body:has(.overlay.open) .topbar,
+  body:has(.overlay.open) .app,
+  body:has(.overlay.open) .bottombar,
+  body:has(.overlay.open) .tabbar{pointer-events:none;}
   .drawer{position:fixed;left:0;right:0;bottom:0;z-index:108;max-width:520px;margin:0 auto;background:var(--surface);border-radius:22px 22px 0 0;border-top:1px solid var(--line);transform:translateY(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1);max-height:88vh;overflow-y:auto;padding:8px 18px 30px;}
   .drawer.open{transform:translateY(0);}
   .grab{width:40px;height:4px;border-radius:4px;background:var(--line);margin:8px auto 14px;}
@@ -315,6 +325,16 @@
   .type-seg{display:flex;gap:8px;}
   .type-seg button{flex:1;padding:10px;border-radius:11px;border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;}
   .type-seg button.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--txt);}
+  /* Bloc « Modèle conseillé » : suggestion à part, hors des catégories */
+  .tpl-suggest{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:18px;}
+  .tpl-suggest-h{display:flex;align-items:center;gap:8px;}
+  .tpl-suggest-t{font-size:14px;font-weight:800;color:var(--txt);}
+  .tpl-suggest-s{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--txt-faint);background:var(--surface);border:1px solid var(--line);padding:2px 7px;border-radius:20px;}
+  .tpl-suggest-help{font-size:12px;color:var(--txt-dim);margin:6px 0 12px;line-height:1.4;}
+  .tpl-seg button{flex:0 1 auto;padding:9px 13px;}
+  /* Modèle sélectionné : bien visible (contour accent + coche) */
+  .tpl-seg button.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--txt);box-shadow:0 0 0 2px var(--accent) inset;}
+  .tpl-seg button.sel::before{content:"✓ ";font-weight:900;color:var(--accent);}
   .drawer-done{width:100%;margin-top:8px;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:800;background:var(--accent);color:#fff;cursor:pointer;}
   .drawer-done.sticky{position:sticky;bottom:0;margin-top:12px;box-shadow:0 -10px 20px -6px var(--surface);}
   /* CTA principal (ajouter une séance) */
@@ -623,6 +643,12 @@
   <h3>Paramètres du compte</h3>
   <div class="dsub">Tout est optionnel et par compte. Déplie une catégorie pour l'ajuster.</div>
 
+  <div class="tpl-suggest">
+    <div class="tpl-suggest-h"><span class="tpl-suggest-t">💡 Modèle conseillé</span><span class="tpl-suggest-s">optionnel</span></div>
+    <div class="tpl-suggest-help">Applique en un clic les réglages conseillés pour ce style. Tu peux tout réajuster ensuite.</div>
+    <div class="type-seg tpl-seg" id="tplSeg" style="flex-wrap:wrap;gap:8px;"></div>
+  </div>
+
   <div class="cat open"><div class="cat-h"><span class="cat-ic">📇</span><span class="cat-t">Base</span><span class="cat-ch">›</span></div>
     <div class="cat-b">
       <div class="set-group"><div class="set-label">Nom du compte</div><input class="set-input" id="setName" type="text"></div>
@@ -642,13 +668,6 @@
         <button data-mode="quick">Coches rapides</button>
         <button data-mode="detailed">Trades détaillés</button>
         <button data-mode="both">Les deux</button>
-      </div>
-      <div class="set-label" style="margin-top:16px;">Repartir d'un modèle prêt à l'emploi</div>
-      <div class="cat-help" style="padding:0 0 8px;">Applique en un clic les réglages conseillés pour ce style (tu peux tout réajuster après).</div>
-      <div class="type-seg" id="tplSeg" style="flex-wrap:wrap;gap:8px;">
-        <button data-tpl="scalping">⚡ Scalping</button>
-        <button data-tpl="daytrading">📊 Day trading</button>
-        <button data-tpl="swing">🌊 Swing</button>
       </div>
     </div>
   </div>
@@ -696,7 +715,7 @@
   </div>
 
   <div class="set-group" style="margin-top:6px;"><div class="set-label">Zone de danger</div><button class="danger-btn" id="deleteAcctBtn">Supprimer ce compte</button></div>
-  <button class="drawer-done sticky" id="drawerDone">✓ Terminé <span style="font-weight:500;opacity:.85;">(tout est déjà enregistré)</span></button>
+  <button class="drawer-done sticky" id="drawerDone">✓ Terminé</button>
 </div>
 
 <!-- App settings -->
@@ -1621,7 +1640,7 @@
     view.tab=tab;
     document.querySelectorAll('#tabbar .tab[data-tab]').forEach(function(t){ t.classList.toggle("on", t.dataset.tab===tab); });
     if(tab==="journal"){ renderJournalTab(); }
-    else if(tab==="plan"){ el("screenPlan").classList.remove("hidden"); setTitle("Plan de trading", a?a.name:"", true); renderPlan(); }
+    else if(tab==="plan"){ el("screenPlan").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Plan de trading", a?a.name:"", true); renderPlan(); }
     else if(tab==="calendar"){ el("screenCalendar").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Calendrier économique","Événements macro", true); loadEconWidget(); }
     requestAnimationFrame(updateTopbarHeight);
   }
@@ -1770,6 +1789,7 @@
     renderListEditor(el("rulesList"),"rules","Ex : Pas de trade avant 15h30","Ajouter une règle");
     renderListEditor(el("checklistList"),"checklistItems","Ex : Plan du jour écrit","Ajouter un item");
     renderListEditor(el("tagsList"),"tagsOptions","Ex : discipliné","Ajouter un tag");
+    renderTemplateSeg(a);
     el("overlay").classList.add("open"); el("drawer").classList.add("open");
   }
   // accordéon : déplier/replier une catégorie
@@ -1787,7 +1807,17 @@
     });
   }
   document.querySelectorAll("#modeSeg button").forEach(function(b){ b.addEventListener("click",function(){ var a=acc(); a.loggingMode=b.dataset.mode; document.querySelectorAll("#modeSeg button").forEach(function(x){x.classList.remove("sel");}); b.classList.add("sel"); el("catFields").classList.toggle("hidden", !isDetailed(a)); saveAccountMeta(a); }); });
-  document.querySelectorAll("#tplSeg button").forEach(function(b){ b.addEventListener("click",function(){ var a=acc(); if(!a)return; applyTemplate(a,b.dataset.tpl); openDrawer(); showToast("Modèle « "+(TEMPLATES[b.dataset.tpl].label)+" » appliqué"); }); });
+  // Modèle conseillé (suggestion à part) — rendu dynamique + surbrillance du modèle actif
+  function renderTemplateSeg(a){
+    var seg=el("tplSeg"); if(!seg) return; seg.innerHTML="";
+    Object.keys(TEMPLATES).forEach(function(key){
+      var tpl=TEMPLATES[key], b=document.createElement("button"); b.type="button"; b.dataset.tpl=key;
+      b.textContent=(tpl.ic?tpl.ic+" ":"")+tpl.label;
+      if(a && a.style===key) b.classList.add("sel");
+      seg.appendChild(b);
+    });
+  }
+  el("tplSeg").addEventListener("click",function(e){ var b=e.target.closest("button[data-tpl]"); if(!b)return; var a=acc(); if(!a)return; applyTemplate(a,b.dataset.tpl); openDrawer(); showToast("Modèle « "+(TEMPLATES[b.dataset.tpl].label)+" » appliqué"); });
   // éditeur générique de liste de textes (règles / items / tags), stocké sur acc()[field]
   function renderListEditor(container,field,placeholder,addLabel){
     var a=acc(); if(!a) return;
