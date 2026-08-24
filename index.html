@@ -689,42 +689,82 @@
 <div class="drawer" id="planDrawer">
   <div class="grab"></div>
   <h3>Modifier le plan</h3>
-  <div class="dsub">Ton plan de trading. Il s'affiche figé ; reviens ici pour l'ajuster. Les changements s'appliquent quand tu appuies sur « Terminé ».</div>
-  <div class="set-group"><div class="set-label">Style de trading</div>
-    <textarea id="planStyle" placeholder="Ex : Scalping indices US en séance, momentum sur cassure, 1 à 3 trades/jour."></textarea>
+  <div class="dsub">Ton plan de trading, rangé par catégories. Remplis ce qui te parle, laisse vide le reste. Les changements s'appliquent quand tu appuies sur « Terminé ».</div>
+
+  <div class="cat open"><div class="cat-h"><span class="cat-ic">🧭</span><span class="cat-t">Style &amp; approche</span><span class="cat-ch">›</span></div>
+    <div class="cat-help">En une phrase : quoi, quand, comment tu trades.</div>
+    <div class="cat-b">
+      <textarea id="planStyle" placeholder="Ex : Scalping indices US en séance, momentum sur cassure, 1 à 3 trades/jour."></textarea>
+    </div>
   </div>
-  <div class="set-group"><div class="set-label">Conditions d'entrée</div>
-    <textarea id="planEntry" placeholder="Ex : setup validé + confirmation volume + niveau clé."></textarea>
+
+  <div class="cat"><div class="cat-h"><span class="cat-ic">📊</span><span class="cat-t">Conditions d'entrée / sortie</span><span class="cat-ch">›</span></div>
+    <div class="cat-help">Tes critères pour entrer et pour sortir.</div>
+    <div class="cat-b">
+      <div class="set-group"><div class="set-label">Conditions d'entrée</div>
+        <textarea id="planEntry" placeholder="Ex : setup validé + confirmation volume + niveau clé."></textarea>
+      </div>
+      <div class="set-group" style="margin-bottom:0;"><div class="set-label">Conditions de sortie</div>
+        <textarea id="planExit" placeholder="Ex : TP au prochain niveau, SL sous le dernier creux, coupe à −X."></textarea>
+      </div>
+    </div>
   </div>
-  <div class="set-group"><div class="set-label">Conditions de sortie</div>
-    <textarea id="planExit" placeholder="Ex : TP au prochain niveau, SL sous le dernier creux, coupe à −X."></textarea>
+
+  <div class="cat"><div class="cat-h"><span class="cat-ic">📏</span><span class="cat-t">Règles de trading</span><span class="cat-ch">›</span></div>
+    <div class="cat-help">Active des règles conseillées (par style) et/ou ajoute les tiennes. Elles sont notées ✓/✗ à chaque séance.</div>
+    <div class="cat-b">
+      <div class="set-label">Bibliothèque de règles <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(active / désactive)</span></div>
+      <div class="cat-help" style="padding:0 0 8px;">Touche une règle pour l'activer — elle passe en violet et s'ajoute à « Mes règles ».</div>
+      <div class="rl-filter" id="ruleFilter"></div>
+      <div id="ruleLib"></div>
+      <div class="set-label" style="margin-top:14px;">Mes règles <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(notées ✓/✗ en séance)</span></div>
+      <div id="planRulesList"></div>
+    </div>
   </div>
-  <div class="set-group"><div class="set-label">Bibliothèque de règles <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(active / désactive)</span></div>
-    <div class="cat-help" style="padding:0 0 8px;">Touche une règle pour l'activer (elle passe en violet et s'ajoute à tes règles ci-dessous). Filtre selon ton style.</div>
-    <div class="rl-filter" id="ruleFilter"></div>
-    <div id="ruleLib"></div>
+
+  <div class="cat"><div class="cat-h"><span class="cat-ic">✅</span><span class="cat-t">Check-list de préséance</span><span class="cat-ch">›</span></div>
+    <div class="cat-help">Ta routine avant de trader (annonces éco, setup, matériel…). Activable dans les réglages d'une séance.</div>
+    <div class="cat-b">
+      <div id="planChecklistList"></div>
+    </div>
   </div>
-  <div class="set-group"><div class="set-label">Mes règles <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(notées ✓/✗ en séance)</span></div>
-    <div id="planRulesList"></div>
+
+  <div class="cat"><div class="cat-h"><span class="cat-ic">🎯</span><span class="cat-t">Objectifs</span><span class="cat-ch">›</span></div>
+    <div class="cat-help">Fixe les horizons qui te parlent — laisse vide ceux que tu n'utilises pas.</div>
+    <div class="cat-b">
+      <div class="set-group"><div class="set-label">Objectif journalier</div>
+        <div class="plan-obj"><input class="set-input" id="planObjD" type="text" inputmode="decimal" placeholder="0"><span class="plan-unit" id="planObjDUnit">—</span></div>
+      </div>
+      <div class="set-group"><div class="set-label">Objectif hebdomadaire</div>
+        <div class="plan-obj"><input class="set-input" id="planObjW" type="text" inputmode="decimal" placeholder="0"><span class="plan-unit" id="planObjWUnit">—</span></div>
+      </div>
+      <div class="set-group" style="margin-bottom:0;"><div class="set-label">Objectif mensuel</div>
+        <div class="plan-obj"><input class="set-input" id="planObjM" type="text" inputmode="decimal" placeholder="0"><span class="plan-unit" id="planObjMUnit">—</span></div>
+      </div>
+    </div>
   </div>
-  <div class="set-group"><div class="set-label">Check-list de préséance <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(routine avant de trader)</span></div>
-    <div id="planChecklistList"></div>
+
+  <div class="cat"><div class="cat-h"><span class="cat-ic">⚖️</span><span class="cat-t">Gestion du risque</span><span class="cat-ch">›</span></div>
+    <div class="cat-help">Tes garde-fous. Remplis ceux qui comptent pour toi.</div>
+    <div class="cat-b">
+      <div class="set-group"><div class="set-label">Ratio risque/récompense visé</div>
+        <input class="set-input" id="planRR" type="text" placeholder="Ex : 1:2">
+      </div>
+      <div class="set-group"><div class="set-label">Risque par trade <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(% ou montant)</span></div>
+        <input class="set-input" id="planRiskPerTrade" type="text" placeholder="Ex : 1 % ou 50">
+      </div>
+      <div class="set-group"><div class="set-label">Limite de perte du jour</div>
+        <div class="plan-obj"><input class="set-input" id="planLossIn" type="text" inputmode="decimal" placeholder="Ex : 300"><span class="plan-unit" id="planLossUnit">—</span></div>
+      </div>
+      <div class="set-group"><div class="set-label">Perte hebdomadaire max</div>
+        <div class="plan-obj"><input class="set-input" id="planWeeklyLoss" type="text" inputmode="decimal" placeholder="Ex : 900"><span class="plan-unit" id="planWeeklyLossUnit">—</span></div>
+      </div>
+      <div class="set-group" style="margin-bottom:0;"><div class="set-label">Drawdown / perte max totale</div>
+        <div class="plan-obj"><input class="set-input" id="planMaxDD" type="text" inputmode="decimal" placeholder="Ex : 1000"><span class="plan-unit" id="planMaxDDUnit">—</span></div>
+      </div>
+    </div>
   </div>
-  <div class="set-group"><div class="set-label">Objectif mensuel</div>
-    <div class="plan-obj"><input class="set-input" id="planObjM" type="text" inputmode="decimal" placeholder="0"><span class="plan-unit" id="planObjMUnit">—</span></div>
-  </div>
-  <div class="set-group"><div class="set-label">Objectif journalier</div>
-    <div class="plan-obj"><input class="set-input" id="planObjD" type="text" inputmode="decimal" placeholder="0"><span class="plan-unit" id="planObjDUnit">—</span></div>
-  </div>
-  <div class="set-group"><div class="set-label">Ratio R:R visé</div>
-    <input class="set-input" id="planRR" type="text" placeholder="Ex : 1:2">
-  </div>
-  <div class="set-group"><div class="set-label">Limite de perte du jour</div>
-    <div class="plan-obj"><input class="set-input" id="planLossIn" type="text" inputmode="decimal" placeholder="Ex : 300"><span class="plan-unit" id="planLossUnit">—</span></div>
-  </div>
-  <div class="set-group"><div class="set-label">Drawdown / perte max</div>
-    <div class="plan-obj"><input class="set-input" id="planMaxDD" type="text" inputmode="decimal" placeholder="Ex : 1000"><span class="plan-unit" id="planMaxDDUnit">—</span></div>
-  </div>
+
   <button class="drawer-done sticky" id="planDone">✓ Terminé</button>
 </div>
 
@@ -1790,30 +1830,37 @@
   });
 
   // ---- Plan : affichage figé en lecture seule (l'édition passe par la roue crantée) ----
+  // On n'affiche que les catégories/champs réellement remplis, pour un plan net et perso.
   function renderPlan(){
     var a=acc(); if(!a){ el("planView").innerHTML=""; return; } a.plan=a.plan||{};
-    var u=unitOf(a).label;
-    function ro(val){ return (val&&String(val).trim())?'<div class="plan-ro">'+esc(val).replace(/\n/g,"<br>")+'</div>':'<div class="plan-ro empty">Rien pour l\'instant — appuie sur ⚙ en haut à droite pour l\'écrire.</div>'; }
-    function list(arr,ph){ var it=(arr||[]).map(function(x){return String(x||"").trim();}).filter(Boolean); return it.length?'<ul class="plan-rolist">'+it.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul>':'<div class="plan-ro empty">'+ph+'</div>'; }
-    function line(lab,val){ return '<div class="plan-roline"><span>'+lab+'</span><b>'+((val&&String(val).trim())?esc(val):"—")+'</b></div>'; }
+    var p=a.plan, u=unitOf(a).label;
+    function has(v){ return v!=null && String(v).trim()!==""; }
+    function txt(v){ return esc(v).replace(/\n/g,"<br>"); }
+    function amt(v){ return has(v)?(String(v).trim()+" "+u):""; }
+    function line(lab,val){ return has(val)?'<div class="plan-roline"><span>'+lab+'</span><b>'+esc(val)+'</b></div>':""; }
+    function cardIf(inner,title,hint){ return inner?'<div class="card"><h2>'+title+(hint?' <span class="hint">'+hint+'</span>':'')+'</h2>'+inner+'</div>':""; }
+    var rules=(a.rules||[]).map(function(x){return String(x||"").trim();}).filter(Boolean);
+    var checks=(a.checklistItems||[]).map(function(x){return String(x||"").trim();}).filter(Boolean);
     var h='';
-    h+='<div class="card"><h2>Style de trading</h2>'+ro(a.plan.style)+'</div>';
-    h+='<div class="card"><h2>Règles d\'entrée / sortie</h2>'
-      +'<div class="set-label">Conditions d\'entrée</div>'+ro(a.plan.entry)
-      +'<div class="set-label" style="margin-top:12px;">Conditions de sortie</div>'+ro(a.plan.exit)+'</div>';
-    h+='<div class="card"><h2>Mes règles <span class="hint">notées ✓/✗ en séance</span></h2>'+list(a.rules,"Aucune règle définie.")+'</div>';
-    h+='<div class="card"><h2>Check-list de préséance <span class="hint">routine avant de trader</span></h2>'+list(a.checklistItems,"Aucun item.")+'</div>';
-    h+='<div class="card"><h2>Objectifs</h2>'+line("Objectif mensuel",a.plan.objMonthly?a.plan.objMonthly+" "+u:"")+line("Objectif journalier",a.plan.objDaily?a.plan.objDaily+" "+u:"")+'</div>';
-    h+='<div class="card"><h2>Gestion du risque</h2>'+line("Ratio R:R visé",a.plan.rr)+line("Limite de perte du jour",a.dailyLossLimit?a.dailyLossLimit+" "+u:"")+line("Drawdown / perte max",a.plan.maxDrawdown?a.plan.maxDrawdown+" "+u:"")+'</div>';
+    h+=cardIf(has(p.style)?'<div class="plan-ro">'+txt(p.style)+'</div>':"", "Style &amp; approche");
+    var io=""; if(has(p.entry)) io+='<div class="set-label">Conditions d\'entrée</div><div class="plan-ro">'+txt(p.entry)+'</div>'; if(has(p.exit)) io+='<div class="set-label"'+(has(p.entry)?' style="margin-top:12px;"':'')+'>Conditions de sortie</div><div class="plan-ro">'+txt(p.exit)+'</div>';
+    h+=cardIf(io,"Conditions d'entrée / sortie");
+    h+=cardIf(rules.length?'<ul class="plan-rolist">'+rules.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul>':"", "Règles de trading","notées ✓/✗ en séance");
+    h+=cardIf(checks.length?'<ul class="plan-rolist">'+checks.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul>':"", "Check-list de préséance","routine avant de trader");
+    var obj=line("Objectif journalier",amt(p.objDaily))+line("Objectif hebdomadaire",amt(p.objWeekly))+line("Objectif mensuel",amt(p.objMonthly));
+    h+=cardIf(obj,"Objectifs");
+    var risk=line("Ratio risque/récompense",p.rr)+line("Risque par trade",p.riskPerTrade)+line("Limite de perte du jour",amt(a.dailyLossLimit))+line("Perte hebdomadaire max",amt(p.weeklyLoss))+line("Drawdown / perte max totale",amt(p.maxDrawdown));
+    h+=cardIf(risk,"Gestion du risque");
+    if(!h) h='<div class="card"><div class="pf-empty">Ton plan est vide.<br>Appuie sur ⚙ en haut à droite pour le rédiger — style, règles, objectifs, gestion du risque.</div></div>';
     el("planView").innerHTML=h;
   }
   function openPlanDrawer(){
     var a=acc(); if(!a){ showToast("Choisis d'abord un compte"); return; } a.plan=a.plan||{};
     el("planStyle").value=a.plan.style||""; el("planEntry").value=a.plan.entry||""; el("planExit").value=a.plan.exit||"";
-    el("planObjM").value=a.plan.objMonthly||""; el("planObjD").value=a.plan.objDaily||"";
-    el("planRR").value=a.plan.rr||""; el("planMaxDD").value=a.plan.maxDrawdown||"";
+    el("planObjM").value=a.plan.objMonthly||""; el("planObjW").value=a.plan.objWeekly||""; el("planObjD").value=a.plan.objDaily||"";
+    el("planRR").value=a.plan.rr||""; el("planRiskPerTrade").value=a.plan.riskPerTrade||""; el("planWeeklyLoss").value=a.plan.weeklyLoss||""; el("planMaxDD").value=a.plan.maxDrawdown||"";
     el("planLossIn").value=a.dailyLossLimit||"";
-    var u=unitOf(a).label; el("planObjMUnit").textContent=u; el("planObjDUnit").textContent=u; el("planMaxDDUnit").textContent=u; el("planLossUnit").textContent=u;
+    var u=unitOf(a).label; el("planObjMUnit").textContent=u; el("planObjWUnit").textContent=u; el("planObjDUnit").textContent=u; el("planMaxDDUnit").textContent=u; el("planLossUnit").textContent=u; el("planWeeklyLossUnit").textContent=u;
     renderListEditor(el("planRulesList"),"rules","Ex : Pas de trade avant 15h30","Ajouter une règle");
     renderListEditor(el("planChecklistList"),"checklistItems","Ex : Vérifier les annonces éco","Ajouter un item");
     renderRuleFilter(); renderRuleLibrary(a);
@@ -1915,9 +1962,12 @@
     });
   }
   bindPlanField("planStyle","style"); bindPlanField("planEntry","entry"); bindPlanField("planExit","exit");
-  bindPlanField("planObjM","objMonthly"); bindPlanField("planObjD","objDaily"); bindPlanField("planRR","rr"); bindPlanField("planMaxDD","maxDrawdown");
+  bindPlanField("planObjM","objMonthly"); bindPlanField("planObjW","objWeekly"); bindPlanField("planObjD","objDaily");
+  bindPlanField("planRR","rr"); bindPlanField("planRiskPerTrade","riskPerTrade"); bindPlanField("planWeeklyLoss","weeklyLoss"); bindPlanField("planMaxDD","maxDrawdown");
   el("planLossIn").addEventListener("input",function(){ var a=acc(); if(a)a.dailyLossLimit=this.value; });
   el("planLossIn").addEventListener("change",function(){ saveAccount(acc()); });
+  // accordéon du tiroir Plan (même comportement que les réglages du compte)
+  document.querySelectorAll("#planDrawer .cat-h").forEach(function(h){ h.addEventListener("click",function(){ h.parentNode.classList.toggle("open"); }); });
 
   // ================= MODULE PROP FIRM (Lot 1) =================
   // Principe : les templates ne servent QU'À pré-remplir. À la sélection, on COPIE les
