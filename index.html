@@ -50,6 +50,23 @@
   .plan-roline:first-child{border-top:none;}
   .plan-roline span{font-size:13.5px;color:var(--txt-dim);}
   .plan-roline b{font-size:15px;font-weight:800;}
+  /* Bibliothèque de règles */
+  .rl-filter{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+  .rl-fbtn{border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;font-size:12px;font-weight:700;padding:6px 11px;border-radius:20px;cursor:pointer;}
+  .rl-fbtn.on{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
+  .rl-cat{border:1px solid var(--line);border-radius:12px;background:var(--surface-2);margin-bottom:8px;overflow:hidden;}
+  .rl-cat-h{display:flex;align-items:center;gap:9px;padding:11px 13px;cursor:pointer;user-select:none;}
+  .rl-cat-h .rl-ic{font-size:16px;flex:0 0 auto;}
+  .rl-cat-h .rl-t{font-weight:800;font-size:13.5px;flex:1;}
+  .rl-cat-h .rl-n{font-size:11px;font-weight:800;color:var(--accent);background:var(--accent-dim);border-radius:20px;padding:2px 8px;min-width:20px;text-align:center;}
+  .rl-cat-h .rl-n:empty{display:none;}
+  .rl-cat-h .rl-ch{color:var(--txt-dim);transition:transform .2s;flex:0 0 auto;}
+  .rl-cat.open .rl-cat-h .rl-ch{transform:rotate(90deg);}
+  .rl-cat-b{display:none;flex-wrap:wrap;gap:7px;padding:2px 13px 13px;}
+  .rl-cat.open .rl-cat-b{display:flex;}
+  .rl-chip{border:1px solid var(--line);background:var(--surface);color:var(--txt);font-family:inherit;font-size:12.5px;font-weight:600;padding:7px 11px;border-radius:11px;cursor:pointer;line-height:1.3;text-align:left;}
+  .rl-chip.on{border-color:var(--accent);background:var(--accent-dim);color:var(--txt);}
+  .rl-chip.on::before{content:"✓ ";color:var(--accent);font-weight:900;}
 
   .badge{font-size:10px;font-weight:700;letter-spacing:.04em;padding:2px 7px;border-radius:20px;text-transform:uppercase;background:var(--accent-dim);color:var(--accent);}
 
@@ -681,6 +698,11 @@
   </div>
   <div class="set-group"><div class="set-label">Conditions de sortie</div>
     <textarea id="planExit" placeholder="Ex : TP au prochain niveau, SL sous le dernier creux, coupe à −X."></textarea>
+  </div>
+  <div class="set-group"><div class="set-label">Bibliothèque de règles <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(active / désactive)</span></div>
+    <div class="cat-help" style="padding:0 0 8px;">Touche une règle pour l'activer (elle passe en violet et s'ajoute à tes règles ci-dessous). Filtre selon ton style.</div>
+    <div class="rl-filter" id="ruleFilter"></div>
+    <div id="ruleLib"></div>
   </div>
   <div class="set-group"><div class="set-label">Mes règles <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(notées ✓/✗ en séance)</span></div>
     <div id="planRulesList"></div>
@@ -1794,10 +1816,104 @@
     var u=unitOf(a).label; el("planObjMUnit").textContent=u; el("planObjDUnit").textContent=u; el("planMaxDDUnit").textContent=u; el("planLossUnit").textContent=u;
     renderListEditor(el("planRulesList"),"rules","Ex : Pas de trade avant 15h30","Ajouter une règle");
     renderListEditor(el("planChecklistList"),"checklistItems","Ex : Vérifier les annonces éco","Ajouter un item");
+    renderRuleFilter(); renderRuleLibrary(a);
     el("overlay").classList.add("open"); el("planDrawer").classList.add("open");
   }
   el("planDone").addEventListener("click",function(){ var a=acc(); if(a){ savePlan(a); saveAccount(a); } closeDrawer(); renderPlan(); });
   function bindPlanField(id,key){ var e=el(id); e.addEventListener("input",function(){ var a=acc(); if(!a)return; a.plan=a.plan||{}; a.plan[key]=this.value; }); e.addEventListener("change",function(){ savePlan(acc()); }); }
+
+  // ---- Bibliothèque de règles : suggestions activables/désactivables (s'ajoutent à a.rules) ----
+  // Catégories générales (sans profil) + catégories spécifiques à un style (profile).
+  var RULE_LIBRARY=[
+    {t:"Gestion du risque",ic:"🛡️",rules:[
+      "Risque max 1 % du capital par trade","Risque max 2 % du capital par jour","Pas de trade sans stop-loss",
+      "Stop-loss placé AVANT d'entrer, jamais élargi","Ratio risque/récompense minimum 1:2",
+      "Taille de position calculée selon la distance au stop","Pas de moyenne à la baisse (no averaging down)",
+      "Je réduis la taille après 2 pertes consécutives","J'arrête la journée après 3 trades perdants d'affilée",
+      "Je ne dépasse jamais ma limite de perte journalière"]},
+    {t:"Discipline & exécution",ic:"🎯",rules:[
+      "Je suis mon plan, pas mes émotions","Aucun trade en dehors de mon setup défini",
+      "Pas de revenge trading après une perte","Pas de FOMO : entrée ratée = je laisse passer",
+      "Je respecte mon quota de trades du jour","Je n'ajoute jamais à une position perdante",
+      "Je ne déplace jamais mon stop dans le mauvais sens","Je prends mes profits au TP prévu, sans cupidité",
+      "Une seule position ouverte à la fois"]},
+    {t:"Psychologie & émotions",ic:"🧠",rules:[
+      "Je ne trade pas fatigué, énervé ou stressé","Je ne trade pas pour « me refaire »",
+      "J'accepte qu'une perte fait partie du jeu","Je fais une pause après une perte",
+      "Je ne regarde pas le P&L pendant le trade","Je ne trade pas par ennui",
+      "Je célèbre le respect du process, pas seulement le gain"]},
+    {t:"Entrées",ic:"📥",rules:[
+      "J'attends la confirmation avant d'entrer (clôture de bougie, volume…)",
+      "Je trade seulement dans le sens de la tendance","J'entre uniquement sur mes niveaux clés définis à l'avance",
+      "Confluence d'au moins 2 signaux avant d'entrer","Pas d'entrée en plein milieu d'un range",
+      "Je n'anticipe pas : j'attends que le setup se forme"]},
+    {t:"Sorties & gestion",ic:"📤",rules:[
+      "Je sécurise à break-even une fois le trade en profit","Sortie partielle (scale out) au premier objectif",
+      "Trailing stop pour laisser courir les gains","Je coupe une position qui n'évolue pas comme prévu",
+      "Je ne touche pas au stop une fois placé"]},
+    {t:"Routine & préparation",ic:"📋",rules:[
+      "Plan du jour écrit avant l'ouverture","Niveaux clés marqués sur le graphique",
+      "Vérification du calendrier économique","Setup / matériel prêt avant la séance",
+      "Revue de la séance de la veille"]},
+    {t:"Horaires & sessions",ic:"⏰",rules:[
+      "Je trade uniquement pendant mes heures de setup","J'arrête de trader à une heure fixe",
+      "Pas de trade dans les 5 min avant/après une news à fort impact","Pas de trade dans la première minute d'ouverture"]},
+    {t:"Journal & revue",ic:"📓",rules:[
+      "Je note chaque trade dans mon journal","Je capture une screenshot de mes entrées/sorties",
+      "Je relis mes trades chaque week-end","Je note mon état émotionnel avant/après la séance"]},
+    {t:"Spécial Scalping",ic:"⚡",profile:"scalping",rules:[
+      "Pas de trade tenu plus de X minutes","Je trade uniquement les instruments les plus liquides",
+      "Spread max toléré avant d'entrer","Pas de scalping en faible volatilité",
+      "Objectif fixe en points/ticks par trade","Je coupe vite si le trade ne part pas de suite"]},
+    {t:"Spécial Day trading",ic:"📊",profile:"daytrading",rules:[
+      "Aucune position gardée overnight","Je clôture tout avant la fermeture du marché",
+      "Max X trades par jour","J'évite la première/dernière 15 min si trop volatil",
+      "Je ne garde que mes meilleurs setups (qualité > quantité)"]},
+    {t:"Spécial Swing",ic:"🌊",profile:"swing",rules:[
+      "Je vérifie mes positions 1 à 2 fois par jour, pas en continu","Stop large adapté à la volatilité (ATR)",
+      "Je tiens compte des gaps d'ouverture","Pas plus de X positions ouvertes en même temps",
+      "Je surveille les résultats / événements sur mes positions"]},
+    {t:"Spécial Forex",ic:"💱",profile:"forex",rules:[
+      "Je vérifie la corrélation entre mes paires","J'évite la faible liquidité (session asiatique creuse)",
+      "Attention au swap/frais overnight sur positions tenues","Je surveille le DXY (indice dollar)",
+      "Pas de trade sur NFP / décisions de banques centrales (sauf plan dédié)"]},
+    {t:"Spécial Futures / Prop firm",ic:"📈",profile:"futures",rules:[
+      "Je respecte le drawdown max de ma prop firm","Je respecte la perte journalière autorisée",
+      "Je respecte la règle de cohérence (consistency)","Pas de position overnight (interdit par ma firme)",
+      "Je ne dépasse jamais le nombre de contrats autorisé"]}
+  ];
+  var RULE_FILTERS=[["all","Tous"],["scalping","⚡ Scalping"],["daytrading","📊 Day trading"],["swing","🌊 Swing"],["forex","💱 Forex"],["futures","📈 Futures"]];
+  var ruleFilterVal="all";
+  function ruleIndex(a,txt){ if(!Array.isArray(a.rules)) a.rules=[]; for(var i=0;i<a.rules.length;i++){ if(String(a.rules[i]||"").trim()===txt) return i; } return -1; }
+  function toggleRule(a,txt){ var i=ruleIndex(a,txt); if(i>=0) a.rules.splice(i,1); else a.rules.push(txt); saveAccount(a); }
+  function renderRuleFilter(){
+    var box=el("ruleFilter"); if(!box) return; box.innerHTML="";
+    RULE_FILTERS.forEach(function(f){
+      var b=document.createElement("button"); b.type="button"; b.className="rl-fbtn"+(ruleFilterVal===f[0]?" on":""); b.textContent=f[1];
+      b.onclick=function(){ ruleFilterVal=f[0]; renderRuleFilter(); renderRuleLibrary(acc()); };
+      box.appendChild(b);
+    });
+  }
+  function renderRuleLibrary(a){
+    var box=el("ruleLib"); if(!box||!a) return; box.innerHTML="";
+    RULE_LIBRARY.forEach(function(cat){
+      if(cat.profile && ruleFilterVal!=="all" && ruleFilterVal!==cat.profile) return; // filtre les catégories de profil
+      var active=cat.rules.filter(function(r){ return ruleIndex(a,r)>=0; }).length;
+      var wrap=document.createElement("div"); wrap.className="rl-cat"+(active>0?" open":"");
+      var head=document.createElement("div"); head.className="rl-cat-h";
+      head.innerHTML='<span class="rl-ic">'+cat.ic+'</span><span class="rl-t">'+cat.t+'</span><span class="rl-n">'+(active||"")+'</span><span class="rl-ch">›</span>';
+      head.onclick=function(){ wrap.classList.toggle("open"); };
+      var body=document.createElement("div"); body.className="rl-cat-b";
+      cat.rules.forEach(function(txt){
+        var c=document.createElement("button"); c.type="button"; c.className="rl-chip"+(ruleIndex(a,txt)>=0?" on":""); c.textContent=txt;
+        c.onclick=function(){ toggleRule(a,txt); c.classList.toggle("on",ruleIndex(a,txt)>=0);
+          head.querySelector(".rl-n").textContent=(cat.rules.filter(function(r){return ruleIndex(a,r)>=0;}).length||"");
+          renderListEditor(el("planRulesList"),"rules","Ex : Pas de trade avant 15h30","Ajouter une règle"); };
+        body.appendChild(c);
+      });
+      wrap.appendChild(head); wrap.appendChild(body); box.appendChild(wrap);
+    });
+  }
   bindPlanField("planStyle","style"); bindPlanField("planEntry","entry"); bindPlanField("planExit","exit");
   bindPlanField("planObjM","objMonthly"); bindPlanField("planObjD","objDaily"); bindPlanField("planRR","rr"); bindPlanField("planMaxDD","maxDrawdown");
   el("planLossIn").addEventListener("input",function(){ var a=acc(); if(a)a.dailyLossLimit=this.value; });
