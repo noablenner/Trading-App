@@ -177,6 +177,8 @@
   .unit-seg{display:flex;flex-wrap:wrap;gap:8px;}
   .unit-seg button{flex:0 0 auto;padding:9px 13px;}
   .sub-setting{margin-top:12px;}
+  .link-note{font-size:12.5px;color:var(--txt-dim);line-height:1.45;background:var(--accent-dim);border:1px solid var(--accent);border-radius:11px;padding:10px 12px;}
+  .toggle-row.dep-off{opacity:.4;pointer-events:none;}
 
   .sess-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line);cursor:pointer;gap:10px;}
   .sess-row:first-of-type{border-top:none;}
@@ -471,7 +473,7 @@
 
   <!-- ========== VUE D'UN COMPTE (journal du compte) ========== -->
   <div id="screenAccount" class="hidden">
-    <button class="main-cta" id="addSessionBtn" type="button">+ Ouvrir la séance du jour</button>
+    <button class="main-cta" id="addSessionBtn" type="button">+ Créer une nouvelle séance</button>
     <div class="card">
       <h2>Résultats <span class="hint">chiffré · performance</span></h2>
       <div class="kpis">
@@ -536,6 +538,11 @@
       <textarea id="planExit" placeholder="Ex : TP au prochain niveau, SL sous le dernier creux, coupe à −X."></textarea>
       <div class="set-label" style="margin-top:14px;">Mes règles <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(notées ✓/✗ en séance)</span></div>
       <div id="planRulesList"></div>
+    </div>
+    <div class="card">
+      <h2>Check-list de préséance</h2>
+      <div class="plan-sub">Ta routine avant de trader (vérif des annonces éco, mise en place du setup, ordinateur prêt…). Activée dans les réglages d'une séance, elle s'y affiche en cases à cocher.</div>
+      <div id="planChecklistList"></div>
     </div>
     <div class="card">
       <h2>Objectifs</h2>
@@ -638,10 +645,20 @@
 
 <!-- Account settings -->
 <div class="overlay" id="overlay"></div>
+
+<!-- Nouvelle séance : choix de la date -->
+<div class="drawer" id="dateDrawer">
+  <div class="grab"></div>
+  <h3>Nouvelle séance</h3>
+  <div class="dsub">Choisis la date de la séance à ouvrir.</div>
+  <div class="set-group"><div class="set-label">Date</div><input class="set-input" id="newSessDate" type="date"></div>
+  <button class="drawer-done" id="dateGo">Ouvrir la séance</button>
+</div>
+
 <div class="drawer" id="drawer">
   <div class="grab"></div>
-  <h3>Paramètres du compte</h3>
-  <div class="dsub">Tout est optionnel et par compte. Déplie une catégorie pour l'ajuster.</div>
+  <h3 id="drawerTitle">Réglages du compte</h3>
+  <div class="dsub" id="drawerSub">Tout est optionnel et par compte. Déplie une catégorie pour l'ajuster.</div>
 
   <div class="tpl-suggest">
     <div class="tpl-suggest-h"><span class="tpl-suggest-t">💡 Modèle conseillé</span><span class="tpl-suggest-s">optionnel</span></div>
@@ -661,28 +678,27 @@
     </div>
   </div>
 
-  <div class="cat"><div class="cat-h"><span class="cat-ic">📝</span><span class="cat-t">Mode de saisie</span><span class="cat-ch">›</span></div>
-    <div class="cat-help">Comment tu enregistres tes trades. « Coches rapides » = scalping (ultra léger). « Trades détaillés » = une ligne par trade (instrument, heures, prix). « Les deux » = coches + détails.</div>
-    <div class="cat-b">
-      <div class="type-seg" id="modeSeg" style="flex-wrap:wrap;gap:8px;">
-        <button data-mode="quick">Coches rapides</button>
-        <button data-mode="detailed">Trades détaillés</button>
-        <button data-mode="both">Les deux</button>
-      </div>
-    </div>
-  </div>
+  <div class="cat-help" style="padding:2px 2px 10px;">Deux façons d'enregistrer tes trades, indépendantes : la <b>grille de coches</b> (Scalping) et/ou les <b>trades détaillés</b>. Active l'une, l'autre, les deux… ou aucune.</div>
 
-  <div class="cat"><div class="cat-h"><span class="cat-ic">⚡</span><span class="cat-t">Scalping</span><span class="rec-badge">conseillé scalping</span><span class="cat-ch">›</span></div>
-    <div class="cat-help">Le cœur du mode léger : une grille de cases, un quota et une limite de perte pour te discipliner.</div>
+  <div class="cat open"><div class="cat-h"><span class="cat-ic">⚡</span><span class="cat-t">Scalping — grille de coches</span><span class="rec-badge">léger</span><span class="cat-ch">›</span></div>
+    <div class="cat-help">Le mode léger : une grille de cases, un quota et une limite de perte pour te discipliner.</div>
     <div class="cat-b">
       <div class="toggle-row"><div><div class="tl">Grille de trades (coches)</div><div class="td">Cases ✓/✗ pour suivre chaque trade en live.</div></div><div class="switch" data-key="showTracker"><i></i></div></div>
-      <div class="toggle-row"><div><div class="tl">Marquer gagnant / perdant</div><div class="td">Bascule ✓ vert / ✗ rouge. Sinon simple comptage.</div></div><div class="switch" data-key="trackWinLoss"><i></i></div></div>
+      <div class="toggle-row" id="wlRow"><div><div class="tl">Marquer gagnant / perdant</div><div class="td">Bascule ✓ vert / ✗ rouge. Sinon simple comptage. Nécessite la grille.</div></div><div class="switch" data-key="trackWinLoss"><i></i></div></div>
       <div class="set-group" style="margin-top:14px;"><div class="set-label">Nombre de trades max (quota)</div>
         <div class="stepper"><button id="stepDown">−</button><span class="val" id="stepVal">30</span><button id="stepUp">+</button></div>
       </div>
       <div class="set-group"><div class="set-label">Limite de perte du jour <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(vide = off)</span></div>
         <input class="set-input" id="lossLimitIn" type="text" inputmode="decimal" placeholder="Ex : 300">
       </div>
+    </div>
+  </div>
+
+  <div class="cat" id="catFields"><div class="cat-h"><span class="cat-ic">🧾</span><span class="cat-t">Trades détaillés</span><span class="rec-badge day">day / swing</span><span class="cat-ch">›</span></div>
+    <div class="cat-help">Une ligne par trade (instrument, heures, prix…). À activer si tu veux documenter chaque trade — sinon reste sur la grille de coches ci-dessus.</div>
+    <div class="cat-b">
+      <div class="toggle-row"><div><div class="tl">Activer les trades détaillés</div><div class="td">Ajoute la carte « Trades » à la séance.</div></div><div class="switch" id="detailedSwitch"><i></i></div></div>
+      <div class="sub-setting hidden" id="fieldTogglesWrap"><div class="set-label">Champs à afficher</div><div id="fieldToggles"></div></div>
     </div>
   </div>
 
@@ -702,16 +718,11 @@
     <div class="cat-help">Tes règles notées à chaque séance, et ta série de jours disciplinés.</div>
     <div class="cat-b">
       <div class="toggle-row"><div><div class="tl">Règles de trading</div><div class="td">Notées respectée/enfreinte à chaque séance.</div></div><div class="switch" data-key="showRules"><i></i></div></div>
-      <div class="sub-setting hidden" id="rulesEditor"><div class="set-label">Tes règles</div><div id="rulesList"></div></div>
+      <div class="sub-setting hidden" id="rulesLink"><div class="link-note">🔗 Tes règles sont celles définies dans ton <b>Plan de trading</b> (onglet Plan). Elles s'affichent toutes en séance, à noter ✓/✗.</div></div>
       <div class="toggle-row"><div><div class="tl">Check-list pré-séance</div><div class="td">Des cases à cocher avant de trader.</div></div><div class="switch" data-key="showChecklist"><i></i></div></div>
-      <div class="sub-setting hidden" id="checklistEditor"><div class="set-label">Tes items</div><div id="checklistList"></div></div>
+      <div class="sub-setting hidden" id="checklistLink"><div class="link-note">🔗 Ta check-list est celle définie dans ton <b>Plan de trading</b> (onglet Plan) : vérif des annonces éco, setup, ordinateur…</div></div>
       <div class="toggle-row"><div><div class="tl">Série de discipline</div><div class="td">Séances consécutives sans faute — visible dans Analyses.</div></div><div class="switch" data-key="showStreak"><i></i></div></div>
     </div>
-  </div>
-
-  <div class="cat hidden" id="catFields"><div class="cat-h"><span class="cat-ic">🧾</span><span class="cat-t">Champs de trade détaillé</span><span class="rec-badge day">day / swing</span><span class="cat-ch">›</span></div>
-    <div class="cat-help">Quels champs afficher quand tu ajoutes un trade détaillé. Coche seulement ce qui te sert.</div>
-    <div class="cat-b" id="fieldToggles"></div>
   </div>
 
   <div class="set-group" style="margin-top:6px;"><div class="set-label">Zone de danger</div><button class="danger-btn" id="deleteAcctBtn">Supprimer ce compte</button></div>
@@ -1685,7 +1696,9 @@
       showTab(target);
     });
   });
-  el("addSessionBtn").addEventListener("click",function(){ openSession(todayKey()); });
+  function openDatePicker(){ var a=acc(); if(!a){ showToast("Choisis d'abord un compte"); return; } el("newSessDate").value=todayKey(); el("overlay").classList.add("open"); el("dateDrawer").classList.add("open"); }
+  el("addSessionBtn").addEventListener("click", openDatePicker);
+  el("dateGo").addEventListener("click",function(){ var v=el("newSessDate").value||todayKey(); closeDrawer(); openSession(v); });
   window.addEventListener("resize", updateTopbarHeight);
   // points d'entrée Analyse
   el("anAcctBtn").addEventListener("click",function(){ var a=acc(); if(!a)return; openAnalysis([a.id],"account"); });
@@ -1710,6 +1723,7 @@
     el("planLossIn").value=a.dailyLossLimit||"";
     var u=unitOf(a).label; el("planObjMUnit").textContent=u; el("planObjDUnit").textContent=u; el("planMaxDDUnit").textContent=u; el("planLossUnit").textContent=u;
     renderListEditor(el("planRulesList"),"rules","Ex : Pas de trade avant 15h30","Ajouter une règle");
+    renderListEditor(el("planChecklistList"),"checklistItems","Ex : Vérifier les annonces éco","Ajouter un item");
   }
   function bindPlanField(id,key){ var e=el(id); e.addEventListener("input",function(){ var a=acc(); if(!a)return; a.plan=a.plan||{}; a.plan[key]=this.value; }); e.addEventListener("change",function(){ savePlan(acc()); }); }
   bindPlanField("planStyle","style"); bindPlanField("planEntry","entry"); bindPlanField("planExit","exit");
@@ -1779,19 +1793,28 @@
     document.querySelectorAll("#setType button").forEach(function(b){ b.classList.toggle("sel", b.dataset.type===a.type); });
     document.querySelectorAll("#drawer .switch[data-key]").forEach(function(sw){ sw.classList.toggle("on", !!a[sw.dataset.key]); });
     document.querySelectorAll("#unitSeg button").forEach(function(b){ b.classList.toggle("sel", b.dataset.unit===a.resultUnit); });
-    document.querySelectorAll("#modeSeg button").forEach(function(b){ b.classList.toggle("sel", b.dataset.mode===(a.loggingMode||"quick")); });
-    el("catFields").classList.toggle("hidden", !isDetailed(a));
+    el("detailedSwitch").classList.toggle("on", isDetailed(a));
+    el("fieldTogglesWrap").classList.toggle("hidden", !isDetailed(a));
     renderFieldToggles(a);
-    el("rulesEditor").classList.toggle("hidden", !a.showRules);
-    el("checklistEditor").classList.toggle("hidden", !a.showChecklist);
+    syncScalpingDep(a);
+    el("rulesLink").classList.toggle("hidden", !a.showRules);
+    el("checklistLink").classList.toggle("hidden", !a.showChecklist);
     el("tagsEditor").classList.toggle("hidden", !a.showTags);
     el("lossLimitIn").value = a.dailyLossLimit || "";
-    renderListEditor(el("rulesList"),"rules","Ex : Pas de trade avant 15h30","Ajouter une règle");
-    renderListEditor(el("checklistList"),"checklistItems","Ex : Plan du jour écrit","Ajouter un item");
     renderListEditor(el("tagsList"),"tagsOptions","Ex : discipliné","Ajouter un tag");
     renderTemplateSeg(a);
+    // Titre contextuel : « compte » sur la vue compte, « séance » quand on configure une séance
+    var isSess = (view.tab==="journal" && (view.jlevel==="session"));
+    el("drawerTitle").textContent = isSess ? "Réglages de la séance" : "Réglages du compte";
+    el("drawerSub").textContent = isSess
+      ? "Ce que tu affiches et notes dans chaque séance de ce compte. Tout est optionnel."
+      : "Tout est optionnel et par compte. Déplie une catégorie pour l'ajuster.";
     el("overlay").classList.add("open"); el("drawer").classList.add("open");
   }
+  // mode dérivé : plus de sélecteur « mode de saisie ». Il découle de la grille (Scalping) + du toggle « trades détaillés ».
+  function syncLoggingMode(a, detOn){ if(typeof detOn==="undefined") detOn=isDetailed(a); a.loggingMode = detOn ? (a.showTracker?"both":"detailed") : "quick"; }
+  function syncScalpingDep(a){ a=a||acc(); if(!a) return; el("wlRow").classList.toggle("dep-off", !a.showTracker); }
+  el("detailedSwitch").addEventListener("click",function(){ var a=acc(); if(!a)return; var now=!isDetailed(a); this.classList.toggle("on",now); syncLoggingMode(a,now); el("fieldTogglesWrap").classList.toggle("hidden",!now); saveAccountMeta(a); });
   // accordéon : déplier/replier une catégorie
   document.querySelectorAll("#drawer .cat-h").forEach(function(h){ h.addEventListener("click",function(){ h.parentNode.classList.toggle("open"); }); });
   // mode de saisie
@@ -1806,7 +1829,6 @@
       box.appendChild(row);
     });
   }
-  document.querySelectorAll("#modeSeg button").forEach(function(b){ b.addEventListener("click",function(){ var a=acc(); a.loggingMode=b.dataset.mode; document.querySelectorAll("#modeSeg button").forEach(function(x){x.classList.remove("sel");}); b.classList.add("sel"); el("catFields").classList.toggle("hidden", !isDetailed(a)); saveAccountMeta(a); }); });
   // Modèle conseillé (suggestion à part) — rendu dynamique + surbrillance du modèle actif
   function renderTemplateSeg(a){
     var seg=el("tplSeg"); if(!seg) return; seg.innerHTML="";
@@ -1837,7 +1859,7 @@
     container.appendChild(add);
   }
   var onbActive=false;
-  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); }
+  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   el("drawerDone").addEventListener("click",function(){ var a=acc(); if(a){ ["rules","checklistItems","tagsOptions"].forEach(function(f){ a[f]=(a[f]||[]).map(function(x){return String(x||"").trim();}).filter(Boolean); }); saveAccount(a); } closeDrawer(); render(); });
   el("setName").addEventListener("input",function(){ acc().name=this.value; });
@@ -1845,9 +1867,16 @@
   document.querySelectorAll("#setType button").forEach(function(b){ b.addEventListener("click",function(){ acc().type=b.dataset.type; document.querySelectorAll("#setType button").forEach(function(x){x.classList.remove("sel");}); b.classList.add("sel"); saveAccount(acc()); }); });
   el("stepUp").addEventListener("click",function(){ var a=acc(); if(a.maxTrades<100){a.maxTrades++;el("stepVal").textContent=a.maxTrades; saveAccount(a);} });
   el("stepDown").addEventListener("click",function(){ var a=acc(); if(a.maxTrades>1){a.maxTrades--;el("stepVal").textContent=a.maxTrades; saveAccount(a);} });
-  document.querySelectorAll("#drawer .switch[data-key]").forEach(function(sw){ sw.addEventListener("click",function(){ var a=acc(),k=sw.dataset.key; a[k]=!a[k]; sw.classList.toggle("on",a[k]);
-    if(k==="showRules") el("rulesEditor").classList.toggle("hidden",!a.showRules);
-    if(k==="showChecklist") el("checklistEditor").classList.toggle("hidden",!a.showChecklist);
+  document.querySelectorAll("#drawer .switch[data-key]").forEach(function(sw){ sw.addEventListener("click",function(){ var a=acc(),k=sw.dataset.key;
+    // Marquer gagnant/perdant nécessite la grille : bloqué tant que la grille est off
+    if(k==="trackWinLoss" && !a.showTracker) return;
+    a[k]=!a[k]; sw.classList.toggle("on",a[k]);
+    if(k==="showTracker"){
+      if(!a.showTracker){ a.trackWinLoss=false; var wl=document.querySelector('#drawer .switch[data-key="trackWinLoss"]'); if(wl) wl.classList.remove("on"); }
+      syncScalpingDep(a); syncLoggingMode(a); saveAccountMeta(a);
+    }
+    if(k==="showRules") el("rulesLink").classList.toggle("hidden",!a.showRules);
+    if(k==="showChecklist") el("checklistLink").classList.toggle("hidden",!a.showChecklist);
     if(k==="showTags") el("tagsEditor").classList.toggle("hidden",!a.showTags);
     saveAccount(a); }); });
   el("lossLimitIn").addEventListener("input",function(){ var a=acc(); if(a)a.dailyLossLimit=this.value; });
