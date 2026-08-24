@@ -395,6 +395,25 @@
   .auth-ok{margin-top:16px;background:var(--green-dim);border:1px solid var(--green);color:var(--green);border-radius:11px;padding:11px 13px;font-size:13px;font-weight:600;display:none;}
   .auth-ok.show{display:block;}
   .logout-btn{width:100%;margin-top:4px;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);font-family:inherit;font-weight:700;font-size:15px;padding:13px;border-radius:13px;cursor:pointer;}
+  /* ===== Module Prop firm ===== */
+  .pf-verif{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--txt-dim);background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:3px 9px;}
+  .pf-honesty{font-size:11.5px;color:var(--txt-faint);line-height:1.45;background:var(--surface-2);border:1px dashed var(--line);border-radius:11px;padding:10px 12px;margin-top:12px;}
+  .pf-big{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.1;}
+  .pf-big.warn{color:var(--amber);}
+  .pf-sub2{font-size:12.5px;color:var(--txt-dim);margin-top:4px;line-height:1.4;}
+  .pf-metric{background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:14px;margin-top:10px;}
+  .pf-metric .pf-lab{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt-faint);font-weight:700;margin-bottom:6px;}
+  .pf-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px;}
+  .pf-chip{font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px;background:var(--red-dim);border:1px solid var(--red);color:var(--red);}
+  .pf-chip.none{background:var(--green-dim);border-color:var(--green);color:var(--green);}
+  .pf-firm-btn{width:100%;text-align:left;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);font-family:inherit;border-radius:12px;padding:12px 14px;margin-top:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .pf-firm-btn:active{transform:scale(.99);} .pf-firm-btn.sel{border-color:var(--accent);background:var(--accent-dim);}
+  .pf-firm-btn .pf-fn{font-weight:800;font-size:14.5px;} .pf-firm-btn .pf-pl{font-size:12px;color:var(--txt-dim);margin-top:1px;}
+  .pf-firm-btn .pf-mk{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:20px;background:var(--accent-dim);color:var(--accent);flex:0 0 auto;}
+  .pf-firm-btn .pf-mk.fx{background:#12303a;color:#35c4d6;}
+  .pf-warn{font-size:12px;color:var(--amber);background:rgba(244,183,64,.1);border:1px solid var(--amber);border-radius:11px;padding:10px 12px;margin-top:10px;line-height:1.4;}
+  .pf-sec-h{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-faint);font-weight:800;margin:18px 0 4px;}
+  .pf-empty{text-align:center;color:var(--txt-dim);padding:22px 10px;font-size:14px;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -562,6 +581,11 @@
     </div>
   </div>
 
+  <!-- ========== PROP FIRM (briefing pré-séance) ========== -->
+  <div id="screenPropfirm" class="hidden">
+    <div id="pfContent"></div>
+  </div>
+
   <!-- ========== JOURNAL (séance du jour) ========== -->
   <div id="screenSession" class="hidden">
     <div class="card hidden" id="cardMoodBefore">
@@ -637,6 +661,7 @@
   <button class="tab" data-tab="plan" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 10h7M8.5 14h7M8.5 18h4"/></svg></span><span class="tt">Plan</span></button>
   <button class="tab primary" data-tab="journal" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="13" height="18" rx="2"/><path d="M9.5 3v18"/><path d="M12.5 8.5h4M12.5 12.5h4"/></svg></span><span class="tt">Journal</span></button>
   <button class="tab" data-tab="calendar" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg></span><span class="tt">Calendrier</span></button>
+  <button class="tab" data-tab="propfirm" type="button"><span class="ti"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9.2 12l2 2 3.6-3.8"/></svg></span><span class="tt">Propfirm</span></button>
 </nav>
 
 <div id="confetti" class="hidden"></div>
@@ -653,6 +678,12 @@
   <div class="dsub">Choisis la date de la séance à ouvrir.</div>
   <div class="set-group"><div class="set-label">Date</div><input class="set-input" id="newSessDate" type="date"></div>
   <button class="drawer-done" id="dateGo">Ouvrir la séance</button>
+</div>
+
+<!-- Prop firm : onboarding / édition de la config du compte -->
+<div class="drawer" id="pfDrawer">
+  <div class="grab"></div>
+  <div id="pfDrawerBody"></div>
 </div>
 
 <div class="drawer" id="drawer">
@@ -1636,7 +1667,7 @@
 
   // ============ NAVIGATION PAR ONGLETS ============
   function saveJournal(){ var a=acc(); if(a && view.editKey) persistSession(a,view.editKey); }
-  function hideMainScreens(){ ["screenGlobal","screenAccount","screenSession","screenPlan","screenAnalysis","screenCalendar"].forEach(function(id){ el(id).classList.add("hidden"); }); }
+  function hideMainScreens(){ ["screenGlobal","screenAccount","screenSession","screenPlan","screenAnalysis","screenCalendar","screenPropfirm"].forEach(function(id){ el(id).classList.add("hidden"); }); }
   function setTitle(t,sub,big){ var e=el("screenTitle"); e.textContent=t; e.classList.toggle("big",!!big); el("screenSub").textContent=sub||""; }
 
   function updateTopbarHeight(){ var tb=document.querySelector(".topbar"); if(tb) document.documentElement.style.setProperty("--topbarH", tb.offsetHeight+"px"); }
@@ -1653,6 +1684,7 @@
     if(tab==="journal"){ renderJournalTab(); }
     else if(tab==="plan"){ el("screenPlan").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Plan de trading", a?a.name:"", true); renderPlan(); }
     else if(tab==="calendar"){ el("screenCalendar").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Calendrier économique","Événements macro", true); loadEconWidget(); }
+    else if(tab==="propfirm"){ el("screenPropfirm").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Prop firm", a?a.name+" · briefing pré-séance":"", true); renderPropfirm(); }
     requestAnimationFrame(updateTopbarHeight);
   }
   // niveaux du Journal : tous comptes -> un compte -> une séance ; + analyse intégrée
@@ -1669,7 +1701,7 @@
     else { el("backBtn").classList.remove("hidden"); var isToday=view.editKey===todayKey(); setTitle(isToday?"Séance du jour":labelKey(view.editKey), a.name+" · "+(isToday?"aujourd'hui":labelKey(view.editKey)), false); renderSession(); }
   }
   function currentScreenId(){
-    if(view.tab==="plan")return "screenPlan"; if(view.tab==="calendar")return "screenCalendar";
+    if(view.tab==="plan")return "screenPlan"; if(view.tab==="calendar")return "screenCalendar"; if(view.tab==="propfirm")return "screenPropfirm";
     var lvl=view.jlevel||"accounts"; return lvl==="accounts"?"screenGlobal":lvl==="account"?"screenAccount":lvl==="analysis"?"screenAnalysis":"screenSession";
   }
   function animateTab(){ var e=el(currentScreenId()); if(!e) return; e.classList.remove("anim-r","anim-l"); void e.offsetWidth; e.classList.add("anim-r"); window.scrollTo(0,0); }
@@ -1730,6 +1762,258 @@
   bindPlanField("planObjM","objMonthly"); bindPlanField("planObjD","objDaily"); bindPlanField("planRR","rr"); bindPlanField("planMaxDD","maxDrawdown");
   el("planLossIn").addEventListener("input",function(){ var a=acc(); if(a)a.dailyLossLimit=this.value; });
   el("planLossIn").addEventListener("change",function(){ saveAccount(acc()); });
+
+  // ================= MODULE PROP FIRM (Lot 1) =================
+  // Principe : les templates ne servent QU'À pré-remplir. À la sélection, on COPIE les
+  // valeurs dans une config éditable stockée sur le compte (a.plan.propfirm) — le moteur
+  // calcule toujours à partir de cette copie utilisateur, jamais du template. Aucune
+  // surveillance live : tout est déclaratif. « Vérifié le » toujours affiché.
+  var PF_VERIFIED="2026-08-23";
+  var PF_PROHIB=[["news","Actus / news"],["overnight","Overnight"],["weekend","Weekend"],["martingale","Martingale"],["copy_trading","Copy-trading"]];
+  var PF_DDBASIS=[["static","Statique"],["trailing_eod","Trailing (fin de jour)"],["trailing_intraday","Trailing (intraday)"]];
+  var PF_DLTYPE=[["none","Aucune"],["hard","Stricte (élimine)"],["soft_pause","Souple (pause)"]];
+  var PF_MINDEF=[["activity","Activité (trade pris)"],["profit_pct","Jour profitable ≥ seuil %"],["winning_amount","Gain ≥ montant"]];
+  var PF_SCOPE=[["","—"],["eval","Évaluation"],["verif","Vérification"],["funded","Financé"],["payout","Au retrait"]];
+  var PF_PHASE=[["eval","Évaluation"],["verif","Vérification"],["funded","Financé"]];
+  // rows futures : {size,cap,target,dd,contracts,daily} · rows forex(%) : {phase,target,dd,daily,minDays}
+  var PROPFIRMS=[
+    {id:"tpt",firm:"Take Profit Trader",plan:"Standard",market:"futures",unit:"currency",phaseModel:"one_step",
+     drawdownBasis:"trailing_eod",drawdownLocks:false,drawdownLockRule:"",dailyLossType:"none",
+     consistencyPct:50,consistencyScope:"payout",minDays:5,minDayDef:"activity",minDayThreshold:null,
+     prohibitions:["overnight"],notes:"",
+     rows:[{size:"25K",cap:25000,target:1500,dd:1500,contracts:3},{size:"50K",cap:50000,target:3000,dd:2000,contracts:6},{size:"75K",cap:75000,target:4500,dd:2500,contracts:9},{size:"100K",cap:100000,target:6000,dd:3000,contracts:12},{size:"150K",cap:150000,target:9000,dd:4500,contracts:15}]},
+    {id:"mff_rapid",firm:"My Funded Futures",plan:"Rapid",market:"futures",unit:"currency",phaseModel:"one_step",
+     drawdownBasis:"trailing_eod",drawdownLocks:false,drawdownLockRule:"",dailyLossType:"none",
+     consistencyPct:50,consistencyScope:"eval",minDays:2,minDayDef:"activity",minDayThreshold:null,prohibitions:[],notes:"Plan Pro : mêmes chiffres.",
+     rows:[{size:"25K",cap:25000,target:1500,dd:1000},{size:"50K",cap:50000,target:3000,dd:2000},{size:"100K",cap:100000,target:6000,dd:3000},{size:"150K",cap:150000,target:9000,dd:4500}]},
+    {id:"mff_builder",firm:"My Funded Futures",plan:"Builder",market:"futures",unit:"currency",phaseModel:"one_step",
+     drawdownBasis:"trailing_eod",drawdownLocks:false,drawdownLockRule:"",dailyLossType:"soft_pause",
+     consistencyPct:null,consistencyScope:null,minDays:1,minDayDef:"activity",minDayThreshold:null,prohibitions:[],notes:"Perte journalière souple (pause) sur 50K uniquement.",
+     rows:[{size:"25K",cap:25000,target:1500,dd:1000,daily:""},{size:"50K",cap:50000,target:3000,dd:2000,daily:1000}]},
+    {id:"apex",firm:"Apex Trader Funding",plan:"Standard",market:"futures",unit:"currency",phaseModel:"one_step",
+     drawdownBasis:"trailing_intraday",drawdownLocks:true,drawdownLockRule:"Se verrouille à +100 $ au-dessus du solde de départ",dailyLossType:"none",
+     consistencyPct:30,consistencyScope:"payout",minDays:8,minDayDef:"winning_amount",minDayThreshold:50,prohibitions:[],notes:"⚠ Tailles/paramètres à revérifier sur le dashboard Apex. 8 jours de retrait dont 5 à ≥ 50 $.",
+     rows:[{size:"25K",cap:25000,target:1500,dd:1500,contracts:4},{size:"50K",cap:50000,target:3000,dd:2500,contracts:10},{size:"75K",cap:75000,target:3750,dd:2750,contracts:12},{size:"100K",cap:100000,target:5000,dd:3000,contracts:14},{size:"150K",cap:150000,target:7500,dd:5000,contracts:17},{size:"250K",cap:250000,target:12500,dd:6500,contracts:27},{size:"300K",cap:300000,target:15000,dd:7500,contracts:35}]},
+    {id:"topstep",firm:"Topstep",plan:"Standard",market:"futures",unit:"currency",phaseModel:"one_step",
+     drawdownBasis:"trailing_eod",drawdownLocks:true,drawdownLockRule:"Se verrouille au solde de départ",dailyLossType:"soft_pause",
+     consistencyPct:50,consistencyScope:"eval",minDays:5,minDayDef:"winning_amount",minDayThreshold:150,prohibitions:[],notes:"Cohérence 50 % en éval puis 40 % au retrait. Perte journalière optionnelle.",
+     rows:[{size:"50K",cap:50000,target:3000,dd:2000,daily:1000},{size:"100K",cap:100000,target:6000,dd:3000,daily:2000},{size:"150K",cap:150000,target:9000,dd:4500,daily:3000}]},
+    {id:"fundednext_flex",firm:"FundedNext Futures",plan:"Flex",market:"futures",unit:"currency",phaseModel:"one_step",
+     drawdownBasis:"trailing_eod",drawdownLocks:false,drawdownLockRule:"Le profit fige le MLL (perte max)",dailyLossType:"none",
+     consistencyPct:40,consistencyScope:"eval",minDays:5,minDayDef:"activity",minDayThreshold:null,prohibitions:[],notes:"Plans Bolt / Rapid / Legacy à ajouter plus tard.",
+     rows:[{size:"50K",cap:50000,target:2500,dd:1500},{size:"100K",cap:100000,target:5000,dd:2500},{size:"150K",cap:150000,target:8000,dd:4000}]},
+    {id:"ftmo_2step",firm:"FTMO",plan:"2-step",market:"forex",unit:"percent",phaseModel:"two_step",
+     drawdownBasis:"static",drawdownLocks:false,drawdownLockRule:"",dailyLossType:"hard",
+     consistencyPct:null,consistencyScope:null,minDays:4,minDayDef:"activity",minDayThreshold:null,prohibitions:[],notes:"Limites en % du capital.",
+     rows:[{phase:"eval",target:10,dd:10,daily:5,minDays:4},{phase:"verif",target:5,dd:10,daily:5,minDays:4},{phase:"funded",target:"",dd:10,daily:5,minDays:0}]},
+    {id:"ftmo_1step",firm:"FTMO",plan:"1-step",market:"forex",unit:"percent",phaseModel:"one_step",
+     drawdownBasis:"trailing_eod",drawdownLocks:false,drawdownLockRule:"Recalcul quotidien sur le plus haut solde",dailyLossType:"hard",
+     consistencyPct:50,consistencyScope:"payout",minDays:0,minDayDef:"activity",minDayThreshold:null,prohibitions:[],notes:"Meilleur jour ≤ 50 % du profit.",
+     rows:[{phase:"eval",target:10,dd:10,daily:3,minDays:0}]},
+    {id:"fundingpips_1",firm:"FundingPips",plan:"1-step",market:"forex",unit:"percent",phaseModel:"one_step",
+     drawdownBasis:"static",drawdownLocks:false,drawdownLockRule:"",dailyLossType:"hard",
+     consistencyPct:null,consistencyScope:null,minDays:1,minDayDef:"activity",minDayThreshold:null,prohibitions:[],notes:"",
+     rows:[{phase:"eval",target:10,dd:6,daily:3,minDays:1}]},
+    {id:"fundingpips_2",firm:"FundingPips",plan:"2-step",market:"forex",unit:"percent",phaseModel:"two_step",
+     drawdownBasis:"static",drawdownLocks:false,drawdownLockRule:"",dailyLossType:"hard",
+     consistencyPct:null,consistencyScope:null,minDays:1,minDayDef:"activity",minDayThreshold:null,prohibitions:[],notes:"",
+     rows:[{phase:"eval",target:8,dd:10,daily:5,minDays:1},{phase:"verif",target:5,dd:10,daily:5,minDays:1}]},
+    {id:"fundingpips_2pro",firm:"FundingPips",plan:"2-step Pro",market:"forex",unit:"percent",phaseModel:"two_step",
+     drawdownBasis:"static",drawdownLocks:false,drawdownLockRule:"",dailyLossType:"hard",
+     consistencyPct:35,consistencyScope:"eval",minDays:1,minDayDef:"activity",minDayThreshold:null,prohibitions:[],notes:"Cohérence 35 % (option Beta).",
+     rows:[{phase:"eval",target:6,dd:6,daily:3,minDays:1},{phase:"verif",target:6,dd:6,daily:3,minDays:1}]},
+    {id:"fundingpips_zero",firm:"FundingPips",plan:"Zero",market:"forex",unit:"percent",phaseModel:"instant",
+     drawdownBasis:"trailing_eod",drawdownLocks:true,drawdownLockRule:"Verrouille à +5 %",dailyLossType:"hard",
+     consistencyPct:15,consistencyScope:"payout",minDays:1,minDayDef:"activity",minDayThreshold:null,prohibitions:[],notes:"",
+     rows:[{phase:"funded",target:"",dd:5,daily:3,minDays:1}]},
+    {id:"the5ers_hyper",firm:"The5ers",plan:"Hyper Growth",market:"forex",unit:"percent",phaseModel:"one_step",
+     drawdownBasis:"static",drawdownLocks:false,drawdownLockRule:"",dailyLossType:"soft_pause",
+     consistencyPct:null,consistencyScope:null,minDays:0,minDayDef:"activity",minDayThreshold:null,prohibitions:[],notes:"",
+     rows:[{phase:"eval",target:10,dd:6,daily:3,minDays:0}]},
+    {id:"the5ers_high",firm:"The5ers",plan:"High Stakes",market:"forex",unit:"percent",phaseModel:"two_step",
+     drawdownBasis:"static",drawdownLocks:false,drawdownLockRule:"",dailyLossType:"hard",
+     consistencyPct:null,consistencyScope:null,minDays:3,minDayDef:"profit_pct",minDayThreshold:0.5,prohibitions:[],notes:"Jours minimum = jours profitables (≥ 0,5 %).",
+     rows:[{phase:"eval",target:10,dd:10,daily:5,minDays:3},{phase:"verif",target:5,dd:10,daily:5,minDays:3}]}
+  ];
+  function pfTpl(id){ for(var i=0;i<PROPFIRMS.length;i++) if(PROPFIRMS[i].id===id) return PROPFIRMS[i]; return null; }
+  function pfCfg(a){ a=a||acc(); if(!a) return null; a.plan=a.plan||{}; return (a.plan.propfirm&&a.plan.propfirm.enabled)?a.plan.propfirm:null; }
+  function pfSave(a,cfg){ a.plan=a.plan||{}; a.plan.propfirm=cfg; savePlan(a); }
+  function pfNum(v){ v=parseFloat(String(v==null?"":v).replace(",",".")); return isNaN(v)?0:v; }
+  function pfHas(v){ return !(v===""||v===null||v===undefined||isNaN(parseFloat(String(v).replace(",",".")))); }
+  function pfThousand(n){ n=Math.round(pfNum(n)); var s=Math.abs(n).toString(),out=""; while(s.length>3){ out=" "+s.slice(-3)+out; s=s.slice(0,-3);} return (n<0?"−":"")+s+out; }
+  function pfSym(cfg){ return cfg.unit==="percent"?"%":"$"; }
+  function pfToMoney(v,cfg){ return cfg.unit==="percent"?Math.round(pfNum(v)/100*pfNum(cfg.capital)):pfNum(v); }
+  function pfValStr(v,cfg){ // "3 000 $" ou "5 % (≈ 2 500 $)"
+    if(!pfHas(v)) return "—";
+    if(cfg.unit==="percent"){ var s=pfNum(v)+" %"; if(pfNum(cfg.capital)>0) s+=" (≈ "+pfThousand(pfToMoney(v,cfg))+" $)"; return s; }
+    return pfThousand(v)+" $";
+  }
+  function pfSelect(id,opts,val){ var h='<select class="set-input" id="'+id+'">'; opts.forEach(function(o){ h+='<option value="'+o[0]+'"'+(String(o[0])===String(val)?" selected":"")+'>'+o[1]+'</option>'; }); return h+"</select>"; }
+  function pfLabel(list,v){ for(var i=0;i<list.length;i++) if(String(list[i][0])===String(v)) return list[i][1]; return v||"—"; }
+
+  // ---- écran Briefing pré-séance ----
+  function renderPropfirm(){
+    var a=acc(), box=el("pfContent");
+    if(!a){ box.innerHTML='<div class="card"><div class="pf-empty">Choisis d\'abord un compte dans le Journal pour configurer sa prop firm.</div></div>'; return; }
+    var cfg=pfCfg(a);
+    if(!cfg){
+      box.innerHTML='<div class="card"><div class="pf-empty">Ce compte n\'a pas encore de prop firm configurée.<br>Renseigne les règles de ta firme (ou une firme personnalisée) pour obtenir ton briefing pré-séance.</div>'
+        +'<button class="main-cta" id="pfConfigBtn" type="button">⚙ Configurer ma prop firm</button>'
+        +'<div class="pf-honesty">EdGio ne se connecte à aucun broker et ne surveille rien en temps réel. Tout repose sur ce que tu saisis, et les règles des firmes changent sans préavis : vérifie toujours sur le site officiel de ta firme.</div></div>';
+      el("pfConfigBtn").addEventListener("click",function(){ pfStepFirm(); });
+      return;
+    }
+    // calcul du budget-perte du jour = min(perte journalière si active, distance au drawdown max)
+    var hasDaily = cfg.dailyLossType && cfg.dailyLossType!=="none" && pfHas(cfg.dailyLoss);
+    var distDD = pfNum(cfg.maxDrawdown) - pfNum(cfg.currentDrawdown||0);
+    var candidates=[]; if(hasDaily) candidates.push({v:pfNum(cfg.dailyLoss),src:"daily"}); if(pfHas(cfg.maxDrawdown)) candidates.push({v:distDD,src:"dd"});
+    var budget=null; candidates.forEach(function(c){ if(budget===null||c.v<budget.v) budget=c; });
+    var riskN=Math.max(1,Math.round(pfNum(cfg.riskDivN)||3));
+    var minLeft=Math.max(0, Math.round(pfNum(cfg.minDays)) - Math.round(pfNum(cfg.daysTraded||0)));
+    var proh=(cfg.prohibitions||[]);
+
+    var h='<div class="card">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'
+      +'<div><div style="font-weight:800;font-size:17px;">'+esc(cfg.firmName||"Prop firm")+'</div>'
+      +'<div class="pf-sub2">'+esc(cfg.planName||"")+(cfg.sizeLabel?" · "+esc(cfg.sizeLabel):"")+(cfg.currentPhase?" · "+pfLabel(PF_PHASE,cfg.currentPhase):"")+'</div></div>'
+      +'<span class="pf-verif">✓ vérifié le '+esc(cfg.verifiedOn||PF_VERIFIED)+'</span></div>';
+    if(cfg.notes) h+='<div class="pf-warn">⚠ '+esc(cfg.notes)+'</div>';
+    // a) budget-perte du jour
+    h+='<div class="pf-metric"><div class="pf-lab">Ta perte à ne pas dépasser aujourd\'hui</div>';
+    if(budget){ h+='<div class="pf-big warn">'+pfValStr(budget.v,cfg)+'</div>';
+      h+='<div class="pf-sub2">'+(budget.src==="dd"
+          ? "Distance jusqu'au drawdown max"+(pfNum(cfg.currentDrawdown||0)>0?"":" (théorique — le suivi du drawdown arrive bientôt)")+"."
+          : "Perte journalière "+(cfg.dailyLossType==="hard"?"stricte":"souple")+" de ta firme.")
+        +'</div>'; }
+    else h+='<div class="pf-big">—</div><div class="pf-sub2">Renseigne une perte journalière ou un drawdown max.</div>';
+    h+='</div>';
+    // b) risque conseillé / trade
+    h+='<div class="pf-metric"><div class="pf-lab">Risque conseillé par trade</div>';
+    h+='<div class="pf-big">'+(budget?pfValStr(budget.v/riskN,cfg):"—")+'</div>';
+    h+='<div class="pf-sub2">Budget du jour ÷ '+riskN+' trades. C\'est un repère perso, pas une règle de la firme.</div></div>';
+    // c) jours minimum
+    h+='<div class="pf-metric"><div class="pf-lab">Jours minimum restants</div>';
+    h+='<div class="pf-big">'+(pfNum(cfg.minDays)>0?minLeft:"—")+'</div>';
+    h+='<div class="pf-sub2">'+(pfNum(cfg.minDays)>0
+        ? "Sur "+Math.round(pfNum(cfg.minDays))+" jours requis. Un jour compte : "+pfLabel(PF_MINDEF,cfg.minDayDef).toLowerCase()+(pfHas(cfg.minDayThreshold)?" ("+cfg.minDayThreshold+(cfg.minDayDef==="winning_amount"?" $":cfg.minDayDef==="profit_pct"?" %":"")+")":"")+"."
+        : "Pas de minimum de jours.")+'</div></div>';
+    // d) interdits
+    h+='<div class="pf-metric"><div class="pf-lab">Interdits du jour</div><div class="pf-chips">';
+    if(proh.length===0) h+='<span class="pf-chip none">Aucun interdit déclaré</span>';
+    else proh.forEach(function(p){ h+='<span class="pf-chip">🚫 '+pfLabel(PF_PROHIB,p)+'</span>'; });
+    h+='</div></div>';
+    // e) honnêteté + actions
+    h+='<div class="pf-honesty">Calcul basé sur tes paramètres, pas sur une connexion à ton broker. Vérifie toujours sur ta plateforme et le site de ta firme.</div>';
+    h+='<div style="display:flex;gap:8px;margin-top:12px;">'
+      +'<button class="logout-btn" id="pfEditBtn" type="button" style="margin-top:0;">Modifier les paramètres</button>'
+      +'<button class="logout-btn" id="pfChangeBtn" type="button" style="margin-top:0;">Changer de firme</button></div>';
+    h+='<div style="margin-top:10px;"><label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt-dim);">Trades prévus aujourd\'hui (pour le risque) '
+      +'<input class="set-input" id="pfRiskNLive" type="number" min="1" max="20" value="'+riskN+'" style="width:70px;"></label></div>';
+    h+='</div>';
+    box.innerHTML=h;
+    el("pfEditBtn").addEventListener("click",function(){ pfStepConfirm(pfClone(cfg), cfg.templateId?pfTpl(cfg.templateId):null); });
+    el("pfChangeBtn").addEventListener("click",function(){ pfStepFirm(); });
+    el("pfRiskNLive").addEventListener("change",function(){ cfg.riskDivN=Math.max(1,Math.round(pfNum(this.value)||3)); pfSave(a,cfg); renderPropfirm(); });
+  }
+  function pfClone(o){ return JSON.parse(JSON.stringify(o)); }
+
+  // ---- onboarding : ouverture du tiroir ----
+  function openPfDrawer(html){ el("pfDrawerBody").innerHTML=html; el("overlay").classList.add("open"); el("pfDrawer").classList.add("open"); }
+  // étape 1 : choix de la firme
+  function pfStepFirm(){
+    var fut=PROPFIRMS.filter(function(t){return t.market==="futures";});
+    var fx=PROPFIRMS.filter(function(t){return t.market==="forex";});
+    function btns(list){ return list.map(function(t){ return '<button class="pf-firm-btn" data-id="'+t.id+'" type="button"><span><span class="pf-fn">'+esc(t.firm)+'</span><span class="pf-pl">'+esc(t.plan)+'</span></span><span class="pf-mk'+(t.market==="forex"?" fx":"")+'">'+(t.market==="forex"?"Forex":"Futures")+'</span></button>'; }).join(""); }
+    var h='<h3>Ma prop firm</h3><div class="dsub">Choisis ta firme : ses valeurs servent à pré-remplir tes paramètres, que tu pourras ensuite éditer. Vérifie toujours sur le site officiel.</div>';
+    h+='<div class="pf-sec-h">Futures</div>'+btns(fut);
+    h+='<div class="pf-sec-h">Forex</div>'+btns(fx);
+    h+='<div class="pf-sec-h">Autre</div>';
+    h+='<button class="pf-firm-btn" data-id="__custom" type="button"><span><span class="pf-fn">Firme personnalisée</span><span class="pf-pl">Saisir tous les paramètres à la main</span></span><span class="pf-mk">Perso</span></button>';
+    h+='<button class="pf-firm-btn" data-id="__none" type="button"><span><span class="pf-fn">Aucune / compte perso</span><span class="pf-pl">Pas de suivi prop firm sur ce compte</span></span></button>';
+    openPfDrawer(h);
+    el("pfDrawerBody").querySelectorAll(".pf-firm-btn").forEach(function(b){ b.addEventListener("click",function(){ pfPickFirm(b.dataset.id); }); });
+  }
+  function pfPickFirm(id){
+    var a=acc(); if(!a) return;
+    if(id==="__none"){ if(a.plan&&a.plan.propfirm){ a.plan.propfirm.enabled=false; savePlan(a); } closeDrawer(); showToast("Prop firm désactivée pour ce compte"); renderPropfirm(); return; }
+    if(id==="__custom"){ pfStepConfirm(pfNewCustom(),null); return; }
+    var tpl=pfTpl(id); if(!tpl) return; pfStepSize(tpl);
+  }
+  function pfNewCustom(){ return {enabled:true,isCustom:true,templateId:null,firmName:"",planName:"",market:"futures",unit:"currency",phaseModel:"one_step",currentPhase:"eval",capital:"",sizeLabel:"",profitTarget:"",dailyLoss:"",dailyLossType:"none",maxDrawdown:"",drawdownBasis:"static",drawdownLocks:false,drawdownLockRule:"",minDays:0,minDayDef:"activity",minDayThreshold:"",consistencyPct:"",consistencyScope:"",prohibitions:[],verifiedOn:todayKey(),notes:"",riskDivN:3,daysTraded:0,currentDrawdown:0,highWaterMark:null}; }
+  // étape 2 : taille (futures) ou capital + phase (forex)
+  function pfStepSize(tpl){
+    var h='<h3>'+esc(tpl.firm)+' · '+esc(tpl.plan)+'</h3>';
+    if(tpl.market==="futures"){
+      h+='<div class="dsub">Choisis la taille de ton compte.</div>';
+      h+=tpl.rows.map(function(r){ return '<button class="pf-firm-btn" data-size="'+r.size+'" type="button"><span><span class="pf-fn">'+r.size+'</span><span class="pf-pl">Objectif '+pfThousand(r.target)+' $ · Drawdown '+pfThousand(r.dd)+' $'+(r.contracts?" · "+r.contracts+" contrats":"")+'</span></span></button>'; }).join("");
+      openPfDrawer(h);
+      el("pfDrawerBody").querySelectorAll(".pf-firm-btn").forEach(function(b){ b.addEventListener("click",function(){ var r=tpl.rows.filter(function(x){return x.size===b.dataset.size;})[0]; pfStepConfirm(pfResolve(tpl,r),tpl); }); });
+    } else {
+      h+='<div class="dsub">Ton capital et ta phase actuelle. Les limites en % sont converties en montant à titre indicatif.</div>';
+      h+='<div class="set-group"><div class="set-label">Capital du compte</div><input class="set-input" id="pfCapIn" type="text" inputmode="decimal" placeholder="Ex : 100000"></div>';
+      h+='<div class="set-group"><div class="set-label">Phase</div>'+pfSelect("pfPhaseIn", tpl.rows.map(function(r){return [r.phase,pfLabel(PF_PHASE,r.phase)];}), tpl.rows[0].phase)+'</div>';
+      h+='<button class="drawer-done" id="pfSizeGo" type="button">Continuer</button>';
+      openPfDrawer(h);
+      el("pfSizeGo").addEventListener("click",function(){ var ph=el("pfPhaseIn").value; var r=tpl.rows.filter(function(x){return x.phase===ph;})[0]||tpl.rows[0]; var cfg=pfResolve(tpl,r); cfg.capital=el("pfCapIn").value; pfStepConfirm(cfg,tpl); });
+    }
+  }
+  function pfResolve(tpl,r){
+    return {enabled:true,isCustom:false,templateId:tpl.id,firmName:tpl.firm,planName:tpl.plan,market:tpl.market,unit:tpl.unit,
+      phaseModel:tpl.phaseModel,currentPhase:(r.phase||"funded"),capital:(r.cap!=null?r.cap:""),sizeLabel:(r.size||""),
+      profitTarget:(r.target===""?"":r.target),dailyLoss:(r.daily!=null?r.daily:""),dailyLossType:tpl.dailyLossType,
+      maxDrawdown:r.dd,drawdownBasis:tpl.drawdownBasis,drawdownLocks:!!tpl.drawdownLocks,drawdownLockRule:tpl.drawdownLockRule||"",
+      minDays:(r.minDays!=null?r.minDays:tpl.minDays),minDayDef:tpl.minDayDef,minDayThreshold:(tpl.minDayThreshold==null?"":tpl.minDayThreshold),
+      consistencyPct:(tpl.consistencyPct==null?"":tpl.consistencyPct),consistencyScope:(tpl.consistencyScope||""),
+      prohibitions:(tpl.prohibitions||[]).slice(),verifiedOn:PF_VERIFIED,notes:tpl.notes||"",
+      riskDivN:3,daysTraded:0,currentDrawdown:0,highWaterMark:null};
+  }
+  // étape 3 : confirmation éditable
+  function pfStepConfirm(cfg,tpl){
+    function row(lab,inner){ return '<div class="set-group"><div class="set-label">'+lab+'</div>'+inner+'</div>'; }
+    function inp(id,val,ph){ return '<input class="set-input" id="'+id+'" type="text" value="'+esc(val)+'" placeholder="'+(ph||"")+'">'; }
+    var sym = cfg.unit==="percent"?" (%)":" ($)";
+    var h='<h3>Confirme tes paramètres</h3><div class="dsub">Tout est éditable — ce sont TES paramètres, pré-remplis. Corrige selon ta firme.</div>';
+    h+='<div class="pf-verif" style="margin-bottom:12px;">✓ vérifié le '+esc(cfg.verifiedOn||PF_VERIFIED)+' — confirme sur le site de ta firme</div>';
+    if(cfg.notes) h+='<div class="pf-warn">⚠ '+esc(cfg.notes)+'</div>';
+    h+=row("Nom de la firme",inp("pf_firm",cfg.firmName,"Ma firme"));
+    h+=row("Plan",inp("pf_plan",cfg.planName,""));
+    if(cfg.isCustom) h+=row("Marché",pfSelect("pf_market",[["futures","Futures ($)"],["forex","Forex (%)"]],cfg.market));
+    h+=row("Phase actuelle",pfSelect("pf_phase",PF_PHASE,cfg.currentPhase));
+    h+=row(cfg.unit==="percent"?"Capital du compte":"Taille / capital du compte",inp("pf_capital",cfg.capital,"Ex : 50000"));
+    h+=row("Objectif de profit"+sym,inp("pf_target",cfg.profitTarget,""));
+    h+=row("Perte journalière"+sym+" — vide = aucune",inp("pf_daily",cfg.dailyLoss,""));
+    h+=row("Type de perte journalière",pfSelect("pf_dltype",PF_DLTYPE,cfg.dailyLossType));
+    h+=row("Drawdown max"+sym,inp("pf_dd",cfg.maxDrawdown,""));
+    h+=row("Base du drawdown",pfSelect("pf_ddbasis",PF_DDBASIS,cfg.drawdownBasis));
+    h+=row("Le drawdown se verrouille",'<label style="display:flex;align-items:center;gap:8px;font-size:14px;"><input type="checkbox" id="pf_ddlock" '+(cfg.drawdownLocks?"checked":"")+'> Oui, il se fige</label>'+inp("pf_ddlockrule",cfg.drawdownLockRule,"Règle de verrouillage (optionnel)"));
+    h+=row("Jours minimum",inp("pf_mindays",cfg.minDays,"0"));
+    h+=row("Définition d'un jour valable",pfSelect("pf_mindef",PF_MINDEF,cfg.minDayDef));
+    h+=row("Seuil du jour (montant ou %) — optionnel",inp("pf_minthr",cfg.minDayThreshold,""));
+    h+=row("Cohérence max par jour (%) — optionnel",inp("pf_consist",cfg.consistencyPct,""));
+    h+=row("Portée de la cohérence",pfSelect("pf_scope",PF_SCOPE,cfg.consistencyScope));
+    h+='<div class="set-group"><div class="set-label">Interdits</div>'+PF_PROHIB.map(function(p){ return '<label style="display:flex;align-items:center;gap:8px;font-size:14px;padding:7px 0;"><input type="checkbox" id="pf_prohib_'+p[0]+'" '+((cfg.prohibitions||[]).indexOf(p[0])>=0?"checked":"")+'> '+p[1]+'</label>'; }).join("")+'</div>';
+    h+=row("Vérifié le",'<input class="set-input" id="pf_verif" type="date" value="'+esc(cfg.verifiedOn||PF_VERIFIED)+'">');
+    h+=row("Trades/jour pour le calcul du risque",inp("pf_riskn",cfg.riskDivN||3,"3"));
+    h+='<div class="pf-honesty">Aucune surveillance automatique : Edgio calcule à partir de ces valeurs déclarées. Les règles des firmes changent — reconfirme régulièrement.</div>';
+    h+='<button class="drawer-done" id="pfSaveBtn" type="button">Enregistrer</button>';
+    openPfDrawer(h);
+    el("pfSaveBtn").addEventListener("click",function(){ pfSaveFromForm(cfg); });
+  }
+  function pfSaveFromForm(cfg){
+    var a=acc(); if(!a) return;
+    if(cfg.isCustom && el("pf_market")){ cfg.market=el("pf_market").value; cfg.unit=(cfg.market==="forex")?"percent":"currency"; }
+    cfg.enabled=true;
+    cfg.firmName=el("pf_firm").value; cfg.planName=el("pf_plan").value;
+    cfg.currentPhase=el("pf_phase").value; cfg.capital=el("pf_capital").value;
+    cfg.profitTarget=el("pf_target").value; cfg.dailyLoss=el("pf_daily").value; cfg.dailyLossType=el("pf_dltype").value;
+    cfg.maxDrawdown=el("pf_dd").value; cfg.drawdownBasis=el("pf_ddbasis").value;
+    cfg.drawdownLocks=el("pf_ddlock").checked; cfg.drawdownLockRule=el("pf_ddlockrule").value;
+    cfg.minDays=el("pf_mindays").value; cfg.minDayDef=el("pf_mindef").value; cfg.minDayThreshold=el("pf_minthr").value;
+    cfg.consistencyPct=el("pf_consist").value; cfg.consistencyScope=el("pf_scope").value;
+    cfg.verifiedOn=el("pf_verif").value||PF_VERIFIED; cfg.riskDivN=Math.max(1,Math.round(pfNum(el("pf_riskn").value)||3));
+    var proh=[]; PF_PROHIB.forEach(function(p){ var e=el("pf_prohib_"+p[0]); if(e&&e.checked) proh.push(p[0]); }); cfg.prohibitions=proh;
+    pfSave(a,cfg); closeDrawer(); showToast("Prop firm enregistrée ✓"); renderPropfirm();
+  }
 
   // back button : remonte d'un niveau dans le Journal (séance -> compte -> tous comptes)
   el("backBtn").addEventListener("click",function(){
@@ -1859,7 +2143,7 @@
     container.appendChild(add);
   }
   var onbActive=false;
-  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); }
+  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   el("drawerDone").addEventListener("click",function(){ var a=acc(); if(a){ ["rules","checklistItems","tagsOptions"].forEach(function(f){ a[f]=(a[f]||[]).map(function(x){return String(x||"").trim();}).filter(Boolean); }); saveAccount(a); } closeDrawer(); render(); });
   el("setName").addEventListener("input",function(){ acc().name=this.value; });
