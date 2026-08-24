@@ -1,0 +1,15 @@
+# Configuration Supabase CLI — Edge Functions.
+#
+# stripe-webhook est appelée par Stripe SANS JWT Supabase : on désactive donc
+# la vérification de JWT pour cette fonction (sa sécurité vient de la
+# vérification de signature Stripe). Les deux autres fonctions restent
+# protégées par JWT (elles ne s'exécutent que pour un utilisateur connecté).
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.create-checkout-session]
+verify_jwt = true
+
+[functions.create-portal-session]
+verify_jwt = true
