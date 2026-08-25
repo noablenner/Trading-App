@@ -560,16 +560,20 @@
        Colonne principale à gauche, RAIL (promo / partenaire) à droite. */
     #screenGlobal:not(.hidden), #screenAccount:not(.hidden),
     #screenPlan:not(.hidden), #screenCalendar:not(.hidden), #screenPropfirm:not(.hidden){
-      display:grid; grid-template-columns:minmax(0,1fr) 340px; column-gap:28px;
+      display:grid; grid-template-columns:minmax(0,1fr) 340px; column-gap:28px; row-gap:14px;
       grid-auto-flow:row dense;
     }
-    /* tout en colonne principale par défaut... */
-    #screenGlobal > *, #screenAccount > *, #screenPlan > *, #screenCalendar > *, #screenPropfirm > *{ grid-column:1; }
+    /* CLÉ DE L'ALIGNEMENT : on annule les marges verticales des cartes ; c'est le
+       row-gap de la grille qui gère l'espacement -> gauche et rail partagent la
+       même ligne de départ (plus de décalage de 12px). */
+    #screenGlobal > *, #screenAccount > *, #screenPlan > *, #screenCalendar > *, #screenPropfirm > *{
+      grid-column:1; margin-top:0; margin-bottom:0;
+    }
     /* ...sauf les encarts, qui vont dans le rail (colonne 2). */
     #screenGlobal > .promo-slot, #screenGlobal > .aff-slot,
     #screenAccount > .promo-slot,
     #screenPlan > .promo-slot, #screenCalendar > .promo-slot,
-    #screenPropfirm > .aff-slot{ grid-column:2; margin-top:0; }
+    #screenPropfirm > .aff-slot{ grid-column:2; }
 
     /* JOURNAL : chaque encart du rail épouse la HAUTEUR de la section à sa gauche
        (promo <-> "Aujourd'hui", partenaire <-> "Mes journaux"). */
@@ -595,7 +599,7 @@
       display:flex; flex-direction:column;
     }
     #screenAccount > .promo-slot > .promo-card, #screenPlan > .promo-slot > .promo-card,
-    #screenCalendar > .promo-slot > .promo-card{ min-height:420px; }
+    #screenCalendar > .promo-slot > .promo-card{ min-height:460px; }
     #screenGlobal > .promo-slot .promo-body, #screenAccount > .promo-slot .promo-body,
     #screenPlan > .promo-slot .promo-body, #screenCalendar > .promo-slot .promo-body{
       flex:1; flex-direction:column; align-items:flex-start; text-align:left; gap:14px; padding:18px;
