@@ -556,21 +556,57 @@
     /* ----- CONTENU : zone large, centrée dans l'espace à droite de la sidebar ----- */
     .app{ max-width:var(--appW); margin:0 auto; padding-left:28px; padding-right:28px; }
 
-    /* Tableaux de bord (accueil Journal + vue d'un compte) : 2 colonnes.
-       Colonne principale à gauche, RAIL (promo / partenaire) à droite -> l'espace
-       horizontal est utilisé au lieu de laisser des colonnes vides. */
-    #screenGlobal:not(.hidden), #screenAccount:not(.hidden){
+    /* ===== TABLEAUX DE BORD 2 COLONNES (tous les écrans à encart) =====
+       Colonne principale à gauche, RAIL (promo / partenaire) à droite. */
+    #screenGlobal:not(.hidden), #screenAccount:not(.hidden),
+    #screenPlan:not(.hidden), #screenCalendar:not(.hidden), #screenPropfirm:not(.hidden){
       display:grid; grid-template-columns:minmax(0,1fr) 340px; column-gap:28px;
-      align-items:start; grid-auto-flow:row dense;
+      grid-auto-flow:row dense;
     }
-    #screenGlobal > *, #screenAccount > *{ grid-column:1; }              /* défaut : colonne principale */
+    /* tout en colonne principale par défaut... */
+    #screenGlobal > *, #screenAccount > *, #screenPlan > *, #screenCalendar > *, #screenPropfirm > *{ grid-column:1; }
+    /* ...sauf les encarts, qui vont dans le rail (colonne 2). */
     #screenGlobal > .promo-slot, #screenGlobal > .aff-slot,
-    #screenAccount > .promo-slot, #screenAccount > .aff-slot{
-      grid-column:2; align-self:start; margin-top:0;                      /* rail de droite */
+    #screenAccount > .promo-slot,
+    #screenPlan > .promo-slot, #screenCalendar > .promo-slot,
+    #screenPropfirm > .aff-slot{ grid-column:2; margin-top:0; }
+
+    /* JOURNAL : chaque encart du rail épouse la HAUTEUR de la section à sa gauche
+       (promo <-> "Aujourd'hui", partenaire <-> "Mes journaux"). */
+    #screenGlobal:not(.hidden){ align-items:stretch; }
+    #screenGlobal > .promo-slot, #screenGlobal > .aff-slot{ display:flex; }
+    #screenGlobal > .promo-slot > .promo-card, #screenGlobal > .aff-slot > .aff-card{
+      flex:1; display:flex; flex-direction:column;
+    }
+    #screenGlobal > .aff-slot > .aff-card > .aff-body{ flex:1; }
+
+    /* Autres écrans (1 grand bloc) : rail en haut, encart collant. */
+    #screenAccount:not(.hidden), #screenPlan:not(.hidden),
+    #screenCalendar:not(.hidden), #screenPropfirm:not(.hidden){ align-items:start; }
+    #screenAccount > .promo-slot, #screenPlan > .promo-slot,
+    #screenCalendar > .promo-slot, #screenPropfirm > .aff-slot{
+      position:sticky; top:calc(var(--topbarH,82px) + 16px);
     }
 
-    /* Écrans à contenu textuel/large : largeur de lecture confortable (non étirés). */
-    #screenPlan, #screenPropfirm, #screenAnalysis, #screenSession, #screenCalendar{ max-width:900px; }
+    /* Format "grand encart vertical" pour le promo quand il est dans le rail :
+       vignette en haut qui s'étire, texte dessous -> l'encart est plus long. */
+    #screenGlobal > .promo-slot > .promo-card, #screenAccount > .promo-slot > .promo-card,
+    #screenPlan > .promo-slot > .promo-card, #screenCalendar > .promo-slot > .promo-card{
+      display:flex; flex-direction:column;
+    }
+    #screenAccount > .promo-slot > .promo-card, #screenPlan > .promo-slot > .promo-card,
+    #screenCalendar > .promo-slot > .promo-card{ min-height:420px; }
+    #screenGlobal > .promo-slot .promo-body, #screenAccount > .promo-slot .promo-body,
+    #screenPlan > .promo-slot .promo-body, #screenCalendar > .promo-slot .promo-body{
+      flex:1; flex-direction:column; align-items:flex-start; text-align:left; gap:14px; padding:18px;
+    }
+    #screenGlobal > .promo-slot .promo-thumb, #screenAccount > .promo-slot .promo-thumb,
+    #screenPlan > .promo-slot .promo-thumb, #screenCalendar > .promo-slot .promo-thumb{
+      width:100%; height:auto; flex:1; min-height:150px; border-radius:12px; font-size:44px;
+    }
+
+    /* Écrans sans rail : largeur de lecture confortable. */
+    #screenAnalysis, #screenSession{ max-width:900px; }
 
     /* Barres & tiroirs fixes : décalés derrière la sidebar */
     .bottombar{ left:var(--sidebarW); right:0; margin:0; max-width:none; }

@@ -1,4 +1,4 @@
-const CACHE='tt-v7';
+const CACHE='tt-v8';
 const ASSETS=['./','./index.html','./supabase.js','./icon-192.png','./icon-512.png','./favicon.ico','./favicon-32.png','./manifest.webmanifest'];
 
 // Installation : on pré-charge la coquille de l'app (pour le hors-ligne)
