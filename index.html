@@ -310,6 +310,9 @@
   .aff-slot:empty{display:none;}
   /* Encarts placés APRÈS une carte : petit espace au-dessus (mobile). */
   #affGlobal, #promoAccount{margin-top:12px;}
+  /* Le promo de la page Prop firm est réservé à l'ordinateur (place dispo dans le rail) :
+     masqué sur mobile/tablette, réaffiché uniquement dans la grille desktop. */
+  #promoPropfirm{display:none;}
   .aff-card{display:block;text-decoration:none;color:inherit;border:1px solid var(--accent-dim);border-radius:var(--radius);background:linear-gradient(180deg,var(--surface-2),var(--surface));overflow:hidden;cursor:pointer;transition:transform .05s;}
   .aff-card:active{transform:scale(.99);}
   .aff-label{display:block;padding:11px 16px 0;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);}
@@ -558,63 +561,56 @@
     .topbar-row{ max-width:var(--appW); margin:0 auto; }
 
     /* ----- CONTENU : zone large, centrée dans l'espace à droite de la sidebar ----- */
-    .app{ max-width:var(--appW); margin:0 auto; padding-left:28px; padding-right:28px; }
+    .app{ max-width:var(--appW); margin:0 auto; padding-left:28px; padding-right:28px;
+          padding-top:calc(var(--topbarH,82px) + 30px); }   /* plus d'air sous le titre (ordi) */
 
-    /* ===== TABLEAUX DE BORD 2 COLONNES (tous les écrans à encart) =====
-       Colonne principale à gauche, RAIL (promo / partenaire) à droite. */
+    /* ===== TABLEAUX DE BORD 2 COLONNES (ordinateur) =====
+       Colonne principale à gauche, RAIL (promo/partenaire) à droite.
+       #planView/#pfContent sont APLATIS (display:contents) : leurs cartes deviennent
+       des items de grille, exactement comme Journal/Calendrier -> même alignement.
+       align-items:stretch -> chaque encart du rail épouse la hauteur de la 1re
+       section à sa gauche : les DEUX colonnes démarrent et finissent au même niveau. */
     #screenGlobal:not(.hidden), #screenAccount:not(.hidden),
     #screenPlan:not(.hidden), #screenCalendar:not(.hidden), #screenPropfirm:not(.hidden){
-      display:grid; grid-template-columns:minmax(0,1fr) 340px; column-gap:28px; row-gap:12px;
-      grid-auto-flow:row dense;
+      display:grid; grid-template-columns:minmax(0,1fr) 340px; column-gap:28px; row-gap:18px;
+      align-items:stretch; grid-auto-flow:row dense;
     }
-    /* CLÉ DE L'ALIGNEMENT : on annule les marges verticales des enfants de grille ;
-       c'est le row-gap qui gère l'espacement -> gauche et rail partagent la même
-       ligne de départ (plus de décalage de 12px). */
-    #screenGlobal > *, #screenAccount > *, #screenPlan > *, #screenCalendar > *, #screenPropfirm > *{
+    /* aplatir les conteneurs Plan & Propfirm */
+    #screenPlan > #planView, #screenPropfirm > #pfContent{ display:contents; }
+    /* COLONNE PRINCIPALE : cartes directes + cartes des conteneurs aplatis, marges annulées
+       (c'est le row-gap qui gère l'espacement de façon uniforme). */
+    #screenGlobal > *, #screenAccount > *, #screenCalendar > *,
+    #screenPlan > *, #screenPropfirm > *,
+    #screenPlan #planView > *, #screenPropfirm #pfContent > *{
       grid-column:1; margin-top:0; margin-bottom:0;
     }
-    /* Plan & Propfirm ont un CONTENEUR (#planView/#pfContent) : on annule aussi le
-       margin-top de sa première carte, sinon le contenu démarre 12px plus bas que
-       sur Journal/Calendrier -> haut de page identique sur toutes les pages. */
-    #screenPlan #planView > :first-child, #screenPropfirm #pfContent > :first-child{ margin-top:0; }
-    /* ...sauf les encarts, qui vont dans le rail (colonne 2). */
+    /* le bouton "Créer une séance" (vue compte) occupe toute la largeur, au-dessus */
+    #screenAccount > .main-cta{ grid-column:1 / -1; }
+    /* RAIL (colonne 2) : les encarts */
     #screenGlobal > .promo-slot, #screenGlobal > .aff-slot,
     #screenAccount > .promo-slot,
     #screenPlan > .promo-slot, #screenCalendar > .promo-slot,
-    #screenPropfirm > .aff-slot{ grid-column:2; }
-
-    /* JOURNAL : chaque encart du rail épouse la HAUTEUR de la section à sa gauche
-       (promo <-> "Aujourd'hui", partenaire <-> "Mes journaux"). */
-    #screenGlobal:not(.hidden){ align-items:stretch; }
-    #screenGlobal > .promo-slot, #screenGlobal > .aff-slot{ display:flex; }
-    #screenGlobal > .promo-slot > .promo-card, #screenGlobal > .aff-slot > .aff-card{
+    #screenPropfirm > .promo-slot, #screenPropfirm > .aff-slot{ grid-column:2; display:flex; }
+    /* les cartes du rail remplissent la hauteur de leur ligne */
+    #screenGlobal > .promo-slot > .promo-card, #screenGlobal > .aff-slot > .aff-card,
+    #screenAccount > .promo-slot > .promo-card,
+    #screenPlan > .promo-slot > .promo-card, #screenCalendar > .promo-slot > .promo-card,
+    #screenPropfirm > .promo-slot > .promo-card, #screenPropfirm > .aff-slot > .aff-card{
       flex:1; display:flex; flex-direction:column;
     }
-    #screenGlobal > .aff-slot > .aff-card > .aff-body{ flex:1; }
+    #screenGlobal > .aff-slot > .aff-card > .aff-body,
+    #screenPropfirm > .aff-slot > .aff-card > .aff-body{ flex:1; }
 
-    /* Autres écrans (1 grand bloc) : rail en haut, encart collant. */
-    #screenAccount:not(.hidden), #screenPlan:not(.hidden),
-    #screenCalendar:not(.hidden), #screenPropfirm:not(.hidden){ align-items:start; }
-    #screenAccount > .promo-slot, #screenPlan > .promo-slot,
-    #screenCalendar > .promo-slot, #screenPropfirm > .aff-slot{
-      position:sticky; top:calc(var(--topbarH,82px) + 16px);
-    }
-
-    /* Format "grand encart vertical" pour le promo quand il est dans le rail :
-       vignette en haut qui s'étire, texte dessous -> l'encart est plus long. */
-    #screenGlobal > .promo-slot > .promo-card, #screenAccount > .promo-slot > .promo-card,
-    #screenPlan > .promo-slot > .promo-card, #screenCalendar > .promo-slot > .promo-card{
-      display:flex; flex-direction:column;
-    }
-    #screenAccount > .promo-slot > .promo-card, #screenPlan > .promo-slot > .promo-card,
-    #screenCalendar > .promo-slot > .promo-card{ min-height:460px; }
+    /* Format "grand encart vertical" pour le promo dans le rail (vignette qui s'étire). */
     #screenGlobal > .promo-slot .promo-body, #screenAccount > .promo-slot .promo-body,
-    #screenPlan > .promo-slot .promo-body, #screenCalendar > .promo-slot .promo-body{
+    #screenPlan > .promo-slot .promo-body, #screenCalendar > .promo-slot .promo-body,
+    #screenPropfirm > .promo-slot .promo-body{
       flex:1; flex-direction:column; align-items:flex-start; text-align:left; gap:14px; padding:18px;
     }
     #screenGlobal > .promo-slot .promo-thumb, #screenAccount > .promo-slot .promo-thumb,
-    #screenPlan > .promo-slot .promo-thumb, #screenCalendar > .promo-slot .promo-thumb{
-      width:100%; height:auto; flex:1; min-height:150px; border-radius:12px; font-size:44px;
+    #screenPlan > .promo-slot .promo-thumb, #screenCalendar > .promo-slot .promo-thumb,
+    #screenPropfirm > .promo-slot .promo-thumb{
+      width:100%; height:auto; flex:1; min-height:120px; border-radius:12px; font-size:44px;
     }
 
     /* Écrans sans rail : largeur de lecture confortable. */
@@ -775,6 +771,7 @@
 
   <!-- ========== PROP FIRM (briefing pré-séance) ========== -->
   <div id="screenPropfirm" class="hidden">
+    <div id="promoPropfirm" class="promo-slot"></div>
     <div id="affPropfirm" class="aff-slot"></div>
     <div id="pfContent"></div>
   </div>
@@ -1267,7 +1264,8 @@
   var PROMO_SLOTS = {
     promoPlan:     { icon:"📈", title:"Passe au niveau supérieur", desc:"Des milliers de traders suivent leurs perfs ici.", cta:"En savoir plus" },
     promoJournal:   { icon:"🚀", title:"Espace publicitaire",       desc:"Ta pub pourrait être ici. Contacte-nous.",        cta:"Découvrir" },
-    promoCalendar: { icon:"🗞️", title:"Espace publicitaire",       desc:"Réserve cet emplacement pour ta marque.",         cta:"Découvrir" }
+    promoCalendar: { icon:"🗞️", title:"Espace publicitaire",       desc:"Réserve cet emplacement pour ta marque.",         cta:"Découvrir" },
+    promoPropfirm: { icon:"🏆", title:"Espace publicitaire",       desc:"Ta marque devant des traders financés.",          cta:"Découvrir" }
   };
   // Encarts d'affiliation. Mets ton lien dans "url" (laisse "" tant que tu n'as pas encore le lien).
   var AFFILIATES = {
