@@ -176,7 +176,6 @@
   /* account rows (global) */
   /* cartes de comptes (journal global) — bien visibles et clairement cliquables */
   .acct-card{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 16px 15px 18px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);cursor:pointer;margin-bottom:10px;position:relative;overflow:hidden;transition:border-color .15s,transform .05s;}
-  .acct-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent);opacity:.75;}
   .acct-card:active{transform:scale(.99);}
   .acct-card.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
   .acct-card .al{font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
@@ -219,7 +218,6 @@
   .cal-cell .cv{font-size:8.5px;font-weight:800;line-height:1;}
   .cal-cell.clickable{cursor:pointer;}
   .cal-cell.clickable:active{transform:scale(.92);}
-  .cal-cell.clickable .cd{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:2px;}
   /* calendrier cumulé en lecture seule : visuellement distinct (atténué, non cliquable) */
   .cal-ro-note{font-size:12px;color:var(--txt-faint);line-height:1.4;margin:-4px 0 12px;}
   .cal-readonly{opacity:.82;}
