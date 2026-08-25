@@ -291,9 +291,11 @@
   /* ===== Premium ===== */
   .premchip{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(90deg,#f4b740,#f4913f);color:#241a00;padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:6px;}
   /* ===== Encarts publicitaires (comptes gratuits uniquement) ===== */
-  /* Les encarts suivent le même rythme que les .card (margin-top:12) pour s'intégrer proprement. */
-  .promo-slot{margin:12px 0 0;}
-  .promo-slot:empty{display:none;margin:0;}
+  /* MOBILE : encart en HAUT d'une page = collé au titre (margin-top:0). L'espacement
+     sous l'encart est donné par le margin-top:12 de la carte suivante. Les encarts
+     situés APRÈS une carte (#affGlobal, #promoAccount) reçoivent un margin-top:12. */
+  .promo-slot{margin:0;}
+  .promo-slot:empty{display:none;}
   .promo-card{position:relative;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden;}
   .promo-card .promo-label{position:absolute;top:10px;right:14px;font-size:8.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--txt-faint);}
   .promo-body{padding:18px 16px 16px;display:flex;align-items:center;gap:14px;}
@@ -304,8 +306,10 @@
   .promo-foot{border-top:1px solid var(--line);padding:9px 16px;font-size:11.5px;font-weight:700;color:var(--accent);text-align:center;cursor:pointer;}
   /* ===== Encarts d'affiliation (partenaires) ===== */
   /* Le label "Partenaire" est une bande en HAUT (plus en absolu) pour ne jamais chevaucher le CTA. */
-  .aff-slot{margin:12px 0 0;}
-  .aff-slot:empty{display:none;margin:0;}
+  .aff-slot{margin:0;}
+  .aff-slot:empty{display:none;}
+  /* Encarts placés APRÈS une carte : petit espace au-dessus (mobile). */
+  #affGlobal, #promoAccount{margin-top:12px;}
   .aff-card{display:block;text-decoration:none;color:inherit;border:1px solid var(--accent-dim);border-radius:var(--radius);background:linear-gradient(180deg,var(--surface-2),var(--surface));overflow:hidden;cursor:pointer;transition:transform .05s;}
   .aff-card:active{transform:scale(.99);}
   .aff-label{display:block;padding:11px 16px 0;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);}
@@ -560,15 +564,19 @@
        Colonne principale à gauche, RAIL (promo / partenaire) à droite. */
     #screenGlobal:not(.hidden), #screenAccount:not(.hidden),
     #screenPlan:not(.hidden), #screenCalendar:not(.hidden), #screenPropfirm:not(.hidden){
-      display:grid; grid-template-columns:minmax(0,1fr) 340px; column-gap:28px; row-gap:14px;
+      display:grid; grid-template-columns:minmax(0,1fr) 340px; column-gap:28px; row-gap:12px;
       grid-auto-flow:row dense;
     }
-    /* CLÉ DE L'ALIGNEMENT : on annule les marges verticales des cartes ; c'est le
-       row-gap de la grille qui gère l'espacement -> gauche et rail partagent la
-       même ligne de départ (plus de décalage de 12px). */
+    /* CLÉ DE L'ALIGNEMENT : on annule les marges verticales des enfants de grille ;
+       c'est le row-gap qui gère l'espacement -> gauche et rail partagent la même
+       ligne de départ (plus de décalage de 12px). */
     #screenGlobal > *, #screenAccount > *, #screenPlan > *, #screenCalendar > *, #screenPropfirm > *{
       grid-column:1; margin-top:0; margin-bottom:0;
     }
+    /* Plan & Propfirm ont un CONTENEUR (#planView/#pfContent) : on annule aussi le
+       margin-top de sa première carte, sinon le contenu démarre 12px plus bas que
+       sur Journal/Calendrier -> haut de page identique sur toutes les pages. */
+    #screenPlan #planView > :first-child, #screenPropfirm #pfContent > :first-child{ margin-top:0; }
     /* ...sauf les encarts, qui vont dans le rail (colonne 2). */
     #screenGlobal > .promo-slot, #screenGlobal > .aff-slot,
     #screenAccount > .promo-slot,
