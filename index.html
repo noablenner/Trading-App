@@ -23,12 +23,12 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
   html{background:var(--bg);overscroll-behavior-y:none;}
-  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45;max-width:520px;margin:0 auto;padding:0 0 calc(108px + env(safe-area-inset-bottom));min-height:100vh;position:relative;overflow-x:hidden;overscroll-behavior-y:none;}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45;max-width:var(--appW,520px);margin:0 auto;padding:0 0 calc(108px + env(safe-area-inset-bottom));min-height:100vh;position:relative;overflow-x:hidden;overscroll-behavior-y:none;}
   .app{padding:calc(var(--topbarH, 82px) + 12px) 20px 0;}
   /* Cale opaque derrière la barre d'état iOS : couvre toute la zone safe-area au-dessus du header */
   .topbar::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:100vh;background:var(--bg);}
 
-  .topbar{position:fixed;top:0;left:0;right:0;margin:0 auto;max-width:520px;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);padding:calc(12px + env(safe-area-inset-top)) 20px 12px;}
+  .topbar{position:fixed;top:0;left:0;right:0;margin:0 auto;max-width:var(--appW,520px);z-index:100;background:var(--bg);border-bottom:1px solid var(--line);padding:calc(12px + env(safe-area-inset-top)) 20px 12px;}
   .ttl.big{font-size:25px;letter-spacing:-.02em;}
   .topbar-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
   .tb-left{display:flex;align-items:center;gap:12px;min-width:0;}
@@ -270,12 +270,12 @@
   .field input:focus{outline:none;border-color:var(--accent);}
 
   /* bottom bar */
-  .bottombar{position:fixed;left:0;right:0;bottom:0;z-index:30;max-width:520px;margin:0 auto;padding:14px 20px 22px;background:linear-gradient(0deg,var(--bg) 55%,rgba(11,14,17,0));}
+  .bottombar{position:fixed;left:0;right:0;bottom:0;z-index:30;max-width:var(--appW,520px);margin:0 auto;padding:14px 20px 22px;background:linear-gradient(0deg,var(--bg) 55%,rgba(11,14,17,0));}
   .main-btn{width:100%;border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:800;background:var(--accent);color:#fff;cursor:pointer;letter-spacing:.01em;box-shadow:0 6px 22px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;gap:8px;}
   .main-btn:active{transform:scale(.98);}
   .main-btn.done{background:var(--green);}
   /* ===== barre d'onglets (nav bas) ===== */
-  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:45;max-width:520px;margin:0 auto;display:flex;align-items:stretch;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line);padding:9px 8px calc(18px + env(safe-area-inset-bottom));gap:4px;box-shadow:0 -6px 18px rgba(0,0,0,.28);}
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:45;max-width:var(--appW,520px);margin:0 auto;display:flex;align-items:stretch;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line);padding:9px 8px calc(18px + env(safe-area-inset-bottom));gap:4px;box-shadow:0 -6px 18px rgba(0,0,0,.28);}
   .tab{flex:1;background:none;border:none;font-family:inherit;color:var(--txt-faint);display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 0;cursor:pointer;font-size:10.5px;font-weight:700;-webkit-tap-highlight-color:transparent;border-radius:14px;transition:color .15s,background .15s;}
   .tab .ti{width:23px;height:23px;display:block;opacity:.7;transition:opacity .15s;}
   .tab .ti svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
@@ -375,7 +375,7 @@
   body:has(.overlay.open) .app,
   body:has(.overlay.open) .bottombar,
   body:has(.overlay.open) .tabbar{pointer-events:none;}
-  .drawer{position:fixed;left:0;right:0;bottom:0;z-index:108;max-width:520px;margin:0 auto;background:var(--surface);border-radius:22px 22px 0 0;border-top:1px solid var(--line);transform:translateY(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1);max-height:88vh;overflow-y:auto;padding:8px 18px 30px;}
+  .drawer{position:fixed;left:0;right:0;bottom:0;z-index:108;max-width:var(--appW,520px);margin:0 auto;background:var(--surface);border-radius:22px 22px 0 0;border-top:1px solid var(--line);transform:translateY(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1);max-height:88vh;overflow-y:auto;padding:8px 18px 30px;}
   .drawer.open{transform:translateY(0);}
   .grab{width:40px;height:4px;border-radius:4px;background:var(--line);margin:8px auto 14px;}
   .drawer h3{margin:0 0 4px;font-size:18px;font-weight:800;}
@@ -486,6 +486,40 @@
   .pf-warn{font-size:12px;color:var(--amber);background:rgba(244,183,64,.1);border:1px solid var(--amber);border-radius:11px;padding:10px 12px;margin-top:10px;line-height:1.4;}
   .pf-sec-h{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-faint);font-weight:800;margin:18px 0 4px;}
   .pf-empty{text-align:center;color:var(--txt-dim);padding:22px 10px;font-size:14px;line-height:1.5;}
+
+  /* =====================================================================
+     RESPONSIVE — tablette & ordinateur (le mobile n'est PAS modifié).
+     On ne touche pas au HTML : on élargit seulement la colonne centrale
+     (--appW) et on habille le décor autour pour un rendu "app" propre.
+     ===================================================================== */
+
+  /* --- TABLETTE (paysage/portrait large) --- */
+  @media (min-width:760px){
+    :root{ --appW:680px; }
+    .app{ padding-left:26px; padding-right:26px; }
+    .topbar{ padding-left:26px; padding-right:26px; }
+    /* KPI plus aérés : le compte a 4 tuiles -> 2 colonnes restent bien */
+  }
+
+  /* --- ORDINATEUR --- */
+  @media (min-width:1100px){
+    :root{ --appW:820px; }
+    /* Décor ambiant autour de la colonne pour ne pas laisser du vide brut */
+    html{ background:radial-gradient(1200px 800px at 50% -10%, #12161c 0%, var(--bg) 60%); }
+    /* La colonne devient un vrai panneau encadré et surélevé */
+    body{ border-left:1px solid var(--line); border-right:1px solid var(--line); box-shadow:0 0 0 1px rgba(0,0,0,.25), 0 24px 60px rgba(0,0,0,.45); }
+    .topbar{ border-left:1px solid var(--line); border-right:1px solid var(--line); }
+    .tabbar{ border-left:1px solid var(--line); border-right:1px solid var(--line); }
+    .app{ padding-left:32px; padding-right:32px; }
+    .topbar{ padding-left:32px; padding-right:32px; }
+    /* Curseur main sur les éléments interactifs au survol souris */
+    .acct-card,.nav-tile,.tab,.main-cta,.ad-foot,.aff-card,.add-row{ cursor:pointer; }
+  }
+
+  /* --- GRAND ÉCRAN --- */
+  @media (min-width:1500px){
+    :root{ --appW:900px; }
+  }
 </style>
 </head>
 <body>
