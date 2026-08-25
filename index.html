@@ -1011,7 +1011,7 @@
   function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[]}; }
 
   // ---- premium (placeholder, à brancher sur Stripe plus tard) ----
-  var isPremium = true;   // TODO Stripe : passer à false + brancher openUpsell()
+  var isPremium = false;   // TODO Stripe : compte gratuit (pubs affichées) — passer à true = payant + brancher openUpsell()
   function canUse(){ return isPremium; }               // un seul test à activer plus tard
   function premBadge(){ return '<span class="premchip">Premium</span>'; }
 
@@ -2525,7 +2525,8 @@
 
   // add / delete accounts
   async function addAccount(){
-    if(!canUse() && accounts.length>=1){ showToast("Plusieurs comptes = Premium"); return; }  // gating prêt (non bloquant tant que isPremium)
+    // Gating multi-comptes prêt mais désactivé tant que Stripe n'est pas branché (le mode gratuit sert seulement à afficher les pubs).
+    // if(!canUse() && accounts.length>=1){ showToast("Plusieurs comptes = Premium"); return; }
     var ins=await db.from('accounts').insert({user_id:currentUser.id,name:"Nouveau compte",type:"Réel",max_trades:10,result_unit:"usd",position:accounts.length}).select().single();
     if(ins.error){ showToast("Erreur : compte non créé"); console.warn(ins.error); return; }
     var a=rowToAccount(ins.data); accounts.push(a);
