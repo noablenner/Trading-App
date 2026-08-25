@@ -315,6 +315,16 @@
   .aff-txt .aff-t{font-weight:800;font-size:14.5px;}
   .aff-txt .aff-d{font-size:12px;color:var(--txt-dim);margin-top:2px;line-height:1.35;}
   .aff-cta{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--accent);white-space:nowrap;}
+  /* ===== Mon abonnement (réglages) ===== */
+  .sub-card{border:1px solid var(--line);border-radius:14px;background:var(--surface-2);padding:14px;}
+  .sub-card.premium{border-color:var(--amber);background:linear-gradient(180deg,rgba(244,183,64,.08),var(--surface-2));}
+  .sub-state{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;}
+  .sub-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:var(--txt-faint);}
+  .sub-dot.on{background:var(--green);} .sub-dot.warn{background:var(--amber);} .sub-dot.off{background:var(--red);}
+  .sub-desc{font-size:12.5px;color:var(--txt-dim);margin-top:5px;line-height:1.45;}
+  .sub-cta{width:100%;margin-top:12px;border:none;border-radius:12px;padding:13px;font-size:14.5px;font-weight:800;font-family:inherit;background:var(--accent);color:#fff;cursor:pointer;}
+  .sub-cta.ghost{background:var(--surface);border:1px solid var(--line);color:var(--txt);}
+  .sub-price{font-size:12px;color:var(--txt-faint);text-align:center;margin-top:7px;}
   .rec-badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;background:var(--accent-dim);color:var(--accent);padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:6px;}
   .rec-badge.day{background:#12303a;color:#35c4d6;}
   /* ===== accordéon réglages ===== */
@@ -980,7 +990,16 @@
     </div>
     <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
   </div>
+  <div class="set-group"><div class="set-label">Mon abonnement</div>
+    <div id="subBox"></div>
+  </div>
   <div class="set-group"><div class="set-label">Apparence — couleur de l'app</div><div class="sw-lg" id="appSwatches"></div></div>
+  <div class="set-group" id="devGroup"><div class="set-label">Zone test (dev)</div>
+    <div class="dsub" style="margin:0 0 8px;">Simule les états d'abonnement sur cet appareil (sans backend). À retirer avant le lancement.</div>
+    <button class="logout-btn" id="devTrialEnd" type="button">Simuler la fin de l'essai</button>
+    <button class="logout-btn" id="devPremium" type="button">Simuler Premium (payant)</button>
+    <button class="logout-btn" id="devReset" type="button">Réinitialiser (essai en cours)</button>
+  </div>
   <button class="drawer-done" id="appDrawerDone">Terminé</button>
 </div>
 
@@ -1099,10 +1118,79 @@
   var WD=["L","M","M","J","V","S","D"];
   function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[]}; }
 
-  // ---- premium (placeholder, à brancher sur Stripe plus tard) ----
-  var isPremium = false;   // TODO Stripe : compte gratuit (pubs affichées) — passer à true = payant + brancher openUpsell()
-  function canUse(){ return isPremium; }               // un seul test à activer plus tard
+  // ===================== ABONNEMENT / ESSAI GRATUIT =====================
+  // Modèle freemium :
+  //   • Essai gratuit de 14 jours à partir de la date d'inscription (currentUser.created_at).
+  //   • Pendant l'essai OU si abonné payant  -> premium actif (pas de pub, tout débloqué).
+  //   • Essai terminé et non abonné          -> gratuit (pubs + fonctions limitées).
+  //
+  // Stripe (mode test pour l'instant) : produit « Edgio Premium » 4,99€/mois.
+  var TRIAL_DAYS = 14;
+  var STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_7sY00idjSaJY49Ma7V8bS01"; // Payment Link (abonnement)
+  var STRIPE_PORTAL_URL   = ""; // Portail client Stripe (gestion/annulation) — à renseigner quand dispo
+
+  // Drapeaux DEV (par appareil, pour tester les états sans backend) :
+  //   tt_dev_trial_ended=1  -> simule la fin de l'essai maintenant
+  //   tt_dev_premium=1      -> simule un abonnement payant actif
+  function devFlag(k){ try{ return localStorage.getItem(k)==='1'; }catch(e){ return false; } }
+  function setDevFlag(k,v){ try{ v?localStorage.setItem(k,'1'):localStorage.removeItem(k); }catch(e){} }
+
+  function trialEndsAt(){
+    var base = (currentUser && currentUser.created_at) ? new Date(currentUser.created_at) : new Date();
+    return new Date(base.getTime() + TRIAL_DAYS*86400000);
+  }
+  function trialDaysLeft(){
+    if(devFlag('tt_dev_trial_ended')) return 0;
+    return Math.max(0, Math.ceil((trialEndsAt().getTime() - Date.now())/86400000));
+  }
+  function isPaidSubscriber(){ return devFlag('tt_dev_premium'); } // TODO : lire le vrai statut Stripe/Supabase
+  function isTrialActive(){ return !isPaidSubscriber() && trialDaysLeft() > 0; }
+  // Premium actif = abonné payant OU encore en période d'essai
+  function premiumActive(){ return isPaidSubscriber() || trialDaysLeft() > 0; }
+
+  function canUse(){ return premiumActive(); }         // fonctions premium débloquées
   function premBadge(){ return '<span class="premchip">Premium</span>'; }
+
+  // Ouvre la souscription (Stripe). En mode test : redirige vers le Payment Link.
+  function openUpsell(){
+    if(STRIPE_CHECKOUT_URL){ window.open(STRIPE_CHECKOUT_URL, '_blank', 'noopener'); }
+    else { showToast("Abonnement bientôt disponible"); }
+  }
+  function openPortal(){
+    if(STRIPE_PORTAL_URL){ window.open(STRIPE_PORTAL_URL, '_blank', 'noopener'); }
+    else { showToast("Portail de gestion bientôt disponible"); }
+  }
+
+  // Affiche l'état de l'abonnement dans les réglages (#subBox).
+  function renderSubscription(){
+    var box=el("subBox"); if(!box) return;
+    var h="";
+    if(isPaidSubscriber()){
+      h='<div class="sub-card premium">'
+       +'<div class="sub-state"><span class="sub-dot on"></span>Premium actif</div>'
+       +'<div class="sub-desc">Toutes les fonctionnalités débloquées, sans publicité. Abonnement Edgio Premium — 4,99&nbsp;€/mois.</div>'
+       +'<button class="sub-cta ghost" id="subManageBtn" type="button">Gérer mon abonnement</button>'
+       +'</div>';
+    } else if(isTrialActive()){
+      var d=trialDaysLeft();
+      h='<div class="sub-card">'
+       +'<div class="sub-state"><span class="sub-dot warn"></span>Essai gratuit — '+d+' jour'+(d>1?'s':'')+' restant'+(d>1?'s':'')+'</div>'
+       +'<div class="sub-desc">Tu profites de toutes les fonctionnalités sans publicité. À la fin de l\'essai, passe en Premium pour continuer sans limite ni pub.</div>'
+       +'<button class="sub-cta" id="subUpgradeBtn" type="button">Passer Premium</button>'
+       +'<div class="sub-price">4,99&nbsp;€/mois · sans engagement</div>'
+       +'</div>';
+    } else {
+      h='<div class="sub-card">'
+       +'<div class="sub-state"><span class="sub-dot off"></span>Essai terminé</div>'
+       +'<div class="sub-desc">Ton essai gratuit est terminé. Abonne-toi pour débloquer toutes les fonctionnalités et retirer les publicités.</div>'
+       +'<button class="sub-cta" id="subUpgradeBtn" type="button">S\'abonner</button>'
+       +'<div class="sub-price">4,99&nbsp;€/mois · sans engagement</div>'
+       +'</div>';
+    }
+    box.innerHTML=h;
+    var up=el("subUpgradeBtn"); if(up) up.onclick=openUpsell;
+    var mg=el("subManageBtn");  if(mg) mg.onclick=openPortal;
+  }
 
   // ===== ENCARTS MONÉTISATION (affichés uniquement quand le compte est GRATUIT) =====
   // Quand isPremium passe à true (compte payant), tous les encarts sont automatiquement retirés.
@@ -1147,14 +1235,14 @@
   }
   function fillAdSlot(id, slot){
     var box=el(id); if(!box) return;
-    if(isPremium || !slot){ box.innerHTML=""; return; }   // compte payant : aucun encart
+    if(premiumActive() || !slot){ box.innerHTML=""; return; }   // premium (payant ou essai) : aucun encart
     box.innerHTML=adCardHTML(slot);
     var rm=box.querySelector('.js-ad-remove');
     if(rm) rm.onclick=function(){ if(typeof openUpsell==='function'){ openUpsell(); } else { showToast("Premium : bientôt disponible"); } };
   }
   function fillAffSlot(id, aff){
     var box=el(id); if(!box) return;
-    if(isPremium || !aff){ box.innerHTML=""; return; }     // compte payant : aucun encart
+    if(premiumActive() || !aff){ box.innerHTML=""; return; }     // premium (payant ou essai) : aucun encart
     box.innerHTML=affCardHTML(aff);
     if(!aff.url){ var a=box.querySelector('.aff-card'); if(a) a.onclick=function(e){ e.preventDefault(); showToast("Lien partenaire à venir"); }; }
   }
@@ -1315,6 +1403,21 @@
     view={tab:'journal', jlevel:'accounts', accId: active?active.id:null, editKey: todayKey(), anIds: active?[active.id]:[]};
     applyTab('journal');
     el('loadingScreen').style.display='none';
+    handleSubReturn();
+  }
+  // Retour depuis Stripe (Payment Link) : ?sub=success
+  function handleSubReturn(){
+    try{
+      var p=new URLSearchParams(location.search);
+      if(p.get('sub')==='success'){
+        showToast("Merci ! Paiement test reçu ✓");
+        // Sans backend/webhook, le statut payant n'est pas encore synchronisé automatiquement.
+        // En attendant, on active Premium localement pour cet appareil (mode test).
+        setDevFlag('tt_dev_premium',true); setDevFlag('tt_dev_trial_ended',false);
+        refreshAds();
+        history.replaceState({}, '', location.pathname);
+      }
+    }catch(e){}
   }
   async function boot(){
     setAuthMode('login');
@@ -2611,8 +2714,17 @@
       sw.appendChild(s);
     });
     document.querySelectorAll(".appsw").forEach(function(t){ t.classList.toggle("on",!!settings[t.dataset.key]); });
+    renderSubscription();
     el("overlay").classList.add("open"); el("appDrawer").classList.add("open");
   }
+  // Boutons zone test (dev) : basculent les drapeaux locaux puis rafraîchissent l'affichage.
+  (function(){
+    function apply(){ renderSubscription(); refreshAds(); }
+    var a=el("devTrialEnd"), b=el("devPremium"), c=el("devReset");
+    if(a) a.onclick=function(){ setDevFlag('tt_dev_premium',false); setDevFlag('tt_dev_trial_ended',true); apply(); showToast("Essai terminé (simulation)"); };
+    if(b) b.onclick=function(){ setDevFlag('tt_dev_premium',true); setDevFlag('tt_dev_trial_ended',false); apply(); showToast("Premium activé (simulation)"); };
+    if(c) c.onclick=function(){ setDevFlag('tt_dev_premium',false); setDevFlag('tt_dev_trial_ended',false); apply(); showToast("Réinitialisé — essai en cours"); };
+  })();
   document.querySelectorAll(".appsw").forEach(function(t){ t.addEventListener("click",function(){ var k=t.dataset.key; settings[k]=!settings[k]; t.classList.toggle("on",settings[k]); saveSettings({notif_recap:settings.notifRecap,notif_quota:settings.notifQuota,notif_daily:settings.notifDaily}); }); });
   el("logoutBtn").addEventListener("click",async function(){ try{ await db.auth.signOut(); }catch(e){} location.reload(); });
   el("appDrawerDone").addEventListener("click",function(){ closeDrawer(); render(); });
