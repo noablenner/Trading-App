@@ -301,6 +301,18 @@
   .ad-txt .ad-t{font-weight:800;font-size:14.5px;}
   .ad-txt .ad-d{font-size:12px;color:var(--txt-dim);margin-top:2px;}
   .ad-foot{border-top:1px solid var(--line);padding:9px 16px;font-size:11.5px;font-weight:700;color:var(--accent);text-align:center;cursor:pointer;}
+  /* ===== Encarts d'affiliation (partenaires) ===== */
+  .aff-slot{margin-bottom:16px;}
+  .aff-slot:empty{display:none;margin:0;}
+  .aff-card{display:block;text-decoration:none;color:inherit;position:relative;border:1px solid var(--accent-dim);border-radius:14px;background:linear-gradient(180deg,var(--surface-2),var(--surface));overflow:hidden;cursor:pointer;transition:transform .05s;}
+  .aff-card:active{transform:scale(.99);}
+  .aff-card .aff-label{position:absolute;top:8px;right:10px;font-size:8.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);}
+  .aff-body{padding:16px;display:flex;align-items:center;gap:14px;}
+  .aff-logo{flex:0 0 auto;width:48px;height:48px;border-radius:12px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:22px;}
+  .aff-txt{min-width:0;flex:1;}
+  .aff-txt .aff-t{font-weight:800;font-size:14.5px;}
+  .aff-txt .aff-d{font-size:12px;color:var(--txt-dim);margin-top:2px;}
+  .aff-cta{flex:0 0 auto;font-size:11.5px;font-weight:800;color:var(--accent);white-space:nowrap;}
   .rec-badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;background:var(--accent-dim);color:var(--accent);padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:6px;}
   .rec-badge.day{background:#12303a;color:#35c4d6;}
   /* ===== accordéon réglages ===== */
@@ -536,6 +548,7 @@
     </div>
 
     <div id="adGlobal" class="ad-slot"></div>
+    <div id="affGlobal" class="aff-slot"></div>
 
     <div class="card">
       <h2>Calendrier cumulé <span class="hint">tous comptes · lecture seule</span></h2>
@@ -587,6 +600,7 @@
 
   <!-- ========== CALENDRIER ÉCONOMIQUE ========== -->
   <div id="screenCalendar" class="hidden">
+    <div id="adCalendar" class="ad-slot"></div>
     <div class="card">
       <h2>TradingView</h2>
       <div id="econOffline" class="econ-offline hidden">Le calendrier n'a pas pu se charger. Vérifie ta connexion internet, puis reviens sur cet écran.</div>
@@ -608,11 +622,13 @@
 
   <!-- ========== PLAN DE TRADING (lecture seule ; édition via la roue crantée) ========== -->
   <div id="screenPlan" class="hidden">
+    <div id="adPlan" class="ad-slot"></div>
     <div id="planView"></div>
   </div>
 
   <!-- ========== PROP FIRM (briefing pré-séance) ========== -->
   <div id="screenPropfirm" class="hidden">
+    <div id="affPropfirm" class="aff-slot"></div>
     <div id="pfContent"></div>
   </div>
 
@@ -1015,12 +1031,25 @@
   function canUse(){ return isPremium; }               // un seul test à activer plus tard
   function premBadge(){ return '<span class="premchip">Premium</span>'; }
 
-  // ---- encarts publicitaires (affichés uniquement quand le compte est GRATUIT) ----
-  // Quand isPremium passe à true (compte payant), les encarts sont automatiquement retirés.
-  var AD_SLOTS = [
-    { icon:"📈", title:"Passe au niveau supérieur", desc:"Des milliers de traders suivent leurs perfs ici.", cta:"En savoir plus" },
-    { icon:"🚀", title:"Espace publicitaire", desc:"Ta pub pourrait être ici. Contacte-nous.", cta:"Découvrir" }
-  ];
+  // ===== ENCARTS MONÉTISATION (affichés uniquement quand le compte est GRATUIT) =====
+  // Quand isPremium passe à true (compte payant), tous les encarts sont automatiquement retirés.
+  //
+  // 1) PUBLICITÉ display (AdSense plus tard) : encarts "AD_SLOTS" sur les 3 onglets.
+  //    → pour brancher AdSense : remplace adCardHTML() par le bloc <ins class="adsbygoogle" ...>.
+  // 2) AFFILIATION (partenaires : prop firms, brokers) : encarts "AFFILIATES", cliquables.
+  //    → remplace simplement le champ "url" par ton vrai lien affilié (le reste marche déjà).
+
+  var AD_SLOTS = {
+    adPlan:     { icon:"📈", title:"Passe au niveau supérieur", desc:"Des milliers de traders suivent leurs perfs ici.", cta:"En savoir plus" },
+    adGlobal:   { icon:"🚀", title:"Espace publicitaire",       desc:"Ta pub pourrait être ici. Contacte-nous.",        cta:"Découvrir" },
+    adCalendar: { icon:"🗞️", title:"Espace publicitaire",       desc:"Réserve cet emplacement pour ta marque.",         cta:"Découvrir" }
+  };
+  // Encarts d'affiliation. Mets ton lien dans "url" (laisse "" tant que tu n'as pas encore le lien).
+  var AFFILIATES = {
+    affPropfirm: { icon:"🛡️", title:"Prop firm partenaire",  desc:"Finance-toi jusqu'à 200 000 $ avec notre partenaire.", cta:"Profiter →", url:"" },
+    affGlobal:   { icon:"💹", title:"Broker recommandé",      desc:"Ouvre un compte chez notre partenaire.",               cta:"Voir l'offre →", url:"" }
+  };
+
   function adCardHTML(slot){
     return '<div class="ad-card">'+
       '<span class="ad-label">Publicité</span>'+
@@ -1031,16 +1060,35 @@
       '<div class="ad-foot js-ad-remove">✕ Retirer les pubs · passe en Premium</div>'+
     '</div>';
   }
+  function affCardHTML(aff){
+    var href = aff.url ? aff.url : '#';
+    var tgt  = aff.url ? ' target="_blank" rel="sponsored noopener"' : '';
+    return '<a class="aff-card" href="'+href+'"'+tgt+'>'+
+      '<span class="aff-label">Partenaire</span>'+
+      '<div class="aff-body">'+
+        '<div class="aff-logo">'+aff.icon+'</div>'+
+        '<div class="aff-txt"><div class="aff-t">'+aff.title+'</div><div class="aff-d">'+aff.desc+'</div></div>'+
+        '<div class="aff-cta">'+aff.cta+'</div>'+
+      '</div>'+
+    '</a>';
+  }
   function fillAdSlot(id, slot){
     var box=el(id); if(!box) return;
-    if(isPremium){ box.innerHTML=""; return; }   // compte payant : aucun encart
+    if(isPremium || !slot){ box.innerHTML=""; return; }   // compte payant : aucun encart
     box.innerHTML=adCardHTML(slot);
     var rm=box.querySelector('.js-ad-remove');
     if(rm) rm.onclick=function(){ if(typeof openUpsell==='function'){ openUpsell(); } else { showToast("Premium : bientôt disponible"); } };
   }
+  function fillAffSlot(id, aff){
+    var box=el(id); if(!box) return;
+    if(isPremium || !aff){ box.innerHTML=""; return; }     // compte payant : aucun encart
+    box.innerHTML=affCardHTML(aff);
+    if(!aff.url){ var a=box.querySelector('.aff-card'); if(a) a.onclick=function(e){ e.preventDefault(); showToast("Lien partenaire à venir"); }; }
+  }
   function refreshAds(){
-    fillAdSlot("adGlobal", AD_SLOTS[0]);
-    fillAdSlot("adAccount", AD_SLOTS[1]);
+    Object.keys(AD_SLOTS).forEach(function(id){ fillAdSlot(id, AD_SLOTS[id]); });
+    Object.keys(AFFILIATES).forEach(function(id){ fillAffSlot(id, AFFILIATES[id]); });
+    fillAdSlot("adAccount", AD_SLOTS.adGlobal);   // encart pub aussi dans la vue d'un compte (Journal)
   }
 
   // navigation (onglets)
@@ -1838,6 +1886,7 @@
     else if(tab==="plan"){ el("screenPlan").classList.remove("hidden"); if(a){ setGearBadge("📋"); } else { el("gearBtn").classList.add("hidden"); } setTitle("Plan de trading", a?a.name:"", true); renderPlan(); }
     else if(tab==="calendar"){ el("screenCalendar").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Calendrier économique","Événements macro", true); loadEconWidget(); }
     else if(tab==="propfirm"){ el("screenPropfirm").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Prop firm", "Briefing pré-séance", true); renderPropfirm(); }
+    refreshAds();
     requestAnimationFrame(updateTopbarHeight);
   }
   // niveaux du Journal : tous comptes -> un compte -> une séance ; + analyse intégrée
@@ -1848,8 +1897,8 @@
     el("screenAccount").classList.toggle("hidden", lvl!=="account");
     el("screenSession").classList.toggle("hidden", lvl!=="session");
     el("screenAnalysis").classList.toggle("hidden", lvl!=="analysis");
-    if(lvl==="accounts"){ el("backBtn").classList.add("hidden"); setGearBadge("👤"); setTitle("Journal", frDate(), true); renderGlobal(); refreshAds(); }
-    else if(lvl==="account"){ el("backBtn").classList.remove("hidden"); setGearBadge("📓"); setTitle(a.name, a.type+" · journal du compte", true); renderAccountOverview(a); refreshAds(); }
+    if(lvl==="accounts"){ el("backBtn").classList.add("hidden"); setGearBadge("👤"); setTitle("Journal", frDate(), true); renderGlobal(); }
+    else if(lvl==="account"){ el("backBtn").classList.remove("hidden"); setGearBadge("📓"); setTitle(a.name, a.type+" · journal du compte", true); renderAccountOverview(a); }
     else if(lvl==="analysis"){ el("backBtn").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); var multi=(view.anIds||[]).length>1; setTitle("Analyse", multi?"Tous comptes · discipline & psycho":(a?a.name:"")+" · discipline & psycho", true); renderAnalysisScreen(); }
     else { el("backBtn").classList.remove("hidden"); setGearBadge("📓"); var isToday=view.editKey===todayKey(); setTitle(isToday?"Séance du jour":labelKey(view.editKey), a.name+" · "+(isToday?"aujourd'hui":labelKey(view.editKey)), false); renderSession(); }
   }
