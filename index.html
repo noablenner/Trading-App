@@ -488,36 +488,73 @@
   .pf-empty{text-align:center;color:var(--txt-dim);padding:22px 10px;font-size:14px;line-height:1.5;}
 
   /* =====================================================================
-     RESPONSIVE — tablette & ordinateur (le mobile n'est PAS modifié).
-     On ne touche pas au HTML : on élargit seulement la colonne centrale
-     (--appW) et on habille le décor autour pour un rendu "app" propre.
+     RESPONSIVE — le MOBILE n'est PAS modifié (aucune media query < 760px).
+     • Tablette (>=760) : simple élargissement de la colonne centrale.
+     • Ordinateur (>=1100) : VRAI layout desktop — la barre d'onglets du bas
+       devient un MENU LATÉRAL vertical collé à gauche, et le contenu est une
+       colonne centrée dans l'espace restant. 100% CSS, aucun HTML/JS touché.
      ===================================================================== */
 
-  /* --- TABLETTE (paysage/portrait large) --- */
-  @media (min-width:760px){
+  /* --- TABLETTE --- */
+  @media (min-width:760px) and (max-width:1099px){
     :root{ --appW:680px; }
     .app{ padding-left:26px; padding-right:26px; }
     .topbar{ padding-left:26px; padding-right:26px; }
-    /* KPI plus aérés : le compte a 4 tuiles -> 2 colonnes restent bien */
   }
 
-  /* --- ORDINATEUR --- */
+  /* --- ORDINATEUR : menu latéral à gauche --- */
   @media (min-width:1100px){
-    :root{ --appW:820px; }
-    /* Décor ambiant autour de la colonne pour ne pas laisser du vide brut */
-    html{ background:radial-gradient(1200px 800px at 50% -10%, #12161c 0%, var(--bg) 60%); }
-    /* La colonne devient un vrai panneau encadré et surélevé */
-    body{ border-left:1px solid var(--line); border-right:1px solid var(--line); box-shadow:0 0 0 1px rgba(0,0,0,.25), 0 24px 60px rgba(0,0,0,.45); }
-    .topbar{ border-left:1px solid var(--line); border-right:1px solid var(--line); }
-    .tabbar{ border-left:1px solid var(--line); border-right:1px solid var(--line); }
-    .app{ padding-left:32px; padding-right:32px; }
-    .topbar{ padding-left:32px; padding-right:32px; }
-    /* Curseur main sur les éléments interactifs au survol souris */
-    .acct-card,.nav-tile,.tab,.main-cta,.ad-foot,.aff-card,.add-row{ cursor:pointer; }
+    :root{ --sidebarW:250px; --appW:820px; }
+    html{ background:radial-gradient(1200px 900px at 72% -8%, #12161c 0%, var(--bg) 62%); }
+
+    /* Le corps réserve une gouttière à gauche pour la sidebar ; le contenu se
+       centre dans l'espace restant. */
+    body{ max-width:none; margin:0; padding-left:var(--sidebarW); padding-bottom:48px; }
+
+    /* ----- SIDEBAR (l'ancienne .tabbar du bas) ----- */
+    .tabbar{
+      left:0; right:auto; top:0; bottom:0; width:var(--sidebarW); height:100vh;
+      margin:0; max-width:none;
+      flex-direction:column; align-items:stretch; justify-content:flex-start; gap:6px;
+      padding:24px 14px 24px; border-top:none; border-right:1px solid var(--line);
+      box-shadow:6px 0 26px rgba(0,0,0,.28); overflow-y:auto;
+    }
+    .tabbar::before{
+      content:"Trading Journal"; display:block;
+      font-size:16px; font-weight:800; letter-spacing:-.01em; color:var(--txt);
+      padding:6px 12px 16px;
+    }
+    .tab{
+      flex:0 0 auto; flex-direction:row; align-items:center; justify-content:flex-start;
+      gap:13px; padding:12px 14px; font-size:14px; border-radius:12px; text-align:left;
+      color:var(--txt-dim);
+    }
+    .tab .ti{ width:22px; height:22px; opacity:.85; }
+    .tab:hover{ background:var(--surface-2); color:var(--txt); }
+    .tab.on{ background:var(--accent-dim); color:var(--accent); }
+    .tab.on .ti{ opacity:1; }
+    .tab.primary{ color:var(--txt-dim); }
+    .tab.primary.on{ background:var(--accent); color:#fff; }
+    .tab.primary.on .ti{ opacity:1; }
+
+    /* ----- TOPBAR : commence après la sidebar, titre aligné sur la colonne ----- */
+    .topbar{ left:var(--sidebarW); right:0; margin:0; max-width:none; }
+    .topbar-row{ max-width:var(--appW); margin:0 auto; }
+
+    /* ----- CONTENU : colonne centrée dans l'espace à droite de la sidebar ----- */
+    .app{ max-width:var(--appW); margin:0 auto; padding-left:24px; padding-right:24px; }
+
+    /* Barres & tiroirs fixes : décalés derrière la sidebar */
+    .bottombar{ left:var(--sidebarW); right:0; margin:0; max-width:none; }
+    .drawer{ left:var(--sidebarW); right:0; margin:0 auto; max-width:var(--appW); }
+    .toast{ left:calc(50% + (var(--sidebarW) / 2)); }
+
+    /* Curseur main au survol souris */
+    .acct-card,.nav-tile,.tab,.main-cta,.ad-foot,.aff-card,.add-row,.gear,.chev{ cursor:pointer; }
   }
 
   /* --- GRAND ÉCRAN --- */
-  @media (min-width:1500px){
+  @media (min-width:1600px){
     :root{ --appW:900px; }
   }
 </style>
