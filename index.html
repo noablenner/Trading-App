@@ -291,10 +291,11 @@
   /* ===== Premium ===== */
   .premchip{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(90deg,#f4b740,#f4913f);color:#241a00;padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:6px;}
   /* ===== Encarts publicitaires (comptes gratuits uniquement) ===== */
-  .ad-slot{margin-bottom:16px;}
+  /* Les encarts suivent le même rythme que les .card (margin-top:12) pour s'intégrer proprement. */
+  .ad-slot{margin:12px 0 0;}
   .ad-slot:empty{display:none;margin:0;}
-  .ad-card{position:relative;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;}
-  .ad-card .ad-label{position:absolute;top:8px;right:10px;font-size:8.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--txt-faint);}
+  .ad-card{position:relative;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden;}
+  .ad-card .ad-label{position:absolute;top:10px;right:14px;font-size:8.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--txt-faint);}
   .ad-body{padding:18px 16px 16px;display:flex;align-items:center;gap:14px;}
   .ad-thumb{flex:0 0 auto;width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#6d43c7);display:flex;align-items:center;justify-content:center;font-size:24px;}
   .ad-txt{min-width:0;}
@@ -302,17 +303,18 @@
   .ad-txt .ad-d{font-size:12px;color:var(--txt-dim);margin-top:2px;}
   .ad-foot{border-top:1px solid var(--line);padding:9px 16px;font-size:11.5px;font-weight:700;color:var(--accent);text-align:center;cursor:pointer;}
   /* ===== Encarts d'affiliation (partenaires) ===== */
-  .aff-slot{margin-bottom:16px;}
+  /* Le label "Partenaire" est une bande en HAUT (plus en absolu) pour ne jamais chevaucher le CTA. */
+  .aff-slot{margin:12px 0 0;}
   .aff-slot:empty{display:none;margin:0;}
-  .aff-card{display:block;text-decoration:none;color:inherit;position:relative;border:1px solid var(--accent-dim);border-radius:14px;background:linear-gradient(180deg,var(--surface-2),var(--surface));overflow:hidden;cursor:pointer;transition:transform .05s;}
+  .aff-card{display:block;text-decoration:none;color:inherit;border:1px solid var(--accent-dim);border-radius:var(--radius);background:linear-gradient(180deg,var(--surface-2),var(--surface));overflow:hidden;cursor:pointer;transition:transform .05s;}
   .aff-card:active{transform:scale(.99);}
-  .aff-card .aff-label{position:absolute;top:8px;right:10px;font-size:8.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);}
-  .aff-body{padding:16px;display:flex;align-items:center;gap:14px;}
-  .aff-logo{flex:0 0 auto;width:48px;height:48px;border-radius:12px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:22px;}
+  .aff-label{display:block;padding:11px 16px 0;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);}
+  .aff-body{padding:9px 16px 15px;display:flex;align-items:center;gap:14px;}
+  .aff-logo{flex:0 0 auto;width:46px;height:46px;border-radius:12px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:22px;}
   .aff-txt{min-width:0;flex:1;}
   .aff-txt .aff-t{font-weight:800;font-size:14.5px;}
-  .aff-txt .aff-d{font-size:12px;color:var(--txt-dim);margin-top:2px;}
-  .aff-cta{flex:0 0 auto;font-size:11.5px;font-weight:800;color:var(--accent);white-space:nowrap;}
+  .aff-txt .aff-d{font-size:12px;color:var(--txt-dim);margin-top:2px;line-height:1.35;}
+  .aff-cta{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--accent);white-space:nowrap;}
   .rec-badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;background:var(--accent-dim);color:var(--accent);padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:6px;}
   .rec-badge.day{background:#12303a;color:#35c4d6;}
   /* ===== accordéon réglages ===== */
