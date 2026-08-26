@@ -562,18 +562,41 @@
 
     /* ----- CONTENU : zone large, centrée dans l'espace à droite de la sidebar ----- */
     .app{ max-width:var(--appW); margin:0 auto; padding-left:28px; padding-right:28px;
-          padding-top:calc(var(--topbarH,82px) + 30px); }   /* plus d'air sous le titre (ordi) */
+          padding-top:calc(var(--topbarH,82px) + 14px); }   /* air sous le titre (ordi) — un peu remonté */
 
     /* ===== TABLEAU DE BORD ORDINATEUR : colonne principale + RAIL indépendant =====
        Le rail est en position:absolute -> il ne participe PAS à la hauteur des
        sections de gauche : elles gardent leur taille naturelle (aucun espace en
        trop, "comme avant"). On réserve simplement la place du rail à droite
-       (padding-right). Le rail commence à top:12px et les 1res cartes ont
-       margin-top:12px -> la 1re ligne des deux colonnes est alignée. Le reste
-       dessous coule librement, sans contrainte d'alignement. */
+       (padding-right). Les écrans ont un padding-top:12px (qui bloque aussi la
+       fusion des marges) et la 1re carte a sa margin-top annulée -> son bord
+       haut tombe pile sur celui du rail (top:12px). Le reste coule librement. */
     #screenGlobal:not(.hidden), #screenAccount:not(.hidden),
     #screenPlan:not(.hidden), #screenCalendar:not(.hidden), #screenPropfirm:not(.hidden){
       position:relative;
+    }
+    /* Gouttière haute côté colonne principale — bloque la fusion des marges
+       (sans ça, la margin-top:12 de la 1re carte "s'échappait" du conteneur et
+       le rail se retrouvait 12px sous le contenu de gauche). */
+    #screenGlobal, #screenAccount, #screenPlan, #screenCalendar, #screenPropfirm{
+      padding-top:12px;
+    }
+    /* Le padding fournit déjà l'espace : on annule la margin-top du 1er élément
+       en flux (celui juste après le rail, quel qu'il soit — .card, .main-cta,
+       #planView, #pfContent...) pour qu'il colle au top de la colonne. */
+    #screenGlobal > .scr-rail + *,
+    #screenAccount > .scr-rail + *,
+    #screenPlan > .scr-rail + *,
+    #screenCalendar > .scr-rail + *,
+    #screenPropfirm > .scr-rail + *{
+      margin-top:0;
+    }
+    /* #planView et #pfContent sont des conteneurs sans padding ni bordure :
+       sans ça, la margin-top:12 de la 1re carte à l'intérieur "s'échappe" du
+       wrapper et casse à nouveau l'alignement avec le rail. */
+    #screenPlan > #planView > :first-child,
+    #screenPropfirm > #pfContent > :first-child{
+      margin-top:0;
     }
     /* on ne réserve la place du rail QUE s'il y a des encarts à montrer (compte gratuit).
        Premium/essai : pas de rail -> contenu pleine largeur. */
