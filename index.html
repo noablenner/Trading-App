@@ -276,6 +276,8 @@
   .main-btn.done{background:var(--green);}
   /* ===== barre d'onglets (nav bas) ===== */
   .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:45;max-width:var(--appW,520px);margin:0 auto;display:flex;align-items:stretch;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line);padding:9px 8px calc(18px + env(safe-area-inset-bottom));gap:4px;box-shadow:0 -6px 18px rgba(0,0,0,.28);}
+  /* Bloc de marque : uniquement visible en mode sidebar (ordinateur). */
+  .tb-brand{display:none;}
   .tab{flex:1;background:none;border:none;font-family:inherit;color:var(--txt-faint);display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 0;cursor:pointer;font-size:10.5px;font-weight:700;-webkit-tap-highlight-color:transparent;border-radius:14px;transition:color .15s,background .15s;}
   .tab .ti{width:23px;height:23px;display:block;opacity:.7;transition:opacity .15s;}
   .tab .ti svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
@@ -538,11 +540,23 @@
       padding:24px 14px 24px; border-top:none; border-right:1px solid var(--line);
       box-shadow:6px 0 26px rgba(0,0,0,.28); overflow-y:auto;
     }
-    .tabbar::before{
-      content:"Trading Journal"; display:block;
-      font-size:16px; font-weight:800; letter-spacing:-.01em; color:var(--txt);
-      padding:6px 12px 16px;
+    /* Bloc de marque en haut de la sidebar : logo + "Edgio" + baseline. */
+    .tb-brand{
+      display:flex; align-items:center; gap:10px;
+      padding:4px 10px 6px;
     }
+    .tb-brand-logo{
+      width:34px; height:34px; border-radius:9px; flex:0 0 auto; display:block;
+    }
+    .tb-brand-txt{ min-width:0; line-height:1.1; }
+    .tb-brand-name{
+      font-size:17px; font-weight:800; letter-spacing:-.01em; color:var(--txt);
+    }
+    .tb-brand-tag{
+      font-size:11.5px; font-weight:600; color:var(--txt-dim); margin-top:3px;
+    }
+    /* petit filet de séparation avant les onglets */
+    .tb-brand{ border-bottom:1px solid var(--line); margin:0 -4px 10px; padding-bottom:12px; }
     .tab{
       flex:0 0 auto; flex-direction:row; align-items:center; justify-content:flex-start;
       gap:13px; padding:12px 14px; font-size:14px; border-radius:12px; text-align:left;
@@ -867,6 +881,13 @@
 </div>
 
 <nav class="tabbar hidden" id="tabbar">
+  <div class="tb-brand" aria-hidden="true">
+    <img class="tb-brand-logo" src="./icon-192.png" alt="">
+    <div class="tb-brand-txt">
+      <div class="tb-brand-name">Edgio</div>
+      <div class="tb-brand-tag">Mon Journal de Trading</div>
+    </div>
+  </div>
   <button class="tab" data-tab="plan" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 10h7M8.5 14h7M8.5 18h4"/></svg></span><span class="tt">Plan</span></button>
   <button class="tab primary" data-tab="journal" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="13" height="18" rx="2"/><path d="M9.5 3v18"/><path d="M12.5 8.5h4M12.5 12.5h4"/></svg></span><span class="tt">Journal</span></button>
   <button class="tab" data-tab="calendar" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg></span><span class="tt">Calendrier</span></button>
