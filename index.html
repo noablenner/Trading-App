@@ -564,52 +564,37 @@
     .app{ max-width:var(--appW); margin:0 auto; padding-left:28px; padding-right:28px;
           padding-top:calc(var(--topbarH,82px) + 30px); }   /* plus d'air sous le titre (ordi) */
 
-    /* ===== TABLEAUX DE BORD 2 COLONNES (ordinateur) =====
-       Colonne principale à gauche, RAIL (promo/partenaire) à droite.
-       #planView/#pfContent sont APLATIS (display:contents) : leurs cartes deviennent
-       des items de grille, exactement comme Journal/Calendrier -> même alignement.
-       align-items:stretch -> chaque encart du rail épouse la hauteur de la 1re
-       section à sa gauche : les DEUX colonnes démarrent et finissent au même niveau. */
+    /* ===== TABLEAU DE BORD ORDINATEUR : colonne principale + RAIL indépendant =====
+       Le rail est en position:absolute -> il ne participe PAS à la hauteur des
+       sections de gauche : elles gardent leur taille naturelle (aucun espace en
+       trop, "comme avant"). On réserve simplement la place du rail à droite
+       (padding-right). Le rail commence à top:12px et les 1res cartes ont
+       margin-top:12px -> la 1re ligne des deux colonnes est alignée. Le reste
+       dessous coule librement, sans contrainte d'alignement. */
     #screenGlobal:not(.hidden), #screenAccount:not(.hidden),
     #screenPlan:not(.hidden), #screenCalendar:not(.hidden), #screenPropfirm:not(.hidden){
-      display:grid; grid-template-columns:minmax(0,1fr) 340px; column-gap:28px; row-gap:18px;
-      align-items:stretch; grid-auto-flow:row dense;
+      position:relative;
     }
-    /* aplatir les conteneurs Plan & Propfirm */
-    #screenPlan > #planView, #screenPropfirm > #pfContent{ display:contents; }
-    /* COLONNE PRINCIPALE : cartes directes + cartes des conteneurs aplatis, marges annulées
-       (c'est le row-gap qui gère l'espacement de façon uniforme). */
-    #screenGlobal > *, #screenAccount > *, #screenCalendar > *,
-    #screenPlan > *, #screenPropfirm > *,
-    #screenPlan #planView > *, #screenPropfirm #pfContent > *{
-      grid-column:1; margin-top:0; margin-bottom:0;
+    /* on ne réserve la place du rail QUE s'il y a des encarts à montrer (compte gratuit).
+       Premium/essai : pas de rail -> contenu pleine largeur. */
+    #screenGlobal.has-rail, #screenAccount.has-rail, #screenPlan.has-rail,
+    #screenCalendar.has-rail, #screenPropfirm.has-rail{ padding-right:368px; }   /* 340 rail + 28 gouttière */
+    .scr-rail{
+      position:absolute; top:12px; right:0; width:340px;
+      display:flex; flex-direction:column; gap:18px;
     }
-    /* le bouton "Créer une séance" (vue compte) occupe toute la largeur, au-dessus */
-    #screenAccount > .main-cta{ grid-column:1 / -1; }
-    /* RAIL (colonne 2) : les encarts */
-    #screenGlobal > .promo-slot, #screenGlobal > .aff-slot,
-    #screenAccount > .promo-slot,
-    #screenPlan > .promo-slot, #screenCalendar > .promo-slot,
-    #screenPropfirm > .promo-slot, #screenPropfirm > .aff-slot{ grid-column:2; display:flex; }
-    /* les cartes du rail remplissent la hauteur de leur ligne */
-    #screenGlobal > .promo-slot > .promo-card, #screenGlobal > .aff-slot > .aff-card,
-    #screenAccount > .promo-slot > .promo-card,
-    #screenPlan > .promo-slot > .promo-card, #screenCalendar > .promo-slot > .promo-card,
-    #screenPropfirm > .promo-slot > .promo-card, #screenPropfirm > .aff-slot > .aff-card{
-      flex:1; display:flex; flex-direction:column;
-    }
-    #screenGlobal > .aff-slot > .aff-card > .aff-body,
-    #screenPropfirm > .aff-slot > .aff-card > .aff-body{ flex:1; }
+    .scr-rail:empty{ display:none; }
+    .scr-rail > *{ margin:0; }                 /* espacement géré par le gap du rail */
+    .scr-rail > #promoPropfirm{ display:flex; } /* promo Propfirm : visible dans le rail (ordi) */
 
-    /* Format "grand encart vertical" pour le promo dans le rail (vignette qui s'étire). */
-    #screenGlobal > .promo-slot .promo-body, #screenAccount > .promo-slot .promo-body,
-    #screenPlan > .promo-slot .promo-body, #screenCalendar > .promo-slot .promo-body,
-    #screenPropfirm > .promo-slot .promo-body{
+    /* ENCARTS DU RAIL : même taille FIXE sur toutes les pages (promo = rectangle
+       vertical, un peu plus court que l'ancien Calendrier). */
+    .scr-rail > .promo-slot{ display:flex; }
+    .scr-rail > .promo-slot > .promo-card{ flex:1; display:flex; flex-direction:column; height:400px; }
+    .scr-rail > .promo-slot .promo-body{
       flex:1; flex-direction:column; align-items:flex-start; text-align:left; gap:14px; padding:18px;
     }
-    #screenGlobal > .promo-slot .promo-thumb, #screenAccount > .promo-slot .promo-thumb,
-    #screenPlan > .promo-slot .promo-thumb, #screenCalendar > .promo-slot .promo-thumb,
-    #screenPropfirm > .promo-slot .promo-thumb{
+    .scr-rail > .promo-slot .promo-thumb{
       width:100%; height:auto; flex:1; min-height:120px; border-radius:12px; font-size:44px;
     }
 
@@ -670,6 +655,7 @@
 
   <!-- ========== LEVEL 0 : GLOBAL ========== -->
   <div id="screenGlobal">
+    <div class="scr-rail"></div>
     <div id="promoJournal" class="promo-slot"></div>
     <div class="card">
       <h2>Aujourd'hui — tous comptes cumulés</h2>
@@ -711,6 +697,7 @@
 
   <!-- ========== VUE D'UN COMPTE (journal du compte) ========== -->
   <div id="screenAccount" class="hidden">
+    <div class="scr-rail"></div>
     <button class="main-cta" id="addSessionBtn" type="button">+ Créer une nouvelle séance</button>
     <div class="card">
       <h2>Résultats <span class="hint">chiffré · performance</span></h2>
@@ -743,6 +730,7 @@
 
   <!-- ========== CALENDRIER ÉCONOMIQUE ========== -->
   <div id="screenCalendar" class="hidden">
+    <div class="scr-rail"></div>
     <div id="promoCalendar" class="promo-slot"></div>
     <div class="card">
       <h2>TradingView</h2>
@@ -765,12 +753,14 @@
 
   <!-- ========== PLAN DE TRADING (lecture seule ; édition via la roue crantée) ========== -->
   <div id="screenPlan" class="hidden">
+    <div class="scr-rail"></div>
     <div id="promoPlan" class="promo-slot"></div>
     <div id="planView"></div>
   </div>
 
   <!-- ========== PROP FIRM (briefing pré-séance) ========== -->
   <div id="screenPropfirm" class="hidden">
+    <div class="scr-rail"></div>
     <div id="promoPropfirm" class="promo-slot"></div>
     <div id="affPropfirm" class="aff-slot"></div>
     <div id="pfContent"></div>
@@ -1312,7 +1302,44 @@
     Object.keys(PROMO_SLOTS).forEach(function(id){ fillPromoSlot(id, PROMO_SLOTS[id]); });
     Object.keys(AFFILIATES).forEach(function(id){ fillAffSlot(id, AFFILIATES[id]); });
     fillPromoSlot("promoAccount", PROMO_SLOTS.promoJournal);   // encart pub aussi dans la vue d'un compte (Journal)
+    applyRailLayout();
   }
+
+  // ---- Mise en page du RAIL (ordinateur uniquement) ----
+  // Sur ordinateur, on déplace les encarts dans un rail indépendant (.scr-rail) :
+  // le rail n'influence plus la hauteur des sections principales -> elles gardent
+  // leur taille naturelle, et seule la 1re ligne des 2 colonnes est alignée.
+  // Sur mobile/tablette : on remet chaque encart à sa position d'origine (DOM inchangé).
+  var RAIL_SLOTS = {
+    screenGlobal:   ["promoJournal","affGlobal"],
+    screenAccount:  ["promoAccount"],
+    screenPlan:     ["promoPlan"],
+    screenCalendar: ["promoCalendar"],
+    screenPropfirm: ["promoPropfirm","affPropfirm"]
+  };
+  var _railOrig = {};
+  var _railMql = window.matchMedia("(min-width:1100px)");
+  function applyRailLayout(){
+    // Rail affiché uniquement sur ordinateur ET quand il y a des encarts (compte gratuit).
+    var showRail = _railMql.matches && !premiumActive();
+    Object.keys(RAIL_SLOTS).forEach(function(scrId){
+      var scr = el(scrId); if(!scr) return;
+      var rail = scr.querySelector(":scope > .scr-rail"); if(!rail) return;
+      scr.classList.toggle("has-rail", showRail);
+      RAIL_SLOTS[scrId].forEach(function(id){
+        var slot = el(id); if(!slot) return;
+        if(!_railOrig[id]) _railOrig[id] = { parent: slot.parentNode, next: slot.nextSibling };
+        if(showRail){
+          if(slot.parentNode !== rail) rail.appendChild(slot);
+        } else {
+          var o = _railOrig[id];
+          if(o && slot.parentNode !== o.parent) o.parent.insertBefore(slot, o.next);
+        }
+      });
+    });
+  }
+  try{ _railMql.addEventListener("change", applyRailLayout); }catch(e){ try{ _railMql.addListener(applyRailLayout); }catch(_){} }
+  window.addEventListener("resize", applyRailLayout);
 
   // navigation (onglets)
   var view={tab:"journal", jlevel:"accounts", accId:null, editKey:null, anIds:[]};
