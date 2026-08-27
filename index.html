@@ -469,7 +469,14 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* auth / loading screens */
-  #authScreen,#loadingScreen{position:fixed;inset:0;z-index:140;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;}
+  #authScreen,#loadingScreen,#paywallScreen{position:fixed;inset:0;z-index:140;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;overflow-y:auto;}
+  #paywallScreen .auth-card .sub-card{margin-top:20px;}
+  .update-banner{position:fixed;left:0;right:0;top:0;z-index:160;max-width:var(--appW,520px);margin:0 auto;background:var(--accent);color:#fff;font-weight:700;font-size:13.5px;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top));display:none;align-items:center;justify-content:space-between;gap:10px;}
+  .update-banner.show{display:flex;}
+  .update-banner button{border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.15);color:#fff;font-family:inherit;font-weight:800;font-size:12.5px;padding:6px 12px;border-radius:20px;cursor:pointer;flex:0 0 auto;}
+  .install-row{margin-top:10px;}
+  .install-btn{width:100%;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);font-family:inherit;font-weight:700;font-size:14px;padding:12px;border-radius:12px;cursor:pointer;}
+  .ios-help{font-size:12px;color:var(--txt-dim);line-height:1.5;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-top:10px;}
   #loadingScreen{gap:16px;color:var(--txt-dim);}
   .spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
@@ -666,6 +673,10 @@
     <div style="text-align:center;"><img src="./icon-192.png" class="auth-logo" alt=""></div>
     <h1 id="authTitle">Connexion</h1>
     <p class="a-sub" id="authSub">Connecte-toi pour retrouver tes comptes.</p>
+    <div class="field-2 hidden" id="authNameRow">
+      <div class="field"><label for="authFirst">Prénom</label><input id="authFirst" type="text" autocomplete="given-name" placeholder="Prénom"></div>
+      <div class="field"><label for="authLast">Nom</label><input id="authLast" type="text" autocomplete="family-name" placeholder="Nom"></div>
+    </div>
     <label for="authEmail">Email</label>
     <input id="authEmail" type="email" autocomplete="email" placeholder="ton@email.com">
     <label for="authPass">Mot de passe</label>
@@ -675,6 +686,29 @@
     <button class="auth-btn" id="authBtn">Se connecter</button>
     <div class="auth-toggle" id="authToggle">Pas encore de compte ? <a id="authSwitch">Créer un compte</a></div>
   </div>
+</div>
+
+<!-- Paywall (bloque toute l'app à la fin de l'essai, sauf abonnement actif) -->
+<div id="paywallScreen" style="display:none;">
+  <div class="auth-card">
+    <div style="text-align:center;"><img src="./icon-192.png" class="auth-logo" alt=""></div>
+    <h1>Essai terminé</h1>
+    <p class="a-sub">Ton essai gratuit de 14 jours est terminé. Abonne-toi pour continuer à utiliser Edgio.</p>
+    <div class="sub-card premium" style="text-align:left;">
+      <div class="sub-state"><span class="sub-dot on"></span>Edgio Premium</div>
+      <div class="sub-desc">Accès complet à ton journal de trading, sans publicité.</div>
+      <button class="sub-cta" id="paywallSubBtn" type="button">S'abonner — 4,99&nbsp;€/mois</button>
+      <div class="sub-price">Sans engagement · résiliable à tout moment</div>
+    </div>
+    <div class="auth-err" id="paywallErr"></div>
+    <button class="logout-btn" style="margin-top:14px;" id="paywallLogoutBtn">Se déconnecter</button>
+  </div>
+</div>
+
+<!-- Bandeau mise à jour PWA -->
+<div class="update-banner" id="updateBanner">
+  <span>Nouvelle version disponible</span>
+  <button id="updateReloadBtn" type="button">Recharger</button>
 </div>
 
 <div class="topbar">
@@ -696,6 +730,7 @@
   <div id="screenGlobal">
     <div class="scr-rail"></div>
     <div id="promoJournal" class="promo-slot"></div>
+    <div id="greeting" class="an-intro" style="margin:0 2px 4px;"></div>
     <div class="card">
       <h2>Aujourd'hui — tous comptes cumulés</h2>
       <div class="kpis">
@@ -1083,20 +1118,17 @@
   <div class="set-group"><div class="set-label">Compte</div>
     <div class="acct-box">
       <div class="avatar" id="userAvatar">N</div>
-      <div style="min-width:0;"><div class="ab-t" id="userEmail">—</div><div class="ab-s">Connecté · données synchronisées ☁️</div></div>
+      <div style="min-width:0;"><div class="ab-t" id="userName">—</div><div class="ab-s" id="userEmail">—</div></div>
     </div>
     <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
   </div>
   <div class="set-group"><div class="set-label">Mon abonnement</div>
     <div id="subBox"></div>
   </div>
-  <div class="set-group"><div class="set-label">Apparence — couleur de l'app</div><div class="sw-lg" id="appSwatches"></div></div>
-  <div class="set-group" id="devGroup"><div class="set-label">Zone test (dev)</div>
-    <div class="dsub" style="margin:0 0 8px;">Simule les états d'abonnement sur cet appareil (sans backend). À retirer avant le lancement.</div>
-    <button class="logout-btn" id="devTrialEnd" type="button">Simuler la fin de l'essai</button>
-    <button class="logout-btn" id="devPremium" type="button">Simuler Premium (payant)</button>
-    <button class="logout-btn" id="devReset" type="button">Réinitialiser (essai en cours)</button>
+  <div class="set-group hidden" id="installGroup"><div class="set-label">Application</div>
+    <div id="installBox"></div>
   </div>
+  <div class="set-group"><div class="set-label">Apparence — couleur de l'app</div><div class="sw-lg" id="appSwatches"></div></div>
   <button class="drawer-done" id="appDrawerDone">Terminé</button>
 </div>
 
@@ -1151,6 +1183,7 @@
   var SUPABASE_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhdXd4eHV4cnVmYnpod2N0c3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczODIwNDAsImV4cCI6MjEwMjk1ODA0MH0.Vlox2p2VRVEGstp-5q0DjMe5ybCtJGPS5nRcArJP5u8";
   var db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
   var currentUser=null;
+  var profile=null;
 
   var COLORS=[
     {id:"bleu",accent:"#4f8cff",dim:"#16233d"},
@@ -1216,46 +1249,71 @@
   function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[]}; }
 
   // ===================== ABONNEMENT / ESSAI GRATUIT =====================
-  // Modèle freemium :
-  //   • Essai gratuit de 14 jours à partir de la date d'inscription (currentUser.created_at).
-  //   • Pendant l'essai OU si abonné payant  -> premium actif (pas de pub, tout débloqué).
-  //   • Essai terminé et non abonné          -> gratuit (pubs + fonctions limitées).
-  //
-  // Stripe (mode test pour l'instant) : produit « Edgio Premium » 4,99€/mois.
-  var TRIAL_DAYS = 14;
-  var STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_7sY00idjSaJY49Ma7V8bS01"; // Payment Link (abonnement)
-  var STRIPE_PORTAL_URL   = ""; // Portail client Stripe (gestion/annulation) — à renseigner quand dispo
-
-  // Drapeaux DEV (par appareil, pour tester les états sans backend) :
-  //   tt_dev_trial_ended=1  -> simule la fin de l'essai maintenant
-  //   tt_dev_premium=1      -> simule un abonnement payant actif
-  function devFlag(k){ try{ return localStorage.getItem(k)==='1'; }catch(e){ return false; } }
-  function setDevFlag(k,v){ try{ v?localStorage.setItem(k,'1'):localStorage.removeItem(k); }catch(e){} }
-
-  function trialEndsAt(){
-    var base = (currentUser && currentUser.created_at) ? new Date(currentUser.created_at) : new Date();
-    return new Date(base.getTime() + TRIAL_DAYS*86400000);
+  // Modèle « tout ou rien » :
+  //   • Essai gratuit de 14 jours (profiles.trial_ends_at, posé côté serveur à l'inscription).
+  //   • Pendant l'essai OU si abonnement Stripe actif -> accès complet à l'app.
+  //   • Essai terminé et pas d'abonnement actif       -> paywall, app bloquée.
+  // Le statut réel (subscription_status) n'est JAMAIS modifiable par le client : seul
+  // le webhook Stripe (côté serveur) le fait. Le RLS applique aussi ce gate côté base.
+  async function loadProfile(){
+    var r=await db.from('profiles').select('*').eq('id',currentUser.id).maybeSingle();
+    if(r.error){ console.error('profil',r.error); profile=null; return; }
+    profile=r.data;
+    // Filet de sécurité : le trigger d'inscription crée la ligne, mais si jamais
+    // elle manque (compte créé avant la migration), on retente une fois après 1s.
+    if(!profile){
+      await new Promise(function(res){ setTimeout(res,1000); });
+      var r2=await db.from('profiles').select('*').eq('id',currentUser.id).maybeSingle();
+      profile=r2.data||null;
+    }
   }
   function trialDaysLeft(){
-    if(devFlag('tt_dev_trial_ended')) return 0;
-    return Math.max(0, Math.ceil((trialEndsAt().getTime() - Date.now())/86400000));
+    if(!profile || !profile.trial_ends_at) return 0;
+    return Math.max(0, Math.ceil((new Date(profile.trial_ends_at).getTime() - Date.now())/86400000));
   }
-  function isPaidSubscriber(){ return devFlag('tt_dev_premium'); } // TODO : lire le vrai statut Stripe/Supabase
+  function isPaidSubscriber(){ return !!profile && profile.subscription_status==='active'; }
   function isTrialActive(){ return !isPaidSubscriber() && trialDaysLeft() > 0; }
-  // Premium actif = abonné payant OU encore en période d'essai
+  // Premium actif = abonnement Stripe actif OU encore en période d'essai
   function premiumActive(){ return isPaidSubscriber() || trialDaysLeft() > 0; }
 
   function canUse(){ return premiumActive(); }         // fonctions premium débloquées
   function premBadge(){ return '<span class="premchip">Premium</span>'; }
 
-  // Ouvre la souscription (Stripe). En mode test : redirige vers le Payment Link.
-  function openUpsell(){
-    if(STRIPE_CHECKOUT_URL){ window.open(STRIPE_CHECKOUT_URL, '_blank', 'noopener'); }
-    else { showToast("Abonnement bientôt disponible"); }
+  function showPaywall(fromCheckout){
+    el('loadingScreen').style.display='none';
+    el('authScreen').style.display='none';
+    el('paywallScreen').style.display='flex';
+    var err=el('paywallErr');
+    if(fromCheckout){ err.textContent="Paiement reçu, activation en cours… Réessaie dans quelques secondes."; err.classList.add('show'); }
+    else { err.classList.remove('show'); }
   }
-  function openPortal(){
-    if(STRIPE_PORTAL_URL){ window.open(STRIPE_PORTAL_URL, '_blank', 'noopener'); }
-    else { showToast("Portail de gestion bientôt disponible"); }
+  function hidePaywall(){ el('paywallScreen').style.display='none'; }
+
+  // Ouvre la Checkout Session Stripe (créée côté serveur, clé secrète jamais exposée).
+  async function openUpsell(btn){
+    if(btn){ btn.disabled=true; btn.textContent="…"; }
+    try{
+      var r=await db.functions.invoke('create-checkout-session');
+      if(r.error || !r.data || !r.data.url) throw (r.error||new Error('no url'));
+      location.href=r.data.url;
+    }catch(e){
+      console.error('checkout',e);
+      showToast("Impossible d'ouvrir le paiement. Réessaie.");
+      if(btn){ btn.disabled=false; btn.textContent="S'abonner — 4,99 €/mois"; }
+    }
+  }
+  // Ouvre le Billing Portal Stripe (gestion/annulation de l'abonnement).
+  async function openPortal(btn){
+    if(btn){ btn.disabled=true; btn.textContent="…"; }
+    try{
+      var r=await db.functions.invoke('create-portal-session');
+      if(r.error || !r.data || !r.data.url) throw (r.error||new Error('no url'));
+      location.href=r.data.url;
+    }catch(e){
+      console.error('portal',e);
+      showToast("Impossible d'ouvrir le portail. Réessaie.");
+      if(btn){ btn.disabled=false; btn.textContent="Gérer mon abonnement"; }
+    }
   }
 
   // Affiche l'état de l'abonnement dans les réglages (#subBox).
@@ -1267,6 +1325,12 @@
        +'<div class="sub-state"><span class="sub-dot on"></span>Premium actif</div>'
        +'<div class="sub-desc">Toutes les fonctionnalités débloquées, sans publicité. Abonnement Edgio Premium — 4,99&nbsp;€/mois.</div>'
        +'<button class="sub-cta ghost" id="subManageBtn" type="button">Gérer mon abonnement</button>'
+       +'</div>';
+    } else if(profile && profile.subscription_status==='past_due'){
+      h='<div class="sub-card">'
+       +'<div class="sub-state"><span class="sub-dot warn"></span>Paiement échoué</div>'
+       +'<div class="sub-desc">Ton dernier paiement a échoué. Mets à jour ton moyen de paiement pour garder l\'accès.</div>'
+       +'<button class="sub-cta ghost" id="subManageBtn" type="button">Mettre à jour ma carte</button>'
        +'</div>';
     } else if(isTrialActive()){
       var d=trialDaysLeft();
@@ -1285,8 +1349,8 @@
        +'</div>';
     }
     box.innerHTML=h;
-    var up=el("subUpgradeBtn"); if(up) up.onclick=openUpsell;
-    var mg=el("subManageBtn");  if(mg) mg.onclick=openPortal;
+    var up=el("subUpgradeBtn"); if(up) up.onclick=function(){ openUpsell(up); };
+    var mg=el("subManageBtn");  if(mg) mg.onclick=function(){ openPortal(mg); };
   }
 
   // ===== ENCARTS MONÉTISATION (affichés uniquement quand le compte est GRATUIT) =====
@@ -1495,6 +1559,7 @@
     el('authBtn').textContent = m==='login'?'Se connecter':"Créer mon compte";
     el('authToggle').innerHTML = m==='login' ? "Pas encore de compte ? <a id='authSwitch'>Créer un compte</a>" : "Déjà un compte ? <a id='authSwitch'>Se connecter</a>";
     el('authSwitch').onclick=function(){ setAuthMode(m==='login'?'signup':'login'); clearAuthMsg(); };
+    el('authNameRow').classList.toggle('hidden', m!=='signup');
     el('authErr').classList.remove('show'); el('authOk').classList.remove('show');
   }
   function authErr(msg){ var e=el('authErr'); e.textContent=msg; e.classList.add('show'); el('authOk').classList.remove('show'); }
@@ -1503,12 +1568,14 @@
   function showAuth(){ el('loadingScreen').style.display='none'; el('authScreen').style.display='flex'; }
   async function doAuth(){
     var email=el('authEmail').value.trim(), pass=el('authPass').value;
+    var first=el('authFirst').value.trim(), last=el('authLast').value.trim();
     if(!email||!pass){ authErr("Entre ton email et ton mot de passe."); return; }
+    if(authMode==='signup' && (!first||!last)){ authErr("Entre ton prénom et ton nom."); return; }
     if(pass.length<6){ authErr("Le mot de passe doit faire au moins 6 caractères."); return; }
     var btn=el('authBtn'); btn.disabled=true; var old=btn.textContent; btn.textContent="…";
     try{
       if(authMode==='signup'){
-        var r=await db.auth.signUp({email:email,password:pass});
+        var r=await db.auth.signUp({email:email,password:pass,options:{data:{first_name:first,last_name:last}}});
         if(r.error){ authErr(traduitErreur(r.error.message)); }
         else if(r.data.session){ currentUser=r.data.session.user; await enterApp(); }
         else { authOk("Compte créé ! Vérifie ta boîte mail pour confirmer, puis connecte-toi."); setAuthMode('login'); }
@@ -1530,29 +1597,43 @@
   async function enterApp(){
     el('authScreen').style.display='none';
     el('loadingScreen').style.display='flex';
+    try{ await loadProfile(); }catch(e){ console.error(e); }
+    var checkoutState=consumeCheckoutParam();
+    if(checkoutState==='success' && !premiumActive()){ await pollProfileActive(); }
+    if(!premiumActive()){ showPaywall(checkoutState==='success'); return; }
+    hidePaywall();
     try{ await loadAll(); }catch(e){ console.error(e); }
-    el('userEmail').textContent=currentUser.email||"—";
-    el('userAvatar').textContent=(currentUser.email||"?").charAt(0).toUpperCase();
+    applyUserBadges();
     var stored=null; try{ stored=localStorage.getItem('activeAcct'); }catch(e){}
     var active = accounts.find(function(a){return a.id===stored;}) || accounts[0] || null;
     view={tab:'journal', jlevel:'accounts', accId: active?active.id:null, editKey: todayKey(), anIds: active?[active.id]:[]};
     applyTab('journal');
     el('loadingScreen').style.display='none';
-    handleSubReturn();
+    if(checkoutState==='success') showToast("Merci ! Abonnement activé ✓");
+    initInstallPrompt();
   }
-  // Retour depuis Stripe (Payment Link) : ?sub=success
-  function handleSubReturn(){
-    try{
-      var p=new URLSearchParams(location.search);
-      if(p.get('sub')==='success'){
-        showToast("Merci ! Paiement test reçu ✓");
-        // Sans backend/webhook, le statut payant n'est pas encore synchronisé automatiquement.
-        // En attendant, on active Premium localement pour cet appareil (mode test).
-        setDevFlag('tt_dev_premium',true); setDevFlag('tt_dev_trial_ended',false);
-        refreshAds();
-        history.replaceState({}, '', location.pathname);
-      }
-    }catch(e){}
+  function applyUserBadges(){
+    var name=[profile&&profile.first_name, profile&&profile.last_name].filter(Boolean).join(' ');
+    el('userName').textContent=name||"—";
+    el('userEmail').textContent=currentUser.email||"—";
+    el('userAvatar').textContent=((profile&&profile.first_name)||currentUser.email||"?").charAt(0).toUpperCase();
+    var g=el('greeting'); if(g) g.textContent = (profile&&profile.first_name) ? ("Bonjour "+profile.first_name+" 👋") : "";
+  }
+  // Retour depuis Stripe Checkout : ?checkout=success|cancel — lit puis nettoie l'URL.
+  function consumeCheckoutParam(){
+    var p; try{ p=new URLSearchParams(location.search); }catch(e){ return null; }
+    var v=p.get('checkout');
+    if(v){ history.replaceState({}, '', location.pathname); }
+    return v;
+  }
+  // Le webhook Stripe met à jour le profil côté serveur après le paiement ;
+  // on relit le profil plusieurs fois (avec un court délai) le temps qu'il arrive.
+  async function pollProfileActive(){
+    for(var i=0;i<6;i++){
+      await loadProfile();
+      if(premiumActive()) return;
+      await new Promise(function(r){ setTimeout(r,2000); });
+    }
   }
   async function boot(){
     setAuthMode('login');
@@ -2850,16 +2931,11 @@
     });
     document.querySelectorAll(".appsw").forEach(function(t){ t.classList.toggle("on",!!settings[t.dataset.key]); });
     renderSubscription();
+    renderInstallBox();
     el("overlay").classList.add("open"); el("appDrawer").classList.add("open");
   }
-  // Boutons zone test (dev) : basculent les drapeaux locaux puis rafraîchissent l'affichage.
-  (function(){
-    function apply(){ renderSubscription(); refreshAds(); }
-    var a=el("devTrialEnd"), b=el("devPremium"), c=el("devReset");
-    if(a) a.onclick=function(){ setDevFlag('tt_dev_premium',false); setDevFlag('tt_dev_trial_ended',true); apply(); showToast("Essai terminé (simulation)"); };
-    if(b) b.onclick=function(){ setDevFlag('tt_dev_premium',true); setDevFlag('tt_dev_trial_ended',false); apply(); showToast("Premium activé (simulation)"); };
-    if(c) c.onclick=function(){ setDevFlag('tt_dev_premium',false); setDevFlag('tt_dev_trial_ended',false); apply(); showToast("Réinitialisé — essai en cours"); };
-  })();
+  el("paywallSubBtn").addEventListener("click",function(){ openUpsell(el("paywallSubBtn")); });
+  el("paywallLogoutBtn").addEventListener("click",async function(){ try{ await db.auth.signOut(); }catch(e){} location.reload(); });
   document.querySelectorAll(".appsw").forEach(function(t){ t.addEventListener("click",function(){ var k=t.dataset.key; settings[k]=!settings[k]; t.classList.toggle("on",settings[k]); saveSettings({notif_recap:settings.notifRecap,notif_quota:settings.notifQuota,notif_daily:settings.notifDaily}); }); });
   el("logoutBtn").addEventListener("click",async function(){ try{ await db.auth.signOut(); }catch(e){} location.reload(); });
   el("appDrawerDone").addEventListener("click",function(){ closeDrawer(); render(); });
@@ -2917,10 +2993,70 @@
   el("confirmOk").addEventListener("click",function(){ var f=pending; closeConfirm(); if(f)f(); });
   el("deleteAcctBtn").addEventListener("click",function(){ var a=acc(); if(!a)return; openConfirm("Supprimer ce compte ?","« "+a.name+" » et toutes ses données seront définitivement supprimés.","Supprimer",function(){ deleteAccount(a.id); }); });
 
-  // register service worker (only over http/https, not file://)
-  if('serviceWorker' in navigator && location.protocol.indexOf('http')===0){
-    navigator.serviceWorker.register('./sw.js').catch(function(){});
+  // ===================== PWA : mise à jour =====================
+  // Le service worker garde l'ancienne version active tant que l'utilisateur n'a
+  // pas cliqué "Recharger" (voir sw.js : skipWaiting seulement sur message).
+  var waitingWorker=null;
+  function showUpdateBanner(worker){
+    waitingWorker=worker;
+    el('updateBanner').classList.add('show');
   }
+  if('serviceWorker' in navigator && location.protocol.indexOf('http')===0){
+    navigator.serviceWorker.register('./sw.js').then(function(reg){
+      if(reg.waiting && reg.active) showUpdateBanner(reg.waiting);
+      reg.addEventListener('updatefound', function(){
+        var nw=reg.installing;
+        if(!nw) return;
+        nw.addEventListener('statechange', function(){
+          if(nw.state==='installed' && navigator.serviceWorker.controller) showUpdateBanner(nw);
+        });
+      });
+    }).catch(function(){});
+    var reloading=false;
+    navigator.serviceWorker.addEventListener('controllerchange', function(){
+      if(reloading) return; reloading=true; location.reload();
+    });
+    el('updateReloadBtn').addEventListener('click', function(){
+      if(waitingWorker) waitingWorker.postMessage({type:'SKIP_WAITING'});
+    });
+  }
+
+  // ===================== PWA : installation =====================
+  var deferredInstallPrompt=null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredInstallPrompt=e;
+    renderInstallBox();
+  });
+  window.addEventListener('appinstalled', function(){
+    deferredInstallPrompt=null;
+    renderInstallBox();
+  });
+  function isStandalone(){
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+  }
+  function isIos(){ return /iphone|ipad|ipod/i.test(navigator.userAgent||''); }
+  function renderInstallBox(){
+    var group=el('installGroup'), box=el('installBox');
+    if(!group||!box) return;
+    if(isStandalone()){ group.classList.add('hidden'); box.innerHTML=""; return; }
+    if(deferredInstallPrompt){
+      group.classList.remove('hidden');
+      box.innerHTML='<div class="install-row"><button class="install-btn" id="pwaInstallBtn" type="button">📲 Installer l\'application</button></div>';
+      el('pwaInstallBtn').onclick=async function(){
+        deferredInstallPrompt.prompt();
+        try{ await deferredInstallPrompt.userChoice; }catch(e){}
+        deferredInstallPrompt=null;
+        renderInstallBox();
+      };
+    } else if(isIos()){
+      group.classList.remove('hidden');
+      box.innerHTML='<div class="ios-help">📲 Pour installer l\'app : touche <b>Partager</b> puis <b>Sur l\'écran d\'accueil</b>.</div>';
+    } else {
+      group.classList.add('hidden'); box.innerHTML="";
+    }
+  }
+  function initInstallPrompt(){ renderInstallBox(); }
 
   boot();
 })();

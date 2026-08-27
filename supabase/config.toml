@@ -1,0 +1,10 @@
+[functions.create-checkout-session]
+verify_jwt = true
+
+[functions.create-portal-session]
+verify_jwt = true
+
+# Stripe appelle ce endpoint sans JWT Supabase : la sécurité vient de la
+# vérification de signature Stripe faite dans le code de la fonction.
+[functions.stripe-webhook]
+verify_jwt = false
