@@ -1119,6 +1119,7 @@
     <div class="acct-box">
       <div class="avatar" id="userAvatar">N</div>
       <div style="min-width:0;"><div class="ab-t" id="userName">—</div><div class="ab-s" id="userEmail">—</div></div>
+      <button class="connect-btn" id="editProfileBtn" type="button">Modifier</button>
     </div>
     <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
   </div>
@@ -1130,6 +1131,24 @@
   </div>
   <div class="set-group"><div class="set-label">Apparence — couleur de l'app</div><div class="sw-lg" id="appSwatches"></div></div>
   <button class="drawer-done" id="appDrawerDone">Terminé</button>
+</div>
+
+<!-- Modifier mon profil (prénom, nom, email) -->
+<div class="drawer" id="profileDrawer">
+  <div class="grab"></div>
+  <h3>Modifier mon profil</h3>
+  <div class="dsub">Prénom, nom et email sont synchronisés avec ton compte Supabase.</div>
+  <div class="field-2">
+    <div class="field"><label for="profFirst">Prénom</label><input id="profFirst" type="text" autocomplete="given-name"></div>
+    <div class="field"><label for="profLast">Nom</label><input id="profLast" type="text" autocomplete="family-name"></div>
+  </div>
+  <div class="set-group">
+    <label for="profEmail" style="display:block;font-size:12px;color:var(--txt-dim);font-weight:600;margin:14px 0 6px;">Email</label>
+    <input id="profEmail" class="set-input" type="email" autocomplete="email">
+  </div>
+  <div class="auth-err" id="profErr"></div>
+  <div class="auth-ok" id="profOk"></div>
+  <button class="drawer-done sticky" id="profSaveBtn">Enregistrer</button>
 </div>
 
 <!-- Analyse : sélecteur de comptes -->
@@ -1614,6 +1633,49 @@
     el('userEmail').textContent=currentUser.email||"—";
     el('userAvatar').textContent=((profile&&profile.first_name)||currentUser.email||"?").charAt(0).toUpperCase();
     var g=el('greeting'); if(g) g.textContent = (profile&&profile.first_name) ? ("Bonjour "+profile.first_name+" 👋") : "";
+  }
+  // ===================== MODIFIER MON PROFIL (prénom / nom / email) =====================
+  function openProfileDrawer(){
+    el('profFirst').value=(profile&&profile.first_name)||"";
+    el('profLast').value=(profile&&profile.last_name)||"";
+    el('profEmail').value=currentUser.email||"";
+    el('profErr').classList.remove('show'); el('profOk').classList.remove('show');
+    el('overlay').classList.add('open'); el('profileDrawer').classList.add('open');
+  }
+  async function saveProfile(){
+    var first=el('profFirst').value.trim(), last=el('profLast').value.trim(), email=el('profEmail').value.trim();
+    var errBox=el('profErr'), okBox=el('profOk');
+    errBox.classList.remove('show'); okBox.classList.remove('show');
+    if(!first||!last){ errBox.textContent="Entre ton prénom et ton nom."; errBox.classList.add('show'); return; }
+    if(!email||email.indexOf('@')<0){ errBox.textContent="Entre un email valide."; errBox.classList.add('show'); return; }
+    var btn=el('profSaveBtn'); btn.disabled=true; var old=btn.textContent; btn.textContent="…";
+    try{
+      // Prénom / nom -> table profiles (Supabase)
+      var nameChanged = first!==(profile&&profile.first_name) || last!==(profile&&profile.last_name);
+      if(nameChanged){
+        var r=await db.from('profiles').update({first_name:first,last_name:last}).eq('id',currentUser.id).select().single();
+        if(r.error) throw r.error;
+        profile=r.data;
+        applyUserBadges();
+      }
+      // Email -> Supabase Auth (confirmation par email requise avant que ça change réellement)
+      var emailChanged = email!==currentUser.email;
+      var msgs=[];
+      if(nameChanged) msgs.push("Prénom/nom mis à jour ✓");
+      if(emailChanged){
+        var er=await db.auth.updateUser({email:email});
+        if(er.error) throw er.error;
+        msgs.push("Vérifie ta boîte mail (ancienne et nouvelle adresse) pour confirmer le changement d'email.");
+      }
+      okBox.textContent = msgs.length ? msgs.join(' ') : "Aucun changement.";
+      okBox.classList.add('show');
+      if(!emailChanged) setTimeout(closeDrawer, 1200);
+    }catch(e){
+      console.error('saveProfile',e);
+      errBox.textContent = (e&&e.message) ? "Erreur : "+e.message : "Une erreur est survenue.";
+      errBox.classList.add('show');
+    }
+    btn.disabled=false; btn.textContent=old;
   }
   // Retour depuis Stripe Checkout : ?checkout=success|cancel — lit puis nettoie l'URL.
   function consumeCheckoutParam(){
@@ -2897,7 +2959,7 @@
     container.appendChild(add);
   }
   var onbActive=false;
-  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); }
+  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   el("drawerDone").addEventListener("click",function(){ var a=acc(); if(a){ ["rules","checklistItems","tagsOptions"].forEach(function(f){ a[f]=(a[f]||[]).map(function(x){return String(x||"").trim();}).filter(Boolean); }); saveAccount(a); } closeDrawer(); render(); });
   el("setName").addEventListener("input",function(){ acc().name=this.value; });
@@ -2938,6 +3000,8 @@
   el("analysisLockBackBtn").addEventListener("click",function(){ hideAnalysisLock(); });
   document.querySelectorAll(".appsw").forEach(function(t){ t.addEventListener("click",function(){ var k=t.dataset.key; settings[k]=!settings[k]; t.classList.toggle("on",settings[k]); saveSettings({notif_recap:settings.notifRecap,notif_quota:settings.notifQuota,notif_daily:settings.notifDaily}); }); });
   el("logoutBtn").addEventListener("click",async function(){ try{ await db.auth.signOut(); }catch(e){} location.reload(); });
+  el("editProfileBtn").addEventListener("click", openProfileDrawer);
+  el("profSaveBtn").addEventListener("click", saveProfile);
   el("appDrawerDone").addEventListener("click",function(){ closeDrawer(); render(); });
 
   // ---- onboarding (parcours guidé à la création) ----
