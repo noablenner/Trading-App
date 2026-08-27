@@ -48,6 +48,10 @@
   .gear{position:relative;}
   .gear-badge{position:absolute;top:-6px;right:-6px;font-size:12px;line-height:1;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:2px 3px;pointer-events:none;}
   .gear-badge:empty{display:none;}
+  /* Repère "réglage personnalisé actif" : un simple point plein, pas le badge
+     à emoji ci-dessus — plus discret, se lit comme un indicateur d'état. */
+  .gear-dot{position:absolute;top:1px;right:1px;width:8px;height:8px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);pointer-events:none;display:none;}
+  .gear-dot.show{display:block;}
   /* Plan en lecture seule */
   .plan-ro{font-size:14.5px;color:var(--txt);line-height:1.5;white-space:pre-wrap;word-break:break-word;}
   .plan-ro.empty{color:var(--txt-faint);font-size:13px;font-style:italic;}
@@ -663,8 +667,10 @@
       width:100%; height:auto; flex:1; min-height:120px; border-radius:12px; font-size:44px;
     }
 
-    /* Écrans sans rail : largeur de lecture confortable. */
-    #screenAnalysis, #screenSession{ max-width:900px; }
+    /* Écran sans rail, texte dense : largeur de lecture confortable.
+       #screenSession n'est PAS ici : c'est un empilement de cartes comme
+       #screenGlobal/#screenAccount, donc il occupe toute la largeur comme eux. */
+    #screenAnalysis{ max-width:900px; }
 
     /* Barres & tiroirs fixes : décalés derrière la sidebar */
     .bottombar{ left:var(--sidebarW); right:0; margin:0; max-width:none; }
@@ -886,9 +892,12 @@
     <div class="card" id="cardTracker">
       <div class="tracker-head">
         <div class="counter"><span class="big" id="takenCount">0</span><span class="max" id="maxCount">/ 30</span></div>
-        <div class="wl-stats" id="wlStats">
-          <span class="wl win"><span class="dot"></span><span id="winCount">0</span></span>
-          <span class="wl loss"><span class="dot"></span><span id="lossCount">0</span></span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="wl-stats" id="wlStats">
+            <span class="wl win"><span class="dot"></span><span id="winCount">0</span></span>
+            <span class="wl loss"><span class="dot"></span><span id="lossCount">0</span></span>
+          </div>
+          <button class="gear" id="sessQuotaGearBtn" type="button" title="Nombre de trades pour cette séance">⚙<span class="gear-dot" id="sessQuotaBadge"></span></button>
         </div>
       </div>
       <div class="progress"><i id="progressBar"></i></div>
@@ -1189,6 +1198,18 @@
   <button class="onb-skip" id="tradeDelete" style="color:var(--red);">Supprimer ce trade</button>
 </div>
 
+<!-- Nombre de trades — cette séance uniquement -->
+<div class="drawer" id="sessQuotaDrawer">
+  <div class="grab"></div>
+  <h3>Nombre de trades — cette séance</h3>
+  <div class="dsub">Ce réglage ne change que la séance affichée. Les prochaines séances repartiront du quota par défaut de ce compte (<span id="sessQuotaDefaultTxt">30</span>).</div>
+  <div class="set-group"><div class="set-label">Quota du jour</div>
+    <div class="stepper"><button id="sessQuotaDown">−</button><span class="val" id="sessQuotaVal">30</span><button id="sessQuotaUp">+</button></div>
+  </div>
+  <button class="logout-btn hidden" id="sessQuotaResetBtn" type="button">↺ Revenir au quota par défaut du compte</button>
+  <button class="drawer-done sticky" id="sessQuotaDone">✓ Terminé</button>
+</div>
+
 <!-- Sélecteur d'instrument -->
 <div class="drawer" id="instrDrawer">
   <div class="grab"></div>
@@ -1285,7 +1306,7 @@
   function todayKey(){ return ymd(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate()); }
   var MONTHS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
   var WD=["L","M","M","J","V","S","D"];
-  function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[]}; }
+  function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[], quotaOverride:null}; }
 
   // ===================== ABONNEMENT / ESSAI GRATUIT =====================
   // Modèle freemium :
@@ -1545,7 +1566,8 @@
       var a=accounts.find(function(x){return x.id===s.account_id;});
       if(a){ a.sessions[s.date]={objective:s.objective||"",result:s.result||"",notes:s.notes||"",trades:Array.isArray(s.trades)?s.trades:[],
         rules:Array.isArray(s.rules)?s.rules:[], checklist:Array.isArray(s.checklist)?s.checklist:[],
-        moodBefore:s.mood_before||0, moodAfter:s.mood_after||0, tags:Array.isArray(s.tags)?s.tags:[]}; }
+        moodBefore:s.mood_before||0, moodAfter:s.mood_after||0, tags:Array.isArray(s.tags)?s.tags:[],
+        quotaOverride:(s.max_trades_override==null?null:s.max_trades_override)}; }
     });
     // trades détaillés (table 'trades' ; si absente, on ignore silencieusement)
     try{
@@ -1584,6 +1606,11 @@
         objective:s.objective,result:s.result,notes:s.notes,trades:s.trades,
         rules:s.rules||[], checklist:s.checklist||[],
         mood_before:s.moodBefore||null, mood_after:s.moodAfter||null, tags:s.tags||[]},{onConflict:'account_id,date'});
+      // Écriture isolée (colonne récente) : si elle manque encore côté base,
+      // seule CETTE requête échoue — la séance ci-dessus est déjà enregistrée.
+      db.from('sessions').update({max_trades_override:s.quotaOverride==null?null:s.quotaOverride})
+        .eq('account_id',a.id).eq('date',key)
+        .then(function(){},function(e){console.warn('quota séance (colonne manquante ?)',e);});
     }
   }
 
@@ -1748,7 +1775,15 @@
     var checkTouched=(s.checklist||[]).some(function(c){return c&&c.checked;});
     var tagsTouched=((s.tags||[]).length>0);
     var moodTouched=!!(s.moodBefore||s.moodAfter);
-    return !s.objective && !s.result && !s.notes && tradesEmpty && !rulesTouched && !checkTouched && !tagsTouched && !moodTouched;
+    var quotaTouched=(s.quotaOverride!=null);
+    return !s.objective && !s.result && !s.notes && tradesEmpty && !rulesTouched && !checkTouched && !tagsTouched && !moodTouched && !quotaTouched;
+  }
+  // Quota effectif d'UNE séance : son propre réglage s'il en a un, sinon le
+  // défaut du compte. Ne change jamais a.maxTrades (le défaut reste intact
+  // pour les prochaines séances — voir openSessionQuotaDrawer()).
+  function effectiveQuota(a,s){
+    var v = s && s.quotaOverride;
+    return (v!=null && v>0) ? v : (a?a.maxTrades:0);
   }
   function statsForTrades(tr){ var t=0,w=0,l=0; (tr||[]).forEach(function(s){ if(s&&s!=="empty")t++; if(s==="win")w++; if(s==="loss")l++; }); return {taken:t,win:w,loss:l}; }
   function accStats(a){
@@ -1807,7 +1842,7 @@
       var row=document.createElement("div"); row.className="acct-card"+(a.id===view.accId?" active":"");
       var activeTag = a.id===view.accId ? ' <span class="badge" style="background:var(--accent-dim);color:var(--accent);">actif</span>' : '';
       row.innerHTML='<div style="min-width:0;"><div class="al">'+a.name+' <span class="badge">'+a.type+'</span>'+activeTag+'</div>'+
-        '<div class="as">'+st.taken+'/'+a.maxTrades+' trades · '+st.win+'✓ '+st.loss+'✗</div>'+
+        '<div class="as">'+st.taken+'/'+effectiveQuota(a,s)+' trades · '+st.win+'✓ '+st.loss+'✗</div>'+
         '<div class="open-tag">→ ouvrir le journal du compte</div></div>'+
         '<div style="display:flex;align-items:center;flex:0 0 auto;"><div class="ar-val '+rc+'">'+rv+'</div><span class="chev">›</span></div>';
       row.onclick=function(){ openAccountView(a.id); };
@@ -1827,7 +1862,7 @@
       var s=a.sessions[keys[i]];
       var judged=(s.rules||[]).filter(function(r){return r&&(r.ok===true||r.ok===false);});
       var allOk = judged.length>0 && judged.every(function(r){return r.ok===true;});
-      var quotaOk = (!a.showTracker) ? true : (statsForTrades(s.trades).taken<=a.maxTrades);
+      var quotaOk = (!a.showTracker) ? true : (statsForTrades(s.trades).taken<=effectiveQuota(a,s));
       if(allOk && quotaOk) streak++; else break;
     }
     return streak;
@@ -1851,9 +1886,10 @@
   // ---------- SESSION ----------
   function renderGrid(){
     var a=acc(); var s=curSession(); if(!a||!s) return;
+    var q=effectiveQuota(a,s);
     var grid=el("grid"); grid.innerHTML="";
-    if(s.trades.length!==a.maxTrades){ var old=s.trades; s.trades=[]; for(var i=0;i<a.maxTrades;i++){s.trades.push(old[i]||"empty");} }
-    for(var i=0;i<a.maxTrades;i++){(function(idx){
+    if(s.trades.length!==q){ var old=s.trades; s.trades=[]; for(var i=0;i<q;i++){s.trades.push(old[i]||"empty");} }
+    for(var i=0;i<q;i++){(function(idx){
       var c=document.createElement("div"); var st=s.trades[idx];
       c.className="cell"+(st==="win"?" win":st==="loss"?" loss":st==="taken"?" taken":"");
       var mk=st==="win"?"✓":st==="loss"?"✗":st==="taken"?"●":"";
@@ -1865,13 +1901,41 @@
   }
   function cycleCell(idx){ var a=acc(),s=curSession(); var st=s.trades[idx]; if(a.trackWinLoss){s.trades[idx]=st==="empty"?"win":st==="win"?"loss":"empty";}else{s.trades[idx]=st==="taken"?"empty":"taken";} renderGrid(); }
   function updateStats(){
-    var a=acc(); var st=statsForTrades(curSession().trades);
-    el("takenCount").textContent=st.taken; el("maxCount").textContent="/ "+a.maxTrades;
+    var a=acc(); var s=curSession(); var st=statsForTrades(s.trades); var q=effectiveQuota(a,s);
+    el("takenCount").textContent=st.taken; el("maxCount").textContent="/ "+q;
     el("winCount").textContent=st.win; el("lossCount").textContent=st.loss;
-    el("progressBar").style.width=(a.maxTrades?(st.taken/a.maxTrades*100):0)+"%";
+    el("progressBar").style.width=(q?(st.taken/q*100):0)+"%";
     el("wlStats").classList.toggle("hidden",!a.trackWinLoss);
-    el("quotaBanner").classList.toggle("show", st.taken>=a.maxTrades && a.maxTrades>0);
+    el("quotaBanner").classList.toggle("show", st.taken>=q && q>0);
     el("tapHint").textContent=a.trackWinLoss?"Tape une case : vide → ✓ gagnant → ✗ perdant → vide":"Tape une case pour marquer un trade pris.";
+    renderSessionQuotaBadge(a,s);
+  }
+  // Petit repère visuel sur l'engrenage du module scalping : signale que CETTE
+  // séance a un quota différent du défaut du compte.
+  function renderSessionQuotaBadge(a,s){
+    var b=el("sessQuotaBadge"); if(!b) return;
+    b.classList.toggle("show", !!(s && s.quotaOverride!=null));
+  }
+  function openSessionQuotaDrawer(){
+    var a=acc(), s=curSession(); if(!a||!s) return;
+    var v = (s.quotaOverride!=null) ? s.quotaOverride : a.maxTrades;
+    el("sessQuotaVal").textContent=v;
+    el("sessQuotaDefaultTxt").textContent=a.maxTrades;
+    el("sessQuotaResetBtn").classList.toggle("hidden", s.quotaOverride==null);
+    el("overlay").classList.add("open"); el("sessQuotaDrawer").classList.add("open");
+  }
+  function setSessionQuota(v){
+    var s=curSession(); if(!s) return;
+    v=Math.max(1,Math.min(100,v));
+    // renderGrid() tronque le tableau trades[] à la taille du quota : on refuse
+    // de descendre sous le nombre de cases déjà marquées, pour ne pas effacer
+    // des trades déjà notés aujourd'hui.
+    var marked=statsForTrades(s.trades).taken;
+    if(v<marked){ showToast("Déjà "+marked+" trades notés aujourd'hui — impossible de descendre en dessous."); return; }
+    s.quotaOverride=v;
+    el("sessQuotaVal").textContent=v;
+    el("sessQuotaResetBtn").classList.remove("hidden");
+    renderGrid(); persistSession(acc(),view.editKey);
   }
   function applyBricks(){
     var a=acc(); if(!a) return;
@@ -2986,7 +3050,7 @@
     container.appendChild(add);
   }
   var onbActive=false;
-  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); }
+  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   el("drawerDone").addEventListener("click",function(){ var a=acc(); if(a){ ["rules","checklistItems","tagsOptions"].forEach(function(f){ a[f]=(a[f]||[]).map(function(x){return String(x||"").trim();}).filter(Boolean); }); saveAccount(a); } closeDrawer(); render(); });
   el("setName").addEventListener("input",function(){ acc().name=this.value; });
@@ -2994,6 +3058,20 @@
   document.querySelectorAll("#setType button").forEach(function(b){ b.addEventListener("click",function(){ acc().type=b.dataset.type; document.querySelectorAll("#setType button").forEach(function(x){x.classList.remove("sel");}); b.classList.add("sel"); saveAccount(acc()); }); });
   el("stepUp").addEventListener("click",function(){ var a=acc(); if(a.maxTrades<100){a.maxTrades++;el("stepVal").textContent=a.maxTrades; saveAccount(a);} });
   el("stepDown").addEventListener("click",function(){ var a=acc(); if(a.maxTrades>1){a.maxTrades--;el("stepVal").textContent=a.maxTrades; saveAccount(a);} });
+  // Quota de LA séance affichée uniquement (voir effectiveQuota()) — n'écrit jamais a.maxTrades.
+  el("sessQuotaGearBtn").addEventListener("click", openSessionQuotaDrawer);
+  el("sessQuotaUp").addEventListener("click",function(){ setSessionQuota(parseInt(el("sessQuotaVal").textContent,10)+1); });
+  el("sessQuotaDown").addEventListener("click",function(){ setSessionQuota(parseInt(el("sessQuotaVal").textContent,10)-1); });
+  el("sessQuotaResetBtn").addEventListener("click",function(){
+    var a=acc(), s=curSession(); if(!a||!s) return;
+    var marked=statsForTrades(s.trades).taken;
+    if(a.maxTrades<marked){ showToast("Déjà "+marked+" trades notés aujourd'hui — impossible de descendre en dessous."); return; }
+    s.quotaOverride=null;
+    el("sessQuotaVal").textContent=a.maxTrades;
+    el("sessQuotaResetBtn").classList.add("hidden");
+    renderGrid(); persistSession(acc(),view.editKey);
+  });
+  el("sessQuotaDone").addEventListener("click", closeDrawer);
   document.querySelectorAll("#drawer .switch[data-key]").forEach(function(sw){ sw.addEventListener("click",function(){ var a=acc(),k=sw.dataset.key;
     // Marquer gagnant/perdant nécessite la grille : bloqué tant que la grille est off
     if(k==="trackWinLoss" && !a.showTracker) return;
