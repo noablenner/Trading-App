@@ -280,6 +280,11 @@
   .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:45;max-width:var(--appW,520px);margin:0 auto;display:flex;align-items:stretch;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line);padding:9px 8px calc(18px + env(safe-area-inset-bottom));gap:4px;box-shadow:0 -6px 18px rgba(0,0,0,.28);}
   /* Bloc de marque : uniquement visible en mode sidebar (ordinateur). */
   .tb-brand{display:none;}
+  /* Accès aux réglages globaux : uniquement en mode sidebar (ordinateur).
+     Sur mobile/tablette il reste à sa place d'origine, l'engrenage du header.
+     Sélecteur volontairement plus spécifique que .tab, qui est déclaré plus bas
+     avec display:flex et l'emporterait autrement. */
+  .tabbar .tb-settings{display:none;}
   .tab{flex:1;background:none;border:none;font-family:inherit;color:var(--txt-faint);display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 0;cursor:pointer;font-size:10.5px;font-weight:700;-webkit-tap-highlight-color:transparent;border-radius:14px;transition:color .15s,background .15s;}
   .tab .ti{width:23px;height:23px;display:block;opacity:.7;transition:opacity .15s;}
   .tab .ti svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
@@ -578,6 +583,20 @@
     .tab.primary{ color:var(--txt-dim); }
     .tab.primary.on{ background:var(--accent); color:#fff; }
     .tab.primary.on .ti{ opacity:1; }
+
+    /* ----- RÉGLAGES DU COMPTE : ancrés en bas de la sidebar -----
+       margin-top:auto pousse l'élément tout en bas ; le filet (::before) se pose
+       dans l'espace laissé libre et s'aligne sur celui du bloc de marque. */
+    .tabbar .tb-settings{ display:flex; margin-top:auto; position:relative; }
+    .tb-settings::before{
+      content:""; position:absolute; left:-4px; right:-4px; top:-9px;
+      border-top:1px solid var(--line);
+    }
+
+    /* Sur ordinateur, l'engrenage du header ne sert plus aux réglages globaux :
+       ils vivent dans la sidebar. Il reste affiché pour les réglages du compte
+       ouvert et ceux du plan, qui sont contextuels à l'écran affiché. */
+    .gear.gear-app{ display:none; }
 
     /* ----- TOPBAR : commence après la sidebar, titre aligné sur la colonne ----- */
     .topbar{ left:var(--sidebarW); right:0; margin:0; max-width:none; }
@@ -929,6 +948,7 @@
   <button class="tab primary" data-tab="journal" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="13" height="18" rx="2"/><path d="M9.5 3v18"/><path d="M12.5 8.5h4M12.5 12.5h4"/></svg></span><span class="tt">Journal</span></button>
   <button class="tab" data-tab="calendar" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg></span><span class="tt">Calendrier</span></button>
   <button class="tab" data-tab="propfirm" type="button"><span class="ti"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9.2 12l2 2 3.6-3.8"/></svg></span><span class="tt">Propfirm</span></button>
+  <button class="tab tb-settings" id="sidebarSettingsBtn" type="button"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.1"/><path d="M19.1 14.4a1.5 1.5 0 0 0 .3 1.7l.05.05a1.9 1.9 0 1 1-2.65 2.65l-.05-.05a1.5 1.5 0 0 0-1.7-.3 1.5 1.5 0 0 0-.9 1.37v.13a1.9 1.9 0 1 1-3.8 0v-.07a1.5 1.5 0 0 0-.98-1.37 1.5 1.5 0 0 0-1.7.3l-.05.05A1.9 1.9 0 1 1 4.87 16.2l.05-.05a1.5 1.5 0 0 0 .3-1.7 1.5 1.5 0 0 0-1.37-.9h-.13a1.9 1.9 0 1 1 0-3.8h.07a1.5 1.5 0 0 0 1.37-.98 1.5 1.5 0 0 0-.3-1.7l-.05-.05A1.9 1.9 0 1 1 7.46 4.37l.05.05a1.5 1.5 0 0 0 1.7.3h.07a1.5 1.5 0 0 0 .9-1.37v-.13a1.9 1.9 0 1 1 3.8 0v.07a1.5 1.5 0 0 0 .9 1.37 1.5 1.5 0 0 0 1.7-.3l.05-.05a1.9 1.9 0 1 1 2.65 2.65l-.05.05a1.5 1.5 0 0 0-.3 1.7v.07a1.5 1.5 0 0 0 1.37.9h.13a1.9 1.9 0 1 1 0 3.8h-.07a1.5 1.5 0 0 0-1.37.9z"/></svg></span><span class="tt">Paramètres du compte</span></button>
 </nav>
 
 <div id="confetti" class="hidden"></div>
@@ -2336,6 +2356,7 @@
     else if(tab==="plan"){ el("screenPlan").classList.remove("hidden"); if(a){ setGearBadge("📋"); } else { el("gearBtn").classList.add("hidden"); } setTitle("Plan de trading", a?a.name:"", true); renderPlan(); }
     else if(tab==="calendar"){ el("screenCalendar").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Calendrier économique","Événements macro", true); loadEconWidget(); }
     else if(tab==="propfirm"){ el("screenPropfirm").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Prop firm", "Briefing pré-séance", true); renderPropfirm(); }
+    syncGearMode();
     refreshAds();
     requestAnimationFrame(updateTopbarHeight);
   }
@@ -2881,10 +2902,17 @@
 
   // ---------- gear routing ----------
   function setGearBadge(txt){ var b=el("gearBadge"); if(b) b.textContent=txt||""; }
+  // L'engrenage ouvre les réglages GLOBAUX seulement sur la liste des comptes ;
+  // ailleurs il ouvre ceux du compte ouvert ou du plan. On marque ce cas d'une
+  // classe pour que la version ordinateur puisse le masquer : là, les réglages
+  // globaux sont dans la sidebar (#sidebarSettingsBtn).
+  function isAppGear(){ return view.tab==="journal" && (view.jlevel||"accounts")==="accounts"; }
+  function syncGearMode(){ el("gearBtn").classList.toggle("gear-app", isAppGear()); }
   el("gearBtn").addEventListener("click",function(){
     if(view.tab==="plan"){ openPlanDrawer(); return; }
-    if(view.tab==="journal" && (view.jlevel||"accounts")==="accounts") openAppDrawer(); else openDrawer();
+    if(isAppGear()) openAppDrawer(); else openDrawer();
   });
+  el("sidebarSettingsBtn").addEventListener("click", openAppDrawer);
 
   // account settings drawer
   function openDrawer(){
