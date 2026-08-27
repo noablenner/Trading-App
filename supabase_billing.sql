@@ -95,6 +95,14 @@ create trigger on_auth_user_created
 
 -- ----------------------------------------------------------------------------
 -- 3) Fonction d'accès : essai en cours OU abonnement actif
+--    Utilisée côté front pour afficher/masquer les pubs et verrouiller la
+--    section Analyse. Modèle « freemium », pas un blocage total de l'app :
+--    un compte gratuit (essai terminé, pas abonné) garde son journal, son
+--    calendrier, son plan de trading… seule l'Analyse est verrouillée, et
+--    les publicités reviennent. Donc PAS de policy RESTRICTIVE sur
+--    accounts/sessions/trades/user_settings : ces tables restent gouvernées
+--    uniquement par les policies d'appartenance déjà en place (auth.uid() =
+--    user_id), pour que les comptes gratuits continuent à fonctionner.
 -- ----------------------------------------------------------------------------
 create or replace function public.has_active_access(uid uuid)
 returns boolean
@@ -110,13 +118,8 @@ as $$
   );
 $$;
 
--- ----------------------------------------------------------------------------
--- 4) Gate côté serveur (non contournable en éditant le JS) : policies RESTRICTIVE
---    Elles s'AJOUTENT (en ET logique) aux policies existantes d'appartenance
---    (auth.uid() = user_id) sur ces tables, sans les toucher ni les remplacer.
---    Un utilisateur ni en essai ni abonné n'a donc plus aucun accès en lecture/
---    écriture à ses données, même en contournant le front.
--- ----------------------------------------------------------------------------
+-- Nettoyage : si une version précédente de ce script avait posé un blocage
+-- total (policy RESTRICTIVE "gate: active access"), on le retire.
 do $$
 declare
   t text;
@@ -124,18 +127,12 @@ begin
   foreach t in array array['accounts','sessions','trades','user_settings'] loop
     if to_regclass('public.'||t) is not null then
       execute format('drop policy if exists "gate: active access" on public.%I;', t);
-      execute format(
-        'create policy "gate: active access" on public.%I as restrictive
-           for all using (public.has_active_access(auth.uid()))
-           with check (public.has_active_access(auth.uid()));',
-        t
-      );
     end if;
   end loop;
 end $$;
 
 -- ----------------------------------------------------------------------------
--- 5) Backfill : crée un profil (essai 14 j à partir de maintenant) pour les
+-- 4) Backfill : crée un profil (essai 14 j à partir de maintenant) pour les
 --    comptes déjà existants, créés avant cette migration (le trigger ci-dessus
 --    ne joue que pour les nouvelles inscriptions).
 -- ----------------------------------------------------------------------------

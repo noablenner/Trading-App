@@ -469,8 +469,8 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* auth / loading screens */
-  #authScreen,#loadingScreen,#paywallScreen{position:fixed;inset:0;z-index:140;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;overflow-y:auto;}
-  #paywallScreen .auth-card .sub-card{margin-top:20px;}
+  #authScreen,#loadingScreen,#analysisLockScreen{position:fixed;inset:0;z-index:140;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;overflow-y:auto;}
+  #analysisLockScreen .auth-card .sub-card{margin-top:20px;}
   .update-banner{position:fixed;left:0;right:0;top:0;z-index:160;max-width:var(--appW,520px);margin:0 auto;background:var(--accent);color:#fff;font-weight:700;font-size:13.5px;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top));display:none;align-items:center;justify-content:space-between;gap:10px;}
   .update-banner.show{display:flex;}
   .update-banner button{border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.15);color:#fff;font-family:inherit;font-weight:800;font-size:12.5px;padding:6px 12px;border-radius:20px;cursor:pointer;flex:0 0 auto;}
@@ -688,20 +688,20 @@
   </div>
 </div>
 
-<!-- Paywall (bloque toute l'app à la fin de l'essai, sauf abonnement actif) -->
-<div id="paywallScreen" style="display:none;">
+<!-- Verrou Premium (uniquement sur la section Analyse ; le reste de l'app reste
+     utilisable en gratuit — ads affichées, voir refreshAds()). -->
+<div id="analysisLockScreen" style="display:none;">
   <div class="auth-card">
     <div style="text-align:center;"><img src="./icon-192.png" class="auth-logo" alt=""></div>
-    <h1>Essai terminé</h1>
-    <p class="a-sub">Ton essai gratuit de 14 jours est terminé. Abonne-toi pour continuer à utiliser Edgio.</p>
+    <h1>Analyse — Premium</h1>
+    <p class="a-sub">L'analyse comportementale (discipline & psychologie) est réservée à l'essai gratuit et aux abonnés Premium.</p>
     <div class="sub-card premium" style="text-align:left;">
       <div class="sub-state"><span class="sub-dot on"></span>Edgio Premium</div>
-      <div class="sub-desc">Accès complet à ton journal de trading, sans publicité.</div>
-      <button class="sub-cta" id="paywallSubBtn" type="button">S'abonner — 4,99&nbsp;€/mois</button>
+      <div class="sub-desc">Débloque l'Analyse comportementale et retire les publicités.</div>
+      <button class="sub-cta" id="analysisLockSubBtn" type="button">S'abonner — 4,99&nbsp;€/mois</button>
       <div class="sub-price">Sans engagement · résiliable à tout moment</div>
     </div>
-    <div class="auth-err" id="paywallErr"></div>
-    <button class="logout-btn" style="margin-top:14px;" id="paywallLogoutBtn">Se déconnecter</button>
+    <button class="logout-btn" style="margin-top:14px;" id="analysisLockBackBtn">‹ Retour</button>
   </div>
 </div>
 
@@ -1249,12 +1249,15 @@
   function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[]}; }
 
   // ===================== ABONNEMENT / ESSAI GRATUIT =====================
-  // Modèle « tout ou rien » :
+  // Modèle freemium :
   //   • Essai gratuit de 14 jours (profiles.trial_ends_at, posé côté serveur à l'inscription).
-  //   • Pendant l'essai OU si abonnement Stripe actif -> accès complet à l'app.
-  //   • Essai terminé et pas d'abonnement actif       -> paywall, app bloquée.
+  //   • Pendant l'essai OU si abonnement Stripe actif -> premium actif : pas de pub,
+  //     Analyse comportementale débloquée.
+  //   • Essai terminé et pas d'abonnement actif (ou paiement en échec) -> compte
+  //     gratuit : le journal/plan/calendrier restent utilisables, mais les publicités
+  //     réapparaissent (refreshAds()) et la section Analyse se verrouille (openAnalysis()).
   // Le statut réel (subscription_status) n'est JAMAIS modifiable par le client : seul
-  // le webhook Stripe (côté serveur) le fait. Le RLS applique aussi ce gate côté base.
+  // le webhook Stripe (côté serveur) le fait (trigger guard_profiles_billing_fields).
   async function loadProfile(){
     var r=await db.from('profiles').select('*').eq('id',currentUser.id).maybeSingle();
     if(r.error){ console.error('profil',r.error); profile=null; return; }
@@ -1279,15 +1282,10 @@
   function canUse(){ return premiumActive(); }         // fonctions premium débloquées
   function premBadge(){ return '<span class="premchip">Premium</span>'; }
 
-  function showPaywall(fromCheckout){
-    el('loadingScreen').style.display='none';
-    el('authScreen').style.display='none';
-    el('paywallScreen').style.display='flex';
-    var err=el('paywallErr');
-    if(fromCheckout){ err.textContent="Paiement reçu, activation en cours… Réessaie dans quelques secondes."; err.classList.add('show'); }
-    else { err.classList.remove('show'); }
-  }
-  function hidePaywall(){ el('paywallScreen').style.display='none'; }
+  // Verrou Premium sur la seule section Analyse (voir openAnalysis()) — le
+  // reste de l'app (journal, plan, calendrier…) reste utilisable en gratuit.
+  function showAnalysisLock(){ el('analysisLockScreen').style.display='flex'; }
+  function hideAnalysisLock(){ el('analysisLockScreen').style.display='none'; }
 
   // Ouvre la Checkout Session Stripe (créée côté serveur, clé secrète jamais exposée).
   async function openUpsell(btn){
@@ -1323,27 +1321,27 @@
     if(isPaidSubscriber()){
       h='<div class="sub-card premium">'
        +'<div class="sub-state"><span class="sub-dot on"></span>Premium actif</div>'
-       +'<div class="sub-desc">Toutes les fonctionnalités débloquées, sans publicité. Abonnement Edgio Premium — 4,99&nbsp;€/mois.</div>'
+       +'<div class="sub-desc">Analyse comportementale débloquée, sans publicité. Abonnement Edgio Premium — 4,99&nbsp;€/mois.</div>'
        +'<button class="sub-cta ghost" id="subManageBtn" type="button">Gérer mon abonnement</button>'
        +'</div>';
     } else if(profile && profile.subscription_status==='past_due'){
       h='<div class="sub-card">'
        +'<div class="sub-state"><span class="sub-dot warn"></span>Paiement échoué</div>'
-       +'<div class="sub-desc">Ton dernier paiement a échoué. Mets à jour ton moyen de paiement pour garder l\'accès.</div>'
+       +'<div class="sub-desc">Ton dernier paiement a échoué : tu es repassé·e en compte gratuit (pubs, Analyse verrouillée). Mets à jour ton moyen de paiement pour redevenir Premium.</div>'
        +'<button class="sub-cta ghost" id="subManageBtn" type="button">Mettre à jour ma carte</button>'
        +'</div>';
     } else if(isTrialActive()){
       var d=trialDaysLeft();
       h='<div class="sub-card">'
        +'<div class="sub-state"><span class="sub-dot warn"></span>Essai gratuit — '+d+' jour'+(d>1?'s':'')+' restant'+(d>1?'s':'')+'</div>'
-       +'<div class="sub-desc">Tu profites de toutes les fonctionnalités sans publicité. À la fin de l\'essai, passe en Premium pour continuer sans limite ni pub.</div>'
+       +'<div class="sub-desc">Tu profites de l\'Analyse comportementale sans publicité. À la fin de l\'essai, passe en Premium pour continuer.</div>'
        +'<button class="sub-cta" id="subUpgradeBtn" type="button">Passer Premium</button>'
        +'<div class="sub-price">4,99&nbsp;€/mois · sans engagement</div>'
        +'</div>';
     } else {
       h='<div class="sub-card">'
-       +'<div class="sub-state"><span class="sub-dot off"></span>Essai terminé</div>'
-       +'<div class="sub-desc">Ton essai gratuit est terminé. Abonne-toi pour débloquer toutes les fonctionnalités et retirer les publicités.</div>'
+       +'<div class="sub-state"><span class="sub-dot off"></span>Compte gratuit — essai terminé</div>'
+       +'<div class="sub-desc">Ton journal reste disponible. Abonne-toi pour débloquer l\'Analyse comportementale et retirer les publicités.</div>'
        +'<button class="sub-cta" id="subUpgradeBtn" type="button">S\'abonner</button>'
        +'<div class="sub-price">4,99&nbsp;€/mois · sans engagement</div>'
        +'</div>';
@@ -1600,8 +1598,6 @@
     try{ await loadProfile(); }catch(e){ console.error(e); }
     var checkoutState=consumeCheckoutParam();
     if(checkoutState==='success' && !premiumActive()){ await pollProfileActive(); }
-    if(!premiumActive()){ showPaywall(checkoutState==='success'); return; }
-    hidePaywall();
     try{ await loadAll(); }catch(e){ console.error(e); }
     applyUserBadges();
     var stored=null; try{ stored=localStorage.getItem('activeAcct'); }catch(e){}
@@ -1609,7 +1605,7 @@
     view={tab:'journal', jlevel:'accounts', accId: active?active.id:null, editKey: todayKey(), anIds: active?[active.id]:[]};
     applyTab('journal');
     el('loadingScreen').style.display='none';
-    if(checkoutState==='success') showToast("Merci ! Abonnement activé ✓");
+    if(checkoutState==='success') showToast(premiumActive() ? "Merci ! Abonnement activé ✓" : "Paiement reçu, activation en cours…");
     initInstallPrompt();
   }
   function applyUserBadges(){
@@ -2304,7 +2300,11 @@
 
   function openAccountView(id){ setActiveAccount(id); view.tab="journal"; view.jlevel="account"; showTab("journal"); }
   function openSession(key){ saveJournal(); view.editKey=key; view.tab="journal"; view.jlevel="session"; showTab("journal"); }
-  function openAnalysis(ids,from){ view.anIds=ids; view.anFrom=from; view.tab="journal"; view.jlevel="analysis"; showTab("journal"); }
+  // Point d'entrée UNIQUE de la section Analyse : verrouillée hors essai / hors abonnement actif.
+  function openAnalysis(ids,from){
+    if(!premiumActive()){ showAnalysisLock(); return; }
+    view.anIds=ids; view.anFrom=from; view.tab="journal"; view.jlevel="analysis"; showTab("journal");
+  }
   function renderAccountOverview(a){
     var st=accStats(a);
     var net=el("oNet"); net.textContent=fmtVal(st.net,a); net.className="kv "+(st.net>0?"pos":st.net<0?"neg":"");
@@ -2934,8 +2934,8 @@
     renderInstallBox();
     el("overlay").classList.add("open"); el("appDrawer").classList.add("open");
   }
-  el("paywallSubBtn").addEventListener("click",function(){ openUpsell(el("paywallSubBtn")); });
-  el("paywallLogoutBtn").addEventListener("click",async function(){ try{ await db.auth.signOut(); }catch(e){} location.reload(); });
+  el("analysisLockSubBtn").addEventListener("click",function(){ openUpsell(el("analysisLockSubBtn")); });
+  el("analysisLockBackBtn").addEventListener("click",function(){ hideAnalysisLock(); });
   document.querySelectorAll(".appsw").forEach(function(t){ t.addEventListener("click",function(){ var k=t.dataset.key; settings[k]=!settings[k]; t.classList.toggle("on",settings[k]); saveSettings({notif_recap:settings.notifRecap,notif_quota:settings.notifQuota,notif_daily:settings.notifDaily}); }); });
   el("logoutBtn").addEventListener("click",async function(){ try{ await db.auth.signOut(); }catch(e){} location.reload(); });
   el("appDrawerDone").addEventListener("click",function(){ closeDrawer(); render(); });
