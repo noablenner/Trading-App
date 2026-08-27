@@ -672,6 +672,19 @@
        #screenGlobal/#screenAccount, donc il occupe toute la largeur comme eux. */
     #screenAnalysis{ max-width:900px; }
 
+    /* Calendrier (Journal cumulé #gCal + Calendrier du compte #aCal) : les
+       cases grandissent déjà avec la largeur de la carte (grille 7 colonnes,
+       aspect-ratio:1/1) mais le texte dedans restait à sa taille mobile —
+       de grandes cases avec un petit chiffre perdu au milieu. On agrandit
+       ce texte en proportion, sans toucher au mobile/tablette. */
+    .cal-title{ font-size:19px; }
+    .cal-nav button{ width:40px; height:40px; font-size:20px; }
+    .cal-wd span{ font-size:12.5px; }
+    .cal-wd, .cal-grid{ gap:8px; }
+    .cal-cell{ border-radius:12px; gap:4px; }
+    .cal-cell .cd{ font-size:16px; }
+    .cal-cell .cv{ font-size:11px; }
+
     /* Barres & tiroirs fixes : décalés derrière la sidebar */
     .bottombar{ left:var(--sidebarW); right:0; margin:0; max-width:none; }
     .drawer{ left:var(--sidebarW); right:0; margin:0 auto; max-width:760px; }
