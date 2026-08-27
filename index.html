@@ -2371,7 +2371,7 @@
     if(lvl==="accounts"){ el("backBtn").classList.add("hidden"); setGearBadge("👤"); setTitle("Journal", frDate(), true); renderGlobal(); }
     else if(lvl==="account"){ el("backBtn").classList.remove("hidden"); setGearBadge("📓"); setTitle(a.name, a.type+" · journal du compte", true); renderAccountOverview(a); }
     else if(lvl==="analysis"){ el("backBtn").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); var multi=(view.anIds||[]).length>1; setTitle("Analyse", multi?"Tous comptes · discipline & psycho":(a?a.name:"")+" · discipline & psycho", true); renderAnalysisScreen(); }
-    else { el("backBtn").classList.remove("hidden"); setGearBadge("📓"); var isToday=view.editKey===todayKey(); setTitle(isToday?"Séance du jour":labelKey(view.editKey), a.name+" · "+(isToday?"aujourd'hui":labelKey(view.editKey)), false); renderSession(); }
+    else { el("backBtn").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); var isToday=view.editKey===todayKey(); setTitle(isToday?"Séance du jour":labelKey(view.editKey), a.name+" · "+(isToday?"aujourd'hui":labelKey(view.editKey)), false); renderSession(); }
   }
   function currentScreenId(){
     if(view.tab==="plan")return "screenPlan"; if(view.tab==="calendar")return "screenCalendar"; if(view.tab==="propfirm")return "screenPropfirm";
@@ -2931,12 +2931,11 @@
     el("lossLimitIn").value = a.dailyLossLimit || "";
     renderListEditor(el("tagsList"),"tagsOptions","Ex : discipliné","Ajouter un tag");
     renderTemplateSeg(a);
-    // Titre contextuel : « compte » sur la vue compte, « séance » quand on configure une séance
-    var isSess = (view.tab==="journal" && (view.jlevel==="session"));
-    el("drawerTitle").textContent = isSess ? "Réglages de la séance" : "Réglages du compte";
-    el("drawerSub").textContent = isSess
-      ? "Ce que tu affiches et notes dans chaque séance de ce compte. Tout est optionnel."
-      : "Tout est optionnel et par compte. Déplie une catégorie pour l'ajuster.";
+    // Ces réglages sont toujours ceux du compte (jamais propres à une séance
+    // précise) : le titre ne varie plus selon l'écran d'où on l'ouvre — la
+    // séance n'y donne d'ailleurs plus accès, voir renderJournalTab().
+    el("drawerTitle").textContent = "Réglages du compte";
+    el("drawerSub").textContent = "Tout est optionnel et par compte. Déplie une catégorie pour l'ajuster.";
     el("overlay").classList.add("open"); el("drawer").classList.add("open");
   }
   // mode dérivé : plus de sélecteur « mode de saisie ». Il découle de la grille (Scalping) + du toggle « trades détaillés ».
