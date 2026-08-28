@@ -405,7 +405,7 @@
   .overlay.open{opacity:1;pointer-events:auto;}
   /* Sécurité : tant qu'un tiroir est ouvert, l'arrière-plan (header, contenu, barre d'onglets)
      ne reçoit aucun tap et ne défile pas. Empêche les clics de « traverser » sur le journal ou le menu du bas. */
-  body:has(.overlay.open),body:has(.cmodal-overlay.open){overflow:hidden;}
+  body:has(.overlay.open),body:has(.cmodal-overlay.open),body:has(.it-ov.open){overflow:hidden;}
   body:has(.overlay.open) .topbar,
   body:has(.overlay.open) .app,
   body:has(.overlay.open) .bottombar,
@@ -726,6 +726,75 @@
   @media (min-width:1600px){
     :root{ --appW:900px; }
   }
+
+  /* ===================== TUTORIEL D'INSTALLATION PWA =====================
+     Popup plein écran (z-index au-dessus de #authScreen) : il doit pouvoir
+     s'ouvrir aussi bien depuis l'écran de connexion que depuis l'app. */
+  .it-ov{position:fixed;inset:0;z-index:170;background:rgba(3,5,8,.74);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);display:none;align-items:flex-end;justify-content:center;touch-action:none;}
+  .it-ov.open{display:flex;}
+  .it-card{position:relative;width:100%;max-width:var(--appW,520px);background:var(--surface);border-top:1px solid var(--line);border-radius:26px 26px 0 0;padding:8px 18px calc(20px + env(safe-area-inset-bottom));max-height:96vh;overflow-y:auto;overscroll-behavior-y:contain;text-align:left;animation:itUp .32s cubic-bezier(.2,.85,.25,1);}
+  @keyframes itUp{from{transform:translateY(101%);}to{transform:translateY(0);}}
+  .it-x{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-size:14px;font-family:inherit;line-height:1;cursor:pointer;z-index:2;}
+  .it-head{display:flex;align-items:flex-start;gap:12px;padding:6px 40px 0 2px;}
+  .it-logo{width:44px;height:44px;border-radius:12px;flex:0 0 auto;}
+  .it-t{font-size:17px;font-weight:800;letter-spacing:-.01em;line-height:1.25;}
+  .it-s{font-size:12.5px;color:var(--txt-dim);line-height:1.45;margin-top:3px;}
+  /* Sélecteur de plateforme : on pré-sélectionne celle détectée, mais on laisse
+     changer (un iPhone peut vouloir lire le tuto Android pour un proche). */
+  .it-tabs{display:flex;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:4px;margin:14px 0 0;}
+  .it-tabs button{flex:1;border:none;background:none;color:var(--txt-dim);font-family:inherit;font-size:13px;font-weight:800;padding:9px 6px;border-radius:10px;cursor:pointer;}
+  .it-tabs button.on{background:var(--accent);color:#fff;}
+  .it-native{margin-top:12px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:14px;padding:10px;}
+  .it-native-btn{width:100%;border:none;border-radius:11px;padding:12px;font-family:inherit;font-size:14.5px;font-weight:800;background:var(--accent);color:#fff;cursor:pointer;}
+  .it-native-s{font-size:11px;color:var(--txt-dim);line-height:1.4;margin-top:7px;text-align:center;}
+  /* Scène : le mockup de téléphone. Halo derrière pour le détacher du fond. */
+  .it-stage{position:relative;margin:14px auto 0;display:flex;justify-content:center;}
+  .it-stage::before{content:"";position:absolute;left:50%;top:6%;width:190px;height:78%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,var(--accent),transparent);opacity:.17;filter:blur(16px);pointer-events:none;}
+  /* La maquette ne doit jamais pousser les boutons hors de l'écran : on la borne
+     à une fraction de la hauteur visible plutôt qu'à la largeur de la carte. */
+  .it-shot{position:relative;display:none;width:auto;height:auto;max-height:42vh;max-width:212px;}
+  .it-shot.on{display:block;animation:itFade .3s ease;}
+  @keyframes itFade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  /* Anneau qui bat autour de l'élément à toucher dans le mockup. */
+  .it-pulse{transform-box:fill-box;transform-origin:center;animation:itPulse 1.8s cubic-bezier(.3,0,.4,1) infinite;}
+  @keyframes itPulse{0%{opacity:.95;transform:scale(.82);}70%{opacity:0;transform:scale(1.32);}100%{opacity:0;transform:scale(1.32);}}
+  .it-step{display:flex;align-items:flex-start;gap:12px;margin-top:16px;}
+  .it-num{flex:0 0 auto;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+  .it-st{font-size:15.5px;font-weight:800;line-height:1.3;}
+  .it-sd{font-size:13px;color:var(--txt-dim);line-height:1.5;margin-top:4px;}
+  .it-dots{display:flex;gap:7px;justify-content:center;margin:16px 0 2px;}
+  .it-dots i{width:8px;height:8px;border-radius:50%;background:var(--line);cursor:pointer;transition:background .2s,width .2s;}
+  .it-dots i.on{background:var(--accent);width:20px;border-radius:4px;}
+  .it-nav{display:flex;gap:10px;margin-top:12px;}
+  .it-nav button{flex:1;border-radius:13px;padding:14px;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;}
+  .it-prev{flex:0 0 auto !important;min-width:104px;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);}
+  .it-next{border:none;background:var(--accent);color:#fff;}
+  .it-later{display:block;width:100%;text-align:center;background:none;border:none;color:var(--txt-dim);font-family:inherit;font-size:13.5px;font-weight:700;padding:11px 0 4px;cursor:pointer;}
+  .it-note{font-size:11px;color:var(--txt-faint);line-height:1.45;text-align:center;margin-top:2px;}
+
+  /* Appel à l'action sur l'écran de connexion / création de compte */
+  .it-cta{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-top:24px;background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:13px 14px;color:var(--txt);font-family:inherit;cursor:pointer;}
+  .it-cta:active{transform:scale(.99);}
+  .it-cta .itc-ic{font-size:21px;flex:0 0 auto;}
+  .it-cta .itc-t{display:block;font-size:13.5px;font-weight:800;}
+  .it-cta .itc-s{display:block;font-size:11.5px;color:var(--txt-dim);margin-top:2px;}
+  .it-cta .itc-arr{margin-left:auto;color:var(--txt-faint);font-size:20px;flex:0 0 auto;}
+
+  /* Bandeau d'invitation sur la page d'accueil (journal, tous comptes) */
+  .inst-teaser{position:relative;background:linear-gradient(140deg,var(--accent-dim),var(--surface) 62%);border:1px solid var(--accent);border-radius:var(--radius);padding:15px 16px;margin-bottom:14px;}
+  .inst-teaser .itz-row{display:flex;align-items:flex-start;gap:12px;padding-right:26px;}
+  .inst-teaser .itz-ic{width:40px;height:40px;border-radius:11px;flex:0 0 auto;}
+  .inst-teaser .itz-t{font-size:14.5px;font-weight:800;line-height:1.3;}
+  .inst-teaser .itz-s{font-size:12px;color:var(--txt-dim);line-height:1.45;margin-top:3px;}
+  .inst-teaser .itz-go{width:100%;margin-top:12px;border:none;border-radius:12px;padding:12px;font-family:inherit;font-size:14px;font-weight:800;background:var(--accent);color:#fff;cursor:pointer;}
+  .inst-teaser .itz-x{position:absolute;top:9px;right:9px;width:26px;height:26px;border-radius:50%;border:none;background:none;color:var(--txt-faint);font-size:13px;font-family:inherit;line-height:1;cursor:pointer;}
+  /* État « déjà installée » dans les réglages */
+  .install-done{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--green);font-weight:700;background:var(--green-dim);border:1px solid var(--green);border-radius:11px;padding:11px 12px;margin-top:10px;}
+
+  @media (prefers-reduced-motion:reduce){
+    .it-pulse{animation:none;opacity:.9;}
+    .it-card,.it-shot.on{animation:none;}
+  }
 </style>
 </head>
 <body>
@@ -751,6 +820,16 @@
     <div class="auth-ok" id="authOk"></div>
     <button class="auth-btn" id="authBtn">Se connecter</button>
     <div class="auth-toggle" id="authToggle">Pas encore de compte ? <a id="authSwitch">Créer un compte</a></div>
+    <!-- Tutoriel d'installation : proposé dès la connexion / création de compte,
+         mais uniquement sur mobile et si l'app n'est pas déjà installée. -->
+    <button class="it-cta hidden" id="authInstallBtn" type="button">
+      <span class="itc-ic">📲</span>
+      <span style="min-width:0;">
+        <span class="itc-t">Installer Edgio sur ton téléphone</span>
+        <span class="itc-s">Tuto illustré pas à pas · iPhone &amp; Android</span>
+      </span>
+      <span class="itc-arr">›</span>
+    </button>
   </div>
 </div>
 
@@ -795,6 +874,18 @@
   <!-- ========== LEVEL 0 : GLOBAL ========== -->
   <div id="screenGlobal">
     <div class="scr-rail"></div>
+    <!-- Invitation à installer la PWA (mobile uniquement, masquable 14 jours) -->
+    <div class="inst-teaser hidden" id="installTeaser">
+      <button class="itz-x" id="installTeaserX" type="button" aria-label="Masquer">✕</button>
+      <div class="itz-row">
+        <img src="./icon-192.png" class="itz-ic" alt="">
+        <div style="min-width:0;">
+          <div class="itz-t">Mets Edgio sur ton écran d'accueil</div>
+          <div class="itz-s">Comme une vraie appli : plein écran et journal consultable hors-ligne. 30 secondes, sans passer par un store.</div>
+        </div>
+      </div>
+      <button class="itz-go" id="installTeaserGo" type="button">Voir comment faire</button>
+    </div>
     <div id="promoJournal" class="promo-slot"></div>
     <div id="greeting" class="an-intro" style="margin:0 2px 4px;"></div>
     <div class="card">
@@ -1274,6 +1365,471 @@
   </div>
 </div>
 
+
+<!-- ============================================================
+     Maquettes du tutoriel d'installation : définitions partagées.
+     Toutes les vignettes utilisent le même repère (viewBox 0 0 260 520)
+     et le même écran (17,13 → 226x494), donc châssis, barre d'état,
+     masques de projecteur et icône d'app sont mutualisés ici.
+     ============================================================ -->
+<svg id="itDefs" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden;">
+  <defs>
+    <linearGradient id="itIconG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bb92ff"/><stop offset="1" stop-color="#7b3ee6"/></linearGradient>
+    <linearGradient id="itWallIos" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a1a4d"/><stop offset=".5" stop-color="#4b2b7d"/><stop offset="1" stop-color="#111f3d"/></linearGradient>
+    <linearGradient id="itWallAnd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#11333a"/><stop offset=".55" stop-color="#1e5b51"/><stop offset="1" stop-color="#0e1f26"/></linearGradient>
+
+    <clipPath id="itScreen"><rect x="17" y="13" width="226" height="494" rx="31"/></clipPath>
+
+    <!-- Icône Edgio dessinée (et non l'image PNG) : elle reste nette à toute taille -->
+    <symbol id="itAppIcon" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="11" fill="url(#itIconG)"/>
+      <g stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M11 33l8.5-8.5 5 5L36 16"/><path d="M29.5 16H36v6.5"/>
+      </g>
+    </symbol>
+
+    <!-- Châssis du téléphone -->
+    <g id="itBody">
+      <rect x="6" y="2" width="248" height="516" rx="43" fill="#333d4a"/>
+      <rect x="9" y="5" width="242" height="510" rx="41" fill="#0a0d11"/>
+      <rect x="14" y="10" width="232" height="500" rx="34" fill="#000"/>
+      <rect x="4.5" y="118" width="3" height="24" rx="1.5" fill="#3f4956"/>
+      <rect x="4.5" y="150" width="3" height="40" rx="1.5" fill="#3f4956"/>
+      <rect x="4.5" y="198" width="3" height="40" rx="1.5" fill="#3f4956"/>
+      <rect x="252.5" y="150" width="3" height="58" rx="1.5" fill="#3f4956"/>
+    </g>
+    <!-- Reflet + liseré posés par-dessus l'écran -->
+    <g id="itGlare">
+      <rect x="17" y="13" width="226" height="494" rx="31" fill="none" stroke="#000" stroke-width="1.4" opacity=".45"/>
+      <rect x="17" y="13" width="226" height="494" rx="31" fill="none" stroke="#fff" stroke-width=".7" opacity=".07"/>
+    </g>
+    <!-- Barre d'état claire (sur fond sombre) + îlot dynamique -->
+    <g id="itStatus">
+      <rect x="105" y="19" width="50" height="15" rx="7.5" fill="#000"/>
+      <text x="48" y="35" fill="#fff" font-size="12" font-weight="700" text-anchor="middle">9:41</text>
+      <g fill="#fff">
+        <rect x="183" y="27.5" width="2.8" height="4" rx="1"/>
+        <rect x="187.6" y="25.5" width="2.8" height="6" rx="1"/>
+        <rect x="192.2" y="23.5" width="2.8" height="8" rx="1"/>
+        <rect x="196.8" y="21.5" width="2.8" height="10" rx="1"/>
+        <circle cx="209.8" cy="30.6" r="1.2"/>
+      </g>
+      <path d="M205.2 25.2a6.6 6.6 0 0 1 9.2 0" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M207.5 27.9a3.4 3.4 0 0 1 4.6 0" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="219" y="23" width="16" height="8.6" rx="2.6" fill="none" stroke="#fff" stroke-width="1.1" opacity=".6"/>
+      <rect x="220.4" y="24.4" width="11" height="5.8" rx="1.6" fill="#fff"/>
+      <path d="M236.6 26.4v1.8" stroke="#fff" stroke-width="1.5" opacity=".5" stroke-linecap="round"/>
+    </g>
+
+    <!-- Aperçu de l'app dans la page (fond des captures « navigateur ») -->
+    <symbol id="itPage" viewBox="0 0 226 400">
+      <rect width="226" height="400" fill="#0b0e11"/>
+      <text x="14" y="23" fill="#e7edf3" font-size="13.5" font-weight="800">Vue d'ensemble</text>
+      <text x="14" y="35" fill="#8a97a6" font-size="7.5">2 comptes · aujourd'hui</text>
+      <rect x="188" y="8" width="24" height="24" rx="7" fill="#151a21" stroke="#242c37"/>
+      <circle cx="200" cy="20" r="3" fill="none" stroke="#8a97a6" stroke-width="1.4"/>
+      <circle cx="200" cy="20" r="6.5" fill="none" stroke="#8a97a6" stroke-width="1.4" stroke-dasharray="2.2 2.6"/>
+      <rect x="0" y="46" width="226" height="1" fill="#242c37"/>
+      <rect x="14" y="58" width="198" height="70" rx="11" fill="#151a21" stroke="#242c37"/>
+      <text x="26" y="76" fill="#e7edf3" font-size="8.5" font-weight="700">Aujourd'hui — tous comptes</text>
+      <text x="26" y="96" fill="#8a97a6" font-size="7">Trades pris</text>
+      <text x="26" y="114" fill="#e7edf3" font-size="16" font-weight="800">12</text>
+      <text x="124" y="96" fill="#8a97a6" font-size="7">Résultat cumulé</text>
+      <text x="124" y="114" fill="#22c98a" font-size="16" font-weight="800">+248 €</text>
+      <rect x="14" y="138" width="198" height="92" rx="11" fill="#151a21" stroke="#242c37"/>
+      <text x="26" y="156" fill="#e7edf3" font-size="8.5" font-weight="700">Mes journaux de trading</text>
+      <rect x="24" y="164" width="178" height="27" rx="8" fill="#1c232c"/>
+      <text x="34" y="181" fill="#e7edf3" font-size="8">Prop firm · 100k</text>
+      <text x="192" y="181" fill="#22c98a" font-size="8" font-weight="800" text-anchor="end">+1 240 €</text>
+      <rect x="24" y="195" width="178" height="27" rx="8" fill="#1c232c"/>
+      <text x="34" y="212" fill="#e7edf3" font-size="8">Perso · futures</text>
+      <text x="192" y="212" fill="#f2545b" font-size="8" font-weight="800" text-anchor="end">−85 €</text>
+      <rect x="14" y="240" width="198" height="146" rx="11" fill="#151a21" stroke="#242c37"/>
+      <text x="26" y="258" fill="#e7edf3" font-size="8.5" font-weight="700">Calendrier cumulé</text>
+      <g>
+        <rect x="24" y="268" width="22" height="18" rx="4" fill="#1c232c"/><rect x="50" y="268" width="22" height="18" rx="4" fill="#11291f"/><rect x="76" y="268" width="22" height="18" rx="4" fill="#1c232c"/><rect x="102" y="268" width="22" height="18" rx="4" fill="#11291f"/><rect x="128" y="268" width="22" height="18" rx="4" fill="#2a1417"/><rect x="154" y="268" width="22" height="18" rx="4" fill="#1c232c"/><rect x="180" y="268" width="22" height="18" rx="4" fill="#1c232c"/>
+        <rect x="24" y="290" width="22" height="18" rx="4" fill="#11291f"/><rect x="50" y="290" width="22" height="18" rx="4" fill="#11291f"/><rect x="76" y="290" width="22" height="18" rx="4" fill="#2a1417"/><rect x="102" y="290" width="22" height="18" rx="4" fill="#1c232c"/><rect x="128" y="290" width="22" height="18" rx="4" fill="#11291f"/><rect x="154" y="290" width="22" height="18" rx="4" fill="#1c232c"/><rect x="180" y="290" width="22" height="18" rx="4" fill="#11291f"/>
+        <rect x="24" y="312" width="22" height="18" rx="4" fill="#1c232c"/><rect x="50" y="312" width="22" height="18" rx="4" fill="#2a1417"/><rect x="76" y="312" width="22" height="18" rx="4" fill="#11291f"/><rect x="102" y="312" width="22" height="18" rx="4" fill="#11291f"/><rect x="128" y="312" width="22" height="18" rx="4" fill="#1c232c"/><rect x="154" y="312" width="22" height="18" rx="4" fill="#11291f"/><rect x="180" y="312" width="22" height="18" rx="4" fill="#1c232c"/>
+        <rect x="24" y="334" width="22" height="18" rx="4" fill="#11291f"/><rect x="50" y="334" width="22" height="18" rx="4" fill="#1c232c"/><rect x="76" y="334" width="22" height="18" rx="4" fill="#1c232c"/><rect x="102" y="334" width="22" height="18" rx="4" fill="#2a1417"/><rect x="128" y="334" width="22" height="18" rx="4" fill="#11291f"/><rect x="154" y="334" width="22" height="18" rx="4" fill="#1c232c"/><rect x="180" y="334" width="22" height="18" rx="4" fill="#1c232c"/>
+      </g>
+    </symbol>
+
+    <!-- Projecteurs : le trou laisse voir l'élément à toucher, le reste est assombri -->
+    <mask id="itMaskIos1" maskUnits="userSpaceOnUse"><rect x="17" y="13" width="226" height="494" fill="#fff"/><circle cx="130" cy="473" r="25" fill="#000"/></mask>
+    <mask id="itMaskIos2" maskUnits="userSpaceOnUse"><rect x="17" y="13" width="226" height="494" fill="#fff"/><rect x="22" y="350" width="216" height="42" rx="12" fill="#000"/></mask>
+    <mask id="itMaskIos3" maskUnits="userSpaceOnUse"><rect x="17" y="13" width="226" height="494" fill="#fff"/><rect x="188" y="58" width="50" height="28" rx="10" fill="#000"/></mask>
+    <mask id="itMaskAnd1" maskUnits="userSpaceOnUse"><rect x="17" y="13" width="226" height="494" fill="#fff"/><circle cx="222" cy="62" r="18" fill="#000"/></mask>
+    <mask id="itMaskAnd2" maskUnits="userSpaceOnUse"><rect x="17" y="13" width="226" height="494" fill="#fff"/><rect x="100" y="305" width="140" height="33" rx="9" fill="#000"/></mask>
+    <mask id="itMaskAnd3" maskUnits="userSpaceOnUse"><rect x="17" y="13" width="226" height="494" fill="#fff"/><rect x="148" y="416" width="88" height="44" rx="16" fill="#000"/></mask>
+  </defs>
+</svg>
+
+<!-- ============ Tutoriel « Installer l'app sur ton téléphone » ============
+     Un seul popup, réutilisé par les 3 points d'entrée : écran de connexion /
+     création de compte, bandeau de la page d'accueil, et réglages de l'app. -->
+<div class="it-ov" id="instTuto" aria-hidden="true">
+  <div class="it-card" role="dialog" aria-modal="true" aria-labelledby="itTitle">
+    <div class="grab"></div>
+    <button class="it-x" id="itClose" type="button" aria-label="Fermer">✕</button>
+    <div class="it-head">
+      <img src="./icon-192.png" class="it-logo" alt="">
+      <div>
+        <div class="it-t" id="itTitle">Installe Edgio sur ton téléphone</div>
+        <div class="it-s">Une icône sur ton écran d'accueil : plein écran, ouverture instantanée, et ton journal reste lisible hors-ligne. 30 secondes, c'est gratuit.</div>
+      </div>
+    </div>
+    <div class="it-tabs" id="itTabs">
+      <button type="button" data-os="ios">iPhone / iPad</button>
+      <button type="button" data-os="android">Android</button>
+    </div>
+    <div class="it-native hidden" id="itNative">
+      <button class="it-native-btn" id="itNativeBtn" type="button">⚡ Installer maintenant</button>
+      <div class="it-native-s">Ton navigateur sait le faire tout seul — un seul appui suffit. Sinon, suis les étapes ci-dessous.</div>
+    </div>
+    <div class="it-stage" id="itStage">
+      <!-- ===== iPhone · étape 1 : le bouton Partager de Safari ===== -->
+      <svg class="it-shot" id="itShot-ios-1" viewBox="0 0 260 520" role="img" aria-labelledby="itA1" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+        <title id="itA1">Safari sur iPhone, le bouton Partager de la barre du bas est mis en évidence.</title>
+        <use href="#itBody"/>
+        <g clip-path="url(#itScreen)">
+          <rect x="17" y="13" width="226" height="31" fill="#0b0e11"/>
+          <use href="#itPage" x="17" y="44" width="226" height="361"/>
+          <use href="#itStatus"/>
+          <!-- barre Safari (bas d'écran) -->
+          <rect x="17" y="404" width="226" height="103" fill="#f5f5f7"/>
+          <rect x="17" y="404" width="226" height="1" fill="#d3d3d8"/>
+          <rect x="32" y="414" width="196" height="32" rx="10" fill="#e9e9ee"/>
+          <text x="46" y="434" font-size="10" font-weight="700" fill="#5b5b60">aA</text>
+          <g stroke="#5b5b60" stroke-width="1.2" fill="none">
+            <rect x="96" y="426" width="7" height="6" rx="1.4"/>
+            <path d="M97.6 426v-2a2 2 0 0 1 3.8 0v2"/>
+          </g>
+          <text x="108" y="433.5" font-size="10.5" fill="#1c1c1e">edgio.app</text>
+          <g stroke="#5b5b60" stroke-width="1.4" fill="none" stroke-linecap="round">
+            <path d="M208 425.5a6 6 0 1 0 1.8 4.3"/><path d="M208.2 421v5h-5"/>
+          </g>
+          <!-- barre d'outils -->
+          <g stroke="#007aff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M49 466l-6 7 6 7"/>
+            <path d="M85 466l6 7-6 7"/>
+            <path d="M122 471v9.5a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V471"/>
+            <path d="M130 463v14.5"/><path d="M125.6 467.4l4.4-4.4 4.4 4.4"/>
+            <path d="M167 464h5v18h-5zM172 464h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"/>
+            <rect x="206" y="464" width="14" height="14" rx="3"/><path d="M210 482h10a2 2 0 0 0 2-2v-10"/>
+          </g>
+          <rect x="95" y="494" width="70" height="4.5" rx="2.3" fill="#000" opacity=".3"/>
+          <!-- projecteur + repère -->
+          <rect x="17" y="13" width="226" height="494" fill="#03060a" opacity=".62" mask="url(#itMaskIos1)"/>
+          <circle cx="130" cy="473" r="20" fill="none" stroke="var(--accent)" stroke-width="2.2"/>
+          <circle class="it-pulse" cx="130" cy="473" r="20" fill="none" stroke="var(--accent)" stroke-width="2.6"/>
+          <path d="M130 402v43" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round" opacity=".85"/>
+          <path d="M125.4 442l4.6 8 4.6-8z" fill="var(--accent)"/>
+          <g><rect x="86" y="368" width="88" height="24" rx="12" fill="var(--accent)"/>
+            <text x="130" y="384.5" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">Partager</text></g>
+        </g>
+        <use href="#itGlare"/>
+      </svg>
+
+      <!-- ===== iPhone · étape 2 : « Sur l'écran d'accueil » dans la feuille de partage ===== -->
+      <svg class="it-shot" id="itShot-ios-2" viewBox="0 0 260 520" role="img" aria-labelledby="itA2" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+        <title id="itA2">La feuille de partage d'iOS est ouverte, la ligne « Sur l'écran d'accueil » est mise en évidence.</title>
+        <use href="#itBody"/>
+        <g clip-path="url(#itScreen)">
+          <rect x="17" y="13" width="226" height="31" fill="#0b0e11"/>
+          <use href="#itPage" x="17" y="44" width="226" height="361"/>
+          <rect x="17" y="13" width="226" height="494" fill="#000" opacity=".55"/>
+          <use href="#itStatus"/>
+          <!-- feuille de partage -->
+          <rect x="17" y="118" width="226" height="400" rx="16" fill="#f2f2f7"/>
+          <rect x="123" y="125" width="20" height="4" rx="2" fill="#c7c7cc"/>
+          <use href="#itAppIcon" x="32" y="139" width="36" height="36"/>
+          <text x="78" y="155" font-size="12" font-weight="800" fill="#1c1c1e">Edgio</text>
+          <text x="78" y="169" font-size="9" fill="#8a8a8e">edgio.app</text>
+          <circle cx="221" cy="157" r="11" fill="#e2e2e7"/>
+          <path d="M217.5 153.5l7 7M224.5 153.5l-7 7" stroke="#7c7c81" stroke-width="1.6" stroke-linecap="round"/>
+          <rect x="32" y="187" width="196" height="1" fill="#dedee3"/>
+          <!-- rangée d'apps -->
+          <g text-anchor="middle" font-size="6.5" fill="#6d6d72">
+            <circle cx="53" cy="212" r="17" fill="#e8e8ed"/>
+            <g fill="none" stroke="#007aff" stroke-width="1.6" stroke-linecap="round"><path d="M47.5 214.5a8 8 0 0 1 11 0"/><path d="M50 217.5a4.3 4.3 0 0 1 6 0"/></g>
+            <circle cx="53" cy="220.5" r="1.6" fill="#007aff" stroke="none"/>
+            <text x="53" y="240">AirDrop</text>
+            <circle cx="101" cy="212" r="17" fill="#3ac653"/>
+            <path d="M94 208.5a7 6 0 1 1 7 6h-6l2-2.5a6 6 0 0 1-3-3.5z" fill="#fff"/>
+            <text x="101" y="240">Messages</text>
+            <circle cx="149" cy="212" r="17" fill="#1a9cf0"/>
+            <g fill="none" stroke="#fff" stroke-width="1.5"><rect x="141" y="206" width="16" height="12" rx="2.4"/><path d="M141.6 207l7.4 6 7.4-6"/></g>
+            <text x="149" y="240">Mail</text>
+            <circle cx="197" cy="212" r="17" fill="#25d366"/>
+            <path d="M190 219l1.4-4a6.6 6.6 0 1 1 2.6 2.6z" fill="#fff"/>
+            <text x="197" y="240">WhatsApp</text>
+          </g>
+          <!-- liste d'actions -->
+          <rect x="26" y="252" width="208" height="170" rx="12" fill="#fff"/>
+          <g font-size="10.5" fill="#1c1c1e"><text x="40" y="273">Copier</text><text x="40" y="307">Ajouter aux favoris</text><text x="40" y="341">Rechercher dans la page</text><text x="40" y="375">Sur l'écran d'accueil</text><text x="40" y="409">Marquage</text></g>
+          <g stroke="#e6e6eb" stroke-width="1"><path d="M40 286h194"/><path d="M40 320h194"/><path d="M40 354h194"/><path d="M40 388h194"/></g>
+          <g fill="none" stroke="#1c1c1e" stroke-width="1.4">
+            <rect x="209" y="262" width="10" height="12" rx="2"/><rect x="213" y="258" width="10" height="12" rx="2" fill="#fff"/>
+            <path d="M210 292l6 6 6-6-6 6z" stroke-linejoin="round"/><path d="M216 292.5l1.7 3.6 3.9.5-2.9 2.7.8 3.9-3.5-2-3.5 2 .8-3.9-2.9-2.7 3.9-.5z"/>
+            <circle cx="215.5" cy="331" r="5"/><path d="M219.4 334.8l3.4 3.4"/>
+            <rect x="209" y="362" width="14" height="14" rx="3.4"/><path d="M216 366v6M213 369h6"/>
+            <path d="M210 405l9-9 3.5 3.5-9 9-4.4 1z" stroke-linejoin="round"/>
+          </g>
+          <rect x="26" y="354" width="208" height="34" fill="var(--accent)" opacity=".14"/>
+          <rect x="95" y="494" width="70" height="4.5" rx="2.3" fill="#000" opacity=".28"/>
+          <!-- projecteur + repère -->
+          <rect x="17" y="13" width="226" height="494" fill="#03060a" opacity=".62" mask="url(#itMaskIos2)"/>
+          <rect x="26" y="354" width="208" height="34" rx="9" fill="none" stroke="var(--accent)" stroke-width="2.2"/>
+          <rect class="it-pulse" x="26" y="354" width="208" height="34" rx="9" fill="none" stroke="var(--accent)" stroke-width="2.6"/>
+          <g><rect x="84" y="322" width="92" height="24" rx="12" fill="var(--accent)"/>
+            <path d="M124 346h12l-6 8z" fill="var(--accent)"/>
+            <text x="130" y="338.5" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">Touche ici</text></g>
+        </g>
+        <use href="#itGlare"/>
+      </svg>
+
+      <!-- ===== iPhone · étape 3 : confirmer avec « Ajouter » ===== -->
+      <svg class="it-shot" id="itShot-ios-3" viewBox="0 0 260 520" role="img" aria-labelledby="itA3" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+        <title id="itA3">L'écran « Sur l'écran d'accueil » d'iOS, le bouton Ajouter en haut à droite est mis en évidence.</title>
+        <use href="#itBody"/>
+        <g clip-path="url(#itScreen)">
+          <rect x="17" y="13" width="226" height="494" fill="#0b0e11"/>
+          <rect x="17" y="13" width="226" height="494" fill="#000" opacity=".5"/>
+          <use href="#itStatus"/>
+          <rect x="17" y="48" width="226" height="470" rx="14" fill="#f2f2f7"/>
+          <text x="32" y="77" font-size="10.5" fill="#007aff">Annuler</text>
+          <text x="130" y="77" font-size="11" font-weight="700" fill="#1c1c1e" text-anchor="middle">Sur l'écran d'accueil</text>
+          <text x="228" y="77" font-size="10.5" font-weight="700" fill="#007aff" text-anchor="end">Ajouter</text>
+          <rect x="17" y="90" width="226" height="1" fill="#dedee3"/>
+          <rect x="26" y="104" width="208" height="64" rx="12" fill="#fff"/>
+          <use href="#itAppIcon" x="38" y="118" width="36" height="36"/>
+          <text x="86" y="134" font-size="11" font-weight="600" fill="#1c1c1e">Edgio</text>
+          <rect x="118" y="124" width="1.4" height="13" fill="#007aff"/>
+          <text x="86" y="152" font-size="9" fill="#8a8a8e">edgio.app</text>
+          <circle cx="216" cy="130" r="7" fill="#c7c7cc"/>
+          <path d="M213.5 127.5l5 5M218.5 127.5l-5 5" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
+          <g font-size="8.5" fill="#8a8a8e"><text x="30" y="190">Une icône sera ajoutée à ton écran d'accueil</text><text x="30" y="203">pour ouvrir Edgio en un seul geste.</text></g>
+          <!-- clavier -->
+          <rect x="17" y="296" width="226" height="222" fill="#d1d4da"/>
+          <g font-size="9" fill="#1c1c1e" text-anchor="middle"><text x="60" y="317">Edgio</text><text x="130" y="317">« Edgio »</text><text x="200" y="317">Edge</text></g>
+          <g stroke="#b6bac2" stroke-width="1"><path d="M95 304v14"/><path d="M165 304v14"/></g>
+          <g fill="#fff" font-size="9.5" text-anchor="middle">
+            <g><rect x="22" y="328" width="19" height="27" rx="4"/><rect x="44" y="328" width="19" height="27" rx="4"/><rect x="66" y="328" width="19" height="27" rx="4"/><rect x="88" y="328" width="19" height="27" rx="4"/><rect x="110" y="328" width="19" height="27" rx="4"/><rect x="132" y="328" width="19" height="27" rx="4"/><rect x="154" y="328" width="19" height="27" rx="4"/><rect x="176" y="328" width="19" height="27" rx="4"/><rect x="198" y="328" width="19" height="27" rx="4"/><rect x="220" y="328" width="19" height="27" rx="4"/></g>
+            <g fill="#1c1c1e"><text x="31.5" y="346">a</text><text x="53.5" y="346">z</text><text x="75.5" y="346">e</text><text x="97.5" y="346">r</text><text x="119.5" y="346">t</text><text x="141.5" y="346">y</text><text x="163.5" y="346">u</text><text x="185.5" y="346">i</text><text x="207.5" y="346">o</text><text x="229.5" y="346">p</text></g>
+            <g><rect x="22" y="360" width="19" height="27" rx="4"/><rect x="44" y="360" width="19" height="27" rx="4"/><rect x="66" y="360" width="19" height="27" rx="4"/><rect x="88" y="360" width="19" height="27" rx="4"/><rect x="110" y="360" width="19" height="27" rx="4"/><rect x="132" y="360" width="19" height="27" rx="4"/><rect x="154" y="360" width="19" height="27" rx="4"/><rect x="176" y="360" width="19" height="27" rx="4"/><rect x="198" y="360" width="19" height="27" rx="4"/><rect x="220" y="360" width="19" height="27" rx="4"/></g>
+            <g fill="#1c1c1e"><text x="31.5" y="378">q</text><text x="53.5" y="378">s</text><text x="75.5" y="378">d</text><text x="97.5" y="378">f</text><text x="119.5" y="378">g</text><text x="141.5" y="378">h</text><text x="163.5" y="378">j</text><text x="185.5" y="378">k</text><text x="207.5" y="378">l</text><text x="229.5" y="378">m</text></g>
+            <g><rect x="22" y="392" width="26" height="27" rx="4" fill="#adb3bd"/><rect x="55" y="392" width="19" height="27" rx="4"/><rect x="77" y="392" width="19" height="27" rx="4"/><rect x="99" y="392" width="19" height="27" rx="4"/><rect x="121" y="392" width="19" height="27" rx="4"/><rect x="143" y="392" width="19" height="27" rx="4"/><rect x="165" y="392" width="19" height="27" rx="4"/><rect x="187" y="392" width="19" height="27" rx="4"/><rect x="213" y="392" width="26" height="27" rx="4" fill="#adb3bd"/></g>
+            <g fill="#1c1c1e"><text x="64.5" y="410">w</text><text x="86.5" y="410">x</text><text x="108.5" y="410">c</text><text x="130.5" y="410">v</text><text x="152.5" y="410">b</text><text x="174.5" y="410">n</text><text x="196.5" y="410">'</text></g>
+            <path d="M30 405.5l5-5v10z" fill="#fff"/><path d="M219 400h12l3 5.5-3 5.5h-12l-4.5-5.5z" fill="#fff"/><path d="M223 402.5l5 6M228 402.5l-5 6" stroke="#5b6068" stroke-width="1.2" fill="none"/>
+            <g><rect x="22" y="424" width="30" height="27" rx="4" fill="#adb3bd"/><rect x="58" y="424" width="24" height="27" rx="4" fill="#adb3bd"/><rect x="88" y="424" width="102" height="27" rx="4"/><rect x="196" y="424" width="43" height="27" rx="4" fill="#adb3bd"/></g>
+            <g fill="#1c1c1e" font-size="8"><text x="37" y="441">123</text><text x="139" y="441">espace</text><text x="217.5" y="441">retour</text></g>
+            <circle cx="70" cy="437.5" r="5.4" fill="none" stroke="#1c1c1e" stroke-width="1.1"/>
+            <path d="M64.6 437.5h10.8M70 432.1c2.6 3 2.6 7.8 0 10.8M70 432.1c-2.6 3-2.6 7.8 0 10.8" stroke="#1c1c1e" stroke-width="1.1" fill="none"/>
+          </g>
+          <rect x="95" y="494" width="70" height="4.5" rx="2.3" fill="#000" opacity=".3"/>
+          <!-- projecteur + repère -->
+          <rect x="17" y="13" width="226" height="494" fill="#03060a" opacity=".62" mask="url(#itMaskIos3)"/>
+          <rect x="192" y="61" width="42" height="22" rx="9" fill="none" stroke="var(--accent)" stroke-width="2.2"/>
+          <rect class="it-pulse" x="192" y="61" width="42" height="22" rx="9" fill="none" stroke="var(--accent)" stroke-width="2.6"/>
+          <g><path d="M207 100l6-9 6 9z" fill="var(--accent)"/>
+            <rect x="130" y="99" width="104" height="24" rx="12" fill="var(--accent)"/>
+            <text x="182" y="115.5" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">Touche Ajouter</text></g>
+        </g>
+        <use href="#itGlare"/>
+      </svg>
+
+      <!-- ===== iPhone · étape 4 : l'icône est sur l'écran d'accueil ===== -->
+      <svg class="it-shot" id="itShot-ios-4" viewBox="0 0 260 520" role="img" aria-labelledby="itA4" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+        <title id="itA4">L'écran d'accueil de l'iPhone avec la nouvelle icône Edgio installée.</title>
+        <use href="#itBody"/>
+        <g clip-path="url(#itScreen)">
+          <rect x="17" y="13" width="226" height="494" fill="url(#itWallIos)"/>
+          <use href="#itStatus"/>
+          <g>
+            <rect x="30" y="70" width="44" height="44" rx="11" fill="#3a7bfd"/><rect x="82" y="70" width="44" height="44" rx="11" fill="#34c759"/><rect x="134" y="70" width="44" height="44" rx="11" fill="#ff9f0a"/><rect x="186" y="70" width="44" height="44" rx="11" fill="#ff453a"/>
+            <rect x="30" y="140" width="44" height="44" rx="11" fill="#5e5ce6"/><rect x="82" y="140" width="44" height="44" rx="11" fill="#64d2ff"/><rect x="134" y="140" width="44" height="44" rx="11" fill="#ffd60a"/><rect x="186" y="140" width="44" height="44" rx="11" fill="#ff375f"/>
+            <use href="#itAppIcon" x="30" y="210" width="44" height="44"/>
+            <rect x="82" y="210" width="44" height="44" rx="11" fill="#fff" opacity=".2"/><rect x="134" y="210" width="44" height="44" rx="11" fill="#fff" opacity=".2"/><rect x="186" y="210" width="44" height="44" rx="11" fill="#fff" opacity=".2"/>
+          </g>
+          <g fill="#fff" font-size="7.5" text-anchor="middle" opacity=".92">
+            <text x="52" y="126">Téléphone</text><text x="104" y="126">Messages</text><text x="156" y="126">Agenda</text><text x="208" y="126">Photos</text>
+            <text x="52" y="196">Réglages</text><text x="104" y="196">Météo</text><text x="156" y="196">Notes</text><text x="208" y="196">Santé</text>
+            <text x="52" y="266" font-weight="800">Edgio</text><text x="104" y="266">Plans</text><text x="156" y="266">Horloge</text><text x="208" y="266">Bourse</text>
+          </g>
+          <g fill="#fff" opacity=".55"><circle cx="118" cy="418" r="3"/><circle cx="130" cy="418" r="3" opacity=".45"/><circle cx="142" cy="418" r="3" opacity=".45"/></g>
+          <rect x="28" y="432" width="204" height="62" rx="24" fill="#fff" opacity=".17"/>
+          <g><rect x="34" y="441" width="44" height="44" rx="11" fill="#fff" opacity=".28"/><rect x="86" y="441" width="44" height="44" rx="11" fill="#fff" opacity=".28"/><rect x="138" y="441" width="44" height="44" rx="11" fill="#fff" opacity=".28"/><rect x="190" y="441" width="44" height="44" rx="11" fill="#fff" opacity=".28"/></g>
+          <!-- mise en avant de la nouvelle icône -->
+          <rect x="25" y="205" width="54" height="54" rx="15" fill="none" stroke="var(--accent)" stroke-width="2.2"/>
+          <rect class="it-pulse" x="25" y="205" width="54" height="54" rx="15" fill="none" stroke="var(--accent)" stroke-width="2.6"/>
+          <g fill="#fff"><path d="M86 200l1.6 3.6 3.6 1.6-3.6 1.6-1.6 3.6-1.6-3.6-3.6-1.6 3.6-1.6z" opacity=".9"/><path d="M22 262l1.1 2.5 2.5 1.1-2.5 1.1-1.1 2.5-1.1-2.5-2.5-1.1 2.5-1.1z" opacity=".75"/></g>
+          <g><path d="M46 292l6-8 6 8z" fill="var(--accent)"/>
+            <rect x="26" y="292" width="112" height="24" rx="12" fill="var(--accent)"/>
+            <text x="82" y="308.5" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">Ton app est là !</text></g>
+          <rect x="95" y="494" width="70" height="4.5" rx="2.3" fill="#fff" opacity=".6"/>
+        </g>
+        <use href="#itGlare"/>
+      </svg>
+
+      <!-- ===== Android · étape 1 : le menu ⋮ de Chrome ===== -->
+      <svg class="it-shot" id="itShot-android-1" viewBox="0 0 260 520" role="img" aria-labelledby="itB1" font-family="Roboto,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif">
+        <title id="itB1">Chrome sur Android, le menu à trois points en haut à droite est mis en évidence.</title>
+        <use href="#itBody"/>
+        <g clip-path="url(#itScreen)">
+          <use href="#itPage" x="17" y="79" width="226" height="428"/>
+          <rect x="17" y="13" width="226" height="32" fill="#0b0e11"/>
+          <rect x="17" y="45" width="226" height="34" fill="#f1f3f4"/>
+          <rect x="26" y="51" width="152" height="22" rx="11" fill="#e3e5e8"/>
+          <g stroke="#5f6368" stroke-width="1.2" fill="none"><rect x="35" y="59" width="7" height="6" rx="1.4"/><path d="M36.6 59v-2a2 2 0 0 1 3.8 0v2"/></g>
+          <text x="48" y="65.5" font-size="9.5" fill="#202124">edgio.app</text>
+          <rect x="186" y="53" width="17" height="17" rx="3.5" fill="none" stroke="#5f6368" stroke-width="1.6"/>
+          <text x="194.5" y="65.5" font-size="8.5" font-weight="700" fill="#5f6368" text-anchor="middle">3</text>
+          <g fill="#5f6368"><circle cx="222" cy="56.5" r="1.8"/><circle cx="222" cy="62" r="1.8"/><circle cx="222" cy="67.5" r="1.8"/></g>
+          <use href="#itStatus"/>
+          <rect x="105" y="496" width="50" height="4" rx="2" fill="#fff" opacity=".55"/>
+          <!-- projecteur + repère -->
+          <rect x="17" y="13" width="226" height="494" fill="#03060a" opacity=".62" mask="url(#itMaskAnd1)"/>
+          <circle cx="222" cy="62" r="15" fill="none" stroke="var(--accent)" stroke-width="2.2"/>
+          <circle class="it-pulse" cx="222" cy="62" r="15" fill="none" stroke="var(--accent)" stroke-width="2.6"/>
+          <g><path d="M216 100l6-9 6 9z" fill="var(--accent)"/>
+            <rect x="124" y="99" width="110" height="24" rx="12" fill="var(--accent)"/>
+            <text x="179" y="115.5" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">Touche le menu</text></g>
+        </g>
+        <use href="#itGlare"/>
+      </svg>
+
+      <!-- ===== Android · étape 2 : « Installer l'application » dans le menu ===== -->
+      <svg class="it-shot" id="itShot-android-2" viewBox="0 0 260 520" role="img" aria-labelledby="itB2" font-family="Roboto,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif">
+        <title id="itB2">Le menu de Chrome est ouvert, la ligne « Installer l'application » est mise en évidence.</title>
+        <use href="#itBody"/>
+        <g clip-path="url(#itScreen)">
+          <use href="#itPage" x="17" y="79" width="226" height="428"/>
+          <rect x="17" y="13" width="226" height="32" fill="#0b0e11"/>
+          <rect x="17" y="45" width="226" height="34" fill="#f1f3f4"/>
+          <rect x="26" y="51" width="152" height="22" rx="11" fill="#e3e5e8"/>
+          <text x="48" y="65.5" font-size="9.5" fill="#202124">edgio.app</text>
+          <rect x="17" y="13" width="226" height="494" fill="#000" opacity=".42"/>
+          <use href="#itStatus"/>
+          <!-- menu déroulant -->
+          <rect x="106" y="53" width="132" height="322" rx="9" fill="#000" opacity=".22"/>
+          <rect x="104" y="50" width="132" height="322" rx="9" fill="#fff"/>
+          <g stroke="#5f6368" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M121 65l-4 4 4 4"/><path d="M141 65l4 4-4 4"/>
+            <path d="M164 63.5l1.6 3.5 3.8.5-2.8 2.6.7 3.8-3.3-1.8-3.3 1.8.7-3.8-2.8-2.6 3.8-.5z"/>
+            <circle cx="187" cy="69" r="5.4"/><path d="M187 71.6v-3.4M187 66.2v0"/>
+            <path d="M215 66.5a5.6 5.6 0 1 0 1.6 4"/><path d="M215.4 62v4.6h-4.6"/>
+          </g>
+          <rect x="104" y="84" width="132" height="1" fill="#e8eaed"/>
+          <g font-size="8.6" fill="#202124">
+            <text x="114" y="101">Nouvel onglet</text>
+            <text x="114" y="126">Nouvel onglet privé</text>
+            <text x="114" y="151">Historique</text>
+            <text x="114" y="176">Téléchargements</text>
+            <text x="114" y="201">Signets</text>
+            <text x="114" y="226">Onglets récents</text>
+            <text x="114" y="251">Partager…</text>
+            <text x="114" y="276">Rechercher sur la page</text>
+            <text x="114" y="301">Traduire…</text>
+            <text x="114" y="326" font-weight="700">Installer l'application</text>
+            <text x="114" y="351">Paramètres</text>
+          </g>
+          <rect x="104" y="309" width="132" height="25" fill="var(--accent)" opacity=".16"/>
+          <g fill="none" stroke="#5f6368" stroke-width="1.3"><rect x="216" y="313" width="12" height="12" rx="2.6"/><path d="M222 316.5v5M219.5 319h5"/></g>
+          <rect x="105" y="496" width="50" height="4" rx="2" fill="#fff" opacity=".4"/>
+          <!-- projecteur + repère -->
+          <rect x="17" y="13" width="226" height="494" fill="#03060a" opacity=".62" mask="url(#itMaskAnd2)"/>
+          <rect x="104" y="309" width="132" height="25" rx="6" fill="none" stroke="var(--accent)" stroke-width="2.2"/>
+          <rect class="it-pulse" x="104" y="309" width="132" height="25" rx="6" fill="none" stroke="var(--accent)" stroke-width="2.6"/>
+          <g><rect x="52" y="276" width="92" height="24" rx="12" fill="var(--accent)"/>
+            <path d="M104 300h12l-6 8z" fill="var(--accent)"/>
+            <text x="98" y="292.5" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">Touche ici</text></g>
+        </g>
+        <use href="#itGlare"/>
+      </svg>
+
+      <!-- ===== Android · étape 3 : confirmer avec « Installer » ===== -->
+      <svg class="it-shot" id="itShot-android-3" viewBox="0 0 260 520" role="img" aria-labelledby="itB3" font-family="Roboto,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif">
+        <title id="itB3">La fenêtre de confirmation de Chrome, le bouton Installer est mis en évidence.</title>
+        <use href="#itBody"/>
+        <g clip-path="url(#itScreen)">
+          <use href="#itPage" x="17" y="79" width="226" height="428"/>
+          <rect x="17" y="13" width="226" height="32" fill="#0b0e11"/>
+          <rect x="17" y="45" width="226" height="34" fill="#f1f3f4"/>
+          <rect x="26" y="51" width="152" height="22" rx="11" fill="#e3e5e8"/>
+          <text x="48" y="65.5" font-size="9.5" fill="#202124">edgio.app</text>
+          <rect x="17" y="13" width="226" height="494" fill="#000" opacity=".45"/>
+          <use href="#itStatus"/>
+          <rect x="17" y="318" width="226" height="200" rx="18" fill="#fff"/>
+          <rect x="119" y="327" width="22" height="4" rx="2" fill="#dadce0"/>
+          <use href="#itAppIcon" x="32" y="345" width="44" height="44"/>
+          <text x="88" y="362" font-size="11.5" font-weight="700" fill="#202124">Installer l'application</text>
+          <text x="88" y="379" font-size="9.5" fill="#5f6368">Edgio — edgio.app</text>
+          <rect x="32" y="408" width="196" height="1" fill="#e8eaed"/>
+          <text x="140" y="443" font-size="10" font-weight="700" fill="#1a73e8" text-anchor="end">Annuler</text>
+          <rect x="156" y="424" width="72" height="28" rx="14" fill="#1a73e8"/>
+          <text x="192" y="443" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Installer</text>
+          <rect x="105" y="496" width="50" height="4" rx="2" fill="#202124" opacity=".35"/>
+          <!-- projecteur + repère -->
+          <rect x="17" y="13" width="226" height="494" fill="#03060a" opacity=".62" mask="url(#itMaskAnd3)"/>
+          <rect x="156" y="424" width="72" height="28" rx="14" fill="none" stroke="var(--accent)" stroke-width="2.2"/>
+          <rect class="it-pulse" x="156" y="424" width="72" height="28" rx="14" fill="none" stroke="var(--accent)" stroke-width="2.6"/>
+          <g><rect x="126" y="384" width="108" height="24" rx="12" fill="var(--accent)"/>
+            <path d="M186 408h12l-6 8z" fill="var(--accent)"/>
+            <text x="180" y="400.5" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">Touche Installer</text></g>
+        </g>
+        <use href="#itGlare"/>
+      </svg>
+
+      <!-- ===== Android · étape 4 : l'icône est sur l'écran d'accueil ===== -->
+      <svg class="it-shot" id="itShot-android-4" viewBox="0 0 260 520" role="img" aria-labelledby="itB4" font-family="Roboto,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif">
+        <title id="itB4">L'écran d'accueil Android avec la nouvelle icône Edgio installée.</title>
+        <use href="#itBody"/>
+        <g clip-path="url(#itScreen)">
+          <rect x="17" y="13" width="226" height="494" fill="url(#itWallAnd)"/>
+          <use href="#itStatus"/>
+          <rect x="30" y="58" width="200" height="34" rx="17" fill="#fff" opacity=".92"/>
+          <g><circle cx="47" cy="75" r="7.5" fill="none" stroke="#4285f4" stroke-width="2.6" stroke-dasharray="30 14" transform="rotate(-30 47 75)"/><path d="M47 75h7.5" stroke="#4285f4" stroke-width="2.6"/></g>
+          <text x="64" y="79" font-size="9.5" fill="#5f6368">Rechercher</text>
+          <g fill="#5f6368"><rect x="206" y="68" width="6" height="10" rx="3"/><path d="M203 76a6 6 0 0 0 12 0" fill="none" stroke="#5f6368" stroke-width="1.4"/><path d="M209 82v3" stroke="#5f6368" stroke-width="1.4"/></g>
+          <g>
+            <circle cx="52" cy="130" r="22" fill="#4285f4"/><circle cx="104" cy="130" r="22" fill="#34a853"/><circle cx="156" cy="130" r="22" fill="#fbbc05"/><circle cx="208" cy="130" r="22" fill="#ea4335"/>
+            <circle cx="52" cy="200" r="22" fill="#8ab4f8"/><circle cx="104" cy="200" r="22" fill="#f28b82"/><circle cx="156" cy="200" r="22" fill="#fdd663"/><circle cx="208" cy="200" r="22" fill="#81c995"/>
+            <use href="#itAppIcon" x="30" y="248" width="44" height="44"/>
+            <circle cx="104" cy="270" r="22" fill="#fff" opacity=".22"/><circle cx="156" cy="270" r="22" fill="#fff" opacity=".22"/><circle cx="208" cy="270" r="22" fill="#fff" opacity=".22"/>
+          </g>
+          <g fill="#fff" font-size="7.5" text-anchor="middle" opacity=".92">
+            <text x="52" y="164">Téléphone</text><text x="104" y="164">Messages</text><text x="156" y="164">Chrome</text><text x="208" y="164">Photos</text>
+            <text x="52" y="234">Play Store</text><text x="104" y="234">Gmail</text><text x="156" y="234">Agenda</text><text x="208" y="234">Maps</text>
+            <text x="52" y="304" font-weight="800">Edgio</text><text x="104" y="304">Horloge</text><text x="156" y="304">Météo</text><text x="208" y="304">Réglages</text>
+          </g>
+          <rect x="28" y="424" width="204" height="66" rx="30" fill="#fff" opacity=".17"/>
+          <g fill="#fff" opacity=".3"><circle cx="52" cy="457" r="21"/><circle cx="104" cy="457" r="21"/><circle cx="156" cy="457" r="21"/><circle cx="208" cy="457" r="21"/></g>
+          <!-- mise en avant de la nouvelle icône -->
+          <rect x="25" y="243" width="54" height="54" rx="16" fill="none" stroke="var(--accent)" stroke-width="2.2"/>
+          <rect class="it-pulse" x="25" y="243" width="54" height="54" rx="16" fill="none" stroke="var(--accent)" stroke-width="2.6"/>
+          <g fill="#fff"><path d="M86 238l1.6 3.6 3.6 1.6-3.6 1.6-1.6 3.6-1.6-3.6-3.6-1.6 3.6-1.6z" opacity=".9"/><path d="M22 300l1.1 2.5 2.5 1.1-2.5 1.1-1.1 2.5-1.1-2.5-2.5-1.1 2.5-1.1z" opacity=".75"/></g>
+          <g><path d="M46 336l6-8 6 8z" fill="var(--accent)"/>
+            <rect x="26" y="336" width="112" height="24" rx="12" fill="var(--accent)"/>
+            <text x="82" y="352.5" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">Ton app est là !</text></g>
+          <rect x="105" y="496" width="50" height="4" rx="2" fill="#fff" opacity=".6"/>
+        </g>
+        <use href="#itGlare"/>
+      </svg>
+    </div>
+    <div class="it-step">
+      <div class="it-num" id="itNum">1</div>
+      <div style="min-width:0;"><div class="it-st" id="itSt"></div><div class="it-sd" id="itSd"></div></div>
+    </div>
+    <div class="it-dots" id="itDots"></div>
+    <div class="it-nav">
+      <button class="it-prev hidden" id="itPrev" type="button">‹ Retour</button>
+      <button class="it-next" id="itNext" type="button">Suivant ›</button>
+    </div>
+    <button class="it-later" id="itLater" type="button">Fermer</button>
+    <div class="it-note" id="itNote"></div>
+  </div>
+</div>
+
 <script src="./supabase.js"></script>
 <script>
 (function(){
@@ -1670,7 +2226,7 @@
   function authErr(msg){ var e=el('authErr'); e.textContent=msg; e.classList.add('show'); el('authOk').classList.remove('show'); }
   function authOk(msg){ var e=el('authOk'); e.textContent=msg; e.classList.add('show'); el('authErr').classList.remove('show'); }
   function clearAuthMsg(){ el('authErr').classList.remove('show'); el('authOk').classList.remove('show'); }
-  function showAuth(){ el('loadingScreen').style.display='none'; el('authScreen').style.display='flex'; }
+  function showAuth(){ el('loadingScreen').style.display='none'; el('authScreen').style.display='flex'; renderAuthInstall(); }
   async function doAuth(){
     var email=el('authEmail').value.trim(), pass=el('authPass').value;
     var first=el('authFirst').value.trim(), last=el('authLast').value.trim();
@@ -1867,6 +2423,7 @@
 
   // ---------- GLOBAL ----------
   function renderGlobal(){
+    renderInstallTeaser();
     var tk=todayKey();
     var tT=0,tW=0,tL=0,tR=0,has=false;
     accounts.forEach(function(a){ var s=a.sessions[tk]; if(s){ var st=statsForTrades(s.trades); tT+=st.taken;tW+=st.win;tL+=st.loss; if(hasResult(s)){ tR+=sessionNet(s); has=true; } } });
@@ -3100,8 +3657,8 @@
   (function(){
     var lockScrollY=0, locked=false;
     function anyPopupOpen(){
-      var o=el("overlay"), c=el("confirmOverlay");
-      return (o&&o.classList.contains("open")) || (c&&c.classList.contains("open"));
+      var o=el("overlay"), c=el("confirmOverlay"), i=el("instTuto");
+      return (o&&o.classList.contains("open")) || (c&&c.classList.contains("open")) || (i&&i.classList.contains("open"));
     }
     function sync(){
       var should=anyPopupOpen();
@@ -3116,7 +3673,7 @@
         window.scrollTo(0, lockScrollY);
       }
     }
-    ["overlay","confirmOverlay"].forEach(function(id){
+    ["overlay","confirmOverlay","instTuto"].forEach(function(id){
       var target=el(id); if(!target) return;
       new MutationObserver(sync).observe(target,{attributes:true,attributeFilter:["class"]});
     });
@@ -3265,36 +3822,166 @@
     e.preventDefault();
     deferredInstallPrompt=e;
     renderInstallBox();
+    // Si le tutoriel est déjà ouvert, on y fait apparaître le bouton « 1 clic ».
+    var n=el('itNative'); if(n && el('instTuto').classList.contains('open')) n.classList.remove('hidden');
   });
   window.addEventListener('appinstalled', function(){
     deferredInstallPrompt=null;
-    renderInstallBox();
+    snoozeInstall(3650);
+    closeInstallTuto();
+    renderInstallBox(); renderInstallTeaser(); renderAuthInstall();
   });
   function isStandalone(){
     return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
   }
-  function isIos(){ return /iphone|ipad|ipod/i.test(navigator.userAgent||''); }
+  // iPadOS 13+ se fait passer pour un Mac : on le reconnait à l'écran tactile.
+  function isIos(){
+    var ua=navigator.userAgent||'';
+    if(/iphone|ipad|ipod/i.test(ua)) return true;
+    return /macintosh/i.test(ua) && (navigator.maxTouchPoints||0) > 1;
+  }
+  // Bloc « Application » des réglages du compte : sur mobile on propose toujours
+  // le tutoriel illustré, et le bouton natif en plus quand le navigateur le permet.
   function renderInstallBox(){
     var group=el('installGroup'), box=el('installBox');
     if(!group||!box) return;
-    if(isStandalone()){ group.classList.add('hidden'); box.innerHTML=""; return; }
-    if(deferredInstallPrompt){
+    if(isStandalone()){
       group.classList.remove('hidden');
-      box.innerHTML='<div class="install-row"><button class="install-btn" id="pwaInstallBtn" type="button">📲 Installer l\'application</button></div>';
-      el('pwaInstallBtn').onclick=async function(){
-        deferredInstallPrompt.prompt();
-        try{ await deferredInstallPrompt.userChoice; }catch(e){}
-        deferredInstallPrompt=null;
-        renderInstallBox();
-      };
-    } else if(isIos()){
-      group.classList.remove('hidden');
-      box.innerHTML='<div class="ios-help">📲 Pour installer l\'app : touche <b>Partager</b> puis <b>Sur l\'écran d\'accueil</b>.</div>';
-    } else {
-      group.classList.add('hidden'); box.innerHTML="";
+      box.innerHTML='<div class="install-done"><span>✓</span><span>Edgio est install\u00e9e sur cet appareil.</span></div>';
+      return;
     }
+    if(!isMobileDevice() && !deferredInstallPrompt){ group.classList.add('hidden'); box.innerHTML=""; return; }
+    var h='';
+    if(deferredInstallPrompt) h+='<div class="install-row"><button class="install-btn" id="pwaInstallBtn" type="button">📲 Installer l\'application</button></div>';
+    if(isMobileDevice()){
+      h+='<div class="install-row"><button class="install-btn" id="pwaHowBtn" type="button">Comment l\'installer sur mon t\u00e9l\u00e9phone ?</button></div>';
+      h+='<div class="ios-help">Une ic\u00f4ne sur ton \u00e9cran d\'accueil : plein \u00e9cran, ouverture instantan\u00e9e et journal consultable hors-ligne.</div>';
+    }
+    group.classList.remove('hidden');
+    box.innerHTML=h;
+    if(el('pwaInstallBtn')) el('pwaInstallBtn').onclick=function(){ runNativeInstall(); };
+    if(el('pwaHowBtn')) el('pwaHowBtn').onclick=function(){ openInstallTuto(); };
   }
-  function initInstallPrompt(){ renderInstallBox(); }
+  function initInstallPrompt(){ renderInstallBox(); renderInstallTeaser(); }
+
+  // ===================== TUTORIEL D'INSTALLATION (PWA, mobile) =====================
+  // Un seul popup, ouvert depuis 3 endroits : l'écran de connexion / création de
+  // compte, le bandeau de la page d'accueil et les réglages de l'app.
+  // Sur ordinateur on ne le propose pas : le site est déjà utilisable tel quel.
+  var IT_STEPS={
+    ios:[
+      {t:"Touche « Partager »",d:"En bas de l'écran, au centre : le carré avec une flèche vers le haut. Important : sur iPhone, l'installation ne marche que depuis Safari (pas Chrome ni Firefox)."},
+      {t:"Choisis « Sur l'écran d'accueil »",d:"Fais défiler la liste vers le bas si tu ne la vois pas tout de suite — elle est un peu plus bas que les icônes de partage."},
+      {t:"Touche « Ajouter »",d:"En haut à droite. Tu peux renommer l'app avant de valider si tu veux."},
+      {t:"C'est fait 🎉",d:"L'icône Edgio est sur ton écran d'accueil. Ouvre-la : plein écran, sans barre de navigateur, et ton journal reste lisible même sans réseau."}
+    ],
+    android:[
+      {t:"Touche le menu ⋮",d:"En haut à droite de Chrome, les trois petits points. (Sur Samsung Internet, c'est le menu ☰ en bas à droite.)"},
+      {t:"Choisis « Installer l'application »",d:"Selon la version de Chrome, la ligne peut s'appeler « Ajouter à l'écran d'accueil ». C'est la même chose."},
+      {t:"Confirme avec « Installer »",d:"Chrome affiche une dernière fenêtre de confirmation. Touche Installer et c'est terminé."},
+      {t:"C'est fait 🎉",d:"L'icône Edgio est sur ton écran d'accueil, comme une vraie application : plein écran, et consultable hors-ligne."}
+    ]
+  };
+  var IT_NOTE={
+    ios:"Rien n'est téléchargé depuis l'App Store : iOS crée simplement un raccourci plein écran vers Edgio.",
+    android:"Rien n'est téléchargé depuis le Play Store : Chrome installe Edgio directement depuis le site."
+  };
+  var IT_SNOOZE_KEY="edgioInstallSnooze";
+  var itOs="ios", itStep=0;
+
+  function isAndroidDevice(){ return /android/i.test(navigator.userAgent||""); }
+  function isMobileDevice(){ return isIos()||isAndroidDevice(); }
+  function detectOs(){ return isAndroidDevice() ? "android" : "ios"; }
+  function installSnoozed(){ try{ return parseInt(localStorage.getItem(IT_SNOOZE_KEY)||"0",10) > Date.now(); }catch(e){ return false; } }
+  function snoozeInstall(days){ try{ localStorage.setItem(IT_SNOOZE_KEY, String(Date.now()+days*86400000)); }catch(e){} }
+
+  function openInstallTuto(os){
+    itOs = (os==="ios"||os==="android") ? os : detectOs();
+    itStep = 0;
+    el("itNative").classList.toggle("hidden", !deferredInstallPrompt);
+    el("instTuto").classList.add("open");
+    el("instTuto").setAttribute("aria-hidden","false");
+    renderInstallStep();
+  }
+  function closeInstallTuto(){
+    el("instTuto").classList.remove("open");
+    el("instTuto").setAttribute("aria-hidden","true");
+  }
+  function renderInstallStep(){
+    var steps=IT_STEPS[itOs], s=steps[itStep];
+    document.querySelectorAll("#itTabs button").forEach(function(b){ b.classList.toggle("on", b.dataset.os===itOs); });
+    document.querySelectorAll("#itStage .it-shot").forEach(function(sv){ sv.classList.remove("on"); });
+    var shot=el("itShot-"+itOs+"-"+(itStep+1)); if(shot) shot.classList.add("on");
+    el("itNum").textContent=String(itStep+1);
+    el("itSt").textContent=s.t;
+    el("itSd").textContent=s.d;
+    el("itNote").textContent=IT_NOTE[itOs];
+    var dots=el("itDots"); dots.innerHTML="";
+    steps.forEach(function(_,i){
+      var d=document.createElement("i");
+      if(i===itStep) d.className="on";
+      d.onclick=function(){ itStep=i; renderInstallStep(); };
+      dots.appendChild(d);
+    });
+    el("itPrev").classList.toggle("hidden", itStep===0);
+    el("itNext").textContent = (itStep===steps.length-1) ? "J'ai compris ✓" : "Suivant ›";
+  }
+  function itGo(delta){
+    var steps=IT_STEPS[itOs], n=itStep+delta;
+    if(n<0) return;
+    if(n>=steps.length){ closeInstallTuto(); return; }
+    itStep=n; renderInstallStep();
+  }
+  document.querySelectorAll("#itTabs button").forEach(function(b){
+    b.addEventListener("click",function(){ itOs=b.dataset.os; itStep=0; renderInstallStep(); });
+  });
+  el("itPrev").addEventListener("click",function(){ itGo(-1); });
+  el("itNext").addEventListener("click",function(){ itGo(1); });
+  el("itClose").addEventListener("click", closeInstallTuto);
+  el("itLater").addEventListener("click", closeInstallTuto);
+  el("instTuto").addEventListener("click",function(e){ if(e.target===this) closeInstallTuto(); });
+  el("itNativeBtn").addEventListener("click", function(){ runNativeInstall(); });
+  // Balayage horizontal sur la maquette pour passer d'une étape à l'autre.
+  (function(){
+    var stage=el("itStage"), x0=null, y0=null;
+    stage.addEventListener("touchstart",function(e){ var t=e.changedTouches[0]; x0=t.clientX; y0=t.clientY; },{passive:true});
+    stage.addEventListener("touchend",function(e){
+      if(x0===null) return;
+      var t=e.changedTouches[0], dx=t.clientX-x0, dy=t.clientY-y0;
+      x0=null;
+      if(Math.abs(dx)>44 && Math.abs(dx)>Math.abs(dy)*1.5) itGo(dx<0?1:-1);
+    },{passive:true});
+  })();
+
+  // Installation native (Android/Chrome desktop) : disponible seulement quand le
+  // navigateur nous a donné l'événement beforeinstallprompt.
+  async function runNativeInstall(){
+    if(!deferredInstallPrompt){ return; }
+    var p=deferredInstallPrompt;
+    deferredInstallPrompt=null;
+    p.prompt();
+    var choice=null;
+    try{ choice=await p.userChoice; }catch(e){}
+    el("itNative").classList.add("hidden");
+    renderInstallBox(); renderInstallTeaser();
+    if(choice && choice.outcome==="accepted"){ closeInstallTuto(); showToast("Edgio est installée ✓"); }
+  }
+
+  // Bandeau d'invitation sur la page d'accueil (journal · tous comptes).
+  function renderInstallTeaser(){
+    var t=el("installTeaser"); if(!t) return;
+    t.classList.toggle("hidden", !(isMobileDevice() && !isStandalone() && !installSnoozed()));
+  }
+  el("installTeaserGo").addEventListener("click",function(){ openInstallTuto(); });
+  el("installTeaserX").addEventListener("click",function(){ snoozeInstall(14); renderInstallTeaser(); });
+
+  // Écran de connexion / création de compte : on ne l'affiche que sur mobile,
+  // et pas si l'app est déjà lancée depuis l'écran d'accueil.
+  function renderAuthInstall(){
+    var b=el("authInstallBtn"); if(!b) return;
+    b.classList.toggle("hidden", !(isMobileDevice() && !isStandalone()));
+  }
+  el("authInstallBtn").addEventListener("click",function(){ openInstallTuto(); });
 
   boot();
 })();
