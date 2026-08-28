@@ -2477,7 +2477,18 @@
 
   // ---------- modules avancés : séance ----------
   var MOOD_EMOJI=["😞","😕","😐","🙂","😄"];
-  function refreshSaveBtn(){ /* auto-save : plus de bouton dédié, la séance est persistée au changement d'onglet/jour */ }
+  var _autosaveTimer=null;
+  function refreshSaveBtn(){
+    // auto-save : plus de bouton dédié, on persiste peu après chaque modification (debounce),
+    // avec un filet de sécurité au changement d'onglet/fermeture pour ne rien perdre.
+    if(_autosaveTimer) clearTimeout(_autosaveTimer);
+    _autosaveTimer=setTimeout(function(){ _autosaveTimer=null; saveJournal(); },800);
+  }
+  function flushAutosave(){
+    if(_autosaveTimer){ clearTimeout(_autosaveTimer); _autosaveTimer=null; saveJournal(); }
+  }
+  document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="hidden") flushAutosave(); });
+  window.addEventListener("pagehide",flushAutosave);
   // snapshot : on fige les règles/items dans la séance à la 1re ouverture, pour que l'historique reste juste
   function seedRuleSnapshot(a,s){
     if(!a.showRules) return;
