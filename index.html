@@ -650,6 +650,23 @@
     #screenPropfirm > #pfContent > :first-child{
       margin-top:0;
     }
+    /* Calendrier : la 1re carte suit un encart promo qui n'est plus en flux
+       une fois vide (display:none) — sans annulation explicite, sa
+       margin-top:12 par défaut s'ajoute au padding et décale la 1re section
+       plus bas que sur Plan/Propfirm. On l'annule pour aligner les onglets. */
+    #screenCalendar > #promoCalendar + .card{
+      margin-top:0;
+    }
+    /* #greeting est vide tant qu'aucun prénom n'est enregistré : sans ce
+       correctif il gardait quand même la hauteur d'une ligne de texte (via
+       line-height), ce qui décalait "Aujourd'hui…" plus bas que sur les
+       autres onglets alors qu'aucun message n'est visible à l'écran. */
+    #screenGlobal > #greeting:empty{
+      display:none;
+    }
+    #screenGlobal > #greeting:empty + .card{
+      margin-top:0;
+    }
     /* on ne réserve la place du rail QUE s'il y a des encarts à montrer (compte gratuit).
        Premium/essai : pas de rail -> contenu pleine largeur. */
     #screenGlobal.has-rail, #screenAccount.has-rail, #screenPlan.has-rail,
