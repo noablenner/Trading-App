@@ -1,5 +1,5 @@
-const CACHE='tt-v13';
-const ASSETS=['./','./index.html','./supabase.js','./icon-192.png','./icon-512.png','./favicon.ico','./favicon-32.png','./manifest.webmanifest'];
+const CACHE='tt-v14';
+const ASSETS=['./','./index.html','./supabase.js','./tuto-ios-1.png','./tuto-ios-2.png','./tuto-app-icon.png','./icon-192.png','./icon-512.png','./favicon.ico','./favicon-32.png','./manifest.webmanifest'];
 
 // Installation : on pré-charge la coquille de l'app (pour le hors-ligne).
 // Pas de skipWaiting() automatique ici : le nouveau SW reste "en attente" tant
