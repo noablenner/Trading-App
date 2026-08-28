@@ -405,11 +405,16 @@
   .overlay.open{opacity:1;pointer-events:auto;}
   /* Sécurité : tant qu'un tiroir est ouvert, l'arrière-plan (header, contenu, barre d'onglets)
      ne reçoit aucun tap et ne défile pas. Empêche les clics de « traverser » sur le journal ou le menu du bas. */
-  body:has(.overlay.open){overflow:hidden;}
+  body:has(.overlay.open),body:has(.cmodal-overlay.open){overflow:hidden;}
   body:has(.overlay.open) .topbar,
   body:has(.overlay.open) .app,
   body:has(.overlay.open) .bottombar,
   body:has(.overlay.open) .tabbar{pointer-events:none;}
+  /* body.scroll-locked : posé par JS (voir plus bas) en complément de overflow:hidden.
+     Sur iOS Safari, overflow:hidden seul ne bloque pas le scroll tactile de la page
+     derrière un tiroir/modale : on fige donc aussi le body en position:fixed pendant
+     que le popup est ouvert, puis on restaure la position de scroll à la fermeture. */
+  body.scroll-locked{position:fixed;left:0;right:0;width:100%;overflow:hidden;}
   /* overscroll-behavior-y:contain : le tiroir peut défiler SON propre contenu
      s'il déborde, mais un scroll qui atteint son bord (ou un tiroir trop court
      pour déborder) ne se répercute jamais sur la page derrière lui. */
@@ -3088,6 +3093,34 @@
   var onbActive=false;
   function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
+  // Verrou de scroll iOS-safe : overflow:hidden seul ne bloque pas le scroll tactile
+  // derrière un popup sur iOS Safari. Tant qu'un tiroir OU la modale de confirmation
+  // est ouvert, on fige le body en position:fixed (en mémorisant le scroll courant)
+  // pour que la page masquée derrière ne bouge plus quand on scrolle sur le popup.
+  (function(){
+    var lockScrollY=0, locked=false;
+    function anyPopupOpen(){
+      var o=el("overlay"), c=el("confirmOverlay");
+      return (o&&o.classList.contains("open")) || (c&&c.classList.contains("open"));
+    }
+    function sync(){
+      var should=anyPopupOpen();
+      if(should && !locked){
+        locked=true; lockScrollY=window.scrollY||window.pageYOffset||0;
+        document.body.style.top="-"+lockScrollY+"px";
+        document.body.classList.add("scroll-locked");
+      } else if(!should && locked){
+        locked=false;
+        document.body.classList.remove("scroll-locked");
+        document.body.style.top="";
+        window.scrollTo(0, lockScrollY);
+      }
+    }
+    ["overlay","confirmOverlay"].forEach(function(id){
+      var target=el(id); if(!target) return;
+      new MutationObserver(sync).observe(target,{attributes:true,attributeFilter:["class"]});
+    });
+  })();
   el("drawerDone").addEventListener("click",function(){ var a=acc(); if(a){ ["rules","checklistItems","tagsOptions"].forEach(function(f){ a[f]=(a[f]||[]).map(function(x){return String(x||"").trim();}).filter(Boolean); }); saveAccount(a); } closeDrawer(); render(); });
   el("setName").addEventListener("input",function(){ acc().name=this.value; });
   el("setName").addEventListener("change",function(){ saveAccount(acc()); });
