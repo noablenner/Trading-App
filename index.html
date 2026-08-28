@@ -1374,19 +1374,11 @@
      ============================================================ -->
 <svg id="itDefs" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden;">
   <defs>
-    <linearGradient id="itIconG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bb92ff"/><stop offset="1" stop-color="#7b3ee6"/></linearGradient>
     <linearGradient id="itWallIos" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a1a4d"/><stop offset=".5" stop-color="#4b2b7d"/><stop offset="1" stop-color="#111f3d"/></linearGradient>
     <linearGradient id="itWallAnd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#11333a"/><stop offset=".55" stop-color="#1e5b51"/><stop offset="1" stop-color="#0e1f26"/></linearGradient>
 
     <clipPath id="itScreen"><rect x="17" y="13" width="226" height="494" rx="31"/></clipPath>
 
-    <!-- Icône Edgio dessinée (et non l'image PNG) : elle reste nette à toute taille -->
-    <symbol id="itAppIcon" viewBox="0 0 48 48">
-      <rect width="48" height="48" rx="11" fill="url(#itIconG)"/>
-      <g stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
-        <path d="M11 33l8.5-8.5 5 5L36 16"/><path d="M29.5 16H36v6.5"/>
-      </g>
-    </symbol>
 
     <!-- Châssis du téléphone -->
     <g id="itBody">
@@ -1406,16 +1398,14 @@
     <!-- Barre d'état claire (sur fond sombre) + îlot dynamique -->
     <g id="itStatus">
       <rect x="105" y="19" width="50" height="15" rx="7.5" fill="#000"/>
-      <text x="48" y="35" fill="#fff" font-size="12" font-weight="700" text-anchor="middle">9:41</text>
+      <text x="52" y="35" fill="#fff" font-size="12" font-weight="700" text-anchor="middle">13:42</text>
       <g fill="#fff">
         <rect x="183" y="27.5" width="2.8" height="4" rx="1"/>
         <rect x="187.6" y="25.5" width="2.8" height="6" rx="1"/>
         <rect x="192.2" y="23.5" width="2.8" height="8" rx="1"/>
         <rect x="196.8" y="21.5" width="2.8" height="10" rx="1"/>
-        <circle cx="209.8" cy="30.6" r="1.2"/>
       </g>
-      <path d="M205.2 25.2a6.6 6.6 0 0 1 9.2 0" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M207.5 27.9a3.4 3.4 0 0 1 4.6 0" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+      <text x="210" y="32" fill="#fff" font-size="10.5" font-weight="600" text-anchor="middle">4G</text>
       <rect x="219" y="23" width="16" height="8.6" rx="2.6" fill="none" stroke="#fff" stroke-width="1.1" opacity=".6"/>
       <rect x="220.4" y="24.4" width="11" height="5.8" rx="1.6" fill="#fff"/>
       <path d="M236.6 26.4v1.8" stroke="#fff" stroke-width="1.5" opacity=".5" stroke-linecap="round"/>
@@ -1455,8 +1445,8 @@
     </symbol>
 
     <!-- Projecteurs : le trou laisse voir l'élément à toucher, le reste est assombri -->
-    <mask id="itMaskIos1" maskUnits="userSpaceOnUse"><rect x="17" y="13" width="226" height="494" fill="#fff"/><circle cx="130" cy="473" r="25" fill="#000"/></mask>
-    <mask id="itMaskIos2" maskUnits="userSpaceOnUse"><rect x="17" y="13" width="226" height="494" fill="#fff"/><rect x="22" y="350" width="216" height="42" rx="12" fill="#000"/></mask>
+    <mask id="itMaskIos1" maskUnits="userSpaceOnUse"><rect x="17" y="13" width="226" height="494" fill="#fff"/><circle cx="130" cy="475" r="25" fill="#000"/></mask>
+    <mask id="itMaskIos2" maskUnits="userSpaceOnUse"><rect x="17" y="13" width="226" height="494" fill="#fff"/><rect x="22" y="435" width="216" height="38" rx="12" fill="#000"/></mask>
     <mask id="itMaskIos3" maskUnits="userSpaceOnUse"><rect x="17" y="13" width="226" height="494" fill="#fff"/><rect x="188" y="58" width="50" height="28" rx="10" fill="#000"/></mask>
     <mask id="itMaskAnd1" maskUnits="userSpaceOnUse"><rect x="17" y="13" width="226" height="494" fill="#fff"/><circle cx="222" cy="62" r="18" fill="#000"/></mask>
     <mask id="itMaskAnd2" maskUnits="userSpaceOnUse"><rect x="17" y="13" width="226" height="494" fill="#fff"/><rect x="100" y="305" width="140" height="33" rx="9" fill="#000"/></mask>
@@ -1487,103 +1477,38 @@
       <div class="it-native-s">Ton navigateur sait le faire tout seul — un seul appui suffit. Sinon, suis les étapes ci-dessous.</div>
     </div>
     <div class="it-stage" id="itStage">
-      <!-- ===== iPhone · étape 1 : le bouton Partager de Safari ===== -->
+      <!-- ===== iPhone · étapes 1 et 2 : vraies captures d'écran =====
+           Prises sur app.edgio.fr dans Safari iOS. La bande de suggestions de
+           partage (contacts) a été retirée de la capture de la feuille de
+           partage : iOS ne l'affiche pas quand il n'y a pas de suggestion. -->
       <svg class="it-shot" id="itShot-ios-1" viewBox="0 0 260 520" role="img" aria-labelledby="itA1" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
-        <title id="itA1">Safari sur iPhone, le bouton Partager de la barre du bas est mis en évidence.</title>
+        <title id="itA1">Capture de Safari sur iPhone : le bouton Partager, en bas au centre, est mis en évidence.</title>
         <use href="#itBody"/>
         <g clip-path="url(#itScreen)">
-          <rect x="17" y="13" width="226" height="31" fill="#0b0e11"/>
-          <use href="#itPage" x="17" y="44" width="226" height="361"/>
-          <use href="#itStatus"/>
-          <!-- barre Safari (bas d'écran) -->
-          <rect x="17" y="404" width="226" height="103" fill="#f5f5f7"/>
-          <rect x="17" y="404" width="226" height="1" fill="#d3d3d8"/>
-          <rect x="32" y="414" width="196" height="32" rx="10" fill="#e9e9ee"/>
-          <text x="46" y="434" font-size="10" font-weight="700" fill="#5b5b60">aA</text>
-          <g stroke="#5b5b60" stroke-width="1.2" fill="none">
-            <rect x="96" y="426" width="7" height="6" rx="1.4"/>
-            <path d="M97.6 426v-2a2 2 0 0 1 3.8 0v2"/>
-          </g>
-          <text x="108" y="433.5" font-size="10.5" fill="#1c1c1e">edgio.app</text>
-          <g stroke="#5b5b60" stroke-width="1.4" fill="none" stroke-linecap="round">
-            <path d="M208 425.5a6 6 0 1 0 1.8 4.3"/><path d="M208.2 421v5h-5"/>
-          </g>
-          <!-- barre d'outils -->
-          <g stroke="#007aff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M49 466l-6 7 6 7"/>
-            <path d="M85 466l6 7-6 7"/>
-            <path d="M122 471v9.5a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V471"/>
-            <path d="M130 463v14.5"/><path d="M125.6 467.4l4.4-4.4 4.4 4.4"/>
-            <path d="M167 464h5v18h-5zM172 464h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"/>
-            <rect x="206" y="464" width="14" height="14" rx="3"/><path d="M210 482h10a2 2 0 0 0 2-2v-10"/>
-          </g>
-          <rect x="95" y="494" width="70" height="4.5" rx="2.3" fill="#000" opacity=".3"/>
-          <!-- projecteur + repère -->
+          <image href="./tuto-ios-1.png" x="17" y="13" width="226" height="494" preserveAspectRatio="none"/>
           <rect x="17" y="13" width="226" height="494" fill="#03060a" opacity=".62" mask="url(#itMaskIos1)"/>
-          <circle cx="130" cy="473" r="20" fill="none" stroke="var(--accent)" stroke-width="2.2"/>
-          <circle class="it-pulse" cx="130" cy="473" r="20" fill="none" stroke="var(--accent)" stroke-width="2.6"/>
-          <path d="M130 402v43" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round" opacity=".85"/>
-          <path d="M125.4 442l4.6 8 4.6-8z" fill="var(--accent)"/>
-          <g><rect x="86" y="368" width="88" height="24" rx="12" fill="var(--accent)"/>
-            <text x="130" y="384.5" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">Partager</text></g>
+          <circle cx="130" cy="475" r="19" fill="none" stroke="var(--accent)" stroke-width="2.2"/>
+          <circle class="it-pulse" cx="130" cy="475" r="19" fill="none" stroke="var(--accent)" stroke-width="2.6"/>
+          <path d="M130 416v30" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round" opacity=".85"/>
+          <path d="M125.4 444l4.6 8 4.6-8z" fill="var(--accent)"/>
+          <g><rect x="86" y="390" width="88" height="24" rx="12" fill="var(--accent)"/>
+            <text x="130" y="406.5" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">Partager</text></g>
         </g>
         <use href="#itGlare"/>
       </svg>
 
-      <!-- ===== iPhone · étape 2 : « Sur l'écran d'accueil » dans la feuille de partage ===== -->
       <svg class="it-shot" id="itShot-ios-2" viewBox="0 0 260 520" role="img" aria-labelledby="itA2" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
-        <title id="itA2">La feuille de partage d'iOS est ouverte, la ligne « Sur l'écran d'accueil » est mise en évidence.</title>
+        <title id="itA2">Capture de la feuille de partage d'iOS : la ligne « Sur l'écran d'accueil » est mise en évidence.</title>
         <use href="#itBody"/>
         <g clip-path="url(#itScreen)">
-          <rect x="17" y="13" width="226" height="31" fill="#0b0e11"/>
-          <use href="#itPage" x="17" y="44" width="226" height="361"/>
-          <rect x="17" y="13" width="226" height="494" fill="#000" opacity=".55"/>
-          <use href="#itStatus"/>
-          <!-- feuille de partage -->
-          <rect x="17" y="118" width="226" height="400" rx="16" fill="#f2f2f7"/>
-          <rect x="123" y="125" width="20" height="4" rx="2" fill="#c7c7cc"/>
-          <use href="#itAppIcon" x="32" y="139" width="36" height="36"/>
-          <text x="78" y="155" font-size="12" font-weight="800" fill="#1c1c1e">Edgio</text>
-          <text x="78" y="169" font-size="9" fill="#8a8a8e">edgio.app</text>
-          <circle cx="221" cy="157" r="11" fill="#e2e2e7"/>
-          <path d="M217.5 153.5l7 7M224.5 153.5l-7 7" stroke="#7c7c81" stroke-width="1.6" stroke-linecap="round"/>
-          <rect x="32" y="187" width="196" height="1" fill="#dedee3"/>
-          <!-- rangée d'apps -->
-          <g text-anchor="middle" font-size="6.5" fill="#6d6d72">
-            <circle cx="53" cy="212" r="17" fill="#e8e8ed"/>
-            <g fill="none" stroke="#007aff" stroke-width="1.6" stroke-linecap="round"><path d="M47.5 214.5a8 8 0 0 1 11 0"/><path d="M50 217.5a4.3 4.3 0 0 1 6 0"/></g>
-            <circle cx="53" cy="220.5" r="1.6" fill="#007aff" stroke="none"/>
-            <text x="53" y="240">AirDrop</text>
-            <circle cx="101" cy="212" r="17" fill="#3ac653"/>
-            <path d="M94 208.5a7 6 0 1 1 7 6h-6l2-2.5a6 6 0 0 1-3-3.5z" fill="#fff"/>
-            <text x="101" y="240">Messages</text>
-            <circle cx="149" cy="212" r="17" fill="#1a9cf0"/>
-            <g fill="none" stroke="#fff" stroke-width="1.5"><rect x="141" y="206" width="16" height="12" rx="2.4"/><path d="M141.6 207l7.4 6 7.4-6"/></g>
-            <text x="149" y="240">Mail</text>
-            <circle cx="197" cy="212" r="17" fill="#25d366"/>
-            <path d="M190 219l1.4-4a6.6 6.6 0 1 1 2.6 2.6z" fill="#fff"/>
-            <text x="197" y="240">WhatsApp</text>
-          </g>
-          <!-- liste d'actions -->
-          <rect x="26" y="252" width="208" height="170" rx="12" fill="#fff"/>
-          <g font-size="10.5" fill="#1c1c1e"><text x="40" y="273">Copier</text><text x="40" y="307">Ajouter aux favoris</text><text x="40" y="341">Rechercher dans la page</text><text x="40" y="375">Sur l'écran d'accueil</text><text x="40" y="409">Marquage</text></g>
-          <g stroke="#e6e6eb" stroke-width="1"><path d="M40 286h194"/><path d="M40 320h194"/><path d="M40 354h194"/><path d="M40 388h194"/></g>
-          <g fill="none" stroke="#1c1c1e" stroke-width="1.4">
-            <rect x="209" y="262" width="10" height="12" rx="2"/><rect x="213" y="258" width="10" height="12" rx="2" fill="#fff"/>
-            <path d="M210 292l6 6 6-6-6 6z" stroke-linejoin="round"/><path d="M216 292.5l1.7 3.6 3.9.5-2.9 2.7.8 3.9-3.5-2-3.5 2 .8-3.9-2.9-2.7 3.9-.5z"/>
-            <circle cx="215.5" cy="331" r="5"/><path d="M219.4 334.8l3.4 3.4"/>
-            <rect x="209" y="362" width="14" height="14" rx="3.4"/><path d="M216 366v6M213 369h6"/>
-            <path d="M210 405l9-9 3.5 3.5-9 9-4.4 1z" stroke-linejoin="round"/>
-          </g>
-          <rect x="26" y="354" width="208" height="34" fill="var(--accent)" opacity=".14"/>
-          <rect x="95" y="494" width="70" height="4.5" rx="2.3" fill="#000" opacity=".28"/>
-          <!-- projecteur + repère -->
+          <image href="./tuto-ios-2.png" x="17" y="13" width="226" height="494" preserveAspectRatio="none"/>
+          <rect x="26" y="440" width="208" height="28" fill="var(--accent)" opacity=".17"/>
           <rect x="17" y="13" width="226" height="494" fill="#03060a" opacity=".62" mask="url(#itMaskIos2)"/>
-          <rect x="26" y="354" width="208" height="34" rx="9" fill="none" stroke="var(--accent)" stroke-width="2.2"/>
-          <rect class="it-pulse" x="26" y="354" width="208" height="34" rx="9" fill="none" stroke="var(--accent)" stroke-width="2.6"/>
-          <g><rect x="84" y="322" width="92" height="24" rx="12" fill="var(--accent)"/>
-            <path d="M124 346h12l-6 8z" fill="var(--accent)"/>
-            <text x="130" y="338.5" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">Touche ici</text></g>
+          <rect x="26" y="440" width="208" height="28" rx="7" fill="none" stroke="var(--accent)" stroke-width="2.2"/>
+          <rect class="it-pulse" x="26" y="440" width="208" height="28" rx="7" fill="none" stroke="var(--accent)" stroke-width="2.6"/>
+          <g><rect x="84" y="406" width="92" height="24" rx="12" fill="var(--accent)"/>
+            <path d="M124 430h12l-6 8z" fill="var(--accent)"/>
+            <text x="130" y="422.5" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">Touche ici</text></g>
         </g>
         <use href="#itGlare"/>
       </svg>
@@ -1602,16 +1527,16 @@
           <text x="228" y="77" font-size="10.5" font-weight="700" fill="#007aff" text-anchor="end">Ajouter</text>
           <rect x="17" y="90" width="226" height="1" fill="#dedee3"/>
           <rect x="26" y="104" width="208" height="64" rx="12" fill="#fff"/>
-          <use href="#itAppIcon" x="38" y="118" width="36" height="36"/>
-          <text x="86" y="134" font-size="11" font-weight="600" fill="#1c1c1e">Edgio</text>
-          <rect x="118" y="124" width="1.4" height="13" fill="#007aff"/>
-          <text x="86" y="152" font-size="9" fill="#8a8a8e">edgio.app</text>
+          <image href="./tuto-app-icon.png" x="38" y="118" width="36" height="36"/>
+          <text x="86" y="134" font-size="11" font-weight="600" fill="#1c1c1e">Tracker</text>
+          <rect x="126" y="124" width="1.4" height="13" fill="#007aff"/>
+          <text x="86" y="152" font-size="9" fill="#8a8a8e">app.edgio.fr</text>
           <circle cx="216" cy="130" r="7" fill="#c7c7cc"/>
           <path d="M213.5 127.5l5 5M218.5 127.5l-5 5" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
-          <g font-size="8.5" fill="#8a8a8e"><text x="30" y="190">Une icône sera ajoutée à ton écran d'accueil</text><text x="30" y="203">pour ouvrir Edgio en un seul geste.</text></g>
+          <g font-size="8.5" fill="#8a8a8e"><text x="30" y="190">Une icône sera ajoutée à ton écran d'accueil</text><text x="30" y="203">pour accéder rapidement à ce site web.</text></g>
           <!-- clavier -->
           <rect x="17" y="296" width="226" height="222" fill="#d1d4da"/>
-          <g font-size="9" fill="#1c1c1e" text-anchor="middle"><text x="60" y="317">Edgio</text><text x="130" y="317">« Edgio »</text><text x="200" y="317">Edge</text></g>
+          <g font-size="9" fill="#1c1c1e" text-anchor="middle"><text x="60" y="317">Tracker</text><text x="130" y="317">« Tracker »</text><text x="200" y="317">Track</text></g>
           <g stroke="#b6bac2" stroke-width="1"><path d="M95 304v14"/><path d="M165 304v14"/></g>
           <g fill="#fff" font-size="9.5" text-anchor="middle">
             <g><rect x="22" y="328" width="19" height="27" rx="4"/><rect x="44" y="328" width="19" height="27" rx="4"/><rect x="66" y="328" width="19" height="27" rx="4"/><rect x="88" y="328" width="19" height="27" rx="4"/><rect x="110" y="328" width="19" height="27" rx="4"/><rect x="132" y="328" width="19" height="27" rx="4"/><rect x="154" y="328" width="19" height="27" rx="4"/><rect x="176" y="328" width="19" height="27" rx="4"/><rect x="198" y="328" width="19" height="27" rx="4"/><rect x="220" y="328" width="19" height="27" rx="4"/></g>
@@ -1648,13 +1573,13 @@
           <g>
             <rect x="30" y="70" width="44" height="44" rx="11" fill="#3a7bfd"/><rect x="82" y="70" width="44" height="44" rx="11" fill="#34c759"/><rect x="134" y="70" width="44" height="44" rx="11" fill="#ff9f0a"/><rect x="186" y="70" width="44" height="44" rx="11" fill="#ff453a"/>
             <rect x="30" y="140" width="44" height="44" rx="11" fill="#5e5ce6"/><rect x="82" y="140" width="44" height="44" rx="11" fill="#64d2ff"/><rect x="134" y="140" width="44" height="44" rx="11" fill="#ffd60a"/><rect x="186" y="140" width="44" height="44" rx="11" fill="#ff375f"/>
-            <use href="#itAppIcon" x="30" y="210" width="44" height="44"/>
+            <image href="./tuto-app-icon.png" x="30" y="210" width="44" height="44"/>
             <rect x="82" y="210" width="44" height="44" rx="11" fill="#fff" opacity=".2"/><rect x="134" y="210" width="44" height="44" rx="11" fill="#fff" opacity=".2"/><rect x="186" y="210" width="44" height="44" rx="11" fill="#fff" opacity=".2"/>
           </g>
           <g fill="#fff" font-size="7.5" text-anchor="middle" opacity=".92">
             <text x="52" y="126">Téléphone</text><text x="104" y="126">Messages</text><text x="156" y="126">Agenda</text><text x="208" y="126">Photos</text>
             <text x="52" y="196">Réglages</text><text x="104" y="196">Météo</text><text x="156" y="196">Notes</text><text x="208" y="196">Santé</text>
-            <text x="52" y="266" font-weight="800">Edgio</text><text x="104" y="266">Plans</text><text x="156" y="266">Horloge</text><text x="208" y="266">Bourse</text>
+            <text x="52" y="266" font-weight="800">Tracker</text><text x="104" y="266">Plans</text><text x="156" y="266">Horloge</text><text x="208" y="266">Bourse</text>
           </g>
           <g fill="#fff" opacity=".55"><circle cx="118" cy="418" r="3"/><circle cx="130" cy="418" r="3" opacity=".45"/><circle cx="142" cy="418" r="3" opacity=".45"/></g>
           <rect x="28" y="432" width="204" height="62" rx="24" fill="#fff" opacity=".17"/>
@@ -1681,7 +1606,7 @@
           <rect x="17" y="45" width="226" height="34" fill="#f1f3f4"/>
           <rect x="26" y="51" width="152" height="22" rx="11" fill="#e3e5e8"/>
           <g stroke="#5f6368" stroke-width="1.2" fill="none"><rect x="35" y="59" width="7" height="6" rx="1.4"/><path d="M36.6 59v-2a2 2 0 0 1 3.8 0v2"/></g>
-          <text x="48" y="65.5" font-size="9.5" fill="#202124">edgio.app</text>
+          <text x="48" y="65.5" font-size="9" fill="#202124">app.edgio.fr</text>
           <rect x="186" y="53" width="17" height="17" rx="3.5" fill="none" stroke="#5f6368" stroke-width="1.6"/>
           <text x="194.5" y="65.5" font-size="8.5" font-weight="700" fill="#5f6368" text-anchor="middle">3</text>
           <g fill="#5f6368"><circle cx="222" cy="56.5" r="1.8"/><circle cx="222" cy="62" r="1.8"/><circle cx="222" cy="67.5" r="1.8"/></g>
@@ -1707,7 +1632,7 @@
           <rect x="17" y="13" width="226" height="32" fill="#0b0e11"/>
           <rect x="17" y="45" width="226" height="34" fill="#f1f3f4"/>
           <rect x="26" y="51" width="152" height="22" rx="11" fill="#e3e5e8"/>
-          <text x="48" y="65.5" font-size="9.5" fill="#202124">edgio.app</text>
+          <text x="48" y="65.5" font-size="9" fill="#202124">app.edgio.fr</text>
           <rect x="17" y="13" width="226" height="494" fill="#000" opacity=".42"/>
           <use href="#itStatus"/>
           <!-- menu déroulant -->
@@ -1756,14 +1681,14 @@
           <rect x="17" y="13" width="226" height="32" fill="#0b0e11"/>
           <rect x="17" y="45" width="226" height="34" fill="#f1f3f4"/>
           <rect x="26" y="51" width="152" height="22" rx="11" fill="#e3e5e8"/>
-          <text x="48" y="65.5" font-size="9.5" fill="#202124">edgio.app</text>
+          <text x="48" y="65.5" font-size="9" fill="#202124">app.edgio.fr</text>
           <rect x="17" y="13" width="226" height="494" fill="#000" opacity=".45"/>
           <use href="#itStatus"/>
           <rect x="17" y="318" width="226" height="200" rx="18" fill="#fff"/>
           <rect x="119" y="327" width="22" height="4" rx="2" fill="#dadce0"/>
-          <use href="#itAppIcon" x="32" y="345" width="44" height="44"/>
+          <image href="./tuto-app-icon.png" x="32" y="345" width="44" height="44"/>
           <text x="88" y="362" font-size="11.5" font-weight="700" fill="#202124">Installer l'application</text>
-          <text x="88" y="379" font-size="9.5" fill="#5f6368">Edgio — edgio.app</text>
+          <text x="88" y="379" font-size="9.5" fill="#5f6368">Trading Tracker — app.edgio.fr</text>
           <rect x="32" y="408" width="196" height="1" fill="#e8eaed"/>
           <text x="140" y="443" font-size="10" font-weight="700" fill="#1a73e8" text-anchor="end">Annuler</text>
           <rect x="156" y="424" width="72" height="28" rx="14" fill="#1a73e8"/>
@@ -1794,13 +1719,13 @@
           <g>
             <circle cx="52" cy="130" r="22" fill="#4285f4"/><circle cx="104" cy="130" r="22" fill="#34a853"/><circle cx="156" cy="130" r="22" fill="#fbbc05"/><circle cx="208" cy="130" r="22" fill="#ea4335"/>
             <circle cx="52" cy="200" r="22" fill="#8ab4f8"/><circle cx="104" cy="200" r="22" fill="#f28b82"/><circle cx="156" cy="200" r="22" fill="#fdd663"/><circle cx="208" cy="200" r="22" fill="#81c995"/>
-            <use href="#itAppIcon" x="30" y="248" width="44" height="44"/>
+            <image href="./tuto-app-icon.png" x="30" y="248" width="44" height="44"/>
             <circle cx="104" cy="270" r="22" fill="#fff" opacity=".22"/><circle cx="156" cy="270" r="22" fill="#fff" opacity=".22"/><circle cx="208" cy="270" r="22" fill="#fff" opacity=".22"/>
           </g>
           <g fill="#fff" font-size="7.5" text-anchor="middle" opacity=".92">
             <text x="52" y="164">Téléphone</text><text x="104" y="164">Messages</text><text x="156" y="164">Chrome</text><text x="208" y="164">Photos</text>
             <text x="52" y="234">Play Store</text><text x="104" y="234">Gmail</text><text x="156" y="234">Agenda</text><text x="208" y="234">Maps</text>
-            <text x="52" y="304" font-weight="800">Edgio</text><text x="104" y="304">Horloge</text><text x="156" y="304">Météo</text><text x="208" y="304">Réglages</text>
+            <text x="52" y="304" font-weight="800">Tracker</text><text x="104" y="304">Horloge</text><text x="156" y="304">Météo</text><text x="208" y="304">Réglages</text>
           </g>
           <rect x="28" y="424" width="204" height="66" rx="30" fill="#fff" opacity=".17"/>
           <g fill="#fff" opacity=".3"><circle cx="52" cy="457" r="21"/><circle cx="104" cy="457" r="21"/><circle cx="156" cy="457" r="21"/><circle cx="208" cy="457" r="21"/></g>
