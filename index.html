@@ -145,6 +145,15 @@
   .chip{border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;font-size:13px;font-weight:700;padding:7px 13px;border-radius:20px;cursor:pointer;}
   .chip.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
   .econ-wrap-light{background:#fff;}
+  /* Un iframe dont le schéma de couleurs diffère de celui de la page se voit
+     peindre un FOND OPAQUE par le navigateur (garde-fou de contraste). Depuis
+     qu'on pose color-scheme:dark sur <html> pour le thème sombre, les widgets
+     TradingView — pourtant demandés en thème sombre ET en fond transparent —
+     se retrouvaient posés sur un carré blanc, avec leur texte clair dessus.
+     Déclarer color-scheme:normal sur l'iframe supprime cette différence et
+     rend au widget sa transparence : on revoit le fond de la carte. */
+  .econ-wrap iframe, .chart-wrap iframe, .dw-b iframe,
+  .tradingview-widget-container iframe{ color-scheme: normal; }
   .news-seg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
   .news-seg button{border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;
     font-size:12px;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer;}
