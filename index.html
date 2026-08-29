@@ -145,6 +145,15 @@
   .chip{border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;font-size:13px;font-weight:700;padding:7px 13px;border-radius:20px;cursor:pointer;}
   .chip.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
   .econ-wrap-light{background:#fff;}
+  .news-seg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+  .news-seg button{border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;
+    font-size:12px;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer;}
+  .news-seg button.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
+  /* Widget graphique : sélecteur de symbole au-dessus de l'iframe. */
+  .dw-chart{display:flex;flex-direction:column;height:100%;min-height:0;}
+  .dw-chart > .dw-sym{border:none;border-bottom:1px solid var(--line);border-radius:0;margin:0;flex:0 0 auto;}
+  .dw-chart > .tradingview-widget-container{flex:1;min-height:0;}
+  .chart-wrap{position:relative;height:70vh;min-height:420px;width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface-2);}
   .poweredBy{margin-top:8px;font-size:11px;color:var(--txt-faint);}
   .poweredBy a{color:var(--accent);font-weight:700;text-decoration:none;}
 
@@ -180,6 +189,42 @@
   .mbtn{flex:1;padding:10px 0;border:1px solid var(--line);background:var(--surface-2);border-radius:12px;font-size:24px;cursor:pointer;filter:grayscale(1);opacity:.55;transition:opacity .12s;}
   .mbtn.on{filter:none;opacity:1;border-color:var(--accent);background:var(--accent-dim);}
   /* Auto-évaluation de séance : trois axes notés de 1 à 5. */
+  /* Aide à la rédaction du journal de séance */
+  .h2-btn{border:1px solid var(--accent);background:var(--accent-dim);color:var(--accent);font-family:inherit;
+    font-size:11px;font-weight:800;letter-spacing:0;text-transform:none;padding:5px 10px;border-radius:20px;cursor:pointer;flex:0 0 auto;}
+  .nt-card{border:1px solid var(--line);background:var(--surface-2);border-radius:13px;padding:13px;margin-bottom:9px;}
+  .nt-card.auto{border-color:var(--accent);background:var(--accent-dim);}
+  .nt-h{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .nt-name{flex:1;min-width:0;font-size:13.5px;font-weight:800;}
+  .nt-ins{flex:0 0 auto;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);font-family:inherit;
+    font-size:12px;font-weight:800;padding:7px 12px;border-radius:10px;cursor:pointer;}
+  .nt-del{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--txt-faint);font-family:inherit;
+    font-size:12px;padding:7px 9px;border-radius:10px;cursor:pointer;}
+  .nt-prev{font-size:12px;color:var(--txt-dim);line-height:1.5;white-space:pre-wrap;max-height:118px;overflow:hidden;
+    font-family:inherit;margin:0;
+    -webkit-mask-image:linear-gradient(180deg,#000 72%,transparent);mask-image:linear-gradient(180deg,#000 72%,transparent);}
+  .nt-save{display:flex;gap:8px;margin-top:4px;}
+  .nt-save input{flex:1;min-width:0;}
+
+  /* Playbooks */
+  .pb-row{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:11px 12px;margin-bottom:7px;}
+  .pb-n{flex:1;min-width:0;font-size:13.5px;font-weight:700;}
+  .pb-cnt{display:block;font-size:11px;font-weight:600;color:var(--txt-faint);margin-top:2px;}
+  .pb-act{width:30px;height:30px;flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--txt-dim);border-radius:9px;font-family:inherit;font-size:17px;line-height:1;cursor:pointer;}
+  .pb-act:hover{color:var(--txt);border-color:var(--txt-faint);}
+  .pb-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 18px;}
+  .pb-stat{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:11px;}
+  .pbs-k{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--txt-faint);font-weight:700;}
+  .pbs-v{display:block;font-size:19px;font-weight:800;margin-top:3px;letter-spacing:-.02em;}
+  .pbs-v.pos{color:var(--green);} .pbs-v.neg{color:var(--red);}
+  /* Playbooks joués, vue Plan */
+  .pb-plan{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);cursor:pointer;}
+  .pb-plan:first-child{border-top:none;}
+  .pb-plan .pbp-n{flex:1;min-width:0;font-size:14.5px;font-weight:700;}
+  .pb-plan .pbp-s{display:block;font-size:11.5px;color:var(--txt-dim);font-weight:500;margin-top:2px;}
+  .pb-plan .pbp-v{font-size:14px;font-weight:800;flex:0 0 auto;}
+  .pb-plan .pbp-v.pos{color:var(--green);} .pb-plan .pbp-v.neg{color:var(--red);}
+
   .rt-block{margin-bottom:14px;}
   .rt-block:last-child{margin-bottom:0;}
   .rt-head{margin-bottom:8px;}
@@ -1205,6 +1250,19 @@
     </div>
 
     <div class="card">
+      <h2>Actualités marché <span class="hint">fil en direct</span></h2>
+      <div id="newsOffline" class="econ-offline hidden">Le fil d'actualités n'a pas pu se charger. Vérifie ta connexion internet, puis reviens sur cet écran.</div>
+      <div class="news-seg" id="newsSeg">
+        <button type="button" data-market="futures" class="sel">Futures</button>
+        <button type="button" data-market="forex">Forex</button>
+        <button type="button" data-market="index">Indices</button>
+        <button type="button" data-market="crypto">Crypto</button>
+        <button type="button" data-market="stock">Actions</button>
+      </div>
+      <div id="newsWidgetWrap" class="econ-wrap"></div>
+    </div>
+
+    <div class="card">
       <h2>Investing.com</h2>
       <div id="invOffline" class="econ-offline hidden">Le calendrier Investing.com n'a pas pu se charger (hors-ligne ou bloqué par le réseau).</div>
       <div id="invWidgetWrap" class="econ-wrap econ-wrap-light"></div>
@@ -1301,13 +1359,18 @@
       <div class="mood-row" id="moodAfterRow"></div>
     </div>
 
+    <div class="card hidden" id="cardPlaybooks">
+      <h2>Playbook joué <span class="hint">quel setup aujourd'hui</span></h2>
+      <div id="sessPlaybooks"></div>
+    </div>
+
     <div class="card hidden" id="cardRating">
       <h2>Auto-évaluation <span class="hint">note ta séance, pas ton résultat</span></h2>
       <div id="sessRating"></div>
     </div>
 
     <div class="card" id="cardNotes">
-      <h2>Journal de fin de séance</h2>
+      <h2>Journal de fin de séance <button class="h2-btn" id="noteHelpBtn" type="button">✨ M'aider à écrire</button></h2>
       <textarea id="notesText" placeholder="Comment j'ai été aujourd'hui ? Ce qui a marché, ce qui a merdé, les erreurs à corriger demain…"></textarea>
     </div>
 
@@ -1388,6 +1451,17 @@
       <div id="ruleLib"></div>
       <div class="set-label" style="margin-top:14px;">Mes règles <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(notées ✓/✗ en séance)</span></div>
       <div id="planRulesList"></div>
+    </div>
+  </div>
+
+  <div class="cat"><div class="cat-h"><span class="cat-ic">📕</span><span class="cat-t">Playbooks</span><span class="cat-ch">›</span></div>
+    <div class="cat-help">Une fiche par setup : dans quel contexte il marche, comment tu entres, comment tu sors. Coche-les en séance et chaque fiche finit par porter ses propres statistiques.</div>
+    <div class="cat-b">
+      <div class="set-label">Bibliothèque de playbooks <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt-faint);">(active / désactive)</span></div>
+      <div class="cat-help" style="padding:0 0 8px;">Touche un setup pour l'ajouter à ton plan, pré-rempli. Tu pourras le réécrire à ta sauce ensuite.</div>
+      <div id="pbLib"></div>
+      <div class="set-label" style="margin-top:14px;">Mes playbooks</div>
+      <div id="pbMine"></div>
     </div>
   </div>
 
@@ -1492,6 +1566,7 @@
       <div class="toggle-row"><div><div class="tl">Humeur avant / après</div><div class="td">Note ton humeur (1–5).</div></div><div class="switch" data-key="showMood"><i></i></div></div>
       <div class="toggle-row"><div><div class="tl">Tags émotionnels</div><div class="td">Étiquette ta séance (discipliné, FOMO…).</div></div><div class="switch" data-key="showTags"><i></i></div></div>
       <div class="sub-setting hidden" id="tagsEditor"><div class="set-label">Tes tags</div><div id="tagsList"></div></div>
+      <div class="toggle-row"><div><div class="tl">Playbook joué</div><div class="td">Coche le ou les setups joués — chaque playbook porte alors ses propres statistiques.</div></div><div class="switch" data-key="showPlaybooks"><i></i></div></div>
       <div class="toggle-row"><div><div class="tl">Auto-évaluation</div><div class="td">Note ton exécution, ton respect du plan et ta maîtrise (1–5) — indépendamment du résultat.</div></div><div class="switch" data-key="showRating"><i></i></div></div>
       <div class="toggle-row"><div><div class="tl">Journal de fin de séance</div><div class="td">Tes notes libres après la session.</div></div><div class="switch" data-key="showNotes"><i></i></div></div>
     </div>
@@ -1566,6 +1641,30 @@
   <div class="auth-err" id="profErr"></div>
   <div class="auth-ok" id="profOk"></div>
   <button class="drawer-done sticky" id="profSaveBtn">Enregistrer</button>
+</div>
+
+<!-- Graphique d'un instrument (ouvert depuis un trade détaillé) -->
+<div class="drawer" id="chartDrawer">
+  <div class="grab"></div>
+  <h3 id="chartTitle">Graphique</h3>
+  <div class="dsub" id="chartSub">Graphique de marché fourni par TradingView. Repère-toi avec l'heure et le prix notés sur ton trade.</div>
+  <div id="chartWrap" class="chart-wrap"></div>
+  <button class="drawer-done sticky" id="chartDone">Fermer</button>
+</div>
+
+<!-- Aide à la rédaction du journal de séance -->
+<div class="drawer" id="noteDrawer">
+  <div class="grab"></div>
+  <h3>M'aider à écrire</h3>
+  <div class="dsub">La page blanche est la première raison pour laquelle on arrête de tenir un journal. Pars du résumé de ta séance ou d'un modèle, puis complète avec ce que la machine ne peut pas savoir.</div>
+  <div id="noteBody"></div>
+  <button class="drawer-done sticky" id="noteDone">Fermer</button>
+</div>
+
+<!-- Playbook : consultation et édition d'une fiche -->
+<div class="drawer" id="pbDrawer">
+  <div class="grab"></div>
+  <div id="pbDrawerBody"></div>
 </div>
 
 <!-- Calculatrices (accessible sur mobile comme sur ordinateur) -->
@@ -2115,7 +2214,7 @@
   function todayKey(){ return ymd(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate()); }
   var MONTHS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
   var WD=["L","M","M","J","V","S","D"];
-  function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[], quotaOverride:null, rating:{}}; }
+  function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[], quotaOverride:null, rating:{}, playbooks:[]}; }
 
   // ===================== ABONNEMENT / ESSAI GRATUIT =====================
   // Modèle freemium :
@@ -2333,7 +2432,7 @@
       showRules:!!r.show_rules, rules:Array.isArray(r.rules)?r.rules:[],
       showChecklist:!!r.show_checklist, checklistItems:Array.isArray(r.checklist_items)?r.checklist_items:[],
       showMood:!!r.show_mood, showTags:!!r.show_tags, tagsOptions:Array.isArray(r.tags_options)?r.tags_options:[],
-      showRating:!!r.show_rating,
+      showRating:!!r.show_rating, showPlaybooks:!!r.show_playbooks,
       dailyLossLimit:(r.daily_loss_limit===null||r.daily_loss_limit===undefined)?"":String(r.daily_loss_limit),
       showStreak:!!r.show_streak,
       plan:(r.plan&&typeof r.plan==='object'&&!Array.isArray(r.plan))?r.plan:{},
@@ -2343,7 +2442,7 @@
   }
   // sauvegardes isolées des colonnes récentes (si une colonne manque, seule cette requête échoue)
   function savePlan(a){ if(!a) return; db.from('accounts').update({plan:a.plan||{}}).eq('id',a.id).then(function(){},function(e){console.warn('plan (colonne manquante ?)',e);}); }
-  function saveAccountMeta(a){ if(!a) return; db.from('accounts').update({style:a.style||null, logging_mode:a.loggingMode||"quick", onboarded:!!a.onboarded, field_config:a.fieldConfig||{}, show_rating:!!a.showRating}).eq('id',a.id).then(function(){},function(e){console.warn('meta (colonnes manquantes ?)',e);}); }
+  function saveAccountMeta(a){ if(!a) return; db.from('accounts').update({style:a.style||null, logging_mode:a.loggingMode||"quick", onboarded:!!a.onboarded, field_config:a.fieldConfig||{}, show_rating:!!a.showRating, show_playbooks:!!a.showPlaybooks}).eq('id',a.id).then(function(){},function(e){console.warn('meta (colonnes manquantes ?)',e);}); }
   // ---- trades détaillés ----
   function rowToTrade(r){ return {id:r.id, date:r.session_date, instrument:r.instrument||"", side:r.side||"", entryTime:r.entry_time||"", exitTime:r.exit_time||"", entryPrice:(r.entry_price==null?"":String(r.entry_price)), exitPrice:(r.exit_price==null?"":String(r.exit_price)), result:(r.result==null?"":String(r.result)), tags:Array.isArray(r.tags)?r.tags:[], note:r.note||""}; }
   function tradesOf(a,date){ if(!a.tradesByDate[date]) a.tradesByDate[date]=[]; return a.tradesByDate[date]; }
@@ -2382,7 +2481,8 @@
         rules:Array.isArray(s.rules)?s.rules:[], checklist:Array.isArray(s.checklist)?s.checklist:[],
         moodBefore:s.mood_before||0, moodAfter:s.mood_after||0, tags:Array.isArray(s.tags)?s.tags:[],
         quotaOverride:(s.max_trades_override==null?null:s.max_trades_override),
-        rating:(s.self_rating&&typeof s.self_rating==='object'&&!Array.isArray(s.self_rating))?s.self_rating:{}}; }
+        rating:(s.self_rating&&typeof s.self_rating==='object'&&!Array.isArray(s.self_rating))?s.self_rating:{},
+        playbooks:Array.isArray(s.playbooks)?s.playbooks:[]}; }
     });
     // trades détaillés (table 'trades' ; si absente, on ignore silencieusement)
     try{
@@ -2423,7 +2523,7 @@
         mood_before:s.moodBefore||null, mood_after:s.moodAfter||null, tags:s.tags||[]},{onConflict:'account_id,date'});
       // Écriture isolée (colonne récente) : si elle manque encore côté base,
       // seule CETTE requête échoue — la séance ci-dessus est déjà enregistrée.
-      db.from('sessions').update({max_trades_override:s.quotaOverride==null?null:s.quotaOverride, self_rating:s.rating||{}})
+      db.from('sessions').update({max_trades_override:s.quotaOverride==null?null:s.quotaOverride, self_rating:s.rating||{}, playbooks:s.playbooks||[]})
         .eq('account_id',a.id).eq('date',key)
         .then(function(){},function(e){console.warn('quota / auto-évaluation séance (colonne manquante ?)',e);});
     }
@@ -2653,7 +2753,8 @@
     var moodTouched=!!(s.moodBefore||s.moodAfter);
     var quotaTouched=(s.quotaOverride!=null);
     var ratingTouched=!!(s.rating && (s.rating.exec||s.rating.plan||s.rating.emo));
-    return !s.objective && !s.result && !s.notes && tradesEmpty && !rulesTouched && !checkTouched && !tagsTouched && !moodTouched && !quotaTouched && !ratingTouched;
+    var pbTouched=((s.playbooks||[]).length>0);
+    return !s.objective && !s.result && !s.notes && tradesEmpty && !rulesTouched && !checkTouched && !tagsTouched && !moodTouched && !quotaTouched && !ratingTouched && !pbTouched;
   }
   // Quota effectif d'UNE séance : son propre réglage s'il en a un, sinon le
   // défaut du compte. Ne change jamais a.maxTrades (le défaut reste intact
@@ -2724,7 +2825,7 @@
     {id:"insight",w:2,h:1},{id:"checklist",w:1,h:1},{id:"bestworst",w:1,h:1},
     {id:"accounts",w:3,h:2},{id:"equity",w:3,h:2},
     {id:"mood",w:2,h:2},{id:"tags",w:2,h:2},{id:"sessions",w:2,h:2},
-    {id:"calendar",w:3,h:5},{id:"econ",w:3,h:5}
+    {id:"calendar",w:3,h:5}
   ];
 
   function dashDefaultCfg(){
@@ -3066,7 +3167,7 @@
       var v={};
       if(id==="size"||id==="ruin"){ var r=String(pl.riskPerTrade||"").match(/(\d+(?:[.,]\d+)?)/); if(r) v.risk=r[1].replace(",","."); }
       if(id==="need"||id==="ruin"){ if(pl.rr) v.rr=pl.rr; }
-      if(id==="goal"){ if(pl.objM) v.obj=String(pl.objM); }
+      if(id==="goal"){ if(pl.objMonthly) v.obj=String(pl.objMonthly); }
       return v;
     }
     function build(){
@@ -3159,6 +3260,27 @@
     showToast(n+" trade"+(n>1?"s":"")+" exporté"+(n>1?"s":"")+" ✓");
   }
 
+  /* Graphique d'un instrument, ouvert depuis un trade. Le widget TradingView
+     embarque ses propres données de marché : rien à payer pour l'afficher. */
+  function openChartDrawer(instr, t){
+    el("chartTitle").textContent = instr ? ("Graphique — "+instr) : "Graphique";
+    var bits=[];
+    if(t){
+      if(t.date) bits.push(labelKey(t.date));
+      if(t.entryTime||t.exitTime) bits.push((t.entryTime||"?")+" → "+(t.exitTime||"?"));
+      if(t.entryPrice||t.exitPrice) bits.push("entrée "+(t.entryPrice||"?")+" / sortie "+(t.exitPrice||"?"));
+    }
+    el("chartSub").textContent = bits.length
+      ? ("Ton trade : "+bits.join(" · ")+". Le graphique ne place pas encore de marqueur — repère-toi avec ces repères.")
+      : "Graphique de marché fourni par TradingView.";
+    tvMount(el("chartWrap"), "embed-widget-advanced-chart.js", {
+      symbol:tvSymbol(instr), interval:"15", theme:resolvedTheme(), style:"1", locale:"fr",
+      hide_top_toolbar:false, hide_legend:false, allow_symbol_change:true, save_image:false,
+      withdateranges:true, autosize:true
+    }, null);
+    el("overlay").classList.add("open"); el("chartDrawer").classList.add("open");
+  }
+
   function openCalcDrawer(){
     renderCalculators(el("calcBody"), false);
     el("overlay").classList.add("open"); el("calcDrawer").classList.add("open");
@@ -3228,6 +3350,25 @@
                   disp: avg===null ? (count[t]+"×") : (count[t]+"× · "+dashFmt(avg)),
                   tone: avg===null ? "" : (avg>0?"pos":avg<0?"neg":"")};
         }));
+      }},
+    playbooks:{ name:"Mes playbooks", ic:"📕", cat:"perf", w:2,h:2, minW:2,
+      q:"Lequel de mes setups mérite encore ma place en séance ?",
+      render:function(b){
+        var a=acc()||accounts[0];
+        if(!a){ b.innerHTML='<div class="dw-empty">Aucun compte.</div>'; return; }
+        var list=pbList(a);
+        if(!list.length){ b.innerHTML='<div class="dw-empty">Aucun playbook. Onglet <b>Plan</b> → ⚙ → <b>Playbooks</b> : une bibliothèque de setups pré-écrits t\'attend.</div>'; return; }
+        var rows=[], mx=0, played=0;
+        list.forEach(function(pb){ var st=pbStats(a,pb.id); if(st.n) played++; if(st.scored) mx=Math.max(mx,Math.abs(st.avg)); });
+        list.forEach(function(pb){
+          var st=pbStats(a,pb.id);
+          rows.push({label:pb.name, pct:(mx&&st.scored)?Math.abs(st.avg)/mx*100:0,
+                     disp: st.scored ? (st.n+"× · "+fmtVal(Math.round(st.avg*100)/100,a)) : (st.n?st.n+"×":"—"),
+                     tone: st.scored ? (st.avg>0?"pos":st.avg<0?"neg":"") : ""});
+        });
+        b.innerHTML=dashBars(rows.slice(0,6))+'<div class="dw-sub">'+
+          (played? 'Résultat moyen par séance où le setup a été joué. Compte : <b>'+esc(a.name)+'</b>.'
+                 : 'Active « Playbook joué » dans les réglages du compte pour cocher tes setups en séance.')+'</div>';
       }},
     rating:{ name:"Auto-évaluation", ic:"🎚️", cat:"psycho", w:2,h:2, minW:2,
       q:"Est-ce que je joue bien, indépendamment de ce que ça rapporte ?",
@@ -3363,7 +3504,7 @@
         var a=acc()||accounts[0];
         if(!a){ b.innerHTML='<div class="dw-empty">Aucun compte.</div>'; return; }
         var pl=a.plan||{};
-        var objs=[["objD","Aujourd'hui",0],["objW","Cette semaine",1],["objM","Ce mois",2]];
+        var objs=[["objDaily","Aujourd'hui",0],["objWeekly","Cette semaine",1],["objMonthly","Ce mois",2]];
         var now=new Date(), rows=[];
         objs.forEach(function(o){
           var target=parseFloat(String(pl[o[0]]||"").replace(",",".")); if(isNaN(target)||target===0) return;
@@ -3416,28 +3557,50 @@
       q:"Quelles annonces peuvent secouer ma séance ?",
       render:function(b){
         b.className="dw-b flush";
-        b.innerHTML='<div class="tradingview-widget-container dw-embed" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div></div>';
-        if(!navigator.onLine){ b.innerHTML='<div class="dw-b"><div class="dw-empty">Hors-ligne : le calendrier se rechargera à la reconnexion.</div></div>'; return; }
-        var sc=document.createElement("script");
-        sc.type="text/javascript"; sc.async=true;
-        sc.src="https://s3.tradingview.com/external-embedding/embed-widget-events.js";
-        sc.text=JSON.stringify({colorTheme:resolvedTheme(),isTransparent:true,locale:"fr",countryFilter:"us,eu,fr,gb,jp",importanceFilter:"-1,0,1",width:"100%",height:"100%"});
-        b.querySelector(".tradingview-widget-container").appendChild(sc);
+        if(!navigator.onLine){ b.className="dw-b"; b.innerHTML='<div class="dw-empty">Hors-ligne : le calendrier se rechargera à la reconnexion.</div>'; return; }
+        tvMount(b, "embed-widget-events.js", {colorTheme:resolvedTheme(),isTransparent:true,locale:"fr",
+          countryFilter:"us,eu,fr,gb,jp",importanceFilter:"-1,0,1",width:"100%",height:"100%"}, null);
+      }},
+    news:{ name:"Actualités marché", ic:"📰", cat:"marche", w:3,h:4, minW:2,minH:2, keep:true, themed:true, interactive:true,
+      q:"Qu'est-ce qui bouge en ce moment, et pourquoi ?",
+      render:function(b){
+        b.className="dw-b flush";
+        tvMount(b, "embed-widget-timeline.js", {
+          feedMode:"market", market:(dashCfg&&dashCfg.newsMarket)||"futures", isTransparent:true,
+          displayMode:"regular", colorTheme:resolvedTheme(), locale:"fr", width:"100%", height:"100%"
+        }, null);
+        if(!navigator.onLine) b.innerHTML='<div class="dw-b"><div class="dw-empty">Hors-ligne : le fil se rechargera à la reconnexion.</div></div>';
       }},
     chart:{ name:"Graphique", ic:"📉", cat:"marche", w:3,h:4, minW:2,minH:2, keep:true, themed:true, interactive:true,
       q:"Jeter un œil au marché sans quitter mon journal.",
       render:function(b){
         b.className="dw-b flush";
+        if(!navigator.onLine){ b.className="dw-b"; b.innerHTML='<div class="dw-empty">Hors-ligne : le graphique se rechargera à la reconnexion.</div>'; return; }
         var sym=(dashCfg&&dashCfg.chartSymbol)||"CME_MINI:NQ1!";
-        b.innerHTML='<div class="tradingview-widget-container dw-embed" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div></div>';
-        if(!navigator.onLine){ b.innerHTML='<div class="dw-b"><div class="dw-empty">Hors-ligne : le graphique se rechargera à la reconnexion.</div></div>'; return; }
-        var sc=document.createElement("script");
-        sc.type="text/javascript"; sc.async=true;
-        sc.src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-        sc.text=JSON.stringify({symbol:sym,interval:"15",theme:resolvedTheme(),style:"1",locale:"fr",
-          hide_top_toolbar:false,hide_legend:false,allow_symbol_change:true,save_image:false,
-          withdateranges:false,autosize:true});
-        b.querySelector(".tradingview-widget-container").appendChild(sc);
+        // Sélecteur alimenté par NOS instruments : on retrouve les symboles
+        // qu'on trade vraiment, pas un champ vide à remplir à la main.
+        var wrap=document.createElement("div"); wrap.className="dw-chart";
+        var sel=document.createElement("select"); sel.className="cx-sel dw-sym";
+        var h="";
+        Object.keys(INSTRUMENTS).forEach(function(grp){
+          h+='<optgroup label="'+esc(grp)+'">';
+          INSTRUMENTS[grp].forEach(function(code){
+            var v=tvSymbol(code);
+            h+='<option value="'+esc(v)+'"'+(v===sym?" selected":"")+'>'+esc(code)+'</option>';
+          });
+          h+='</optgroup>';
+        });
+        sel.innerHTML=h;
+        var host=document.createElement("div"); host.style.cssText="flex:1;min-height:0;";
+        wrap.appendChild(sel); wrap.appendChild(host);
+        b.innerHTML=""; b.appendChild(wrap);
+        function mount(){
+          tvMount(host, "embed-widget-advanced-chart.js", {symbol:sym,interval:"15",theme:resolvedTheme(),
+            style:"1",locale:"fr",hide_top_toolbar:false,hide_legend:false,allow_symbol_change:true,
+            save_image:false,withdateranges:false,autosize:true}, null);
+        }
+        sel.onchange=function(){ sym=sel.value; if(dashCfg){ dashCfg.chartSymbol=sym; dashSave(); } mount(); };
+        mount();
       }},
     calc:{ name:"Calculatrices", ic:"🧮", cat:"marche", w:2,h:2, minW:2,minH:2, keep:true, interactive:true,
       q:"Combien je prends, et est-ce que ça tient la route ?",
@@ -3823,6 +3986,7 @@
     el("cardRules").classList.toggle("hidden",!a.showRules);
     el("cardTags").classList.toggle("hidden",!a.showTags);
     el("cardRating").classList.toggle("hidden",!a.showRating);
+    el("cardPlaybooks").classList.toggle("hidden",!a.showPlaybooks);
     el("cardTrades").classList.toggle("hidden",!isDetailed(a));
     el("fromTradesBtn").classList.toggle("hidden", !(isDetailed(a) && a.showResult));
   }
@@ -3960,6 +4124,131 @@
     box.appendChild(sum);
   }
 
+  /* =====================================================================
+     AIDE À LA RÉDACTION DU JOURNAL DE SÉANCE
+     ---------------------------------------------------------------------
+     Deux leviers contre la page blanche : un résumé factuel de la séance,
+     entièrement calculé à partir de ce que l'utilisateur a déjà saisi
+     (donc juste, gratuit, hors-ligne), et des modèles de notes pré-écrits
+     — plus ceux qu'il enregistre lui-même.
+     ===================================================================== */
+  var NOTE_TEMPLATES=[
+    {id:"debrief", name:"Débrief complet", body:
+"Ce qui a marché :\n- \n\nCe qui a merdé :\n- \n\nMon émotion dominante aujourd'hui :\n- \n\nUne seule chose à corriger demain :\n- "},
+    {id:"hard", name:"Séance difficile", body:
+"À quel moment ça a dérapé :\n- \n\nCe qui m'a fait dévier du plan :\n- \n\nLe signal que j'aurais pu voir avant :\n- \n\nCe que je fais différemment demain :\n- "},
+    {id:"good", name:"Bonne séance", body:
+"Qu'est-ce que j'ai bien fait, précisément :\n- \n\nEst-ce reproductible, ou j'ai eu de la chance :\n- \n\nLa condition à retenir pour la prochaine fois :\n- "},
+    {id:"notrade", name:"Journée sans trade", body:
+"Pourquoi je n'ai rien pris :\n- \n\nBonne décision, ou évitement :\n- \n\nCe que j'attendais et qui n'est pas venu :\n- "},
+    {id:"broken", name:"Règle enfreinte", body:
+"La règle que j'ai cassée :\n- \n\nCe que je me suis dit sur le moment :\n- \n\nCe que ça m'a coûté :\n- \n\nComment je rends cette règle plus difficile à enfreindre :\n- "}
+  ];
+  function noteTemplates(a){ a=a||acc(); if(!a) return []; a.plan=a.plan||{}; if(!Array.isArray(a.plan.noteTemplates)) a.plan.noteTemplates=[]; return a.plan.noteTemplates; }
+
+  function sessionAutoSummary(){
+    var a=acc(), s=curSession(), k=view.editKey;
+    if(!a||!s) return "";
+    var L=[];
+    L.push("Séance du "+labelKey(k)+" — "+a.name+".");
+    if(a.showTracker){
+      var st=statsForTrades(s.trades);
+      if(st.taken) L.push(st.taken+" trade"+(st.taken>1?"s":"")+" pris sur un quota de "+effectiveQuota(a,s)+
+        (st.win||st.loss?" ("+st.win+" ✓ / "+st.loss+" ✗)":"")+(st.taken>effectiveQuota(a,s)?" — quota dépassé.":"."));
+    }
+    var det=tradesOf(a,k);
+    if(det.length) L.push(det.length+" trade"+(det.length>1?"s":"")+" détaillé"+(det.length>1?"s":"")+" enregistré"+(det.length>1?"s":"")+".");
+    if(hasResult(s)) L.push("Résultat : "+fmtVal(sessionNet(s),a)+".");
+    if(a.showMood && (s.moodBefore||s.moodAfter)){
+      var mb=s.moodBefore?s.moodBefore+"/5":"non notée", ma=s.moodAfter?s.moodAfter+"/5":"non notée";
+      L.push("Humeur : "+mb+" avant, "+ma+" après.");
+    }
+    if(a.showRules){
+      var ok=0, ko=[];
+      (s.rules||[]).forEach(function(r){ if(!r) return; if(r.ok===true) ok++; else if(r.ok===false) ko.push(r.rule); });
+      if(ok||ko.length) L.push("Règles : "+ok+" respectée"+(ok>1?"s":"")+
+        (ko.length? ", "+ko.length+" enfreinte"+(ko.length>1?"s":"")+" (« "+ko.join(" », « ")+" »)." : "."));
+    }
+    if(a.showChecklist && (s.checklist||[]).length){
+      var done=s.checklist.filter(function(c){return c&&c.checked;}).length;
+      L.push("Check-list : "+done+"/"+s.checklist.length+(done<s.checklist.length?" — incomplète.":" — complète."));
+    }
+    if(a.showRating){
+      var avg=ratingAvg(s.rating);
+      if(avg!==null){
+        var parts=RATING_AXES.filter(function(x){return s.rating[x.k]>0;}).map(function(x){ return x.t.toLowerCase()+" "+s.rating[x.k]+"/5"; });
+        L.push("Auto-évaluation : "+parts.join(", ")+" (moyenne "+(Math.round(avg*10)/10)+"/5).");
+      }
+    }
+    if(a.showPlaybooks && (s.playbooks||[]).length){
+      var names=s.playbooks.map(function(id){ var pb=pbById(a,id); return pb?pb.name:null; }).filter(Boolean);
+      if(names.length) L.push("Playbook"+(names.length>1?"s":"")+" joué"+(names.length>1?"s":"")+" : "+names.join(", ")+".");
+    }
+    if(a.showTags && (s.tags||[]).length) L.push("Tags : "+s.tags.join(", ")+".");
+    if(s.objective && s.objective.trim()) L.push("Objectif du jour : "+s.objective.trim());
+    return L.join("\n")+"\n\nCe que j'en retiens :\n- ";
+  }
+
+  function insertIntoNotes(txt){
+    var ta=el("notesText"), s=curSession();
+    if(!ta||!s) return;
+    var cur=ta.value;
+    ta.value = cur.trim() ? (cur.replace(/\s+$/,"")+"\n\n"+txt) : txt;
+    s.notes=ta.value;
+    closeDrawer();
+    refreshSaveBtn();
+    requestAnimationFrame(function(){ autoGrow(ta); ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); });
+    showToast("Ajouté à ton journal ✓");
+  }
+
+  function renderNoteHelper(){
+    var a=acc(); if(!a) return;
+    var box=el("noteBody"); box.innerHTML="";
+    function card(name, body, cls, onDel){
+      var d=document.createElement("div"); d.className="nt-card"+(cls?" "+cls:"");
+      d.innerHTML='<div class="nt-h"><span class="nt-name"></span>'+(onDel?'<button class="nt-del" type="button" title="Supprimer">✕</button>':'')+
+                  '<button class="nt-ins" type="button">Insérer</button></div><pre class="nt-prev"></pre>';
+      d.querySelector(".nt-name").textContent=name;
+      d.querySelector(".nt-prev").textContent=body;
+      d.querySelector(".nt-ins").onclick=function(){ insertIntoNotes(body); };
+      if(onDel) d.querySelector(".nt-del").onclick=onDel;
+      box.appendChild(d);
+    }
+    var lab=document.createElement("div"); lab.className="set-label"; lab.textContent="Résumé de ta séance";
+    box.appendChild(lab);
+    var auto=sessionAutoSummary();
+    card("Résumé automatique", auto, "auto");
+
+    var lab2=document.createElement("div"); lab2.className="set-label"; lab2.style.marginTop="18px"; lab2.textContent="Modèles";
+    box.appendChild(lab2);
+    NOTE_TEMPLATES.forEach(function(t){ card(t.name, t.body); });
+
+    var mine=noteTemplates(a);
+    var lab3=document.createElement("div"); lab3.className="set-label"; lab3.style.marginTop="18px"; lab3.textContent="Mes modèles";
+    box.appendChild(lab3);
+    if(!mine.length){
+      var e=document.createElement("div"); e.className="cat-help"; e.style.padding="0 0 8px";
+      e.textContent="Écris une note qui te convient, puis enregistre-la ici comme modèle pour la réutiliser à chaque séance.";
+      box.appendChild(e);
+    }
+    mine.forEach(function(t,idx){
+      card(t.name, t.body, null, function(){
+        mine.splice(idx,1); savePlan(a); renderNoteHelper();
+      });
+    });
+    var save=document.createElement("div"); save.className="nt-save";
+    save.innerHTML='<input class="set-input" id="ntName" type="text" placeholder="Nom du modèle"><button class="nt-ins" id="ntSave" type="button">Enregistrer ma note</button>';
+    box.appendChild(save);
+    save.querySelector("#ntSave").onclick=function(){
+      var body=(el("notesText")?el("notesText").value:"").trim();
+      if(!body){ showToast("Ta note est vide"); return; }
+      var name=el("ntName").value.trim() || ("Modèle "+(mine.length+1));
+      mine.push({id:"nt"+Date.now().toString(36), name:name, body:body});
+      savePlan(a); renderNoteHelper(); showToast("Modèle enregistré ✓");
+    };
+  }
+  function openNoteDrawer(){ renderNoteHelper(); el("overlay").classList.add("open"); el("noteDrawer").classList.add("open"); }
+
   function renderSessTags(){
     var a=acc(), s=curSession(); if(!a||!s) return;
     var box=el("sessTags"); box.innerHTML="";
@@ -3993,6 +4282,7 @@
     if(a.showMood){ renderMood("moodBeforeRow","moodBefore"); renderMood("moodAfterRow","moodAfter"); }
     if(a.showTags) renderSessTags();
     if(a.showRating) renderSessRating();
+    if(a.showPlaybooks) renderSessPlaybooks();
     if(isDetailed(a)) renderTrades(a);
     updateStopBanner();
   }
@@ -4039,6 +4329,12 @@
     if(fc.instrument){
       var g=group('<div class="set-label">Instrument</div><button class="set-input" id="tfInstr" type="button" style="text-align:left;cursor:pointer;">'+(t.instrument?esc(t.instrument):'<span style="color:var(--txt-faint)">Choisir…</span>')+'</button>');
       box.appendChild(g); g.querySelector("#tfInstr").addEventListener("click",function(){ openInstrPicker(); });
+      if(t.instrument){
+        var gc=document.createElement("button"); gc.type="button"; gc.className="dw-link"; gc.style.margin="-8px 0 16px";
+        gc.textContent="📉 Voir « "+t.instrument+" » sur le graphique";
+        gc.onclick=function(){ openChartDrawer(t.instrument, t); };
+        box.appendChild(gc);
+      }
     }
     if(fc.side){
       var gs=group('<div class="set-label">Sens</div><div class="type-seg" id="tfSide"><button data-side="buy">Achat</button><button data-side="sell">Vente</button></div>');
@@ -4288,6 +4584,28 @@
       svgCompare(rows,{max:5}));
   }
 
+  // Le playbook est un tag de setup, pas d'émotion : il répond à « lequel de
+  // mes setups mérite encore ma place en séance ». Restreint à un seul compte,
+  // les playbooks étant définis par compte.
+  function secPlaybooks(scope){
+    if(scope.accounts.length!==1) return null;
+    var a=scope.accounts[0], list=pbList(a);
+    if(!list.length) return null;
+    var rows=[], best=null, worst=null, any=false;
+    list.forEach(function(pb){
+      var st=pbStats(a,pb.id);
+      if(st.scored<3) return;
+      any=true;
+      rows.push({label:pb.name+' ('+st.scored+')', value:st.avg, disp:fmtVal(anRound(st.avg),a), tone:anTone(st.avg)});
+      if(!best||st.avg>best.st.avg) best={pb:pb,st:st};
+      if(!worst||st.avg<worst.st.avg) worst={pb:pb,st:st};
+    });
+    if(!any) return anInsufficient("Tes playbooks");
+    var txt='Ton setup le plus rentable est <b>« '+esc(best.pb.name)+' »</b> : <b>'+fmtVal(anRound(best.st.avg),a)+'</b> par séance ('+best.st.winRate+'% gagnantes, '+best.st.scored+' séances).';
+    if(worst && worst.pb.id!==best.pb.id) txt+=' Le moins rentable est <b>« '+esc(worst.pb.name)+' »</b> : <b>'+fmtVal(anRound(worst.st.avg),a)+'</b> ('+worst.st.winRate+'%, '+worst.st.scored+' séances)'+(worst.st.avg<0?' — celui-là mérite une relecture de sa fiche, ou une pause.':'.');
+    return anCard('Tes playbooks', fmtVal(anRound(best.st.avg),a), anTone(best.st.avg), txt, svgCompare(rows,{}));
+  }
+
   function secDiscipline(scope){
     if(scope.accounts.length!==1) return null;
     var a=scope.accounts[0];
@@ -4329,12 +4647,13 @@
     if(showRules){ disc.push(secRulesRespect(scope)); disc.push(secCostliestRule(scope)); }
     if(accs.some(function(a){return a.showStreak;})) disc.push(secDiscipline(scope));
     if(showChecklist){ disc.push(secChecklist(scope)); }
+    if(accs.some(function(a){return a.showPlaybooks;})){ disc.push(secPlaybooks(scope)); }
     if(showMood){ psy.push(secMood(scope)); }
     if(showTags){ psy.push(secTags(scope)); }
     if(accs.some(function(a){return a.showRating;})){ psy.push(secSelfRating(scope)); psy.push(secRatingAxis(scope)); }
     grp("Rigueur & discipline", disc);
     grp("Psychologie", psy);
-    if(!showRules && !showTags && !showMood && !showChecklist && !accs.some(function(a){return a.showRating;})){
+    if(!showRules && !showTags && !showMood && !showChecklist && !accs.some(function(a){return a.showRating||a.showPlaybooks;})){
       var e=document.createElement('div'); e.className='an-card';
       e.innerHTML='<div class="an-txt"><span class="an-empty">Active des modules (règles, tags, humeur, check-list, auto-évaluation) sur au moins un compte et enregistre quelques séances : tes constats apparaîtront ici.</span></div>';
       body.appendChild(e);
@@ -4475,12 +4794,24 @@
     h+=cardIf(io,"Conditions d'entrée / sortie");
     h+=cardIf(rules.length?'<ul class="plan-rolist">'+rules.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul>':"", "Règles de trading","notées ✓/✗ en séance");
     h+=cardIf(checks.length?'<ul class="plan-rolist">'+checks.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul>':"", "Check-list de préséance","routine avant de trader");
+    var pbs=pbList(a);
+    if(pbs.length){
+      var pbh=pbs.map(function(pb){
+        var st=pbStats(a,pb.id);
+        var sub = st.n ? (st.n+" séance"+(st.n>1?"s":"")+(st.winRate===null?"":" · "+st.winRate+"% gagnantes")) : "pas encore joué";
+        var val = st.scored ? fmtVal(Math.round(st.avg*100)/100,a) : "—";
+        return '<div class="pb-plan js-pb" data-id="'+pb.id+'"><span class="pbp-n">'+esc(pb.name||"Sans nom")+'<span class="pbp-s">'+sub+'</span></span>'+
+               '<span class="pbp-v '+(st.scored?(st.avg>0?"pos":st.avg<0?"neg":""):"")+'">'+val+'</span><span class="chev">›</span></div>';
+      }).join("");
+      h+=cardIf(pbh,"Mes playbooks","touche une fiche pour l'ouvrir");
+    }
     var obj=line("Objectif journalier",amt(p.objDaily))+line("Objectif hebdomadaire",amt(p.objWeekly))+line("Objectif mensuel",amt(p.objMonthly));
     h+=cardIf(obj,"Objectifs");
     var risk=line("Ratio risque/récompense",p.rr)+line("Risque par trade",p.riskPerTrade)+line("Limite de perte du jour",amt(a.dailyLossLimit))+line("Perte hebdomadaire max",amt(p.weeklyLoss))+line("Drawdown / perte max totale",amt(p.maxDrawdown));
     h+=cardIf(risk,"Gestion du risque");
     if(!h) h='<div class="card"><div class="pf-empty">Ton plan est vide.<br>Appuie sur ⚙ en haut à droite pour le rédiger — style, règles, objectifs, gestion du risque.</div></div>';
     el("planView").innerHTML=h;
+    el("planView").querySelectorAll(".js-pb").forEach(function(row){ row.onclick=function(){ pbView(row.dataset.id); }; });
   }
   function openPlanDrawer(){
     var a=acc(); if(!a){ showToast("Choisis d'abord un compte"); return; } a.plan=a.plan||{};
@@ -4493,6 +4824,7 @@
     renderListEditor(el("planRulesList"),"rules","Ex : Pas de trade avant 15h30","Ajouter une règle");
     renderListEditor(el("planChecklistList"),"checklistItems","Ex : Vérifier les annonces éco","Ajouter un item");
     renderRuleFilter(); renderRuleLibrary(a);
+    renderPbLibrary(a); renderPbEditor();
     el("overlay").classList.add("open"); el("planDrawer").classList.add("open");
   }
   el("planDone").addEventListener("click",function(){ var a=acc(); if(a){ savePlan(a); saveAccount(a); } closeDrawer(); renderPlan(); });
@@ -4558,6 +4890,284 @@
       "Je respecte la règle de cohérence (consistency)","Pas de position overnight (interdit par ma firme)",
       "Je ne dépasse jamais le nombre de contrats autorisé"]}
   ];
+
+  /* =====================================================================
+     PLAYBOOKS — les setups documentés du trader
+     ---------------------------------------------------------------------
+     Une fiche par stratégie : dans quel contexte elle marche, comment on
+     entre, comment on sort, ce qui l'invalide, les erreurs qu'on y fait.
+     Rangées dans accounts.plan.playbooks (aucune colonne à créer), et
+     rattachées aux séances via sessions.playbooks pour que chaque fiche
+     finisse par porter ses propres statistiques.
+
+     TraderWaves laisse un champ de texte libre : on livre à la place une
+     bibliothèque pré-écrite, comme pour les règles. C'est notre manière
+     d'être utile dès la première minute, sans page blanche.
+     ===================================================================== */
+  var PLAYBOOK_LIBRARY=[
+    {t:"Ouverture de séance", ic:"🔔", items:[
+      {name:"Cassure d'ouverture (ORB)",
+       context:"Les 15 à 30 premières minutes de la séance, sur un indice ou un future liquide. Marche mieux les jours à catalyseur (annonce macro, résultats).",
+       entry:"Je délimite le plus haut et le plus bas des X premières minutes. J'entre à la cassure de l'un des deux bords, dans le sens de la cassure, avec un volume supérieur à la moyenne des barres précédentes.",
+       exit:"Objectif : l'amplitude du range projetée depuis le bord cassé. Stop : de l'autre côté du range, ou sous la bougie de cassure.",
+       invalid:"Retour à l'intérieur du range après la cassure : je sors, c'est un faux départ.",
+       mistakes:"Entrer sur la première mèche sans attendre la clôture de la bougie. Reprendre le trade une troisième fois après deux faux départs."},
+      {name:"Comblement de gap",
+       context:"Ouverture en gap par rapport à la clôture de la veille, sans nouvelle majeure pour le justifier.",
+       entry:"J'attends l'essoufflement du premier mouvement, puis j'entre dans le sens du comblement quand le prix repasse un niveau intermédiaire.",
+       exit:"Objectif : la clôture de la veille. Stop : au-delà de l'extrême formé après l'ouverture.",
+       invalid:"Le gap s'étend avec du volume : c'est une tendance, pas un gap à combler.",
+       mistakes:"Jouer le comblement sur un gap justifié par une vraie nouvelle. Ne pas laisser le temps au marché de s'essouffler."},
+      {name:"Retournement des 30 premières minutes",
+       context:"Le premier mouvement de la séance part fort dans un sens, sans suivi.",
+       entry:"J'attends une divergence ou un rejet net sur un niveau de la veille, puis j'entre à contre-sens du premier mouvement.",
+       exit:"Objectif : le point de départ de l'ouverture, puis le niveau suivant. Stop : au-delà de l'extrême du premier mouvement.",
+       invalid:"Nouveau plus haut / plus bas après mon entrée : le premier mouvement n'était pas un excès.",
+       mistakes:"Anticiper le retournement sans signal. Trader ça les jours de tendance forte."}
+    ]},
+    {t:"Suivi de tendance", ic:"📈", items:[
+      {name:"Pullback sur moyenne mobile",
+       context:"Tendance établie, prix au-dessus (ou en dessous) de sa moyenne mobile de référence, sans annonce imminente.",
+       entry:"J'attends le repli sur la moyenne mobile et une bougie de reprise dans le sens de la tendance. J'entre à la cassure du plus haut de cette bougie.",
+       exit:"Objectif : le dernier extrême de la tendance, puis extension. Stop : sous le creux du repli.",
+       invalid:"Clôture franche de l'autre côté de la moyenne mobile : la tendance est en train de changer.",
+       mistakes:"Entrer au premier contact sans confirmation. Prendre le trade quand la moyenne mobile est plate."},
+      {name:"Continuation après consolidation",
+       context:"Après une impulsion, le prix consolide en petit range ou en drapeau, sans casser le niveau clé.",
+       entry:"J'entre à la cassure de la consolidation dans le sens de l'impulsion initiale, si le volume reprend.",
+       exit:"Objectif : l'amplitude de l'impulsion, projetée depuis la cassure. Stop : au milieu de la consolidation.",
+       invalid:"La consolidation dure plus longtemps que l'impulsion elle-même : l'élan est retombé.",
+       mistakes:"Confondre consolidation et retournement. Élargir le stop parce que « ça va repartir »."},
+      {name:"Cassure de range avec volume",
+       context:"Range horizontal clair, testé au moins deux fois de chaque côté, sur un instrument liquide.",
+       entry:"J'entre à la clôture d'une bougie hors du range, avec un volume nettement supérieur aux bougies du range.",
+       exit:"Objectif : la hauteur du range projetée. Stop : au retour à l'intérieur du range.",
+       invalid:"Cassure sans volume, ou retour immédiat dans le range.",
+       mistakes:"Entrer sur la mèche. Jouer la cassure sur un range trop étroit où le stop n'a pas de place."}
+    ]},
+    {t:"Retour à la moyenne", ic:"🎯", items:[
+      {name:"Retour à la VWAP",
+       context:"Séance sans tendance marquée, prix nettement écarté de sa VWAP sans catalyseur.",
+       entry:"J'entre dans le sens du retour vers la VWAP, après un premier signe d'essoufflement (mèche de rejet, ralentissement).",
+       exit:"Objectif : la VWAP. Stop : au-delà de l'extrême de l'écartement.",
+       invalid:"Le prix continue à s'écarter avec du volume : c'est une tendance, je n'ai rien à faire à contre-sens.",
+       mistakes:"Jouer le retour sur un jour de tendance. Moyenner à la baisse en attendant que « ça revienne »."},
+      {name:"Excès sur extrême de volatilité",
+       context:"Prix qui sort violemment de son enveloppe de volatilité habituelle, sans nouvelle pour le justifier.",
+       entry:"J'attends une bougie de rejet sur l'extrême, j'entre dans le sens du retour.",
+       exit:"Objectif : le milieu de l'enveloppe. Stop : au-delà de l'extrême de la bougie de rejet.",
+       invalid:"Deux clôtures consécutives hors de l'enveloppe : ce n'est pas un excès, c'est un régime nouveau.",
+       mistakes:"Prendre le trade avant le rejet. Le prendre pendant une annonce."},
+      {name:"Fade d'excès sur annonce",
+       context:"Réaction excessive juste après une annonce macro, une fois la première minute passée.",
+       entry:"J'attends que le premier mouvement s'épuise et que le prix revienne dans la zone d'avant-annonce, puis j'entre à contre-sens.",
+       exit:"Objectif : le niveau d'avant-annonce. Stop : sur le nouvel extrême.",
+       invalid:"Le marché confirme le mouvement sur la deuxième vague : la donnée était vraiment une surprise.",
+       mistakes:"Entrer dans la première minute, quand les spreads sont larges et le stop inutilisable."}
+    ]},
+    {t:"Niveaux & structure", ic:"📐", items:[
+      {name:"Rejet sur niveau clé",
+       context:"Approche d'un niveau majeur (plus haut/bas de la veille, chiffre rond, zone hebdomadaire).",
+       entry:"J'attends une mèche de rejet nette sur le niveau, puis j'entre au retour sous (ou au-dessus) de celui-ci.",
+       exit:"Objectif : le niveau opposé de la structure. Stop : de l'autre côté du niveau rejeté.",
+       invalid:"Clôture franche au-delà du niveau : il devient un support/résistance dans l'autre sens.",
+       mistakes:"Entrer avant le rejet, en anticipant le niveau. Trader un niveau que tout le monde regarde sans confirmation."},
+      {name:"Prise de liquidité sous un plus bas",
+       context:"Un plus bas (ou plus haut) évident, visible de tous, avec des stops accumulés derrière.",
+       entry:"J'attends le balayage du niveau ET le retour immédiat au-dessus, puis j'entre dans le sens du retour.",
+       exit:"Objectif : le sommet de la structure balayée. Stop : sous le plus bas du balayage.",
+       invalid:"Le prix reste sous le niveau balayé plus de quelques bougies : ce n'était pas une prise de liquidité.",
+       mistakes:"Entrer pendant le balayage au lieu d'attendre le retour. Placer le stop trop près du plus bas balayé."},
+      {name:"Range asiatique",
+       context:"Forex, cassure du range formé pendant la séance asiatique, au moment de l'ouverture de Londres.",
+       entry:"J'entre à la cassure d'un bord du range asiatique, à l'ouverture de Londres, avec confirmation de clôture.",
+       exit:"Objectif : l'amplitude du range projetée. Stop : de l'autre côté du range.",
+       invalid:"Range asiatique trop large ou trop étroit par rapport à sa moyenne : la journée n'est pas lisible.",
+       mistakes:"Jouer les deux bords à la suite. Ignorer le calendrier économique de la matinée européenne."},
+      {name:"Double sommet / double creux",
+       context:"Deux tests d'un même niveau, avec un deuxième test moins vigoureux que le premier.",
+       entry:"J'entre à la cassure du creux (ou sommet) intermédiaire entre les deux tests.",
+       exit:"Objectif : la hauteur de la figure projetée depuis la cassure. Stop : au-delà du deuxième sommet/creux.",
+       invalid:"Troisième test du niveau : la figure devient un range, pas un retournement.",
+       mistakes:"Voir la figure partout. Entrer avant la cassure du niveau intermédiaire."}
+    ]}
+  ];
+
+  /* ---------- Accès & persistance ---------- */
+  function pbList(a){ a=a||acc(); if(!a) return []; a.plan=a.plan||{}; if(!Array.isArray(a.plan.playbooks)) a.plan.playbooks=[]; return a.plan.playbooks; }
+  function pbById(a,id){ var l=pbList(a); for(var i=0;i<l.length;i++) if(l[i].id===id) return l[i]; return null; }
+  function pbNewId(){ return "pb"+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+  function pbHasName(a,name){ return pbList(a).some(function(p){ return String(p.name||"").trim().toLowerCase()===String(name||"").trim().toLowerCase(); }); }
+  function pbAddFromLib(a,item){
+    if(pbHasName(a,item.name)) return null;
+    var p={id:pbNewId(), name:item.name, context:item.context||"", entry:item.entry||"", exit:item.exit||"", invalid:item.invalid||"", mistakes:item.mistakes||""};
+    pbList(a).push(p); savePlan(a); return p;
+  }
+  function pbRemoveByName(a,name){
+    var l=pbList(a);
+    for(var i=0;i<l.length;i++) if(String(l[i].name||"").trim().toLowerCase()===String(name||"").trim().toLowerCase()){ l.splice(i,1); savePlan(a); return true; }
+    return false;
+  }
+  function pbDelete(a,id){
+    var l=pbList(a);
+    for(var i=0;i<l.length;i++) if(l[i].id===id){ l.splice(i,1); break; }
+    // On détache aussi la fiche des séances qui la référencent, sinon on
+    // garderait des statistiques sur un playbook qui n'existe plus.
+    Object.keys(a.sessions).forEach(function(k){
+      var s=a.sessions[k];
+      if(Array.isArray(s.playbooks) && s.playbooks.indexOf(id)>=0){
+        s.playbooks=s.playbooks.filter(function(x){ return x!==id; });
+        persistSession(a,k);
+      }
+    });
+    savePlan(a);
+  }
+
+  /* ---------- Statistiques par playbook ---------- */
+  function pbStats(a,id){
+    var n=0, scored=0, sum=0, win=0, lastKey=null;
+    Object.keys(a.sessions).forEach(function(k){
+      var s=a.sessions[k];
+      if(!Array.isArray(s.playbooks) || s.playbooks.indexOf(id)<0) return;
+      n++; if(!lastKey||k>lastKey) lastKey=k;
+      if(hasResult(s)){ scored++; var v=sessionNet(s); sum+=v; if(v>0) win++; }
+    });
+    return {n:n, scored:scored, avg:scored?sum/scored:0, total:sum, winRate:scored?Math.round(win/scored*100):null, last:lastKey};
+  }
+
+  /* ---------- Fiche playbook (lecture, puis édition) ---------- */
+  var PB_FIELDS=[
+    ["context","Quand je le joue","Le contexte de marché où ce setup fonctionne"],
+    ["entry","Comment j'entre","Mes conditions d'entrée, précisément"],
+    ["exit","Comment je sors","Objectif et stop"],
+    ["invalid","Ce qui l'invalide","Le signal qui me dit que je me suis trompé"],
+    ["mistakes","Mes erreurs fréquentes","Ce que je me connais comme travers sur ce setup"]
+  ];
+  function openPbDrawer(html){ el("pbDrawerBody").innerHTML=html; el("overlay").classList.add("open"); el("pbDrawer").classList.add("open"); }
+
+  function pbView(id){
+    var a=acc(); var p=pbById(a,id); if(!p) return;
+    var st=pbStats(a,id);
+    var h='<h3>'+esc(p.name||"Playbook")+'</h3>';
+    if(st.n){
+      h+='<div class="pb-stats">'+
+         '<div class="pb-stat"><span class="pbs-k">Séances</span><span class="pbs-v">'+st.n+'</span></div>'+
+         '<div class="pb-stat"><span class="pbs-k">Résultat moyen</span><span class="pbs-v '+(st.avg>0?"pos":st.avg<0?"neg":"")+'">'+(st.scored?fmtVal(Math.round(st.avg*100)/100,a):"—")+'</span></div>'+
+         '<div class="pb-stat"><span class="pbs-k">Gagnantes</span><span class="pbs-v">'+(st.winRate===null?"—":st.winRate+"%")+'</span></div>'+
+         '</div>';
+    } else {
+      h+='<div class="dsub">Pas encore de séance rattachée à ce playbook. Active « Playbook joué » dans les réglages du compte pour le cocher en séance — il portera alors ses propres statistiques.</div>';
+    }
+    PB_FIELDS.forEach(function(f){
+      if(!String(p[f[0]]||"").trim()) return;
+      h+='<div class="set-group"><div class="set-label">'+f[1]+'</div><div class="plan-ro">'+esc(p[f[0]]).replace(/\n/g,"<br>")+'</div></div>';
+    });
+    h+='<button class="drawer-done" id="pbEditBtn" type="button">Modifier ce playbook</button>'+
+       '<button class="onb-skip" id="pbDelBtn" type="button" style="color:var(--red);">Supprimer ce playbook</button>';
+    openPbDrawer(h);
+    el("pbEditBtn").onclick=function(){ pbEdit(id); };
+    el("pbDelBtn").onclick=function(){
+      openConfirm("Supprimer ce playbook ?","« "+(p.name||"")+" » sera retiré de ton plan et détaché de tes séances. Tes séances et leurs résultats ne sont pas touchés.","Supprimer",function(){
+        pbDelete(a,id); closeDrawer(); renderPlan(); showToast("Playbook supprimé");
+      });
+    };
+  }
+
+  function pbEdit(id){
+    var a=acc(); var isNew=!id;
+    var p = isNew ? {id:pbNewId(), name:"", context:"", entry:"", exit:"", invalid:"", mistakes:""} : pbById(a,id);
+    if(!p) return;
+    var h='<h3>'+(isNew?"Nouveau playbook":"Modifier le playbook")+'</h3>'+
+      '<div class="dsub">Une fiche par setup. Écris-la comme si tu devais l\'expliquer à quelqu\'un d\'autre — c\'est ce qui rend une stratégie reproductible.</div>'+
+      '<div class="set-group"><div class="set-label">Nom du setup</div><input class="set-input" id="pbName" type="text" value="'+esc(p.name||"")+'" placeholder="Ex : Cassure d\'ouverture"></div>';
+    PB_FIELDS.forEach(function(f){
+      h+='<div class="set-group"><div class="set-label">'+f[1]+'</div><div class="cat-help" style="padding:0 0 6px;">'+f[2]+'</div>'+
+         '<textarea id="pb_'+f[0]+'">'+esc(p[f[0]]||"")+'</textarea></div>';
+    });
+    h+='<button class="drawer-done sticky" id="pbSaveBtn" type="button">Enregistrer</button>';
+    openPbDrawer(h);
+    PB_FIELDS.forEach(function(f){ var t=el("pb_"+f[0]); attachAutoGrow(t); requestAnimationFrame(function(){ autoGrow(t); }); });
+    el("pbSaveBtn").onclick=function(){
+      var name=el("pbName").value.trim();
+      if(!name){ showToast("Donne un nom à ce playbook"); el("pbName").focus(); return; }
+      p.name=name;
+      PB_FIELDS.forEach(function(f){ p[f[0]]=el("pb_"+f[0]).value; });
+      if(isNew) pbList(a).push(p);
+      savePlan(a); closeDrawer(); renderPlan(); renderPbEditor(); showToast("Playbook enregistré ✓");
+    };
+  }
+
+  /* ---------- Bibliothèque + liste, dans le tiroir Plan ---------- */
+  function renderPbLibrary(a){
+    var box=el("pbLib"); if(!box||!a) return; box.innerHTML="";
+    PLAYBOOK_LIBRARY.forEach(function(cat){
+      var active=cat.items.filter(function(it){ return pbHasName(a,it.name); }).length;
+      var wrap=document.createElement("div"); wrap.className="rl-cat"+(active>0?" open":"");
+      var head=document.createElement("div"); head.className="rl-cat-h";
+      head.innerHTML='<span class="rl-ic">'+cat.ic+'</span><span class="rl-t">'+cat.t+'</span><span class="rl-n">'+(active||"")+'</span><span class="rl-ch">›</span>';
+      head.onclick=function(){ wrap.classList.toggle("open"); };
+      var body=document.createElement("div"); body.className="rl-cat-b";
+      cat.items.forEach(function(it){
+        var c=document.createElement("button"); c.type="button";
+        c.className="rl-chip"+(pbHasName(a,it.name)?" on":""); c.textContent=it.name;
+        c.onclick=function(){
+          if(pbHasName(a,it.name)) pbRemoveByName(a,it.name); else pbAddFromLib(a,it);
+          c.classList.toggle("on", pbHasName(a,it.name));
+          head.querySelector(".rl-n").textContent=(cat.items.filter(function(x){return pbHasName(a,x.name);}).length||"");
+          renderPbEditor();
+        };
+        body.appendChild(c);
+      });
+      wrap.appendChild(head); wrap.appendChild(body); box.appendChild(wrap);
+    });
+  }
+  function renderPbEditor(){
+    var a=acc(), box=el("pbMine"); if(!box||!a) return;
+    var list=pbList(a);
+    box.innerHTML="";
+    if(!list.length){
+      var e=document.createElement("div"); e.className="cat-help"; e.style.padding="0 0 8px";
+      e.textContent="Aucun playbook pour l'instant. Active-en un dans la bibliothèque ci-dessus, ou crée le tien.";
+      box.appendChild(e);
+    }
+    list.forEach(function(p){
+      var row=document.createElement("div"); row.className="pb-row";
+      var st=pbStats(a,p.id);
+      row.innerHTML='<span class="pb-n">'+esc(p.name||"Sans nom")+(st.n?'<span class="pb-cnt">'+st.n+' séance'+(st.n>1?'s':'')+'</span>':'')+'</span>'+
+                    '<span class="pb-acts"><button class="pb-act" type="button" title="Ouvrir">›</button></span>';
+      row.querySelector(".pb-act").onclick=function(){ pbView(p.id); };
+      box.appendChild(row);
+    });
+    var add=document.createElement("button"); add.type="button"; add.className="le-add";
+    add.innerHTML='<span class="plus">+</span> Créer un playbook';
+    add.onclick=function(){ pbEdit(null); };
+    box.appendChild(add);
+  }
+
+  /* ---------- Sélection en séance ---------- */
+  function renderSessPlaybooks(){
+    var a=acc(), s=curSession(); if(!a||!s) return;
+    if(!Array.isArray(s.playbooks)) s.playbooks=[];
+    var box=el("sessPlaybooks"); box.innerHTML="";
+    var list=pbList(a);
+    if(!list.length){
+      box.innerHTML='<div class="cat-help" style="padding:0;">Aucun playbook défini. Ouvre l\'onglet <b>Plan</b> → ⚙ → <b>Playbooks</b> pour en activer depuis la bibliothèque ou créer le tien.</div>';
+      return;
+    }
+    var row=document.createElement("div"); row.className="tags-row";
+    list.forEach(function(p){
+      var on=s.playbooks.indexOf(p.id)>=0;
+      var b=document.createElement("button"); b.type="button"; b.className="chip"+(on?" sel":""); b.textContent=p.name||"Sans nom";
+      b.onclick=function(){
+        var i=s.playbooks.indexOf(p.id);
+        if(i>=0) s.playbooks.splice(i,1); else s.playbooks.push(p.id);
+        renderSessPlaybooks(); refreshSaveBtn();
+      };
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+  }
+
   var RULE_FILTERS=[["all","Tous"],["scalping","⚡ Scalping"],["daytrading","📊 Day trading"],["swing","🌊 Swing"],["forex","💱 Forex"],["futures","📈 Futures"]];
   var ruleFilterVal="all";
   function ruleIndex(a,txt){ if(!Array.isArray(a.rules)) a.rules=[]; for(var i=0;i<a.rules.length;i++){ if(String(a.rules[i]||"").trim()===txt) return i; } return -1; }
@@ -4860,24 +5470,64 @@
 
   // ---------- Calendrier économique (widgets chargés depuis le réseau, jamais mis en cache) ----------
 
-  function loadEconWidget(){ buildTV(); buildInvesting(); }
+  /* Correspondance entre nos instruments et les symboles TradingView.
+     Le widget est gratuit et embarque ses propres données : il n'y a donc
+     aucun flux de marché à payer pour afficher un graphique. */
+  var TV_SYMBOLS={
+    "ES":"CME_MINI:ES1!","MES":"CME_MINI:MES1!","NQ":"CME_MINI:NQ1!","MNQ":"CME_MINI:MNQ1!",
+    "YM":"CBOT_MINI:YM1!","MYM":"CBOT_MINI:MYM1!","RTY":"CME_MINI:RTY1!","M2K":"CME_MINI:M2K1!",
+    "CL":"NYMEX:CL1!","MCL":"NYMEX:MCL1!","NG":"NYMEX:NG1!",
+    "GC":"COMEX:GC1!","MGC":"COMEX:MGC1!","SI":"COMEX:SI1!","SIL":"COMEX:SIL1!","HG":"COMEX:HG1!",
+    "EUR/USD":"FX:EURUSD","GBP/USD":"FX:GBPUSD","USD/JPY":"FX:USDJPY","USD/CHF":"FX:USDCHF",
+    "AUD/USD":"FX:AUDUSD","USD/CAD":"FX:USDCAD","NZD/USD":"FX:NZDUSD","EUR/JPY":"FX:EURJPY","GBP/JPY":"FX:GBPJPY",
+    "XAU/USD":"OANDA:XAUUSD","XAG/USD":"OANDA:XAGUSD",
+    "BTC":"BINANCE:BTCUSDT","ETH":"BINANCE:ETHUSDT","SOL":"BINANCE:SOLUSDT","XRP":"BINANCE:XRPUSDT",
+    "BNB":"BINANCE:BNBUSDT","DOGE":"BINANCE:DOGEUSDT",
+    "US30":"FOREXCOM:DJI","US100":"FOREXCOM:NSXUSD","US500":"FOREXCOM:SPXUSD","GER40":"FOREXCOM:GRXEUR",
+    "UK100":"FOREXCOM:UKXGBP","FRA40":"FOREXCOM:FRXEUR","JP225":"FOREXCOM:JPXJPY",
+    "AAPL":"NASDAQ:AAPL","TSLA":"NASDAQ:TSLA","NVDA":"NASDAQ:NVDA","AMZN":"NASDAQ:AMZN",
+    "MSFT":"NASDAQ:MSFT","META":"NASDAQ:META","AMD":"NASDAQ:AMD","GOOGL":"NASDAQ:GOOGL"
+  };
+  function tvSymbol(instr){
+    instr=String(instr||"").trim();
+    if(!instr) return "";
+    if(TV_SYMBOLS[instr]) return TV_SYMBOLS[instr];
+    if(TV_SYMBOLS[instr.toUpperCase()]) return TV_SYMBOLS[instr.toUpperCase()];
+    return instr.indexOf(":")>=0 ? instr : instr.toUpperCase();   // laisse TradingView résoudre le reste
+  }
+  // Monte un widget TradingView dans un conteneur, en repartant de zéro à
+  // chaque appel (sinon on empile les iframes) et en suivant le thème actif.
+  function tvMount(wrap, script, config, offlineEl){
+    if(!wrap) return;
+    if(offlineEl) offlineEl.classList.add("hidden");
+    wrap.innerHTML='<div class="tradingview-widget-container" style="height:100%;width:100%">'
+      +'<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div></div>';
+    if(!navigator.onLine){ if(offlineEl) offlineEl.classList.remove("hidden"); return; }
+    var sc=document.createElement("script");
+    sc.type="text/javascript"; sc.async=true;
+    sc.src="https://s3.tradingview.com/external-embedding/"+script;
+    if(offlineEl) sc.onerror=function(){ offlineEl.classList.remove("hidden"); };
+    sc.text=JSON.stringify(config);
+    wrap.querySelector(".tradingview-widget-container").appendChild(sc);
+  }
+
+  var newsMarket="futures";
+  function buildNews(){
+    var wrap=el("newsWidgetWrap"), off=el("newsOffline");
+    tvMount(wrap, "embed-widget-timeline.js", {
+      feedMode:"market", market:newsMarket, isTransparent:true, displayMode:"regular",
+      colorTheme:resolvedTheme(), locale:"fr", width:"100%", height:"100%"
+    }, off);
+    // Même filet que le calendrier : si aucune iframe n'est apparue au bout de
+    // 8 s, c'est que le script n'est jamais arrivé (réseau, bloqueur).
+    setTimeout(function(){ if(view.tab==="calendar" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
+  }
+  function loadEconWidget(){ buildTV(); buildInvesting(); buildNews(); }
 
   function buildTV(){
     var wrap=el("econWidgetWrap"), off=el("econOffline");
-    off.classList.add("hidden");
-    // on reconstruit le conteneur à chaque fois (évite les iframes en double)
-    wrap.innerHTML='<div class="tradingview-widget-container" style="height:100%;width:100%">'
-      +'<div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>'
-      +'<div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span>Track all markets on TradingView</span></a></div>'
-      +'</div>';
-    if(!navigator.onLine){ off.classList.remove("hidden"); return; }
-    var s=document.createElement("script");
-    s.type="text/javascript";
-    s.src="https://s3.tradingview.com/external-embedding/embed-widget-events.js";
-    s.async=true;
-    s.onerror=function(){ off.classList.remove("hidden"); };
-    s.text=JSON.stringify({colorTheme:resolvedTheme(),isTransparent:true,locale:"fr",countryFilter:"us,eu,fr,gb,jp",importanceFilter:"-1,0,1",width:"100%",height:"100%"});
-    wrap.querySelector(".tradingview-widget-container").appendChild(s);
+    tvMount(wrap, "embed-widget-events.js", {colorTheme:resolvedTheme(),isTransparent:true,locale:"fr",
+      countryFilter:"us,eu,fr,gb,jp",importanceFilter:"-1,0,1",width:"100%",height:"100%"}, off);
     setTimeout(function(){ if(view.tab==="calendar" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
   }
 
@@ -5017,7 +5667,7 @@
     container.appendChild(add);
   }
   var onbActive=false;
-  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("calcDrawer").classList.remove("open"); }
+  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("calcDrawer").classList.remove("open"); el("pbDrawer").classList.remove("open"); el("noteDrawer").classList.remove("open"); el("chartDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   // Verrou de scroll iOS-safe : overflow:hidden seul ne bloque pas le scroll tactile
   // derrière un popup sur iOS Safari. Tant qu'un tiroir OU la modale de confirmation
@@ -5078,7 +5728,7 @@
     if(k==="showRules") el("rulesLink").classList.toggle("hidden",!a.showRules);
     if(k==="showChecklist") el("checklistLink").classList.toggle("hidden",!a.showChecklist);
     if(k==="showTags") el("tagsEditor").classList.toggle("hidden",!a.showTags);
-    if(k==="showRating") saveAccountMeta(a);
+    if(k==="showRating"||k==="showPlaybooks") saveAccountMeta(a);
     saveAccount(a); }); });
   el("lossLimitIn").addEventListener("input",function(){ var a=acc(); if(a)a.dailyLossLimit=this.value; });
   el("lossLimitIn").addEventListener("change",function(){ saveAccount(acc()); });
@@ -5101,8 +5751,18 @@
     el("overlay").classList.add("open"); el("appDrawer").classList.add("open");
   }
   document.querySelectorAll("#themeSeg button").forEach(function(b){ b.addEventListener("click",function(){ setThemePref(b.dataset.themePref); }); });
+  document.querySelectorAll("#newsSeg button").forEach(function(b){
+    b.addEventListener("click",function(){
+      newsMarket=b.dataset.market;
+      document.querySelectorAll("#newsSeg button").forEach(function(x){ x.classList.toggle("sel", x===b); });
+      buildNews();
+    });
+  });
+  el("noteHelpBtn").addEventListener("click", openNoteDrawer);
+  el("noteDone").addEventListener("click", closeDrawer);
   el("calcBtn").addEventListener("click", openCalcDrawer);
   el("calcDone").addEventListener("click", closeDrawer);
+  el("chartDone").addEventListener("click", function(){ el("chartWrap").innerHTML=""; closeDrawer(); });
   el("expSessBtn").addEventListener("click", exportSessionsCSV);
   el("expTradesBtn").addEventListener("click", exportTradesCSV);
   el("analysisLockSubBtn").addEventListener("click",function(){ openUpsell(el("analysisLockSubBtn")); });
