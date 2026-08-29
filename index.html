@@ -179,6 +179,18 @@
   .mood-row{display:flex;justify-content:space-between;gap:6px;}
   .mbtn{flex:1;padding:10px 0;border:1px solid var(--line);background:var(--surface-2);border-radius:12px;font-size:24px;cursor:pointer;filter:grayscale(1);opacity:.55;transition:opacity .12s;}
   .mbtn.on{filter:none;opacity:1;border-color:var(--accent);background:var(--accent-dim);}
+  /* Auto-évaluation de séance : trois axes notés de 1 à 5. */
+  .rt-block{margin-bottom:14px;}
+  .rt-block:last-child{margin-bottom:0;}
+  .rt-head{margin-bottom:8px;}
+  .rt-t{display:block;font-size:13.5px;font-weight:700;}
+  .rt-d{display:block;font-size:11.5px;color:var(--txt-faint);margin-top:2px;line-height:1.4;}
+  .rt-row{display:flex;gap:6px;}
+  .rt-btn{flex:1;padding:9px 0;border:1px solid var(--line);background:var(--surface-2);border-radius:11px;
+    color:var(--txt-dim);font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;transition:background .12s;}
+  .rt-btn.on{border-color:var(--accent);background:var(--accent-dim);color:var(--txt);}
+  .rt-sum{font-size:12.5px;color:var(--txt-dim);margin-top:12px;padding-top:11px;border-top:1px solid var(--line);}
+  .rt-sum b{color:var(--txt);}
   /* --- tags en séance --- */
   .tags-row{display:flex;flex-wrap:wrap;gap:8px;}
   /* --- bandeau STOP perte journalière --- */
@@ -694,6 +706,21 @@
   .cx-out{margin-top:10px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:11px;padding:10px 12px;}
   .cx-out .cxv{font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--txt);}
   .cx-out .cxl{font-size:11px;color:var(--txt-dim);font-weight:600;margin-top:2px;line-height:1.4;}
+  .cx-help{margin-top:12px;font-size:12.5px;color:var(--txt-dim);line-height:1.55;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:11px 12px;}
+  .cx-help b{color:var(--txt);}
+  /* Tiroir Calculatrices : champs plus confortables qu'en widget. */
+  #calcDrawer .cx-sel{font-size:14px;padding:12px 11px;margin-bottom:14px;}
+  #calcDrawer .cx-grid{gap:10px;}
+  #calcDrawer .cx-f input{font-size:15px;padding:11px 11px;}
+  #calcDrawer .cx-out{padding:14px 16px;}
+  #calcDrawer .cx-out .cxv{font-size:26px;}
+  #calcDrawer .cx-out .cxl{font-size:12.5px;}
+  /* Export de données */
+  .exp-btn{width:100%;display:flex;align-items:center;gap:11px;text-align:left;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);font-family:inherit;border-radius:13px;padding:13px 14px;cursor:pointer;margin-bottom:8px;}
+  .exp-btn .eb-ic{font-size:19px;flex:0 0 auto;}
+  .exp-btn .eb-t{display:block;font-size:13.5px;font-weight:800;}
+  .exp-btn .eb-s{display:block;font-size:11.5px;color:var(--txt-dim);margin-top:2px;}
+  .exp-note{font-size:11.5px;color:var(--txt-faint);line-height:1.5;margin-top:2px;}
 
   /* --- Horloge des sessions de marché --- */
   .mk-row{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:4px 0;}
@@ -1124,6 +1151,14 @@
       </span>
       <span class="nt-arr">›</span>
     </button>
+    <button class="nav-tile" id="calcBtn" type="button">
+      <span class="nt-ic">🧮</span>
+      <span>
+        <span class="nt-t">Calculatrices</span>
+        <span class="nt-s">Taille de position, risque de ruine, série de pertes…</span>
+      </span>
+      <span class="nt-arr">›</span>
+    </button>
   </div>
 
   <!-- ========== VUE D'UN COMPTE (journal du compte) ========== -->
@@ -1264,6 +1299,11 @@
     <div class="card hidden" id="cardMoodAfter">
       <h2>Humeur après <span class="hint">en fin de séance</span></h2>
       <div class="mood-row" id="moodAfterRow"></div>
+    </div>
+
+    <div class="card hidden" id="cardRating">
+      <h2>Auto-évaluation <span class="hint">note ta séance, pas ton résultat</span></h2>
+      <div id="sessRating"></div>
     </div>
 
     <div class="card" id="cardNotes">
@@ -1452,6 +1492,7 @@
       <div class="toggle-row"><div><div class="tl">Humeur avant / après</div><div class="td">Note ton humeur (1–5).</div></div><div class="switch" data-key="showMood"><i></i></div></div>
       <div class="toggle-row"><div><div class="tl">Tags émotionnels</div><div class="td">Étiquette ta séance (discipliné, FOMO…).</div></div><div class="switch" data-key="showTags"><i></i></div></div>
       <div class="sub-setting hidden" id="tagsEditor"><div class="set-label">Tes tags</div><div id="tagsList"></div></div>
+      <div class="toggle-row"><div><div class="tl">Auto-évaluation</div><div class="td">Note ton exécution, ton respect du plan et ta maîtrise (1–5) — indépendamment du résultat.</div></div><div class="switch" data-key="showRating"><i></i></div></div>
       <div class="toggle-row"><div><div class="tl">Journal de fin de séance</div><div class="td">Tes notes libres après la session.</div></div><div class="switch" data-key="showNotes"><i></i></div></div>
     </div>
   </div>
@@ -1490,6 +1531,11 @@
   <div class="set-group hidden" id="installGroup"><div class="set-label">Application</div>
     <div id="installBox"></div>
   </div>
+  <div class="set-group"><div class="set-label">Mes données</div>
+    <button class="exp-btn" id="expSessBtn" type="button"><span class="eb-ic">📄</span><span><span class="eb-t">Exporter mes séances (CSV)</span><span class="eb-s">Résultats, humeur, tags, règles, auto-évaluation — une ligne par séance.</span></span></button>
+    <button class="exp-btn" id="expTradesBtn" type="button"><span class="eb-ic">📑</span><span><span class="eb-t">Exporter mes trades détaillés (CSV)</span><span class="eb-s">Une ligne par trade, pour Excel, Sheets ou ton propre tableur.</span></span></button>
+    <div class="exp-note">Tes données t'appartiennent : l'export est illimité et inclus, même sans abonnement.</div>
+  </div>
   <div class="set-group"><div class="set-label">Apparence — thème</div>
     <div class="theme-seg" id="themeSeg">
       <button type="button" data-theme-pref="light"><span class="th-ic">☀️</span><span>Clair</span></button>
@@ -1520,6 +1566,15 @@
   <div class="auth-err" id="profErr"></div>
   <div class="auth-ok" id="profOk"></div>
   <button class="drawer-done sticky" id="profSaveBtn">Enregistrer</button>
+</div>
+
+<!-- Calculatrices (accessible sur mobile comme sur ordinateur) -->
+<div class="drawer" id="calcDrawer">
+  <div class="grab"></div>
+  <h3>Calculatrices</h3>
+  <div class="dsub">Dix calculs de trading, sans formule à retenir. Les champs se pré-remplissent avec ton plan de trading quand c'est possible.</div>
+  <div id="calcBody"></div>
+  <button class="drawer-done sticky" id="calcDone">Terminé</button>
 </div>
 
 <!-- Catalogue de widgets du tableau de bord (ordinateur) -->
@@ -2060,7 +2115,7 @@
   function todayKey(){ return ymd(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate()); }
   var MONTHS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
   var WD=["L","M","M","J","V","S","D"];
-  function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[], quotaOverride:null}; }
+  function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[], quotaOverride:null, rating:{}}; }
 
   // ===================== ABONNEMENT / ESSAI GRATUIT =====================
   // Modèle freemium :
@@ -2278,6 +2333,7 @@
       showRules:!!r.show_rules, rules:Array.isArray(r.rules)?r.rules:[],
       showChecklist:!!r.show_checklist, checklistItems:Array.isArray(r.checklist_items)?r.checklist_items:[],
       showMood:!!r.show_mood, showTags:!!r.show_tags, tagsOptions:Array.isArray(r.tags_options)?r.tags_options:[],
+      showRating:!!r.show_rating,
       dailyLossLimit:(r.daily_loss_limit===null||r.daily_loss_limit===undefined)?"":String(r.daily_loss_limit),
       showStreak:!!r.show_streak,
       plan:(r.plan&&typeof r.plan==='object'&&!Array.isArray(r.plan))?r.plan:{},
@@ -2287,7 +2343,7 @@
   }
   // sauvegardes isolées des colonnes récentes (si une colonne manque, seule cette requête échoue)
   function savePlan(a){ if(!a) return; db.from('accounts').update({plan:a.plan||{}}).eq('id',a.id).then(function(){},function(e){console.warn('plan (colonne manquante ?)',e);}); }
-  function saveAccountMeta(a){ if(!a) return; db.from('accounts').update({style:a.style||null, logging_mode:a.loggingMode||"quick", onboarded:!!a.onboarded, field_config:a.fieldConfig||{}}).eq('id',a.id).then(function(){},function(e){console.warn('meta (colonnes manquantes ?)',e);}); }
+  function saveAccountMeta(a){ if(!a) return; db.from('accounts').update({style:a.style||null, logging_mode:a.loggingMode||"quick", onboarded:!!a.onboarded, field_config:a.fieldConfig||{}, show_rating:!!a.showRating}).eq('id',a.id).then(function(){},function(e){console.warn('meta (colonnes manquantes ?)',e);}); }
   // ---- trades détaillés ----
   function rowToTrade(r){ return {id:r.id, date:r.session_date, instrument:r.instrument||"", side:r.side||"", entryTime:r.entry_time||"", exitTime:r.exit_time||"", entryPrice:(r.entry_price==null?"":String(r.entry_price)), exitPrice:(r.exit_price==null?"":String(r.exit_price)), result:(r.result==null?"":String(r.result)), tags:Array.isArray(r.tags)?r.tags:[], note:r.note||""}; }
   function tradesOf(a,date){ if(!a.tradesByDate[date]) a.tradesByDate[date]=[]; return a.tradesByDate[date]; }
@@ -2325,7 +2381,8 @@
       if(a){ a.sessions[s.date]={objective:s.objective||"",result:s.result||"",notes:s.notes||"",trades:Array.isArray(s.trades)?s.trades:[],
         rules:Array.isArray(s.rules)?s.rules:[], checklist:Array.isArray(s.checklist)?s.checklist:[],
         moodBefore:s.mood_before||0, moodAfter:s.mood_after||0, tags:Array.isArray(s.tags)?s.tags:[],
-        quotaOverride:(s.max_trades_override==null?null:s.max_trades_override)}; }
+        quotaOverride:(s.max_trades_override==null?null:s.max_trades_override),
+        rating:(s.self_rating&&typeof s.self_rating==='object'&&!Array.isArray(s.self_rating))?s.self_rating:{}}; }
     });
     // trades détaillés (table 'trades' ; si absente, on ignore silencieusement)
     try{
@@ -2366,9 +2423,9 @@
         mood_before:s.moodBefore||null, mood_after:s.moodAfter||null, tags:s.tags||[]},{onConflict:'account_id,date'});
       // Écriture isolée (colonne récente) : si elle manque encore côté base,
       // seule CETTE requête échoue — la séance ci-dessus est déjà enregistrée.
-      db.from('sessions').update({max_trades_override:s.quotaOverride==null?null:s.quotaOverride})
+      db.from('sessions').update({max_trades_override:s.quotaOverride==null?null:s.quotaOverride, self_rating:s.rating||{}})
         .eq('account_id',a.id).eq('date',key)
-        .then(function(){},function(e){console.warn('quota séance (colonne manquante ?)',e);});
+        .then(function(){},function(e){console.warn('quota / auto-évaluation séance (colonne manquante ?)',e);});
     }
   }
 
@@ -2595,7 +2652,8 @@
     var tagsTouched=((s.tags||[]).length>0);
     var moodTouched=!!(s.moodBefore||s.moodAfter);
     var quotaTouched=(s.quotaOverride!=null);
-    return !s.objective && !s.result && !s.notes && tradesEmpty && !rulesTouched && !checkTouched && !tagsTouched && !moodTouched && !quotaTouched;
+    var ratingTouched=!!(s.rating && (s.rating.exec||s.rating.plan||s.rating.emo));
+    return !s.objective && !s.result && !s.notes && tradesEmpty && !rulesTouched && !checkTouched && !tagsTouched && !moodTouched && !quotaTouched && !ratingTouched;
   }
   // Quota effectif d'UNE séance : son propre réglage s'il en a un, sinon le
   // défaut du compte. Ne change jamais a.maxTrades (le défaut reste intact
@@ -2843,7 +2901,15 @@
       var c=cmp("Le sur-trading", over, under, "Séances où tu dépasses ton quota", "Séances dans le quota");
       if(c) out.push(c);
     })();
-    // 6) Meilleur jour de la semaine.
+    // 6) L'auto-évaluation face aux chiffres.
+    (function(){
+      var noted=scored.filter(function(o){ return ratingAvg(o.s.rating)!==null; });
+      var hi=noted.filter(function(o){ return ratingAvg(o.s.rating)>=4; });
+      var lo=noted.filter(function(o){ return ratingAvg(o.s.rating)<=2.5; });
+      var c=cmp("Ta lecture de toi-même", hi, lo, "Séances que tu notes ≥ 4/5", "Séances que tu notes ≤ 2,5/5");
+      if(c) out.push(c);
+    })();
+    // 7) Meilleur jour de la semaine.
     (function(){
       if(scored.length<10) return;
       var names=["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"], by={};
@@ -2881,17 +2947,25 @@
     if(m){ var a=parseFloat(m[1]), b=parseFloat(m[2]); return (a>0)? b/a : null; }
     var n=parseFloat(t); return isNaN(n)||n<=0?null:n;
   }
+  /* ---------- Calculatrices ----------
+     Formules connues, aucune dépendance externe, aucun coût. Chacune donne
+     un résultat ET un exemple chiffré : c'est la partie « à quoi ça sert »
+     que la plupart des outils oublient. Utilisées à deux endroits : le
+     widget du tableau de bord et le tiroir accessible depuis le Journal
+     (donc aussi sur mobile). */
   var DASH_CALCS=[
-    { id:"size", n:"Taille de position",
+    { id:"size", n:"Taille de position", cat:"Avant d'entrer",
       f:[["cap","Capital"],["risk","Risque %"],["stop","Stop (pts/pips)"],["pv","Valeur du point"]],
+      help:"Capital 10 000, risque 1 %, stop 20 points, point à 5 → tu risques 100 et tu prends 1 contrat.",
       run:function(v){
         var cap=cxNum(v.cap), risk=cxNum(v.risk), stop=cxNum(v.stop), pv=cxNum(v.pv);
         if(cap===null||risk===null||stop===null||pv===null||stop<=0||pv<=0) return null;
         var money=cap*risk/100, qty=money/(stop*pv);
         return {v:(Math.round(qty*100)/100)+" contrat"+(qty>=2?"s":""), l:"Tu risques "+(Math.round(money*100)/100)+" si ton stop est touché."};
       }},
-    { id:"rr", n:"Risque / rendement",
+    { id:"rr", n:"Risque / rendement", cat:"Avant d'entrer",
       f:[["e","Entrée"],["s","Stop"],["t","Objectif"]],
+      help:"Entrée 100, stop 98, objectif 106 → tu risques 2 pour viser 6, soit 1:3.",
       run:function(v){
         var e=cxNum(v.e), st=cxNum(v.s), t=cxNum(v.t);
         if(e===null||st===null||t===null) return null;
@@ -2900,32 +2974,65 @@
         var rr=gain/risk, be=100/(1+rr);
         return {v:"1 : "+(Math.round(rr*100)/100), l:"Il te faut au moins "+(Math.round(be*10)/10)+" % de trades gagnants pour être à l'équilibre."};
       }},
-    { id:"exp", n:"Espérance par trade",
-      f:[["wr","Réussite %"],["g","Gain moyen"],["p","Perte moyenne"]],
+    { id:"margin", n:"Marge requise", cat:"Avant d'entrer",
+      f:[["qty","Taille (unités)"],["px","Prix"],["lev","Levier"]],
+      help:"1 lot de 100 000 à 1,08 avec un levier 30 → il te faut 3 600 de marge.",
       run:function(v){
-        var wr=cxNum(v.wr), g=cxNum(v.g), p=Math.abs(cxNum(v.p));
-        if(wr===null||g===null||isNaN(p)) return null;
-        var e=(wr/100)*g-(1-wr/100)*p;
-        return {v:(e>0?"+":"")+(Math.round(e*100)/100), l:e>=0?"Chaque trade te rapporte ça en moyenne, sur la durée.":"Sur la durée, cette combinaison te fait perdre à chaque trade."};
+        var q=cxNum(v.qty), px=cxNum(v.px), lev=cxNum(v.lev);
+        if(q===null||px===null||lev===null||lev<=0) return null;
+        var m=q*px/lev;
+        return {v:String(Math.round(m*100)/100), l:"Marge immobilisée pour cette position, hors frais."};
       }},
-    { id:"need", n:"Réussite minimum",
+    { id:"exp", n:"Espérance par trade", cat:"Ma méthode tient-elle ?",
+      f:[["wr","Réussite %"],["g","Gain moyen"],["p","Perte moyenne"]],
+      help:"45 % de réussite, +200 en gain moyen, −100 en perte moyenne → +35 par trade en moyenne.",
+      run:function(v){
+        var wr=cxNum(v.wr), g=cxNum(v.g), p=cxNum(v.p);
+        if(wr===null||g===null||p===null) return null;
+        p=Math.abs(p);
+        var e=(wr/100)*g-(1-wr/100)*p;
+        return {v:(e>0?"+":"")+(Math.round(e*100)/100), l:e>=0?"Ce que chaque trade te rapporte en moyenne, sur la durée.":"Sur la durée, cette combinaison te fait perdre à chaque trade."};
+      }},
+    { id:"need", n:"Réussite minimum", cat:"Ma méthode tient-elle ?",
       f:[["rr","Ratio (ex. 1:2)"]],
+      help:"Avec un ratio 1:2, il te faut 33,3 % de trades gagnants pour ne rien perdre.",
       run:function(v){
         var rr=cxRR(v.rr); if(!rr) return null;
         var be=100/(1+rr);
         return {v:(Math.round(be*10)/10)+" %", l:"En dessous de ce taux de réussite, ce ratio te fait perdre de l'argent."};
       }},
-    { id:"dd", n:"Sortir d'un drawdown",
+    { id:"goal", n:"Combien de trades pour mon objectif", cat:"Ma méthode tient-elle ?",
+      f:[["obj","Objectif"],["exp","Espérance / trade"]],
+      help:"Objectif 3 000 avec +35 d'espérance par trade → environ 86 trades. Utile pour arrêter de vouloir tout en une séance.",
+      run:function(v){
+        var o=cxNum(v.obj), e=cxNum(v.exp);
+        if(o===null||e===null||e<=0) return null;
+        var n=Math.ceil(o/e);
+        return {v:n+" trades", l:"À ce rythme, ton objectif se joue sur la durée, pas sur une séance."};
+      }},
+    { id:"streak", n:"Série de pertes à prévoir", cat:"Ce à quoi il faut se préparer",
+      f:[["wr","Réussite %"],["n","Nombre de trades"]],
+      help:"55 % de réussite sur 200 trades → une série d'environ 7 pertes d'affilée est NORMALE. La connaître à l'avance évite de tout casser le jour où elle arrive.",
+      run:function(v){
+        var wr=cxNum(v.wr), n=cxNum(v.n);
+        if(wr===null||n===null||n<1||wr<=0||wr>=100) return null;
+        var q=1-wr/100;
+        var k=Math.log(n)/(-Math.log(q));
+        return {v:"≈ "+Math.round(k)+" pertes d'affilée", l:"La plus longue série de pertes statistiquement attendue sur "+Math.round(n)+" trades. Elle ne veut pas dire que ta méthode est cassée."};
+      }},
+    { id:"dd", n:"Sortir d'un drawdown", cat:"Ce à quoi il faut se préparer",
       f:[["p","Perte subie %"]],
+      help:"Après −50 %, il faut +100 % pour revenir au point de départ. C'est pour ça qu'on protège le capital avant de chercher la performance.",
       run:function(v){
         var p=cxNum(v.p); if(p===null||p<=0||p>=100) return null;
         return {v:"+"+(Math.round(p/(100-p)*1000)/10)+" %", l:"C'est le gain nécessaire pour revenir à ton point de départ après −"+p+" %."};
       }},
-    { id:"ruin", n:"Risque de ruine",
+    { id:"ruin", n:"Risque de ruine", cat:"Ce à quoi il faut se préparer",
       f:[["risk","Risque / trade %"],["wr","Réussite %"],["rr","Ratio (ex. 1:2)"],["dd","Ruine à −%"]],
+      help:"Risquer 5 % par trade à 50 % de réussite en 1:1 mène à la ruine presque à coup sûr ; à 1 %, le risque devient négligeable.",
       run:function(v){
         var risk=cxNum(v.risk), wr=cxNum(v.wr), rr=cxRR(v.rr), dd=cxNum(v.dd);
-        if(risk===null||wr===null||!rr) return null;
+        if(risk===null||wr===null||!rr||risk<=0) return null;
         if(dd===null||dd<=0||dd>=100) dd=50;
         var runs=3000, trades=250, ruined=0;
         for(var i=0;i<runs;i++){
@@ -2937,8 +3044,125 @@
         }
         var pct=Math.round(ruined/runs*1000)/10;
         return {v:pct+" %", l:"Probabilité de perdre "+dd+" % du capital sur 250 trades ("+runs+" simulations)."};
+      }},
+    { id:"fees", n:"Ce que les frais te coûtent", cat:"Ce à quoi il faut se préparer",
+      f:[["fee","Frais par trade"],["n","Trades par mois"],["g","Gain brut moyen / trade"]],
+      help:"4 de frais, 60 trades par mois, 12 de gain brut moyen → un tiers de ta performance part en frais.",
+      run:function(v){
+        var fee=cxNum(v.fee), n=cxNum(v.n), g=cxNum(v.g);
+        if(fee===null||n===null||g===null||n<=0) return null;
+        var cost=fee*n, gross=g*n;
+        var pct = gross>0 ? Math.round(cost/gross*1000)/10 : null;
+        return {v:String(Math.round(cost*100)/100)+" / mois", l:pct===null?"Coût total de tes frais sur le mois.":pct+" % de ta performance brute part en frais."};
       }}
   ];
+
+  /* Rendu partagé des calculatrices. compact = version widget (une seule
+     calculatrice à la fois) ; sinon version tiroir, avec l'exemple chiffré. */
+  function renderCalculators(box, compact){
+    var a=acc()||accounts[0], pl=(a&&a.plan)||{};
+    var state={id:DASH_CALCS[0].id, vals:{}};
+    function prefill(id){
+      var v={};
+      if(id==="size"||id==="ruin"){ var r=String(pl.riskPerTrade||"").match(/(\d+(?:[.,]\d+)?)/); if(r) v.risk=r[1].replace(",","."); }
+      if(id==="need"||id==="ruin"){ if(pl.rr) v.rr=pl.rr; }
+      if(id==="goal"){ if(pl.objM) v.obj=String(pl.objM); }
+      return v;
+    }
+    function build(){
+      var cur=DASH_CALCS.filter(function(c){return c.id===state.id;})[0]||DASH_CALCS[0];
+      state.id=cur.id;
+      var groups={}, order=[];
+      DASH_CALCS.forEach(function(c){ if(!groups[c.cat]){groups[c.cat]=[];order.push(c.cat);} groups[c.cat].push(c); });
+      var h='<select class="cx-sel">'+order.map(function(g){
+        return '<optgroup label="'+esc(g)+'">'+groups[g].map(function(c){
+          return '<option value="'+c.id+'"'+(c.id===cur.id?" selected":"")+'>'+esc(c.n)+'</option>'; }).join("")+'</optgroup>';
+      }).join("")+'</select>';
+      h+='<div class="cx-grid">'+cur.f.map(function(f){
+        var v=(state.vals&&state.vals[f[0]]!=null)?state.vals[f[0]]:"";
+        return '<div class="cx-f"><label>'+esc(f[1])+'</label><input type="text" inputmode="decimal" data-k="'+f[0]+'" value="'+esc(String(v))+'"></div>';
+      }).join("")+'</div><div class="cx-out" style="display:none;"><div class="cxv"></div><div class="cxl"></div></div>';
+      if(!compact && cur.help) h+='<div class="cx-help"><b>Exemple</b> — '+esc(cur.help)+'</div>';
+      box.innerHTML=h;
+      var out=box.querySelector(".cx-out");
+      function compute(){
+        var vals={}; box.querySelectorAll(".cx-f input").forEach(function(i){ vals[i.dataset.k]=i.value; });
+        state.vals=vals;
+        var r=null; try{ r=cur.run(vals); }catch(e){}
+        if(r){ out.style.display=""; out.querySelector(".cxv").textContent=r.v; out.querySelector(".cxl").textContent=r.l; }
+        else out.style.display="none";
+      }
+      box.querySelectorAll(".cx-f input").forEach(function(i){ i.addEventListener("input",compute); });
+      box.querySelector(".cx-sel").addEventListener("change",function(){ state.id=this.value; state.vals=prefill(this.value); build(); });
+      compute();
+    }
+    state.vals=prefill(state.id);
+    build();
+  }
+  /* ---------- Export CSV ----------
+     Séparateur « ; » et BOM UTF-8 : Excel en français ouvre le fichier
+     directement, sans assistant d'importation. */
+  function csvCell(v){
+    v = (v===null||v===undefined) ? "" : String(v);
+    return /[";\r\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
+  }
+  function csvDownload(name, rows){
+    var csv="\uFEFF"+rows.map(function(r){ return r.map(csvCell).join(";"); }).join("\r\n");
+    var blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");
+    a.href=url; a.download=name; a.style.display="none";
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ try{ document.body.removeChild(a); }catch(e){} URL.revokeObjectURL(url); }, 1500);
+  }
+  function csvStamp(){ var d=new Date(); return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
+  function exportSessionsCSV(){
+    var rows=[["Compte","Type","Date","Résultat","Unité","Trades pris","Gagnants","Perdants","Quota",
+               "Humeur avant","Humeur après","Tags","Règles respectées","Règles enfreintes","Détail règles enfreintes",
+               "Check-list faite","Check-list totale","Exécution","Respect du plan","Maîtrise émotionnelle","Note de séance",
+               "Objectifs","Journal de séance"]];
+    var n=0;
+    accounts.forEach(function(a){
+      Object.keys(a.sessions).sort().forEach(function(k){
+        var s2=a.sessions[k], st=statsForTrades(s2.trades);
+        var ok=0, ko=0, koList=[];
+        (s2.rules||[]).forEach(function(r){ if(!r) return; if(r.ok===true) ok++; else if(r.ok===false){ ko++; koList.push(r.rule); } });
+        var cl=(s2.checklist||[]), clDone=cl.filter(function(c){return c&&c.checked;}).length;
+        var rt=s2.rating||{}, avg=ratingAvg(rt);
+        rows.push([a.name, a.type, k, hasResult(s2)?sessionNet(s2):"", unitOf(a).label,
+          st.taken, st.win, st.loss, effectiveQuota(a,s2),
+          s2.moodBefore||"", s2.moodAfter||"", (s2.tags||[]).join(" | "),
+          ok, ko, koList.join(" | "), clDone, cl.length,
+          rt.exec||"", rt.plan||"", rt.emo||"", avg===null?"":Math.round(avg*10)/10,
+          s2.objective||"", s2.notes||""]);
+        n++;
+      });
+    });
+    if(!n){ showToast("Aucune séance à exporter"); return; }
+    csvDownload("edgio-seances-"+csvStamp()+".csv", rows);
+    showToast(n+" séance"+(n>1?"s":"")+" exportée"+(n>1?"s":"")+" ✓");
+  }
+  function exportTradesCSV(){
+    var rows=[["Compte","Date","Instrument","Sens","Heure entrée","Heure sortie","Durée","Prix entrée","Prix sortie","Résultat","Unité","Tags","Note"]];
+    var n=0;
+    accounts.forEach(function(a){
+      Object.keys(a.tradesByDate).sort().forEach(function(k){
+        (a.tradesByDate[k]||[]).forEach(function(t){
+          rows.push([a.name, t.date, t.instrument||"", t.side||"", t.entryTime||"", t.exitTime||"", tradeDur(t)||"",
+                     t.entryPrice||"", t.exitPrice||"", t.result||"", unitOf(a).label, (t.tags||[]).join(" | "), t.note||""]);
+          n++;
+        });
+      });
+    });
+    if(!n){ showToast("Aucun trade détaillé à exporter"); return; }
+    csvDownload("edgio-trades-"+csvStamp()+".csv", rows);
+    showToast(n+" trade"+(n>1?"s":"")+" exporté"+(n>1?"s":"")+" ✓");
+  }
+
+  function openCalcDrawer(){
+    renderCalculators(el("calcBody"), false);
+    el("overlay").classList.add("open"); el("calcDrawer").classList.add("open");
+  }
 
   /* ---------- Catalogue des widgets ---------- */
   var DASH_CATS = [
@@ -3004,6 +3228,22 @@
                   disp: avg===null ? (count[t]+"×") : (count[t]+"× · "+dashFmt(avg)),
                   tone: avg===null ? "" : (avg>0?"pos":avg<0?"neg":"")};
         }));
+      }},
+    rating:{ name:"Auto-évaluation", ic:"🎚️", cat:"psycho", w:2,h:2, minW:2,
+      q:"Est-ce que je joue bien, indépendamment de ce que ça rapporte ?",
+      render:function(b){
+        var list=dashSessions().filter(function(o){ return ratingAvg(o.s.rating)!==null; }).slice(-20);
+        if(!list.length){ b.innerHTML='<div class="dw-empty">Active « Auto-évaluation » dans les réglages d\'un compte : tu notes ton exécution, ton respect du plan et ta maîtrise — et Edgio les confronte à tes résultats.</div>'; return; }
+        var rows=[];
+        RATING_AXES.forEach(function(ax){
+          var n=list.filter(function(o){ return o.s.rating[ax.k]>0; });
+          if(!n.length) return;
+          var t=0; n.forEach(function(o){ t+=o.s.rating[ax.k]; });
+          var avg=t/n.length;
+          rows.push({label:ax.t, pct:avg/5*100, disp:(Math.round(avg*10)/10)+"/5", tone:avg>=4?"pos":avg<=2.5?"neg":""});
+        });
+        var glob=dashAvg(list.map(function(o){ return ratingAvg(o.s.rating); }));
+        b.innerHTML=dashBars(rows)+'<div class="dw-sub">Note moyenne <b>'+(Math.round(glob*10)/10)+'/5</b> sur tes '+list.length+' dernières séances notées.</div>';
       }},
     checklist:{ name:"Check-list tenue", ic:"✅", cat:"psycho", w:1,h:1,
       q:"Est-ce que je fais ma routine avant de trader ?",
@@ -3201,41 +3441,7 @@
       }},
     calc:{ name:"Calculatrices", ic:"🧮", cat:"marche", w:2,h:2, minW:2,minH:2, keep:true, interactive:true,
       q:"Combien je prends, et est-ce que ça tient la route ?",
-      render:function(b){
-        var a=acc()||accounts[0], pl=(a&&a.plan)||{};
-        var state={};
-        function build(){
-          var cur=DASH_CALCS.filter(function(c){return c.id===state.id;})[0]||DASH_CALCS[0];
-          state.id=cur.id;
-          var h='<select class="cx-sel">'+DASH_CALCS.map(function(c){ return '<option value="'+c.id+'"'+(c.id===cur.id?" selected":"")+'>'+c.n+'</option>'; }).join("")+'</select>';
-          h+='<div class="cx-grid">'+cur.f.map(function(f){
-            var v=(state.vals&&state.vals[f[0]]!=null)?state.vals[f[0]]:"";
-            return '<div class="cx-f"><label>'+f[1]+'</label><input type="text" inputmode="decimal" data-k="'+f[0]+'" value="'+esc(String(v))+'"></div>';
-          }).join("")+'</div><div class="cx-out" style="display:none;"><div class="cxv"></div><div class="cxl"></div></div>';
-          b.innerHTML=h;
-          var out=b.querySelector(".cx-out");
-          function compute(){
-            var vals={}; b.querySelectorAll(".cx-f input").forEach(function(i){ vals[i.dataset.k]=i.value; });
-            state.vals=vals;
-            var r=null; try{ r=cur.run(vals); }catch(e){}
-            if(r){ out.style.display=""; out.querySelector(".cxv").textContent=r.v; out.querySelector(".cxl").textContent=r.l; }
-            else out.style.display="none";
-          }
-          b.querySelectorAll(".cx-f input").forEach(function(i){ i.addEventListener("input",compute); });
-          b.querySelector(".cx-sel").addEventListener("change",function(){ state.id=this.value; state.vals=prefill(this.value); build(); });
-          compute();
-        }
-        // Pré-remplissage depuis le plan de trading : moins de friction qu'un
-        // formulaire vide, et ça relie enfin les calculatrices au reste de l'app.
-        function prefill(id){
-          var v={};
-          if(id==="size"||id==="ruin"){ var r=String(pl.riskPerTrade||"").match(/(\d+(?:[.,]\d+)?)/); if(r) v.risk=r[1].replace(",","."); }
-          if(id==="need"||id==="ruin"){ if(pl.rr) v.rr=pl.rr; }
-          return v;
-        }
-        state.id=DASH_CALCS[0].id; state.vals=prefill(state.id);
-        build();
-      }},
+      render:function(b){ renderCalculators(b, true); }},
     note:{ name:"Pense-bête", ic:"📝", cat:"marche", w:2,h:2, minW:1, keep:true, interactive:true,
       q:"Ce que je dois me rappeler avant d'ouvrir une position.",
       render:function(b){
@@ -3616,6 +3822,7 @@
     el("cardChecklist").classList.toggle("hidden",!a.showChecklist);
     el("cardRules").classList.toggle("hidden",!a.showRules);
     el("cardTags").classList.toggle("hidden",!a.showTags);
+    el("cardRating").classList.toggle("hidden",!a.showRating);
     el("cardTrades").classList.toggle("hidden",!isDetailed(a));
     el("fromTradesBtn").classList.toggle("hidden", !(isDetailed(a) && a.showResult));
   }
@@ -3714,6 +3921,45 @@
       row.appendChild(b);
     })(i);}
   }
+  /* Auto-évaluation : trois axes que le trader maîtrise vraiment, à l'inverse
+     du résultat. C'est le pendant « process » du journal — une bonne séance
+     mal payée reste une bonne séance, et l'analyse le montre ensuite. */
+  var RATING_AXES=[
+    {k:"exec", t:"Exécution",           d:"Entrées et sorties conformes à ce que j'avais vu"},
+    {k:"plan", t:"Respect du plan",     d:"Setups, taille de position, horaires"},
+    {k:"emo",  t:"Maîtrise émotionnelle", d:"Patience, pas de revanche, pas de FOMO"}
+  ];
+  function ratingAvg(r){
+    if(!r) return null;
+    var v=RATING_AXES.map(function(x){ return r[x.k]; }).filter(function(n){ return n>0; });
+    if(!v.length) return null;
+    var t=0; v.forEach(function(n){t+=n;});
+    return t/v.length;
+  }
+  function renderSessRating(){
+    var s=curSession(); if(!s) return;
+    if(!s.rating || typeof s.rating!=="object") s.rating={};
+    var box=el("sessRating"); box.innerHTML="";
+    RATING_AXES.forEach(function(ax){
+      var blk=document.createElement("div"); blk.className="rt-block";
+      blk.innerHTML='<div class="rt-head"><span class="rt-t">'+ax.t+'</span><span class="rt-d">'+ax.d+'</span></div><div class="rt-row"></div>';
+      var row=blk.querySelector(".rt-row");
+      for(var i=1;i<=5;i++){(function(n){
+        var b=document.createElement("button"); b.type="button";
+        b.className="rt-btn"+(s.rating[ax.k]===n?" on":""); b.textContent=n;
+        b.onclick=function(){ s.rating[ax.k]=(s.rating[ax.k]===n?0:n); renderSessRating(); refreshSaveBtn(); };
+        row.appendChild(b);
+      })(i);}
+      box.appendChild(blk);
+    });
+    var avg=ratingAvg(s.rating);
+    var sum=document.createElement("div"); sum.className="rt-sum";
+    sum.innerHTML = avg===null
+      ? "Note ta séance sur ce que tu contrôlais, pas sur le résultat. Edgio croise ensuite ces notes avec tes résultats."
+      : "Note de séance : <b>"+(Math.round(avg*10)/10)+"/5</b>"+(hasResult(s)?" — pour un résultat de <b>"+fmtVal(sessionNet(s),acc())+"</b>.":".");
+    box.appendChild(sum);
+  }
+
   function renderSessTags(){
     var a=acc(), s=curSession(); if(!a||!s) return;
     var box=el("sessTags"); box.innerHTML="";
@@ -3746,6 +3992,7 @@
     if(a.showChecklist) renderSessChecklist();
     if(a.showMood){ renderMood("moodBeforeRow","moodBefore"); renderMood("moodAfterRow","moodAfter"); }
     if(a.showTags) renderSessTags();
+    if(a.showRating) renderSessRating();
     if(isDetailed(a)) renderTrades(a);
     updateStopBanner();
   }
@@ -4001,6 +4248,46 @@
     ],{max:100}));
   }
 
+  // Croise la note que le trader s'est donnée avec ce que la séance a produit.
+  // C'est le constat que TraderWaves ne fait pas : leurs curseurs restent
+  // décoratifs, ici ils deviennent une mesure.
+  function secSelfRating(scope){
+    var sessions=anWithResult(sessionsOf(scope)).filter(function(s){ return ratingAvg(s.rating)!==null; });
+    if(sessions.length<5) return anInsufficient("Ton auto-évaluation");
+    var hi=sessions.filter(function(s){ return ratingAvg(s.rating)>=4; });
+    var lo=sessions.filter(function(s){ return ratingAvg(s.rating)<=2.5; });
+    if(hi.length<3 || lo.length<3) return anInsufficient("Ton auto-évaluation");
+    var gA=anGrp(hi), gB=anGrp(lo);
+    var num = scope.unit ? fmtVal(anRound(gA.avg),scope.unit) : gA.winRate+'%';
+    var txt = scope.unit
+      ? 'Tes <b>bonnes séances</b> (note ≥ 4/5) : <b>'+fmtVal(anRound(gA.avg),scope.unit)+'</b> en moyenne ('+gA.winRate+'% gagnantes, '+gA.n+' séances). Tes <b>séances ratées</b> (≤ 2,5/5) : <b>'+fmtVal(anRound(gB.avg),scope.unit)+'</b> ('+gB.winRate+'%, '+gB.n+' séances).'
+      : 'Tes <b>bonnes séances</b> (note ≥ 4/5) : <b>'+gA.winRate+'%</b> gagnantes. Tes <b>séances ratées</b> (≤ 2,5/5) : <b>'+gB.winRate+'%</b>.';
+    txt += ' Autrement dit, ce que tu ressens de ta séance '+((gA.avg-gB.avg)>0?'se retrouve bien dans tes chiffres':'ne correspond pas à tes chiffres — ta lecture de toi-même est à recalibrer')+'.';
+    return anCard('Ton auto-évaluation', num, anTone(gA.avg-gB.avg), txt, svgCompare([
+      {label:'Séances bien jouées', value:gA.winRate, disp:gA.winRate+'%', tone:'pos'},
+      {label:'Séances ratées',      value:gB.winRate, disp:gB.winRate+'%', tone:'neg'}
+    ],{max:100}));
+  }
+  // Quel axe (exécution / plan / émotions) te coûte le plus.
+  function secRatingAxis(scope){
+    var sessions=anWithResult(sessionsOf(scope)).filter(function(s){ return ratingAvg(s.rating)!==null; });
+    if(sessions.length<6) return null;
+    var rows=[], worst=null;
+    RATING_AXES.forEach(function(ax){
+      var noted=sessions.filter(function(s){ return s.rating[ax.k]>0; });
+      if(noted.length<4) return;
+      var t=0; noted.forEach(function(s){ t+=s.rating[ax.k]; });
+      var avg=t/noted.length;
+      rows.push({label:ax.t+' ('+noted.length+')', value:avg, disp:(Math.round(avg*10)/10)+'/5', tone:avg>=4?'pos':avg<=2.5?'neg':'neutral'});
+      if(!worst || avg<worst.avg) worst={ax:ax, avg:avg};
+    });
+    if(rows.length<2) return null;
+    return anCard('Ton point faible', (Math.round(worst.avg*10)/10)+'/5',
+      worst.avg>=3.5?'neutral':'neg',
+      'Sur les trois axes que tu notes, c\'est <b>'+esc(worst.ax.t.toLowerCase())+'</b> qui reçoit tes notes les plus basses (<b>'+(Math.round(worst.avg*10)/10)+'/5</b> en moyenne). C\'est là que tu as le plus à gagner, avant même de changer de stratégie.',
+      svgCompare(rows,{max:5}));
+  }
+
   function secDiscipline(scope){
     if(scope.accounts.length!==1) return null;
     var a=scope.accounts[0];
@@ -4044,11 +4331,12 @@
     if(showChecklist){ disc.push(secChecklist(scope)); }
     if(showMood){ psy.push(secMood(scope)); }
     if(showTags){ psy.push(secTags(scope)); }
+    if(accs.some(function(a){return a.showRating;})){ psy.push(secSelfRating(scope)); psy.push(secRatingAxis(scope)); }
     grp("Rigueur & discipline", disc);
     grp("Psychologie", psy);
-    if(!showRules && !showTags && !showMood && !showChecklist){
+    if(!showRules && !showTags && !showMood && !showChecklist && !accs.some(function(a){return a.showRating;})){
       var e=document.createElement('div'); e.className='an-card';
-      e.innerHTML='<div class="an-txt"><span class="an-empty">Active des modules (règles, tags, humeur, check-list) sur au moins un compte et enregistre quelques séances : tes constats apparaîtront ici.</span></div>';
+      e.innerHTML='<div class="an-txt"><span class="an-empty">Active des modules (règles, tags, humeur, check-list, auto-évaluation) sur au moins un compte et enregistre quelques séances : tes constats apparaîtront ici.</span></div>';
       body.appendChild(e);
     }
   }
@@ -4729,7 +5017,7 @@
     container.appendChild(add);
   }
   var onbActive=false;
-  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); }
+  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("calcDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   // Verrou de scroll iOS-safe : overflow:hidden seul ne bloque pas le scroll tactile
   // derrière un popup sur iOS Safari. Tant qu'un tiroir OU la modale de confirmation
@@ -4790,6 +5078,7 @@
     if(k==="showRules") el("rulesLink").classList.toggle("hidden",!a.showRules);
     if(k==="showChecklist") el("checklistLink").classList.toggle("hidden",!a.showChecklist);
     if(k==="showTags") el("tagsEditor").classList.toggle("hidden",!a.showTags);
+    if(k==="showRating") saveAccountMeta(a);
     saveAccount(a); }); });
   el("lossLimitIn").addEventListener("input",function(){ var a=acc(); if(a)a.dailyLossLimit=this.value; });
   el("lossLimitIn").addEventListener("change",function(){ saveAccount(acc()); });
@@ -4812,6 +5101,10 @@
     el("overlay").classList.add("open"); el("appDrawer").classList.add("open");
   }
   document.querySelectorAll("#themeSeg button").forEach(function(b){ b.addEventListener("click",function(){ setThemePref(b.dataset.themePref); }); });
+  el("calcBtn").addEventListener("click", openCalcDrawer);
+  el("calcDone").addEventListener("click", closeDrawer);
+  el("expSessBtn").addEventListener("click", exportSessionsCSV);
+  el("expTradesBtn").addEventListener("click", exportTradesCSV);
   el("analysisLockSubBtn").addEventListener("click",function(){ openUpsell(el("analysisLockSubBtn")); });
   el("analysisLockBackBtn").addEventListener("click",function(){ hideAnalysisLock(); });
   document.querySelectorAll(".appsw").forEach(function(t){ t.addEventListener("click",function(){ var k=t.dataset.key; settings[k]=!settings[k]; t.classList.toggle("on",settings[k]); saveSettings({notif_recap:settings.notifRecap,notif_quota:settings.notifQuota,notif_daily:settings.notifDaily}); }); });
