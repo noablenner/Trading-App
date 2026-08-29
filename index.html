@@ -326,10 +326,6 @@
   .cal-cell.clickable{cursor:pointer;}
   .cal-cell.clickable:active{transform:scale(.92);}
   /* calendrier cumulé en lecture seule : visuellement distinct (atténué, non cliquable) */
-  .cal-ro-note{font-size:12px;color:var(--txt-faint);line-height:1.4;margin:-4px 0 12px;}
-  .cal-readonly{opacity:.82;}
-  .cal-readonly .cal-grid{filter:saturate(.7);}
-  .cal-readonly .cal-cell{cursor:default;}
   .unit-seg{display:flex;flex-wrap:wrap;gap:8px;}
   .unit-seg button{flex:0 0 auto;padding:9px 13px;}
   .sub-setting{margin-top:12px;}
@@ -945,7 +941,7 @@
        #screenGlobal/#screenAccount, donc il occupe toute la largeur comme eux. */
     #screenAnalysis{ max-width:900px; }
 
-    /* Calendrier (Journal cumulé #gCal + Calendrier du compte #aCal) : les
+    /* Calendrier du compte (#aCal) et widget calendrier du tableau de bord : les
        cases grandissent déjà avec la largeur de la carte (grille 7 colonnes,
        aspect-ratio:1/1) mais le texte dedans restait à sa taille mobile —
        de grandes cases avec un petit chiffre perdu au milieu. On agrandit
@@ -1176,12 +1172,6 @@
     </div>
 
     <div id="affGlobal" class="aff-slot"></div>
-
-    <div class="card">
-      <h2>Calendrier cumulé <span class="hint">tous comptes · lecture seule</span></h2>
-      <div class="cal-ro-note">Vue d'ensemble non cliquable. Pour ouvrir une séance, touche un compte ci-dessus puis un jour de son calendrier.</div>
-      <div id="gCal" class="cal-readonly"></div>
-    </div>
 
     </div><!-- /#globalLegacy -->
 
@@ -2825,7 +2815,7 @@
     {id:"insight",w:2,h:1},{id:"checklist",w:1,h:1},{id:"bestworst",w:1,h:1},
     {id:"accounts",w:3,h:2},{id:"equity",w:3,h:2},
     {id:"mood",w:2,h:2},{id:"tags",w:2,h:2},{id:"sessions",w:2,h:2},
-    {id:"calendar",w:3,h:5},{id:"econ",w:3,h:5}
+    {id:"econ",w:3,h:5},{id:"news",w:3,h:5}
   ];
 
   function dashDefaultCfg(){
@@ -3886,7 +3876,6 @@
     else { gr.textContent="—"; gr.className="kv"; }
 
     renderAcctList(el("acctList"));
-    renderMonth(el("gCal"), dashCombinedMap(), null);
 
     // Ordinateur : la grille de widgets prend le relais au-dessus de cette pile.
     dashRender();
