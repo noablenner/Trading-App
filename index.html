@@ -6,7 +6,23 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Tracker">
-<meta name="theme-color" content="#0b0e11">
+<meta name="theme-color" content="#0b0e11" id="themeColorMeta">
+<script>
+/* Amorçage du thème : posé AVANT le CSS pour qu'aucun écran ne s'affiche
+   dans le mauvais thème le temps que Supabase réponde. La préférence
+   ("dark" | "light" | "system") est mise en cache dans localStorage ;
+   la valeur qui fait foi reste user_settings.theme, rechargée ensuite. */
+(function(){
+  try{
+    var p = localStorage.getItem('edgioTheme') || 'dark';
+    var t = (p === 'system')
+      ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+      : (p === 'light' ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', t);
+    document.documentElement.style.colorScheme = t;
+  }catch(e){ document.documentElement.setAttribute('data-theme','dark'); }
+})();
+</script>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
@@ -16,11 +32,39 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2762415539425860"
      crossorigin="anonymous"></script>
 <style>
-  :root{
+  /* =====================================================================
+     PALETTES — thème SOMBRE (par défaut, inchangé) et thème CLAIR.
+     Le thème actif est porté par data-theme sur <html> ("dark"|"light"),
+     posé le plus tôt possible par le script d'amorçage du <head> (aucun
+     flash au démarrage). Le mode « système » est résolu en dark/light
+     avant d'être posé, donc le CSS ne connaît que deux valeurs.
+     Aucune couleur en dur ailleurs dans la feuille : tout passe par ces
+     variables, sinon le thème clair casserait au premier écran.
+     ===================================================================== */
+  :root, :root[data-theme="dark"]{
     --bg:#0b0e11;--surface:#151a21;--surface-2:#1c232c;--line:#242c37;
     --txt:#e7edf3;--txt-dim:#8a97a6;--txt-faint:#5a6675;
     --green:#22c98a;--green-dim:#11291f;--red:#f2545b;--red-dim:#2a1417;
-    --accent:#a26bff;--accent-dim:#221a3a;--amber:#f4b740;--radius:16px;
+    --accent:#a26bff;--accent-dim:#221a3a;--accent-deep:#6d43c7;--amber:#f4b740;--radius:16px;
+    --cyan:#35c4d6;--cyan-dim:#12303a;
+    --on-accent:#fff;--on-amber:#241a00;--on-green:#04160f;
+    --bg-0:rgba(11,14,17,0);--bg-glow:#12161c;--sel-ring:#fff;
+    --scrim:rgba(0,0,0,.55);--scrim-strong:rgba(0,0,0,.6);--scrim-tuto:rgba(3,5,8,.74);
+    --sh-btn:0 6px 22px rgba(0,0,0,.4);--sh-rail:6px 0 26px rgba(0,0,0,.28);
+    --sh-modal:0 20px 60px rgba(0,0,0,.5);--sh-card:none;--sh-pop:0 18px 44px rgba(0,0,0,.45);
+  }
+  :root[data-theme="light"]{
+    --bg:#eef2f7;--surface:#ffffff;--surface-2:#f4f7fb;--line:#dee5ee;
+    --txt:#111823;--txt-dim:#566373;--txt-faint:#77859a;
+    --green:#0e9c64;--green-dim:#e2f6ec;--red:#d43542;--red-dim:#fdeaec;
+    --accent:#7b3fe4;--accent-dim:#efe8fd;--accent-deep:#5a24bd;--amber:#a2690a;
+    --cyan:#0d8395;--cyan-dim:#e0f3f6;
+    --on-accent:#fff;--on-amber:#241a00;--on-green:#f2fffa;
+    --bg-0:rgba(238,242,247,0);--bg-glow:#ffffff;--sel-ring:#111823;
+    --scrim:rgba(17,24,35,.38);--scrim-strong:rgba(17,24,35,.44);--scrim-tuto:rgba(17,24,35,.55);
+    --sh-btn:0 6px 18px rgba(24,36,54,.16);--sh-rail:6px 0 26px rgba(24,36,54,.07);
+    --sh-modal:0 20px 60px rgba(24,36,54,.18);--sh-card:0 1px 2px rgba(24,36,54,.05);
+    --sh-pop:0 18px 44px rgba(24,36,54,.16);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
@@ -81,7 +125,7 @@
 
   .badge{font-size:10px;font-weight:700;letter-spacing:.04em;padding:2px 7px;border-radius:20px;text-transform:uppercase;background:var(--accent-dim);color:var(--accent);}
 
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-top:12px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-top:12px;box-shadow:var(--sh-card);}
   .card h2{margin:0 0 12px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-dim);font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .card h2 .hint{font-size:11px;color:var(--txt-faint);text-transform:none;letter-spacing:0;font-weight:500;text-align:right;}
 
@@ -89,8 +133,8 @@
   .nav-tile{display:flex;align-items:center;gap:14px;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-top:12px;color:var(--txt);cursor:pointer;text-align:left;font-family:inherit;}
   .nav-tile:active{transform:scale(.99);}
   .nav-tile .nt-ic{width:44px;height:44px;border-radius:12px;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 auto;}
-  .nav-tile .nt-t{font-size:15.5px;font-weight:800;}
-  .nav-tile .nt-s{font-size:12.5px;color:var(--txt-dim);margin-top:1px;}
+  .nav-tile .nt-t{display:block;font-size:15.5px;font-weight:800;}
+  .nav-tile .nt-s{display:block;font-size:12.5px;color:var(--txt-dim);margin-top:1px;}
   .nav-tile .nt-arr{margin-left:auto;color:var(--txt-faint);font-size:22px;}
   .econ-offline{font-size:13px;color:var(--txt-dim);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
   .econ-wrap{position:relative;height:72vh;min-height:460px;width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface-2);}
@@ -123,7 +167,7 @@
   /* --- check-list en séance --- */
   .cl-row{display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;}
   .cl-box{width:24px;height:24px;border-radius:7px;border:1.5px solid var(--line);background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:14px;color:transparent;flex:0 0 auto;}
-  .cl-row.on .cl-box{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .cl-row.on .cl-box{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
   .cl-txt{font-size:14.5px;color:var(--txt-dim);}
   .cl-row.on .cl-txt{color:var(--txt);}
   .cl-progress{height:10px;border-radius:20px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden;margin-bottom:8px;}
@@ -135,6 +179,18 @@
   .mood-row{display:flex;justify-content:space-between;gap:6px;}
   .mbtn{flex:1;padding:10px 0;border:1px solid var(--line);background:var(--surface-2);border-radius:12px;font-size:24px;cursor:pointer;filter:grayscale(1);opacity:.55;transition:opacity .12s;}
   .mbtn.on{filter:none;opacity:1;border-color:var(--accent);background:var(--accent-dim);}
+  /* Auto-évaluation de séance : trois axes notés de 1 à 5. */
+  .rt-block{margin-bottom:14px;}
+  .rt-block:last-child{margin-bottom:0;}
+  .rt-head{margin-bottom:8px;}
+  .rt-t{display:block;font-size:13.5px;font-weight:700;}
+  .rt-d{display:block;font-size:11.5px;color:var(--txt-faint);margin-top:2px;line-height:1.4;}
+  .rt-row{display:flex;gap:6px;}
+  .rt-btn{flex:1;padding:9px 0;border:1px solid var(--line);background:var(--surface-2);border-radius:11px;
+    color:var(--txt-dim);font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;transition:background .12s;}
+  .rt-btn.on{border-color:var(--accent);background:var(--accent-dim);color:var(--txt);}
+  .rt-sum{font-size:12.5px;color:var(--txt-dim);margin-top:12px;padding-top:11px;border-top:1px solid var(--line);}
+  .rt-sum b{color:var(--txt);}
   /* --- tags en séance --- */
   .tags-row{display:flex;flex-wrap:wrap;gap:8px;}
   /* --- bandeau STOP perte journalière --- */
@@ -266,7 +322,7 @@
   .cell.loss .num{opacity:0;}.cell.loss .mark{opacity:1;color:var(--red);}
   .cell.taken{background:var(--accent-dim);border-color:var(--accent);}
   .cell.taken .num{opacity:0;}.cell.taken .mark{opacity:1;color:var(--accent);font-size:16px;}
-  .quota-banner{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--amber);color:#241a00;font-weight:700;font-size:14px;display:none;align-items:center;gap:8px;}
+  .quota-banner{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--amber);color:var(--on-amber);font-weight:700;font-size:14px;display:none;align-items:center;gap:8px;}
   .quota-banner.show{display:flex;}
   .tap-hint{font-size:12px;color:var(--txt-faint);margin-top:12px;text-align:center;}
   .result-row{display:flex;gap:10px;}
@@ -276,8 +332,8 @@
   .field input:focus{outline:none;border-color:var(--accent);}
 
   /* bottom bar */
-  .bottombar{position:fixed;left:0;right:0;bottom:0;z-index:30;max-width:var(--appW,520px);margin:0 auto;padding:14px 20px 22px;background:linear-gradient(0deg,var(--bg) 55%,rgba(11,14,17,0));}
-  .main-btn{width:100%;border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:800;background:var(--accent);color:#fff;cursor:pointer;letter-spacing:.01em;box-shadow:0 6px 22px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;gap:8px;}
+  .bottombar{position:fixed;left:0;right:0;bottom:0;z-index:30;max-width:var(--appW,520px);margin:0 auto;padding:14px 20px 22px;background:linear-gradient(0deg,var(--bg) 55%,var(--bg-0));}
+  .main-btn{width:100%;border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:800;background:var(--accent);color:var(--on-accent);cursor:pointer;letter-spacing:.01em;box-shadow:var(--sh-btn);display:flex;align-items:center;justify-content:center;gap:8px;}
   .main-btn:active{transform:scale(.98);}
   .main-btn.done{background:var(--green);}
   /* ===== barre d'onglets (nav bas) ===== */
@@ -293,7 +349,7 @@
   .tab .ti{width:23px;height:23px;display:block;opacity:.7;transition:opacity .15s;}
   .tab .ti svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
   .tab.on{color:var(--accent);} .tab.on .ti{opacity:1;}
-  .tab.primary{color:var(--txt);} .tab.primary.on{color:#fff;background:var(--accent);}
+  .tab.primary{color:var(--txt);} .tab.primary.on{color:var(--on-accent);background:var(--accent);}
   .tab.primary.on .ti{opacity:1;}
   .tab:active{transform:scale(.95);}
   /* ===== Plan ===== */
@@ -302,7 +358,7 @@
   .plan-unit{font-size:13px;color:var(--txt-dim);font-weight:700;flex:0 0 auto;min-width:52px;}
   .plan-sub{font-size:12.5px;color:var(--txt-dim);margin:-6px 0 12px;line-height:1.45;}
   /* ===== Premium ===== */
-  .premchip{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(90deg,#f4b740,#f4913f);color:#241a00;padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:6px;}
+  .premchip{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(90deg,#f4b740,#f4913f);color:var(--on-amber);padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:6px;}
   /* ===== Encarts publicitaires (comptes gratuits uniquement) ===== */
   /* MOBILE : encart en HAUT d'une page = collé au titre (margin-top:0). L'espacement
      sous l'encart est donné par le margin-top:12 de la carte suivante. Les encarts
@@ -312,7 +368,7 @@
   .promo-card{position:relative;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden;}
   .promo-card .promo-label{position:absolute;top:10px;right:14px;font-size:8.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--txt-faint);}
   .promo-body{padding:18px 16px 16px;display:flex;align-items:center;gap:14px;}
-  .promo-thumb{flex:0 0 auto;width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#6d43c7);display:flex;align-items:center;justify-content:center;font-size:24px;}
+  .promo-thumb{flex:0 0 auto;width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-deep));display:flex;align-items:center;justify-content:center;font-size:24px;}
   .promo-txt{min-width:0;}
   .promo-txt .promo-t{font-weight:800;font-size:14.5px;}
   .promo-txt .promo-d{font-size:12px;color:var(--txt-dim);margin-top:2px;}
@@ -342,11 +398,11 @@
   .sub-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:var(--txt-faint);}
   .sub-dot.on{background:var(--green);} .sub-dot.warn{background:var(--amber);} .sub-dot.off{background:var(--red);}
   .sub-desc{font-size:12.5px;color:var(--txt-dim);margin-top:5px;line-height:1.45;}
-  .sub-cta{width:100%;margin-top:12px;border:none;border-radius:12px;padding:13px;font-size:14.5px;font-weight:800;font-family:inherit;background:var(--accent);color:#fff;cursor:pointer;}
+  .sub-cta{width:100%;margin-top:12px;border:none;border-radius:12px;padding:13px;font-size:14.5px;font-weight:800;font-family:inherit;background:var(--accent);color:var(--on-accent);cursor:pointer;}
   .sub-cta.ghost{background:var(--surface);border:1px solid var(--line);color:var(--txt);}
   .sub-price{font-size:12px;color:var(--txt-faint);text-align:center;margin-top:7px;}
   .rec-badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;background:var(--accent-dim);color:var(--accent);padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:6px;}
-  .rec-badge.day{background:#12303a;color:#35c4d6;}
+  .rec-badge.day{background:var(--cyan-dim);color:var(--cyan);}
   /* ===== accordéon réglages ===== */
   .cat{border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden;background:var(--surface-2);}
   .cat-h{display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;user-select:none;}
@@ -401,7 +457,7 @@
   /* touch-action:none : le fond assombri n'a rien à faire défiler ; sans ça,
      un geste de scroll qui démarre dessus (mobile) peut faire défiler la
      page en dessous, visible à travers l'assombrissement. */
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:105;opacity:0;pointer-events:none;transition:opacity .2s;touch-action:none;}
+  .overlay{position:fixed;inset:0;background:var(--scrim);z-index:105;opacity:0;pointer-events:none;transition:opacity .2s;touch-action:none;}
   .overlay.open{opacity:1;pointer-events:auto;}
   /* Sécurité : tant qu'un tiroir est ouvert, l'arrière-plan (header, contenu, barre d'onglets)
      ne reçoit aucun tap et ne défile pas. Empêche les clics de « traverser » sur le journal ou le menu du bas. */
@@ -452,10 +508,10 @@
   /* Modèle sélectionné : bien visible (contour accent + coche) */
   .tpl-seg button.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--txt);box-shadow:0 0 0 2px var(--accent) inset;}
   .tpl-seg button.sel::before{content:"✓ ";font-weight:900;color:var(--accent);}
-  .drawer-done{width:100%;margin-top:8px;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:800;background:var(--accent);color:#fff;cursor:pointer;}
+  .drawer-done{width:100%;margin-top:8px;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:800;background:var(--accent);color:var(--on-accent);cursor:pointer;}
   .drawer-done.sticky{position:sticky;bottom:0;margin-top:12px;box-shadow:0 -10px 20px -6px var(--surface);}
   /* CTA principal (ajouter une séance) */
-  .main-cta{width:100%;border:none;border-radius:15px;padding:16px;font-size:16px;font-weight:800;font-family:inherit;background:var(--accent);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.35);margin:4px 0;}
+  .main-cta{width:100%;border:none;border-radius:15px;padding:16px;font-size:16px;font-weight:800;font-family:inherit;background:var(--accent);color:var(--on-accent);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.35);margin:4px 0;}
   .main-cta:active{transform:scale(.99);}
   /* confettis (gamification) */
   #confetti{position:fixed;inset:0;pointer-events:none;z-index:150;overflow:hidden;}
@@ -466,26 +522,32 @@
   .acct-box .ab-t{font-weight:700;font-size:15px;}
   .acct-box .ab-s{font-size:12.5px;color:var(--txt-dim);margin-top:1px;}
   .connect-btn{margin-left:auto;border:1px solid var(--accent);background:var(--accent-dim);color:var(--accent);font-family:inherit;font-weight:700;font-size:13px;padding:9px 14px;border-radius:11px;cursor:pointer;flex:0 0 auto;}
+  /* Sélecteur de thème (clair / sombre / système) */
+  .theme-seg{display:flex;gap:8px;}
+  .theme-seg button{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;font-size:12.5px;font-weight:700;padding:12px 6px;border-radius:13px;cursor:pointer;}
+  .theme-seg button .th-ic{font-size:19px;line-height:1;}
+  .theme-seg button.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--txt);box-shadow:0 0 0 1px var(--accent) inset;}
+  .set-hint{font-size:11.5px;color:var(--txt-faint);line-height:1.45;margin-top:8px;}
   .sw-lg{display:flex;gap:12px;flex-wrap:wrap;}
   .sw{width:40px;height:40px;border-radius:50%;cursor:pointer;position:relative;border:2px solid transparent;transition:transform .1s;}
   .sw:active{transform:scale(.9);}
-  .sw.sel{border-color:#fff;}
+  .sw.sel{border-color:var(--sel-ring);}
   .sw.sel::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;}
   .danger-btn{width:100%;margin-top:4px;border:1px solid var(--red);background:var(--red-dim);color:var(--red);font-family:inherit;font-weight:800;font-size:15px;padding:14px;border-radius:13px;cursor:pointer;}
   .danger-btn:active{transform:scale(.98);}
 
-  .cmodal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:130;display:none;align-items:center;justify-content:center;padding:24px;touch-action:none;}
+  .cmodal-overlay{position:fixed;inset:0;background:var(--scrim-strong);z-index:130;display:none;align-items:center;justify-content:center;padding:24px;touch-action:none;}
   .cmodal-overlay.open{display:flex;}
-  .cmodal{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .cmodal{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;max-width:360px;width:100%;box-shadow:var(--sh-modal);}
   .cmodal h4{margin:0 0 8px;font-size:18px;font-weight:800;}
   .cmodal p{margin:0 0 20px;font-size:14px;color:var(--txt-dim);line-height:1.5;}
   .cmodal .btns{display:flex;gap:10px;}
   .cmodal button{flex:1;border-radius:12px;padding:13px;font-family:inherit;font-weight:800;font-size:15px;cursor:pointer;border:1px solid var(--line);}
   .cmodal .cancel{background:var(--surface-2);color:var(--txt);}
-  .cmodal .confirm{background:var(--red);color:#fff;border-color:var(--red);}
+  .cmodal .confirm{background:var(--red);color:var(--on-accent);border-color:var(--red);}
 
   .hidden{display:none !important;}
-  .toast{position:fixed;bottom:calc(120px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:#04160f;font-weight:800;font-size:14px;padding:12px 20px;border-radius:12px;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;max-width:90%;text-align:center;}
+  .toast{position:fixed;bottom:calc(120px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:var(--on-green);font-weight:800;font-size:14px;padding:12px 20px;border-radius:12px;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;max-width:90%;text-align:center;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* auth / loading screens */
@@ -507,7 +569,7 @@
   .auth-card label{display:block;font-size:12px;color:var(--txt-dim);font-weight:600;margin:14px 0 6px;}
   .auth-card input{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:16px;padding:13px;}
   .auth-card input:focus{outline:none;border-color:var(--accent);}
-  .auth-btn{width:100%;margin-top:22px;border:none;border-radius:13px;padding:15px;font-size:16px;font-weight:800;background:var(--accent);color:#fff;cursor:pointer;}
+  .auth-btn{width:100%;margin-top:22px;border:none;border-radius:13px;padding:15px;font-size:16px;font-weight:800;background:var(--accent);color:var(--on-accent);cursor:pointer;}
   .auth-btn:active{transform:scale(.99);}
   .auth-btn:disabled{opacity:.6;cursor:default;}
   .auth-sep{display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--txt-dim);font-size:12px;font-weight:600;}
@@ -537,10 +599,135 @@
   .pf-firm-btn:active{transform:scale(.99);} .pf-firm-btn.sel{border-color:var(--accent);background:var(--accent-dim);}
   .pf-firm-btn .pf-fn{font-weight:800;font-size:14.5px;} .pf-firm-btn .pf-pl{font-size:12px;color:var(--txt-dim);margin-top:1px;}
   .pf-firm-btn .pf-mk{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:20px;background:var(--accent-dim);color:var(--accent);flex:0 0 auto;}
-  .pf-firm-btn .pf-mk.fx{background:#12303a;color:#35c4d6;}
+  .pf-firm-btn .pf-mk.fx{background:var(--cyan-dim);color:var(--cyan);}
   .pf-warn{font-size:12px;color:var(--amber);background:rgba(244,183,64,.1);border:1px solid var(--amber);border-radius:11px;padding:10px 12px;margin-top:10px;line-height:1.4;}
   .pf-sec-h{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-faint);font-weight:800;margin:18px 0 4px;}
   .pf-empty{text-align:center;color:var(--txt-dim);padding:22px 10px;font-size:14px;line-height:1.5;}
+
+
+  /* =====================================================================
+     TABLEAU DE BORD PERSONNALISABLE — ORDINATEUR UNIQUEMENT
+     Rien de tout ceci n'est visible sous 1100px : le mobile garde sa pile
+     de cartes actuelle, intacte (voir #globalLegacy plus bas). La grille
+     fait 6 colonnes ; chaque widget occupe w colonnes sur h rangées, et
+     ces deux valeurs sont réglables à la souris en mode personnalisation.
+     ===================================================================== */
+  .dash{display:none;}
+  .dash-bar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 14px;}
+  .dash-bar .dash-sp{flex:1;min-width:0;font-size:12px;color:var(--txt-faint);}
+  .dash-btn{border:1px solid var(--line);background:var(--surface);color:var(--txt-dim);font-family:inherit;font-size:12.5px;font-weight:700;padding:9px 14px;border-radius:11px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+  .dash-btn:hover{color:var(--txt);border-color:var(--txt-faint);}
+  .dash-btn.on{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+  .dash-btn.solid{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+  .dash-btn.solid:hover{color:var(--on-accent);}
+  .dash-grid{display:grid;grid-template-columns:repeat(var(--dash-cols,6),minmax(0,1fr));grid-auto-rows:var(--dash-row,116px);grid-auto-flow:row dense;gap:14px;align-items:stretch;}
+  .dash-empty{grid-column:1/-1;border:1px dashed var(--line);border-radius:var(--radius);padding:34px 20px;text-align:center;color:var(--txt-dim);font-size:14px;line-height:1.6;}
+
+  .dw{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--sh-card);position:relative;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+  .dw-h{display:flex;align-items:center;gap:8px;padding:13px 15px 0;flex:0 0 auto;}
+  .dw-h .dw-ic{font-size:13px;flex:0 0 auto;line-height:1;}
+  .dw-h .dw-t{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-dim);font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dw-h .dw-hint{font-size:10.5px;color:var(--txt-faint);font-weight:600;flex:0 0 auto;}
+  .dw-b{flex:1;min-height:0;padding:9px 15px 15px;overflow:auto;}
+  .dw-b.flush{padding:0;}
+  .dw.narrow .dw-h{padding-top:11px;}
+  .dw.narrow .dw-t{white-space:normal;overflow:visible;line-height:1.22;font-size:10px;}
+  .dw.narrow .dw-b{padding:6px 13px 12px;}
+  .dw.narrow .dw-big{font-size:23px;}
+  .dw.narrow .dw-sub{font-size:11px;margin-top:3px;}
+  .dw-b::-webkit-scrollbar{width:8px;height:8px;}
+  .dw-b::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;}
+  .dw-big{font-size:29px;font-weight:800;letter-spacing:-.025em;line-height:1.1;}
+  .dw-big.pos{color:var(--green);} .dw-big.neg{color:var(--red);}
+  .dw-sub{font-size:12px;color:var(--txt-dim);margin-top:5px;line-height:1.45;}
+  .dw-sub b{color:var(--txt);}
+  .dw-empty{font-size:12.5px;color:var(--txt-faint);line-height:1.55;}
+  .dw-center{height:100%;display:flex;flex-direction:column;justify-content:center;}
+  .dw-rows{display:flex;flex-direction:column;gap:7px;}
+  .dw-row{display:flex;align-items:center;gap:9px;font-size:12.5px;}
+  .dw-row .dr-l{flex:1;min-width:0;color:var(--txt-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dw-row .dr-v{font-weight:800;flex:0 0 auto;font-size:13px;}
+  .dw-row .dr-v.pos{color:var(--green);} .dw-row .dr-v.neg{color:var(--red);}
+  .dw-bar{height:7px;border-radius:20px;background:var(--surface-2);overflow:hidden;flex:0 0 96px;}
+  .dw-bar > i{display:block;height:100%;border-radius:20px;background:var(--accent);}
+  .dw-bar > i.pos{background:var(--green);} .dw-bar > i.neg{background:var(--red);}
+  .dw-chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .dw-chip{font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:20px;background:var(--surface-2);border:1px solid var(--line);color:var(--txt-dim);}
+  .dw-chip.pos{border-color:var(--green);color:var(--green);background:var(--green-dim);}
+  .dw-chip.neg{border-color:var(--red);color:var(--red);background:var(--red-dim);}
+  .dw-embed{width:100%;height:100%;}
+  .dw-note{width:100%;height:100%;min-height:60px;resize:none;border:none;background:none;color:var(--txt);font-family:inherit;font-size:13.5px;line-height:1.5;outline:none;}
+  .dw-mini{width:100%;display:block;}
+  .dw-link{display:inline-flex;align-items:center;gap:6px;margin-top:9px;font-size:12px;font-weight:700;color:var(--accent);cursor:pointer;background:none;border:none;font-family:inherit;padding:0;}
+
+  /* --- Mode personnalisation --- */
+  .dash.editing .dw{border-color:var(--accent);border-style:dashed;}
+  .dash.editing .dw-b{pointer-events:none;user-select:none;opacity:.72;}
+  .dash.editing .dw[data-interactive="1"] .dw-b{pointer-events:auto;opacity:1;}
+  .dw-tools{display:none;align-items:center;gap:4px;flex:0 0 auto;}
+  .dash.editing .dw-tools{display:flex;}
+  .dash.editing .dw-hint{display:none;}
+  .dash.editing .dw.narrow .dw-t{display:none;}
+  .dw-tool{width:24px;height:24px;border-radius:7px;border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+  .dw-tool:hover{color:var(--txt);border-color:var(--txt-faint);}
+  .dw-tool.del:hover{color:var(--red);border-color:var(--red);}
+  .dw-tool.grab{cursor:grab;}
+  .dw-size{display:none;position:absolute;left:12px;bottom:9px;font-size:10.5px;font-weight:700;color:var(--accent);background:var(--accent-dim);border-radius:7px;padding:2px 7px;pointer-events:none;}
+  .dash.editing .dw-size{display:block;}
+  .dw-grip{display:none;position:absolute;right:0;bottom:0;width:26px;height:26px;cursor:nwse-resize;touch-action:none;}
+  .dw-grip::after{content:"";position:absolute;right:6px;bottom:6px;width:9px;height:9px;border-right:2px solid var(--accent);border-bottom:2px solid var(--accent);border-radius:0 0 3px 0;}
+  .dash.editing .dw-grip{display:block;}
+  .dw.dragging{opacity:.35;}
+  .dw.drop-before{box-shadow:-4px 0 0 var(--accent);}
+  .dw.drop-after{box-shadow:4px 0 0 var(--accent);}
+  .dash.resizing{cursor:nwse-resize;user-select:none;}
+
+  /* --- Catalogue de widgets --- */
+  .wcat-filter{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  .wcat-fbtn{border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;font-size:12px;font-weight:700;padding:6px 11px;border-radius:20px;cursor:pointer;}
+  .wcat-fbtn.on{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
+  .wcat-grp{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt-faint);font-weight:700;margin:16px 0 8px;}
+  .wcat-item{display:flex;align-items:flex-start;gap:12px;border:1px solid var(--line);background:var(--surface-2);border-radius:13px;padding:12px 13px;margin-bottom:8px;}
+  .wcat-ic{font-size:19px;flex:0 0 auto;line-height:1.2;}
+  .wcat-txt{flex:1;min-width:0;display:block;}
+  .wcat-t{display:block;font-size:13.5px;font-weight:800;}
+  .wcat-q{display:block;font-size:12px;color:var(--txt-dim);margin-top:3px;line-height:1.45;}
+  .wcat-sz{display:block;font-size:10.5px;color:var(--txt-faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin-top:5px;}
+  .wcat-add{flex:0 0 auto;align-self:center;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);font-family:inherit;font-size:12.5px;font-weight:800;padding:8px 13px;border-radius:10px;cursor:pointer;}
+  .wcat-add.added{background:var(--surface);border-color:var(--line);color:var(--txt-faint);cursor:default;}
+
+  /* --- Calculatrices (widget) --- */
+  .cx-sel{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;color:var(--txt);font-family:inherit;font-size:12.5px;font-weight:700;padding:8px 10px;margin-bottom:9px;}
+  .cx-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+  .cx-f{min-width:0;}
+  .cx-f label{display:block;font-size:10.5px;color:var(--txt-faint);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+  .cx-f input{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;color:var(--txt);font-family:inherit;font-size:13px;font-weight:700;padding:7px 9px;}
+  .cx-f input:focus{outline:none;border-color:var(--accent);}
+  .cx-out{margin-top:10px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:11px;padding:10px 12px;}
+  .cx-out .cxv{font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--txt);}
+  .cx-out .cxl{font-size:11px;color:var(--txt-dim);font-weight:600;margin-top:2px;line-height:1.4;}
+  .cx-help{margin-top:12px;font-size:12.5px;color:var(--txt-dim);line-height:1.55;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:11px 12px;}
+  .cx-help b{color:var(--txt);}
+  /* Tiroir Calculatrices : champs plus confortables qu'en widget. */
+  #calcDrawer .cx-sel{font-size:14px;padding:12px 11px;margin-bottom:14px;}
+  #calcDrawer .cx-grid{gap:10px;}
+  #calcDrawer .cx-f input{font-size:15px;padding:11px 11px;}
+  #calcDrawer .cx-out{padding:14px 16px;}
+  #calcDrawer .cx-out .cxv{font-size:26px;}
+  #calcDrawer .cx-out .cxl{font-size:12.5px;}
+  /* Export de données */
+  .exp-btn{width:100%;display:flex;align-items:center;gap:11px;text-align:left;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);font-family:inherit;border-radius:13px;padding:13px 14px;cursor:pointer;margin-bottom:8px;}
+  .exp-btn .eb-ic{font-size:19px;flex:0 0 auto;}
+  .exp-btn .eb-t{display:block;font-size:13.5px;font-weight:800;}
+  .exp-btn .eb-s{display:block;font-size:11.5px;color:var(--txt-dim);margin-top:2px;}
+  .exp-note{font-size:11.5px;color:var(--txt-faint);line-height:1.5;margin-top:2px;}
+
+  /* --- Horloge des sessions de marché --- */
+  .mk-row{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:4px 0;}
+  .mk-dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:0 0 auto;}
+  .mk-dot.open{background:var(--green);box-shadow:0 0 0 3px var(--green-dim);}
+  .mk-n{flex:1;min-width:0;color:var(--txt);font-weight:700;}
+  .mk-h{color:var(--txt-faint);font-size:11.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
 
   /* =====================================================================
      RESPONSIVE — le MOBILE n'est PAS modifié (aucune media query < 760px).
@@ -560,7 +747,7 @@
   /* --- ORDINATEUR : menu latéral à gauche --- */
   @media (min-width:1100px){
     :root{ --sidebarW:250px; --appW:1180px; }
-    html{ background:radial-gradient(1200px 900px at 72% -8%, #12161c 0%, var(--bg) 62%); }
+    html{ background:radial-gradient(1200px 900px at 72% -8%, var(--bg-glow) 0%, var(--bg) 62%); }
 
     /* Le corps réserve une gouttière à gauche pour la sidebar ; le contenu se
        centre dans l'espace restant. */
@@ -572,7 +759,7 @@
       margin:0; max-width:none;
       flex-direction:column; align-items:stretch; justify-content:flex-start; gap:6px;
       padding:24px 14px 24px; border-top:none; border-right:1px solid var(--line);
-      box-shadow:6px 0 26px rgba(0,0,0,.28); overflow-y:auto;
+      box-shadow:var(--sh-rail); overflow-y:auto;
     }
     /* Bloc de marque en haut de la sidebar : logo + "Edgio" + baseline. */
     .tb-brand{
@@ -601,7 +788,7 @@
     .tab.on{ background:var(--accent-dim); color:var(--accent); }
     .tab.on .ti{ opacity:1; }
     .tab.primary{ color:var(--txt-dim); }
-    .tab.primary.on{ background:var(--accent); color:#fff; }
+    .tab.primary.on{ background:var(--accent); color:var(--on-accent); }
     .tab.primary.on .ti{ opacity:1; }
 
     /* ----- RÉGLAGES DU COMPTE : ancrés en bas de la sidebar -----
@@ -700,6 +887,14 @@
       width:100%; height:auto; flex:1; min-height:120px; border-radius:12px; font-size:44px;
     }
 
+    /* ----- TABLEAU DE BORD : remplace la pile de cartes sur ordinateur -----
+       #globalLegacy contient EXACTEMENT l'ancien contenu de l'écran Journal :
+       il reste la seule chose affichée sous 1100px, et disparaît au profit
+       de la grille de widgets au-dessus. Les encarts pub qu'il contient sont
+       déplacés dans le rail par applyRailLayout() avant d'être masqués. */
+    #dashBoard{ display:block; }
+    #globalLegacy{ display:none; }
+
     /* Écran sans rail, texte dense : largeur de lecture confortable.
        #screenSession n'est PAS ici : c'est un empilement de cartes comme
        #screenGlobal/#screenAccount, donc il occupe toute la largeur comme eux. */
@@ -735,7 +930,7 @@
   /* ===================== TUTORIEL D'INSTALLATION PWA =====================
      Popup plein écran (z-index au-dessus de #authScreen) : il doit pouvoir
      s'ouvrir aussi bien depuis l'écran de connexion que depuis l'app. */
-  .it-ov{position:fixed;inset:0;z-index:170;background:rgba(3,5,8,.74);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);display:none;align-items:flex-end;justify-content:center;touch-action:none;}
+  .it-ov{position:fixed;inset:0;z-index:170;background:var(--scrim-tuto);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);display:none;align-items:flex-end;justify-content:center;touch-action:none;}
   .it-ov.open{display:flex;}
   .it-card{position:relative;width:100%;max-width:var(--appW,520px);background:var(--surface);border-top:1px solid var(--line);border-radius:26px 26px 0 0;padding:8px 18px calc(20px + env(safe-area-inset-bottom));max-height:96vh;overflow-y:auto;overscroll-behavior-y:contain;text-align:left;animation:itUp .32s cubic-bezier(.2,.85,.25,1);}
   @keyframes itUp{from{transform:translateY(101%);}to{transform:translateY(0);}}
@@ -748,9 +943,9 @@
      changer (un iPhone peut vouloir lire le tuto Android pour un proche). */
   .it-tabs{display:flex;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:4px;margin:14px 0 0;}
   .it-tabs button{flex:1;border:none;background:none;color:var(--txt-dim);font-family:inherit;font-size:13px;font-weight:800;padding:9px 6px;border-radius:10px;cursor:pointer;}
-  .it-tabs button.on{background:var(--accent);color:#fff;}
+  .it-tabs button.on{background:var(--accent);color:var(--on-accent);}
   .it-native{margin-top:12px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:14px;padding:10px;}
-  .it-native-btn{width:100%;border:none;border-radius:11px;padding:12px;font-family:inherit;font-size:14.5px;font-weight:800;background:var(--accent);color:#fff;cursor:pointer;}
+  .it-native-btn{width:100%;border:none;border-radius:11px;padding:12px;font-family:inherit;font-size:14.5px;font-weight:800;background:var(--accent);color:var(--on-accent);cursor:pointer;}
   .it-native-s{font-size:11px;color:var(--txt-dim);line-height:1.4;margin-top:7px;text-align:center;}
   /* Scène : le mockup de téléphone. Halo derrière pour le détacher du fond. */
   .it-stage{position:relative;margin:14px auto 0;display:flex;justify-content:center;}
@@ -764,7 +959,7 @@
   .it-pulse{transform-box:fill-box;transform-origin:center;animation:itPulse 1.8s cubic-bezier(.3,0,.4,1) infinite;}
   @keyframes itPulse{0%{opacity:.95;transform:scale(.82);}70%{opacity:0;transform:scale(1.32);}100%{opacity:0;transform:scale(1.32);}}
   .it-step{display:flex;align-items:flex-start;gap:12px;margin-top:16px;}
-  .it-num{flex:0 0 auto;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+  .it-num{flex:0 0 auto;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;}
   .it-st{font-size:15.5px;font-weight:800;line-height:1.3;}
   .it-sd{font-size:13px;color:var(--txt-dim);line-height:1.5;margin-top:4px;}
   .it-dots{display:flex;gap:7px;justify-content:center;margin:16px 0 2px;}
@@ -773,7 +968,7 @@
   .it-nav{display:flex;gap:10px;margin-top:12px;}
   .it-nav button{flex:1;border-radius:13px;padding:14px;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;}
   .it-prev{flex:0 0 auto !important;min-width:104px;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);}
-  .it-next{border:none;background:var(--accent);color:#fff;}
+  .it-next{border:none;background:var(--accent);color:var(--on-accent);}
   .it-later{display:block;width:100%;text-align:center;background:none;border:none;color:var(--txt-dim);font-family:inherit;font-size:13.5px;font-weight:700;padding:11px 0 4px;cursor:pointer;}
   .it-note{font-size:11px;color:var(--txt-faint);line-height:1.45;text-align:center;margin-top:2px;}
 
@@ -791,7 +986,7 @@
   .inst-teaser .itz-ic{width:40px;height:40px;border-radius:11px;flex:0 0 auto;}
   .inst-teaser .itz-t{font-size:14.5px;font-weight:800;line-height:1.3;}
   .inst-teaser .itz-s{font-size:12px;color:var(--txt-dim);line-height:1.45;margin-top:3px;}
-  .inst-teaser .itz-go{width:100%;margin-top:12px;border:none;border-radius:12px;padding:12px;font-family:inherit;font-size:14px;font-weight:800;background:var(--accent);color:#fff;cursor:pointer;}
+  .inst-teaser .itz-go{width:100%;margin-top:12px;border:none;border-radius:12px;padding:12px;font-family:inherit;font-size:14px;font-weight:800;background:var(--accent);color:var(--on-accent);cursor:pointer;}
   .inst-teaser .itz-x{position:absolute;top:9px;right:9px;width:26px;height:26px;border-radius:50%;border:none;background:none;color:var(--txt-faint);font-size:13px;font-family:inherit;line-height:1;cursor:pointer;}
   /* État « déjà installée » dans les réglages */
   .install-done{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--green);font-weight:700;background:var(--green-dim);border:1px solid var(--green);border-radius:11px;padding:11px 12px;margin-top:10px;}
@@ -884,6 +1079,23 @@
   <!-- ========== LEVEL 0 : GLOBAL ========== -->
   <div id="screenGlobal">
     <div class="scr-rail"></div>
+
+    <!-- ===== TABLEAU DE BORD PERSONNALISABLE (ordinateur ≥1100px) =====
+         Masqué par défaut : seule la media query « ordinateur » l'affiche.
+         Sur mobile et tablette, c'est #globalLegacy juste en dessous qui
+         reste affiché, strictement identique à avant. -->
+    <div id="dashBoard" class="dash">
+      <div class="dash-bar">
+        <div class="dash-sp" id="dashInfo"></div>
+        <button class="dash-btn" id="dashAddBtn" type="button">＋ Ajouter un widget</button>
+        <button class="dash-btn" id="dashEditBtn" type="button">✥ Personnaliser</button>
+        <button class="dash-btn hidden" id="dashResetBtn" type="button">↺ Réinitialiser</button>
+        <button class="dash-btn solid hidden" id="dashDoneBtn" type="button">✓ Terminé</button>
+      </div>
+      <div class="dash-grid" id="dashGrid"></div>
+    </div>
+
+    <div id="globalLegacy">
     <!-- Invitation à installer la PWA (mobile uniquement, masquable 14 jours) -->
     <div class="inst-teaser hidden" id="installTeaser">
       <button class="itz-x" id="installTeaserX" type="button" aria-label="Masquer">✕</button>
@@ -926,11 +1138,24 @@
       <div id="gCal" class="cal-readonly"></div>
     </div>
 
+    </div><!-- /#globalLegacy -->
+
+    <!-- Hors de #globalLegacy : reste accessible aussi sur ordinateur,
+         sous le tableau de bord. C'est la porte d'entrée de l'analyse
+         discipline & psychologie — à ne jamais laisser disparaître. -->
     <button class="nav-tile" id="anCumulBtn" type="button">
       <span class="nt-ic">📊</span>
       <span>
         <span class="nt-t">Analyse cumulée</span>
         <span class="nt-s">Discipline & psychologie · choisis tes comptes</span>
+      </span>
+      <span class="nt-arr">›</span>
+    </button>
+    <button class="nav-tile" id="calcBtn" type="button">
+      <span class="nt-ic">🧮</span>
+      <span>
+        <span class="nt-t">Calculatrices</span>
+        <span class="nt-s">Taille de position, risque de ruine, série de pertes…</span>
       </span>
       <span class="nt-arr">›</span>
     </button>
@@ -1074,6 +1299,11 @@
     <div class="card hidden" id="cardMoodAfter">
       <h2>Humeur après <span class="hint">en fin de séance</span></h2>
       <div class="mood-row" id="moodAfterRow"></div>
+    </div>
+
+    <div class="card hidden" id="cardRating">
+      <h2>Auto-évaluation <span class="hint">note ta séance, pas ton résultat</span></h2>
+      <div id="sessRating"></div>
     </div>
 
     <div class="card" id="cardNotes">
@@ -1262,6 +1492,7 @@
       <div class="toggle-row"><div><div class="tl">Humeur avant / après</div><div class="td">Note ton humeur (1–5).</div></div><div class="switch" data-key="showMood"><i></i></div></div>
       <div class="toggle-row"><div><div class="tl">Tags émotionnels</div><div class="td">Étiquette ta séance (discipliné, FOMO…).</div></div><div class="switch" data-key="showTags"><i></i></div></div>
       <div class="sub-setting hidden" id="tagsEditor"><div class="set-label">Tes tags</div><div id="tagsList"></div></div>
+      <div class="toggle-row"><div><div class="tl">Auto-évaluation</div><div class="td">Note ton exécution, ton respect du plan et ta maîtrise (1–5) — indépendamment du résultat.</div></div><div class="switch" data-key="showRating"><i></i></div></div>
       <div class="toggle-row"><div><div class="tl">Journal de fin de séance</div><div class="td">Tes notes libres après la session.</div></div><div class="switch" data-key="showNotes"><i></i></div></div>
     </div>
   </div>
@@ -1300,7 +1531,22 @@
   <div class="set-group hidden" id="installGroup"><div class="set-label">Application</div>
     <div id="installBox"></div>
   </div>
-  <div class="set-group"><div class="set-label">Apparence — couleur de l'app</div><div class="sw-lg" id="appSwatches"></div></div>
+  <div class="set-group"><div class="set-label">Mes données</div>
+    <button class="exp-btn" id="expSessBtn" type="button"><span class="eb-ic">📄</span><span><span class="eb-t">Exporter mes séances (CSV)</span><span class="eb-s">Résultats, humeur, tags, règles, auto-évaluation — une ligne par séance.</span></span></button>
+    <button class="exp-btn" id="expTradesBtn" type="button"><span class="eb-ic">📑</span><span><span class="eb-t">Exporter mes trades détaillés (CSV)</span><span class="eb-s">Une ligne par trade, pour Excel, Sheets ou ton propre tableur.</span></span></button>
+    <div class="exp-note">Tes données t'appartiennent : l'export est illimité et inclus, même sans abonnement.</div>
+  </div>
+  <div class="set-group"><div class="set-label">Apparence — thème</div>
+    <div class="theme-seg" id="themeSeg">
+      <button type="button" data-theme-pref="light"><span class="th-ic">☀️</span><span>Clair</span></button>
+      <button type="button" data-theme-pref="dark"><span class="th-ic">🌙</span><span>Sombre</span></button>
+      <button type="button" data-theme-pref="system"><span class="th-ic">🖥️</span><span>Système</span></button>
+    </div>
+    <div class="set-hint" id="themeHint"></div>
+  </div>
+  <div class="set-group"><div class="set-label">Apparence — couleur de l'app</div><div class="sw-lg" id="appSwatches"></div>
+    <div class="set-hint">La couleur s'adapte automatiquement au thème clair ou sombre.</div>
+  </div>
   <button class="drawer-done" id="appDrawerDone">Terminé</button>
 </div>
 
@@ -1320,6 +1566,25 @@
   <div class="auth-err" id="profErr"></div>
   <div class="auth-ok" id="profOk"></div>
   <button class="drawer-done sticky" id="profSaveBtn">Enregistrer</button>
+</div>
+
+<!-- Calculatrices (accessible sur mobile comme sur ordinateur) -->
+<div class="drawer" id="calcDrawer">
+  <div class="grab"></div>
+  <h3>Calculatrices</h3>
+  <div class="dsub">Dix calculs de trading, sans formule à retenir. Les champs se pré-remplissent avec ton plan de trading quand c'est possible.</div>
+  <div id="calcBody"></div>
+  <button class="drawer-done sticky" id="calcDone">Terminé</button>
+</div>
+
+<!-- Catalogue de widgets du tableau de bord (ordinateur) -->
+<div class="drawer" id="widgetDrawer">
+  <div class="grab"></div>
+  <h3>Ajouter un widget</h3>
+  <div class="dsub">Chaque widget répond à une question précise sur ta façon de trader. Ajoute ceux qui te parlent, déplace-les et redimensionne-les ensuite avec « Personnaliser ».</div>
+  <div class="wcat-filter" id="wcatFilter"></div>
+  <div id="wcatList"></div>
+  <button class="drawer-done sticky" id="widgetDrawerDone">Terminé</button>
 </div>
 
 <!-- Analyse : sélecteur de comptes -->
@@ -1777,15 +2042,27 @@
   var currentUser=null;
   var profile=null;
 
+  // Couleur d'accent : chaque teinte a une déclinaison SOMBRE (accent/dim/deep)
+  // et une déclinaison CLAIRE (accentL/dimL/deepL). Sur fond clair, la même
+  // couleur vive deviendrait illisible en texte : la variante claire est plus
+  // saturée et plus foncée, et son "dim" (fond des puces) devient un lavis.
+  // Les 6 identifiants d'origine sont conservés : les préférences déjà
+  // enregistrées continuent de fonctionner à l'identique.
   var COLORS=[
-    {id:"bleu",accent:"#4f8cff",dim:"#16233d"},
-    {id:"violet",accent:"#a26bff",dim:"#221a3a"},
-    {id:"vert",accent:"#22c98a",dim:"#10261d"},
-    {id:"cyan",accent:"#35c4d6",dim:"#10262b"},
-    {id:"orange",accent:"#f4913f",dim:"#2a1c10"},
-    {id:"rose",accent:"#ff5c9d",dim:"#2c1522"}
+    {id:"violet",  label:"Violet",   accent:"#a26bff",dim:"#221a3a",deep:"#6d43c7", accentL:"#7b3fe4",dimL:"#efe8fd",deepL:"#5a24bd"},
+    {id:"bleu",    label:"Bleu",     accent:"#4f8cff",dim:"#16233d",deep:"#2f5fd0", accentL:"#2563d9",dimL:"#e6eefc",deepL:"#1b47a8"},
+    {id:"indigo",  label:"Indigo",   accent:"#7b8cff",dim:"#1b1d3a",deep:"#5a68d6", accentL:"#4a52d0",dimL:"#eaecfd",deepL:"#333aa4"},
+    {id:"cyan",    label:"Cyan",     accent:"#35c4d6",dim:"#10262b",deep:"#1f95a5", accentL:"#0d8395",dimL:"#e0f3f6",deepL:"#086573"},
+    {id:"emeraude",label:"Émeraude", accent:"#2fd4b5",dim:"#0f2a27",deep:"#1fae95", accentL:"#0a8f7d",dimL:"#ddf4f0",deepL:"#066b5d"},
+    {id:"vert",    label:"Vert",     accent:"#22c98a",dim:"#10261d",deep:"#12a06a", accentL:"#0d9a62",dimL:"#e0f5ea",deepL:"#07784b"},
+    {id:"ambre",   label:"Ambre",    accent:"#f4b740",dim:"#2a2110",deep:"#cf9524", accentL:"#a2690a",dimL:"#fdf1dc",deepL:"#7d4f06"},
+    {id:"orange",  label:"Orange",   accent:"#f4913f",dim:"#2a1c10",deep:"#d1741f", accentL:"#c26a12",dimL:"#fdeedd",deepL:"#9c5309"},
+    {id:"rose",    label:"Rose",     accent:"#ff5c9d",dim:"#2c1522",deep:"#d1447f", accentL:"#d92b6d",dimL:"#fde8f0",deepL:"#ab1f55"},
+    {id:"rouge",   label:"Rouge",    accent:"#f2545b",dim:"#2a1417",deep:"#c9414c", accentL:"#d43542",dimL:"#fdeaec",deepL:"#a92029"}
   ];
   var accentId="violet";
+  // Thème : "dark" (défaut historique), "light" ou "system".
+  var themePref="dark";
   var settings={notifRecap:true,notifQuota:true,notifDaily:false};
 
   var UNITS={
@@ -1838,7 +2115,7 @@
   function todayKey(){ return ymd(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate()); }
   var MONTHS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
   var WD=["L","M","M","J","V","S","D"];
-  function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[], quotaOverride:null}; }
+  function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[], quotaOverride:null, rating:{}}; }
 
   // ===================== ABONNEMENT / ESSAI GRATUIT =====================
   // Modèle freemium :
@@ -2056,6 +2333,7 @@
       showRules:!!r.show_rules, rules:Array.isArray(r.rules)?r.rules:[],
       showChecklist:!!r.show_checklist, checklistItems:Array.isArray(r.checklist_items)?r.checklist_items:[],
       showMood:!!r.show_mood, showTags:!!r.show_tags, tagsOptions:Array.isArray(r.tags_options)?r.tags_options:[],
+      showRating:!!r.show_rating,
       dailyLossLimit:(r.daily_loss_limit===null||r.daily_loss_limit===undefined)?"":String(r.daily_loss_limit),
       showStreak:!!r.show_streak,
       plan:(r.plan&&typeof r.plan==='object'&&!Array.isArray(r.plan))?r.plan:{},
@@ -2065,7 +2343,7 @@
   }
   // sauvegardes isolées des colonnes récentes (si une colonne manque, seule cette requête échoue)
   function savePlan(a){ if(!a) return; db.from('accounts').update({plan:a.plan||{}}).eq('id',a.id).then(function(){},function(e){console.warn('plan (colonne manquante ?)',e);}); }
-  function saveAccountMeta(a){ if(!a) return; db.from('accounts').update({style:a.style||null, logging_mode:a.loggingMode||"quick", onboarded:!!a.onboarded, field_config:a.fieldConfig||{}}).eq('id',a.id).then(function(){},function(e){console.warn('meta (colonnes manquantes ?)',e);}); }
+  function saveAccountMeta(a){ if(!a) return; db.from('accounts').update({style:a.style||null, logging_mode:a.loggingMode||"quick", onboarded:!!a.onboarded, field_config:a.fieldConfig||{}, show_rating:!!a.showRating}).eq('id',a.id).then(function(){},function(e){console.warn('meta (colonnes manquantes ?)',e);}); }
   // ---- trades détaillés ----
   function rowToTrade(r){ return {id:r.id, date:r.session_date, instrument:r.instrument||"", side:r.side||"", entryTime:r.entry_time||"", exitTime:r.exit_time||"", entryPrice:(r.entry_price==null?"":String(r.entry_price)), exitPrice:(r.exit_price==null?"":String(r.exit_price)), result:(r.result==null?"":String(r.result)), tags:Array.isArray(r.tags)?r.tags:[], note:r.note||""}; }
   function tradesOf(a,date){ if(!a.tradesByDate[date]) a.tradesByDate[date]=[]; return a.tradesByDate[date]; }
@@ -2090,7 +2368,11 @@
     if(!sett){ await db.from('user_settings').insert({user_id:currentUser.id}); sett={accent:'violet',notif_recap:true,notif_quota:true,notif_daily:false}; }
     accentId = sett.accent||'violet';
     settings.notifRecap=!!sett.notif_recap; settings.notifQuota=!!sett.notif_quota; settings.notifDaily=!!sett.notif_daily;
-    applyAccent();
+    // Thème : la colonne peut ne pas exister encore (migration non passée) —
+    // dans ce cas on garde le sombre historique, sans rien casser.
+    themePref = (sett.theme==='light'||sett.theme==='system'||sett.theme==='dark') ? sett.theme : 'dark';
+    dashLoadLayout(sett.dashboard);
+    applyTheme();
     var ar = await db.from('accounts').select('*').order('position',{ascending:true}).order('created_at',{ascending:true});
     accounts = (ar.data||[]).map(rowToAccount);
     var qr = await db.from('sessions').select('*');
@@ -2099,7 +2381,8 @@
       if(a){ a.sessions[s.date]={objective:s.objective||"",result:s.result||"",notes:s.notes||"",trades:Array.isArray(s.trades)?s.trades:[],
         rules:Array.isArray(s.rules)?s.rules:[], checklist:Array.isArray(s.checklist)?s.checklist:[],
         moodBefore:s.mood_before||0, moodAfter:s.mood_after||0, tags:Array.isArray(s.tags)?s.tags:[],
-        quotaOverride:(s.max_trades_override==null?null:s.max_trades_override)}; }
+        quotaOverride:(s.max_trades_override==null?null:s.max_trades_override),
+        rating:(s.self_rating&&typeof s.self_rating==='object'&&!Array.isArray(s.self_rating))?s.self_rating:{}}; }
     });
     // trades détaillés (table 'trades' ; si absente, on ignore silencieusement)
     try{
@@ -2140,9 +2423,9 @@
         mood_before:s.moodBefore||null, mood_after:s.moodAfter||null, tags:s.tags||[]},{onConflict:'account_id,date'});
       // Écriture isolée (colonne récente) : si elle manque encore côté base,
       // seule CETTE requête échoue — la séance ci-dessus est déjà enregistrée.
-      db.from('sessions').update({max_trades_override:s.quotaOverride==null?null:s.quotaOverride})
+      db.from('sessions').update({max_trades_override:s.quotaOverride==null?null:s.quotaOverride, self_rating:s.rating||{}})
         .eq('account_id',a.id).eq('date',key)
-        .then(function(){},function(e){console.warn('quota séance (colonne manquante ?)',e);});
+        .then(function(){},function(e){console.warn('quota / auto-évaluation séance (colonne manquante ?)',e);});
     }
   }
 
@@ -2281,6 +2564,8 @@
     }
   }
   async function boot(){
+    if(!dashCfg) dashCfg=dashDefaultCfg();   // agencement par défaut tant que Supabase n'a pas répondu
+    dashBindUI();
     setAuthMode('login');
     el('authBtn').onclick=doAuth;
     el('authGoogleBtn').onclick=doGoogleAuth;
@@ -2294,8 +2579,58 @@
 
   function applyAccent(){
     var c=COLORS.find(function(x){return x.id===accentId;})||COLORS[0];
-    document.documentElement.style.setProperty("--accent",c.accent);
-    document.documentElement.style.setProperty("--accent-dim",c.dim);
+    var light = resolvedTheme()==="light";
+    var root=document.documentElement.style;
+    root.setProperty("--accent",      light ? (c.accentL||c.accent) : c.accent);
+    root.setProperty("--accent-dim",  light ? (c.dimL   ||c.dim)    : c.dim);
+    root.setProperty("--accent-deep", light ? (c.deepL  ||c.deep||c.accentL||c.accent) : (c.deep||c.accent));
+  }
+
+  /* ===================== THÈME CLAIR / SOMBRE / SYSTÈME =====================
+     themePref est la préférence de l'utilisateur ("dark"|"light"|"system") ;
+     resolvedTheme() est ce qui finit réellement sur <html data-theme>.
+     La préférence est doublée dans localStorage pour que le script d'amorçage
+     du <head> pose le bon thème au chargement suivant, avant tout rendu. */
+  var _darkMql = window.matchMedia ? window.matchMedia("(prefers-color-scheme: light)") : null;
+  function resolvedTheme(){
+    if(themePref==="light") return "light";
+    if(themePref==="dark")  return "dark";
+    return (_darkMql && _darkMql.matches) ? "light" : "dark";
+  }
+  function applyTheme(){
+    var t=resolvedTheme();
+    document.documentElement.setAttribute("data-theme", t);
+    document.documentElement.style.colorScheme = t;
+    try{ localStorage.setItem("edgioTheme", themePref); }catch(e){}
+    var m=el("themeColorMeta");
+    if(m){
+      // La barre d'état iOS/Android reprend la couleur de fond du thème actif.
+      m.setAttribute("content", getComputedStyle(document.documentElement).getPropertyValue("--bg").trim() || "#0b0e11");
+    }
+    applyAccent();
+    // Les widgets TradingView (calendrier éco, graphique) ne savent pas changer
+    // de thème à chaud : on les reconstruit s'ils sont visibles.
+    if(view.tab==="calendar") loadEconWidget();
+    if(typeof refreshThemedWidgets==="function") refreshThemedWidgets();
+  }
+  function setThemePref(p){
+    themePref = (p==="light"||p==="system") ? p : "dark";
+    applyTheme();
+    renderThemeSeg();
+    saveSettings({theme:themePref});
+  }
+  function renderThemeSeg(){
+    var seg=el("themeSeg"); if(!seg) return;
+    seg.querySelectorAll("button").forEach(function(b){ b.classList.toggle("sel", b.dataset.themePref===themePref); });
+    var h=el("themeHint");
+    if(h) h.textContent = themePref==="system"
+      ? "Edgio suit le réglage clair/sombre de ton appareil ("+(resolvedTheme()==="light"?"clair":"sombre")+" en ce moment)."
+      : (themePref==="light" ? "Thème clair, quel que soit le réglage de l'appareil." : "Thème sombre, quel que soit le réglage de l'appareil.");
+  }
+  if(_darkMql){
+    var _onSysTheme=function(){ if(themePref==="system"){ applyTheme(); renderThemeSeg(); } };
+    if(_darkMql.addEventListener) _darkMql.addEventListener("change",_onSysTheme);
+    else if(_darkMql.addListener) _darkMql.addListener(_onSysTheme);
   }
   function frDate(){
     var d=new Date();
@@ -2317,7 +2652,8 @@
     var tagsTouched=((s.tags||[]).length>0);
     var moodTouched=!!(s.moodBefore||s.moodAfter);
     var quotaTouched=(s.quotaOverride!=null);
-    return !s.objective && !s.result && !s.notes && tradesEmpty && !rulesTouched && !checkTouched && !tagsTouched && !moodTouched && !quotaTouched;
+    var ratingTouched=!!(s.rating && (s.rating.exec||s.rating.plan||s.rating.emo));
+    return !s.objective && !s.result && !s.notes && tradesEmpty && !rulesTouched && !checkTouched && !tagsTouched && !moodTouched && !quotaTouched && !ratingTouched;
   }
   // Quota effectif d'UNE séance : son propre réglage s'il en a un, sinon le
   // défaut du compte. Ne change jamais a.maxTrades (le défaut reste intact
@@ -2365,18 +2701,1000 @@
   }
   function shiftMonth(delta){ calMonth+=delta; if(calMonth<0){calMonth=11;calYear--;} if(calMonth>11){calMonth=0;calYear++;} render(); }
 
-  // ---------- GLOBAL ----------
-  function renderGlobal(){
-    renderInstallTeaser();
-    var tk=todayKey();
-    var tT=0,tW=0,tL=0,tR=0,has=false;
-    accounts.forEach(function(a){ var s=a.sessions[tk]; if(s){ var st=statsForTrades(s.trades); tT+=st.taken;tW+=st.win;tL+=st.loss; if(hasResult(s)){ tR+=sessionNet(s); has=true; } } });
-    el("gTrades").textContent=tT; el("gWins").textContent=tW+" ✓"; el("gLoss").textContent=tL+" ✗";
-    var gr=el("gResult");
-    if(has){ gr.textContent=(tR>0?"+":tR<0?"−":"")+Math.abs(tR); gr.className="kv "+(tR>0?"pos":tR<0?"neg":""); }
-    else { gr.textContent="—"; gr.className="kv"; }
 
-    var list=el("acctList"); list.innerHTML="";
+  /* =====================================================================
+     TABLEAU DE BORD PERSONNALISABLE — ORDINATEUR UNIQUEMENT
+     ---------------------------------------------------------------------
+     Grille de 6 colonnes ; chaque widget occupe w colonnes × h rangées.
+     L'agencement (ordre + tailles) vit dans user_settings.dashboard :
+       { v:1, widgets:[{id,w,h}], note:"", chartSymbol:"…" }
+     Rien n'est actif sous 1100px : dashRender() sort immédiatement et
+     l'écran Journal reste la pile de cartes historique (#globalLegacy).
+     ===================================================================== */
+  var DASH_COLS = 6;
+  var DASH_MAXH = 6;
+  var _dashMql = window.matchMedia("(min-width:1100px)");
+  var dashCfg = null;              // agencement courant (voir dashLoadLayout)
+  var dashEditing = false;
+  var _dwNodes = {};               // id du widget -> {wrap, body, sizeEl, def}
+  var _dashDragId = null;
+
+  var DASH_DEFAULT = [
+    {id:"today",w:2,h:1},{id:"discipline",w:2,h:2},{id:"streak",w:1,h:1},{id:"winrate",w:1,h:1},
+    {id:"insight",w:2,h:1},{id:"checklist",w:1,h:1},{id:"bestworst",w:1,h:1},
+    {id:"accounts",w:3,h:2},{id:"equity",w:3,h:2},
+    {id:"mood",w:2,h:2},{id:"tags",w:2,h:2},{id:"sessions",w:2,h:2},
+    {id:"calendar",w:3,h:5},{id:"econ",w:3,h:5}
+  ];
+
+  function dashDefaultCfg(){
+    return { v:1, widgets:DASH_DEFAULT.map(function(w){ return {id:w.id,w:w.w,h:w.h}; }), note:"", chartSymbol:"CME_MINI:NQ1!" };
+  }
+  // Tolérant : la colonne `dashboard` peut être absente (migration non passée),
+  // vide, ou contenir un agencement d'une version antérieure.
+  function dashLoadLayout(raw){
+    var c = dashDefaultCfg();
+    try{
+      var o = (typeof raw==="string") ? JSON.parse(raw) : raw;
+      if(o && typeof o==="object" && Array.isArray(o.widgets)){
+        var seen={}, list=[];
+        o.widgets.forEach(function(w){
+          if(!w || !w.id || seen[w.id]) return;
+          seen[w.id]=1;
+          list.push({ id:String(w.id), w:parseInt(w.w,10)||1, h:parseInt(w.h,10)||1 });
+        });
+        c.widgets = list;                                   // liste vide assumée : l'utilisateur a tout retiré
+        if(typeof o.note==="string") c.note=o.note;
+        if(typeof o.chartSymbol==="string" && o.chartSymbol) c.chartSymbol=o.chartSymbol;
+      }
+    }catch(e){}
+    dashCfg = c;
+  }
+  function dashSave(){ if(dashCfg) saveSettings({dashboard:dashCfg}); }
+  function dashIsDesktop(){ return _dashMql.matches; }
+  function dashFind(id){ if(!dashCfg) return null; for(var i=0;i<dashCfg.widgets.length;i++) if(dashCfg.widgets[i].id===id) return dashCfg.widgets[i]; return null; }
+  function dashClamp(v,lo,hi){ return Math.max(lo, Math.min(hi, v)); }
+
+  /* ---------- Données partagées par les widgets ---------- */
+  function dashSessions(){
+    var out=[];
+    accounts.forEach(function(a){ Object.keys(a.sessions).forEach(function(k){ out.push({a:a,k:k,s:a.sessions[k]}); }); });
+    out.sort(function(x,y){ return x.k<y.k?-1:x.k>y.k?1:0; });
+    return out;
+  }
+  function dashScored(){ return dashSessions().filter(function(o){ return hasResult(o.s); }); }
+  // Unité d'affichage : seulement si tous les comptes partagent la même,
+  // sinon on montre un nombre nu plutôt qu'un « $ » faux.
+  function dashUnitAcc(){
+    if(!accounts.length) return null;
+    var u={}; accounts.forEach(function(a){ u[a.resultUnit||"usd"]=1; });
+    return Object.keys(u).length===1 ? accounts[0] : null;
+  }
+  function dashFmt(v){
+    v=Math.round(v*100)/100;
+    var a=dashUnitAcc();
+    return a ? fmtVal(v,a) : ((v>0?"+":v<0?"−":"")+Math.abs(v));
+  }
+  function dashCombinedMap(){
+    var m={}; accounts.forEach(function(a){ Object.keys(a.sessions).forEach(function(k){ m[k]=(m[k]||0)+sessionNet(a.sessions[k]); }); });
+    return m;
+  }
+  function dashAvg(arr){ if(!arr.length) return 0; var t=0; arr.forEach(function(v){t+=v;}); return t/arr.length; }
+
+  /* ---------- Score de discipline (0-100) ----------
+     Trois signaux, pondérés ; ceux qui n'ont aucune donnée sont ignorés et
+     leur poids est redistribué, pour qu'un compte qui n'utilise pas la
+     check-list ne soit pas pénalisé. Renvoie null s'il n'y a rien à noter. */
+  function disciplineData(limit){
+    var list=dashSessions(); if(limit) list=list.slice(-limit);
+    var rOk=0,rTot=0,cFull=0,cTot=0,qOk=0,qTot=0;
+    list.forEach(function(o){
+      var s=o.s, a=o.a;
+      (s.rules||[]).forEach(function(r){ if(r&&r.ok===true){rOk++;rTot++;} else if(r&&r.ok===false){rTot++;} });
+      if((s.checklist||[]).length){ cTot++; if(s.checklist.every(function(c){return c&&c.checked;})) cFull++; }
+      if(a.showTracker){ var st=statsForTrades(s.trades); if(st.taken>0){ qTot++; if(st.taken<=effectiveQuota(a,s)) qOk++; } }
+    });
+    var parts=[];
+    if(rTot) parts.push({key:"rules", label:"Règles respectées",   pct:Math.round(rOk/rTot*100),   w:50, n:rTot});
+    if(cTot) parts.push({key:"check", label:"Check-list complète",  pct:Math.round(cFull/cTot*100), w:25, n:cTot});
+    if(qTot) parts.push({key:"quota", label:"Quota de trades tenu", pct:Math.round(qOk/qTot*100),   w:25, n:qTot});
+    if(!parts.length) return null;
+    var tw=0, acc2=0; parts.forEach(function(p){ tw+=p.w; acc2+=p.pct*p.w; });
+    return { score:Math.round(acc2/tw), parts:parts, n:list.length };
+  }
+  function dashBestStreak(){
+    var best={n:-1,name:""};
+    accounts.forEach(function(a){ var st=disciplineStreak(a); if(st>best.n) best={n:st,name:a.name}; });
+    return best.n<0 ? null : best;
+  }
+
+  /* ---------- Petits graphiques ---------- */
+  function dashGauge(pct,size){
+    size=size||104;
+    var r=(size/2)-9, cx=size/2, cy=size/2, C=2*Math.PI*r;
+    var col = pct>=75?"var(--green)" : pct>=50?"var(--accent)" : pct>=30?"var(--amber)" : "var(--red)";
+    return '<svg viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'" aria-hidden="true">'+
+      '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="var(--surface-2)" stroke-width="9"/>'+
+      '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="9" stroke-linecap="round" '+
+        'stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+(C*(1-dashClamp(pct,0,100)/100)).toFixed(1)+'" transform="rotate(-90 '+cx+' '+cy+')"/>'+
+      '<text x="'+cx+'" y="'+(cy+7)+'" text-anchor="middle" fill="var(--txt)" font-size="'+Math.round(size*0.27)+'" font-weight="800">'+pct+'</text>'+
+    '</svg>';
+  }
+  function dashSpark(values,h){
+    h=h||70;
+    if(!values || values.length<2) return '<div class="dw-empty">Pas encore assez de séances pour tracer une courbe.</div>';
+    var W=320, min=Math.min.apply(null,values), max=Math.max.apply(null,values);
+    if(max===min){ max=min+1; min=min-1; }
+    var pts=values.map(function(v,i){
+      var x=i/(values.length-1)*W;
+      var y=h-((v-min)/(max-min))*(h-8)-4;
+      return x.toFixed(1)+","+y.toFixed(1);
+    });
+    var last=values[values.length-1];
+    var col = last>=0 ? "var(--green)" : "var(--red)";
+    var out='<svg class="dw-mini" viewBox="0 0 '+W+' '+h+'" height="'+h+'" preserveAspectRatio="none" aria-hidden="true">';
+    if(min<=0 && max>=0){
+      var zy=(h-((0-min)/(max-min))*(h-8)-4).toFixed(1);
+      out+='<line x1="0" y1="'+zy+'" x2="'+W+'" y2="'+zy+'" stroke="var(--line)" stroke-width="1" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>';
+    }
+    out+='<polyline fill="none" stroke="'+col+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" points="'+pts.join(" ")+'"/>';
+    return out+'</svg>';
+  }
+  function dashBars(rows){   // rows: [{label, pct, disp, tone}]
+    if(!rows.length) return '<div class="dw-empty">Pas encore de données.</div>';
+    return '<div class="dw-rows">'+rows.map(function(r){
+      return '<div class="dw-row"><span class="dr-l">'+esc(r.label)+'</span>'+
+        '<span class="dw-bar"><i class="'+(r.tone||"")+'" style="width:'+dashClamp(r.pct,0,100)+'%"></i></span>'+
+        '<span class="dr-v '+(r.tone||"")+'">'+esc(r.disp)+'</span></div>';
+    }).join("")+'</div>';
+  }
+
+  /* ---------- Le constat du jour (100 % déterministe, aucun coût) ---------- */
+  function dashInsights(){
+    var out=[], scored=dashScored();
+    function grp(list){ var n=list.length; if(!n) return null; var t=0,w=0; list.forEach(function(o){ var v=sessionNet(o.s); t+=v; if(v>0)w++; }); return {n:n, avg:t/n, winRate:Math.round(w/n*100)}; }
+    function cmp(title, aList, bList, aLab, bLab){
+      var A=grp(aList), B=grp(bList);
+      if(!A||!B||A.n<3||B.n<3) return null;
+      return {t:title, h:aLab+" : <b>"+dashFmt(A.avg)+"</b> en moyenne ("+A.winRate+"% de séances gagnantes, "+A.n+" séances). "+
+                        bLab+" : <b>"+dashFmt(B.avg)+"</b> ("+B.winRate+"%, "+B.n+" séances).",
+              tone:(A.avg-B.avg)>0?"pos":"neg"};
+    }
+    // 1) Le tilt : ce qui se passe juste après deux pertes d'affilée.
+    (function(){
+      var after=[], other=[], streak=0;
+      dashSessions().forEach(function(o){
+        if(!hasResult(o.s)) return;
+        if(streak>=2) after.push(o); else other.push(o);
+        streak = sessionNet(o.s)<0 ? streak+1 : 0;
+      });
+      var c=cmp("Après deux pertes d'affilée", after, other, "Séance qui suit 2 pertes", "Les autres séances");
+      if(c){ c.t="Le piège du tilt"; out.push(c); }
+    })();
+    // 2) Règle la plus coûteuse.
+    (function(){
+      var m={};
+      scored.forEach(function(o){ (o.s.rules||[]).forEach(function(r){ if(r&&r.ok===false){ if(!m[r.rule])m[r.rule]=[]; m[r.rule].push(o); } }); });
+      var best=null;
+      Object.keys(m).forEach(function(k){ if(m[k].length>=3){ var g=grp(m[k]); if(!best||g.avg<best.g.avg) best={rule:k,g:g}; } });
+      if(best) out.push({t:"Ta règle la plus coûteuse", h:"Les séances où tu enfreins <b>« "+esc(best.rule)+" »</b> font <b>"+dashFmt(best.g.avg)+"</b> en moyenne ("+best.g.n+" séances, "+best.g.winRate+"% gagnantes).", tone:"neg"});
+    })();
+    // 3) Humeur avant la séance.
+    (function(){
+      var hi=scored.filter(function(o){return o.s.moodBefore>=4;}), lo=scored.filter(function(o){return o.s.moodBefore>0&&o.s.moodBefore<=2;});
+      var c=cmp("Ton humeur pèse", hi, lo, "Quand tu démarres en forme (4-5)", "Quand tu démarres bas (1-2)");
+      if(c) out.push(c);
+    })();
+    // 4) Check-list.
+    (function(){
+      var withCl=scored.filter(function(o){return (o.s.checklist||[]).length>0;});
+      var full=withCl.filter(function(o){return o.s.checklist.every(function(c){return c&&c.checked;});});
+      var part=withCl.filter(function(o){return !o.s.checklist.every(function(c){return c&&c.checked;});});
+      var c=cmp("Ta routine d'avant-séance", full, part, "Check-list complète", "Check-list bâclée");
+      if(c) out.push(c);
+    })();
+    // 5) Dépassement du quota de trades (sur-trading).
+    (function(){
+      var over=[], under=[];
+      scored.forEach(function(o){ if(!o.a.showTracker) return; var st=statsForTrades(o.s.trades); if(!st.taken) return;
+        (st.taken>effectiveQuota(o.a,o.s)?over:under).push(o); });
+      var c=cmp("Le sur-trading", over, under, "Séances où tu dépasses ton quota", "Séances dans le quota");
+      if(c) out.push(c);
+    })();
+    // 6) L'auto-évaluation face aux chiffres.
+    (function(){
+      var noted=scored.filter(function(o){ return ratingAvg(o.s.rating)!==null; });
+      var hi=noted.filter(function(o){ return ratingAvg(o.s.rating)>=4; });
+      var lo=noted.filter(function(o){ return ratingAvg(o.s.rating)<=2.5; });
+      var c=cmp("Ta lecture de toi-même", hi, lo, "Séances que tu notes ≥ 4/5", "Séances que tu notes ≤ 2,5/5");
+      if(c) out.push(c);
+    })();
+    // 7) Meilleur jour de la semaine.
+    (function(){
+      if(scored.length<10) return;
+      var names=["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"], by={};
+      scored.forEach(function(o){ var p=o.k.split("-"); var d=new Date(+p[0],+p[1]-1,+p[2]).getDay(); (by[d]=by[d]||[]).push(o); });
+      var best=null,worst=null;
+      Object.keys(by).forEach(function(d){ if(by[d].length<3) return; var g=grp(by[d]); g.d=d;
+        if(!best||g.avg>best.avg) best=g; if(!worst||g.avg<worst.avg) worst=g; });
+      if(best&&worst&&best.d!==worst.d) out.push({t:"Ton meilleur jour", h:"Le <b>"+names[best.d]+"</b> est ton meilleur jour (<b>"+dashFmt(best.avg)+"</b> en moyenne) ; le <b>"+names[worst.d]+"</b> ton plus difficile (<b>"+dashFmt(worst.avg)+"</b>).", tone:"pos"});
+    })();
+    return out;
+  }
+
+  /* ---------- Sessions de marché ---------- */
+  var DASH_MARKETS=[
+    {n:"Sydney",   tz:"Australia/Sydney",   o:10*60,   c:16*60},
+    {n:"Tokyo",    tz:"Asia/Tokyo",         o:9*60,    c:15*60},
+    {n:"Londres",  tz:"Europe/London",      o:8*60,    c:16*60+30},
+    {n:"New York", tz:"America/New_York",   o:9*60+30, c:16*60}
+  ];
+  function dashTzNow(tz){
+    try{
+      var parts=new Intl.DateTimeFormat("fr-FR",{timeZone:tz,hour:"2-digit",minute:"2-digit",hour12:false,weekday:"short"}).formatToParts(new Date());
+      var h=0,m=0,wd="";
+      parts.forEach(function(p){ if(p.type==="hour")h=parseInt(p.value,10); else if(p.type==="minute")m=parseInt(p.value,10); else if(p.type==="weekday")wd=p.value; });
+      return {min:h*60+m, wd:wd, txt:(h<10?"0":"")+h+":"+(m<10?"0":"")+m};
+    }catch(e){ return null; }
+  }
+  function dashHM(mins){ mins=Math.max(0,Math.round(mins)); var h=Math.floor(mins/60), m=mins%60; return h?(h+" h "+(m<10?"0":"")+m):(m+" min"); }
+
+  /* ---------- Calculatrices (formules connues, zéro dépendance) ---------- */
+  function cxNum(v){ var n=parseFloat(String(v==null?"":v).replace(",",".").replace(/[^0-9.\-]/g,"")); return isNaN(n)?null:n; }
+  function cxRR(txt){                     // "1:2", "1 pour 2", "2" -> 2
+    var t=String(txt||"").replace(",",".");
+    var m=t.match(/(\d+(?:\.\d+)?)\s*[:\/]\s*(\d+(?:\.\d+)?)/);
+    if(m){ var a=parseFloat(m[1]), b=parseFloat(m[2]); return (a>0)? b/a : null; }
+    var n=parseFloat(t); return isNaN(n)||n<=0?null:n;
+  }
+  /* ---------- Calculatrices ----------
+     Formules connues, aucune dépendance externe, aucun coût. Chacune donne
+     un résultat ET un exemple chiffré : c'est la partie « à quoi ça sert »
+     que la plupart des outils oublient. Utilisées à deux endroits : le
+     widget du tableau de bord et le tiroir accessible depuis le Journal
+     (donc aussi sur mobile). */
+  var DASH_CALCS=[
+    { id:"size", n:"Taille de position", cat:"Avant d'entrer",
+      f:[["cap","Capital"],["risk","Risque %"],["stop","Stop (pts/pips)"],["pv","Valeur du point"]],
+      help:"Capital 10 000, risque 1 %, stop 20 points, point à 5 → tu risques 100 et tu prends 1 contrat.",
+      run:function(v){
+        var cap=cxNum(v.cap), risk=cxNum(v.risk), stop=cxNum(v.stop), pv=cxNum(v.pv);
+        if(cap===null||risk===null||stop===null||pv===null||stop<=0||pv<=0) return null;
+        var money=cap*risk/100, qty=money/(stop*pv);
+        return {v:(Math.round(qty*100)/100)+" contrat"+(qty>=2?"s":""), l:"Tu risques "+(Math.round(money*100)/100)+" si ton stop est touché."};
+      }},
+    { id:"rr", n:"Risque / rendement", cat:"Avant d'entrer",
+      f:[["e","Entrée"],["s","Stop"],["t","Objectif"]],
+      help:"Entrée 100, stop 98, objectif 106 → tu risques 2 pour viser 6, soit 1:3.",
+      run:function(v){
+        var e=cxNum(v.e), st=cxNum(v.s), t=cxNum(v.t);
+        if(e===null||st===null||t===null) return null;
+        var risk=Math.abs(e-st), gain=Math.abs(t-e);
+        if(risk<=0) return null;
+        var rr=gain/risk, be=100/(1+rr);
+        return {v:"1 : "+(Math.round(rr*100)/100), l:"Il te faut au moins "+(Math.round(be*10)/10)+" % de trades gagnants pour être à l'équilibre."};
+      }},
+    { id:"margin", n:"Marge requise", cat:"Avant d'entrer",
+      f:[["qty","Taille (unités)"],["px","Prix"],["lev","Levier"]],
+      help:"1 lot de 100 000 à 1,08 avec un levier 30 → il te faut 3 600 de marge.",
+      run:function(v){
+        var q=cxNum(v.qty), px=cxNum(v.px), lev=cxNum(v.lev);
+        if(q===null||px===null||lev===null||lev<=0) return null;
+        var m=q*px/lev;
+        return {v:String(Math.round(m*100)/100), l:"Marge immobilisée pour cette position, hors frais."};
+      }},
+    { id:"exp", n:"Espérance par trade", cat:"Ma méthode tient-elle ?",
+      f:[["wr","Réussite %"],["g","Gain moyen"],["p","Perte moyenne"]],
+      help:"45 % de réussite, +200 en gain moyen, −100 en perte moyenne → +35 par trade en moyenne.",
+      run:function(v){
+        var wr=cxNum(v.wr), g=cxNum(v.g), p=cxNum(v.p);
+        if(wr===null||g===null||p===null) return null;
+        p=Math.abs(p);
+        var e=(wr/100)*g-(1-wr/100)*p;
+        return {v:(e>0?"+":"")+(Math.round(e*100)/100), l:e>=0?"Ce que chaque trade te rapporte en moyenne, sur la durée.":"Sur la durée, cette combinaison te fait perdre à chaque trade."};
+      }},
+    { id:"need", n:"Réussite minimum", cat:"Ma méthode tient-elle ?",
+      f:[["rr","Ratio (ex. 1:2)"]],
+      help:"Avec un ratio 1:2, il te faut 33,3 % de trades gagnants pour ne rien perdre.",
+      run:function(v){
+        var rr=cxRR(v.rr); if(!rr) return null;
+        var be=100/(1+rr);
+        return {v:(Math.round(be*10)/10)+" %", l:"En dessous de ce taux de réussite, ce ratio te fait perdre de l'argent."};
+      }},
+    { id:"goal", n:"Combien de trades pour mon objectif", cat:"Ma méthode tient-elle ?",
+      f:[["obj","Objectif"],["exp","Espérance / trade"]],
+      help:"Objectif 3 000 avec +35 d'espérance par trade → environ 86 trades. Utile pour arrêter de vouloir tout en une séance.",
+      run:function(v){
+        var o=cxNum(v.obj), e=cxNum(v.exp);
+        if(o===null||e===null||e<=0) return null;
+        var n=Math.ceil(o/e);
+        return {v:n+" trades", l:"À ce rythme, ton objectif se joue sur la durée, pas sur une séance."};
+      }},
+    { id:"streak", n:"Série de pertes à prévoir", cat:"Ce à quoi il faut se préparer",
+      f:[["wr","Réussite %"],["n","Nombre de trades"]],
+      help:"55 % de réussite sur 200 trades → une série d'environ 7 pertes d'affilée est NORMALE. La connaître à l'avance évite de tout casser le jour où elle arrive.",
+      run:function(v){
+        var wr=cxNum(v.wr), n=cxNum(v.n);
+        if(wr===null||n===null||n<1||wr<=0||wr>=100) return null;
+        var q=1-wr/100;
+        var k=Math.log(n)/(-Math.log(q));
+        return {v:"≈ "+Math.round(k)+" pertes d'affilée", l:"La plus longue série de pertes statistiquement attendue sur "+Math.round(n)+" trades. Elle ne veut pas dire que ta méthode est cassée."};
+      }},
+    { id:"dd", n:"Sortir d'un drawdown", cat:"Ce à quoi il faut se préparer",
+      f:[["p","Perte subie %"]],
+      help:"Après −50 %, il faut +100 % pour revenir au point de départ. C'est pour ça qu'on protège le capital avant de chercher la performance.",
+      run:function(v){
+        var p=cxNum(v.p); if(p===null||p<=0||p>=100) return null;
+        return {v:"+"+(Math.round(p/(100-p)*1000)/10)+" %", l:"C'est le gain nécessaire pour revenir à ton point de départ après −"+p+" %."};
+      }},
+    { id:"ruin", n:"Risque de ruine", cat:"Ce à quoi il faut se préparer",
+      f:[["risk","Risque / trade %"],["wr","Réussite %"],["rr","Ratio (ex. 1:2)"],["dd","Ruine à −%"]],
+      help:"Risquer 5 % par trade à 50 % de réussite en 1:1 mène à la ruine presque à coup sûr ; à 1 %, le risque devient négligeable.",
+      run:function(v){
+        var risk=cxNum(v.risk), wr=cxNum(v.wr), rr=cxRR(v.rr), dd=cxNum(v.dd);
+        if(risk===null||wr===null||!rr||risk<=0) return null;
+        if(dd===null||dd<=0||dd>=100) dd=50;
+        var runs=3000, trades=250, ruined=0;
+        for(var i=0;i<runs;i++){
+          var eq=100;
+          for(var j=0;j<trades;j++){
+            eq += (Math.random()*100<wr) ? eq*risk/100*rr : -eq*risk/100;
+            if(eq<=100-dd){ ruined++; break; }
+          }
+        }
+        var pct=Math.round(ruined/runs*1000)/10;
+        return {v:pct+" %", l:"Probabilité de perdre "+dd+" % du capital sur 250 trades ("+runs+" simulations)."};
+      }},
+    { id:"fees", n:"Ce que les frais te coûtent", cat:"Ce à quoi il faut se préparer",
+      f:[["fee","Frais par trade"],["n","Trades par mois"],["g","Gain brut moyen / trade"]],
+      help:"4 de frais, 60 trades par mois, 12 de gain brut moyen → un tiers de ta performance part en frais.",
+      run:function(v){
+        var fee=cxNum(v.fee), n=cxNum(v.n), g=cxNum(v.g);
+        if(fee===null||n===null||g===null||n<=0) return null;
+        var cost=fee*n, gross=g*n;
+        var pct = gross>0 ? Math.round(cost/gross*1000)/10 : null;
+        return {v:String(Math.round(cost*100)/100)+" / mois", l:pct===null?"Coût total de tes frais sur le mois.":pct+" % de ta performance brute part en frais."};
+      }}
+  ];
+
+  /* Rendu partagé des calculatrices. compact = version widget (une seule
+     calculatrice à la fois) ; sinon version tiroir, avec l'exemple chiffré. */
+  function renderCalculators(box, compact){
+    var a=acc()||accounts[0], pl=(a&&a.plan)||{};
+    var state={id:DASH_CALCS[0].id, vals:{}};
+    function prefill(id){
+      var v={};
+      if(id==="size"||id==="ruin"){ var r=String(pl.riskPerTrade||"").match(/(\d+(?:[.,]\d+)?)/); if(r) v.risk=r[1].replace(",","."); }
+      if(id==="need"||id==="ruin"){ if(pl.rr) v.rr=pl.rr; }
+      if(id==="goal"){ if(pl.objM) v.obj=String(pl.objM); }
+      return v;
+    }
+    function build(){
+      var cur=DASH_CALCS.filter(function(c){return c.id===state.id;})[0]||DASH_CALCS[0];
+      state.id=cur.id;
+      var groups={}, order=[];
+      DASH_CALCS.forEach(function(c){ if(!groups[c.cat]){groups[c.cat]=[];order.push(c.cat);} groups[c.cat].push(c); });
+      var h='<select class="cx-sel">'+order.map(function(g){
+        return '<optgroup label="'+esc(g)+'">'+groups[g].map(function(c){
+          return '<option value="'+c.id+'"'+(c.id===cur.id?" selected":"")+'>'+esc(c.n)+'</option>'; }).join("")+'</optgroup>';
+      }).join("")+'</select>';
+      h+='<div class="cx-grid">'+cur.f.map(function(f){
+        var v=(state.vals&&state.vals[f[0]]!=null)?state.vals[f[0]]:"";
+        return '<div class="cx-f"><label>'+esc(f[1])+'</label><input type="text" inputmode="decimal" data-k="'+f[0]+'" value="'+esc(String(v))+'"></div>';
+      }).join("")+'</div><div class="cx-out" style="display:none;"><div class="cxv"></div><div class="cxl"></div></div>';
+      if(!compact && cur.help) h+='<div class="cx-help"><b>Exemple</b> — '+esc(cur.help)+'</div>';
+      box.innerHTML=h;
+      var out=box.querySelector(".cx-out");
+      function compute(){
+        var vals={}; box.querySelectorAll(".cx-f input").forEach(function(i){ vals[i.dataset.k]=i.value; });
+        state.vals=vals;
+        var r=null; try{ r=cur.run(vals); }catch(e){}
+        if(r){ out.style.display=""; out.querySelector(".cxv").textContent=r.v; out.querySelector(".cxl").textContent=r.l; }
+        else out.style.display="none";
+      }
+      box.querySelectorAll(".cx-f input").forEach(function(i){ i.addEventListener("input",compute); });
+      box.querySelector(".cx-sel").addEventListener("change",function(){ state.id=this.value; state.vals=prefill(this.value); build(); });
+      compute();
+    }
+    state.vals=prefill(state.id);
+    build();
+  }
+  /* ---------- Export CSV ----------
+     Séparateur « ; » et BOM UTF-8 : Excel en français ouvre le fichier
+     directement, sans assistant d'importation. */
+  function csvCell(v){
+    v = (v===null||v===undefined) ? "" : String(v);
+    return /[";\r\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
+  }
+  function csvDownload(name, rows){
+    var csv="\uFEFF"+rows.map(function(r){ return r.map(csvCell).join(";"); }).join("\r\n");
+    var blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");
+    a.href=url; a.download=name; a.style.display="none";
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ try{ document.body.removeChild(a); }catch(e){} URL.revokeObjectURL(url); }, 1500);
+  }
+  function csvStamp(){ var d=new Date(); return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
+  function exportSessionsCSV(){
+    var rows=[["Compte","Type","Date","Résultat","Unité","Trades pris","Gagnants","Perdants","Quota",
+               "Humeur avant","Humeur après","Tags","Règles respectées","Règles enfreintes","Détail règles enfreintes",
+               "Check-list faite","Check-list totale","Exécution","Respect du plan","Maîtrise émotionnelle","Note de séance",
+               "Objectifs","Journal de séance"]];
+    var n=0;
+    accounts.forEach(function(a){
+      Object.keys(a.sessions).sort().forEach(function(k){
+        var s2=a.sessions[k], st=statsForTrades(s2.trades);
+        var ok=0, ko=0, koList=[];
+        (s2.rules||[]).forEach(function(r){ if(!r) return; if(r.ok===true) ok++; else if(r.ok===false){ ko++; koList.push(r.rule); } });
+        var cl=(s2.checklist||[]), clDone=cl.filter(function(c){return c&&c.checked;}).length;
+        var rt=s2.rating||{}, avg=ratingAvg(rt);
+        rows.push([a.name, a.type, k, hasResult(s2)?sessionNet(s2):"", unitOf(a).label,
+          st.taken, st.win, st.loss, effectiveQuota(a,s2),
+          s2.moodBefore||"", s2.moodAfter||"", (s2.tags||[]).join(" | "),
+          ok, ko, koList.join(" | "), clDone, cl.length,
+          rt.exec||"", rt.plan||"", rt.emo||"", avg===null?"":Math.round(avg*10)/10,
+          s2.objective||"", s2.notes||""]);
+        n++;
+      });
+    });
+    if(!n){ showToast("Aucune séance à exporter"); return; }
+    csvDownload("edgio-seances-"+csvStamp()+".csv", rows);
+    showToast(n+" séance"+(n>1?"s":"")+" exportée"+(n>1?"s":"")+" ✓");
+  }
+  function exportTradesCSV(){
+    var rows=[["Compte","Date","Instrument","Sens","Heure entrée","Heure sortie","Durée","Prix entrée","Prix sortie","Résultat","Unité","Tags","Note"]];
+    var n=0;
+    accounts.forEach(function(a){
+      Object.keys(a.tradesByDate).sort().forEach(function(k){
+        (a.tradesByDate[k]||[]).forEach(function(t){
+          rows.push([a.name, t.date, t.instrument||"", t.side||"", t.entryTime||"", t.exitTime||"", tradeDur(t)||"",
+                     t.entryPrice||"", t.exitPrice||"", t.result||"", unitOf(a).label, (t.tags||[]).join(" | "), t.note||""]);
+          n++;
+        });
+      });
+    });
+    if(!n){ showToast("Aucun trade détaillé à exporter"); return; }
+    csvDownload("edgio-trades-"+csvStamp()+".csv", rows);
+    showToast(n+" trade"+(n>1?"s":"")+" exporté"+(n>1?"s":"")+" ✓");
+  }
+
+  function openCalcDrawer(){
+    renderCalculators(el("calcBody"), false);
+    el("overlay").classList.add("open"); el("calcDrawer").classList.add("open");
+  }
+
+  /* ---------- Catalogue des widgets ---------- */
+  var DASH_CATS = [
+    {id:"psycho",    label:"Psychologie & discipline"},
+    {id:"essentiel", label:"Essentiel"},
+    {id:"perf",      label:"Performance"},
+    {id:"marche",    label:"Marché & outils"}
+  ];
+  var WIDGETS = {
+
+    /* ---- Psychologie & discipline : notre terrain ---- */
+    discipline:{ name:"Score de discipline", ic:"🧭", cat:"psycho", w:2,h:2, minW:2,minH:2,
+      q:"Est-ce que je tiens mes propres règles, en ce moment ?",
+      render:function(b){
+        var d=disciplineData(30);
+        if(!d){ b.innerHTML='<div class="dw-empty">Note tes règles ✓/✗ en séance (et/ou ta check-list) : ton score apparaît dès la première séance notée.</div>'; return; }
+        var h='<div style="display:flex;align-items:center;gap:14px;">'+dashGauge(d.score,96)+
+          '<div style="min-width:0;"><div class="dw-sub" style="margin:0;">Sur tes <b>'+d.n+'</b> dernières séances.</div></div></div>';
+        h+='<div style="margin-top:10px;">'+dashBars(d.parts.map(function(p){
+          return {label:p.label, pct:p.pct, disp:p.pct+"%", tone:p.pct>=70?"pos":p.pct<40?"neg":""};
+        }))+'</div>';
+        b.innerHTML=h;
+      }},
+    streak:{ name:"Série sans faute", ic:"🔥", cat:"psycho", w:1,h:1,
+      q:"Depuis combien de séances je n'ai rien lâché ?",
+      render:function(b){
+        var st=dashBestStreak();
+        if(!st){ b.innerHTML='<div class="dw-empty">Aucun compte pour l\'instant.</div>'; return; }
+        b.innerHTML='<div class="dw-center"><div class="dw-big '+(st.n>0?"pos":"")+'">'+st.n+'</div>'+
+          '<div class="dw-sub">séance'+(st.n>1?"s":"")+' d\'affilée sans règle enfreinte'+(accounts.length>1?' — <b>'+esc(st.name)+'</b>':'')+'.</div></div>';
+      }},
+    mood:{ name:"Humeur avant / après", ic:"🫀", cat:"psycho", w:2,h:2, minW:2,
+      q:"Dans quel état j'arrive, et dans quel état je repars ?",
+      render:function(b){
+        var list=dashSessions().filter(function(o){ return o.s.moodBefore>0 || o.s.moodAfter>0; }).slice(-20);
+        if(list.length<2){ b.innerHTML='<div class="dw-empty">Active « Humeur » dans les réglages d\'un compte et note-la sur quelques séances.</div>'; return; }
+        var bef=list.filter(function(o){return o.s.moodBefore>0;}).map(function(o){return o.s.moodBefore;});
+        var aft=list.filter(function(o){return o.s.moodAfter>0;}).map(function(o){return o.s.moodAfter;});
+        var mb=dashAvg(bef), ma=dashAvg(aft), d=ma-mb;
+        var rows=[];
+        if(bef.length) rows.push({label:"Avant la séance", pct:mb/5*100, disp:(Math.round(mb*10)/10)+"/5", tone:mb>=3.5?"pos":mb<2.5?"neg":""});
+        if(aft.length) rows.push({label:"Après la séance", pct:ma/5*100, disp:(Math.round(ma*10)/10)+"/5", tone:ma>=3.5?"pos":ma<2.5?"neg":""});
+        var note = (bef.length&&aft.length)
+          ? (d<=-0.5 ? "Tes séances te coûtent moralement : tu finis plus bas que tu n'as commencé."
+             : d>=0.5 ? "Tes séances te font du bien : tu finis plus haut que tu n'as commencé."
+             : "Ton humeur reste stable de bout en bout.")
+          : "Note aussi l'humeur d'après-séance pour voir l'effet de tes séances sur toi.";
+        b.innerHTML=dashBars(rows)+'<div class="dw-sub">'+note+'</div>';
+      }},
+    tags:{ name:"Tags émotionnels", ic:"🏷️", cat:"psycho", w:2,h:2, minW:2,
+      q:"Quels états d'esprit reviennent le plus dans mes séances ?",
+      render:function(b){
+        var scored=dashScored(), all=dashSessions(), count={}, res={};
+        all.forEach(function(o){ (o.s.tags||[]).forEach(function(t){ count[t]=(count[t]||0)+1; }); });
+        var keys=Object.keys(count);
+        if(!keys.length){ b.innerHTML='<div class="dw-empty">Active « Tags émotionnels » dans les réglages d\'un compte : ils deviennent la matière première de ton analyse.</div>'; return; }
+        scored.forEach(function(o){ (o.s.tags||[]).forEach(function(t){ (res[t]=res[t]||[]).push(sessionNet(o.s)); }); });
+        keys.sort(function(x,y){ return count[y]-count[x]; });
+        var max=count[keys[0]]||1;
+        b.innerHTML=dashBars(keys.slice(0,5).map(function(t){
+          var avg = res[t] && res[t].length>=2 ? dashAvg(res[t]) : null;
+          return {label:t, pct:count[t]/max*100,
+                  disp: avg===null ? (count[t]+"×") : (count[t]+"× · "+dashFmt(avg)),
+                  tone: avg===null ? "" : (avg>0?"pos":avg<0?"neg":"")};
+        }));
+      }},
+    rating:{ name:"Auto-évaluation", ic:"🎚️", cat:"psycho", w:2,h:2, minW:2,
+      q:"Est-ce que je joue bien, indépendamment de ce que ça rapporte ?",
+      render:function(b){
+        var list=dashSessions().filter(function(o){ return ratingAvg(o.s.rating)!==null; }).slice(-20);
+        if(!list.length){ b.innerHTML='<div class="dw-empty">Active « Auto-évaluation » dans les réglages d\'un compte : tu notes ton exécution, ton respect du plan et ta maîtrise — et Edgio les confronte à tes résultats.</div>'; return; }
+        var rows=[];
+        RATING_AXES.forEach(function(ax){
+          var n=list.filter(function(o){ return o.s.rating[ax.k]>0; });
+          if(!n.length) return;
+          var t=0; n.forEach(function(o){ t+=o.s.rating[ax.k]; });
+          var avg=t/n.length;
+          rows.push({label:ax.t, pct:avg/5*100, disp:(Math.round(avg*10)/10)+"/5", tone:avg>=4?"pos":avg<=2.5?"neg":""});
+        });
+        var glob=dashAvg(list.map(function(o){ return ratingAvg(o.s.rating); }));
+        b.innerHTML=dashBars(rows)+'<div class="dw-sub">Note moyenne <b>'+(Math.round(glob*10)/10)+'/5</b> sur tes '+list.length+' dernières séances notées.</div>';
+      }},
+    checklist:{ name:"Check-list tenue", ic:"✅", cat:"psycho", w:1,h:1,
+      q:"Est-ce que je fais ma routine avant de trader ?",
+      render:function(b){
+        var list=dashSessions().filter(function(o){ return (o.s.checklist||[]).length>0; }).slice(-20);
+        if(!list.length){ b.innerHTML='<div class="dw-empty">Aucune check-list remplie pour l\'instant.</div>'; return; }
+        var full=list.filter(function(o){ return o.s.checklist.every(function(c){return c&&c.checked;}); }).length;
+        var pct=Math.round(full/list.length*100);
+        b.innerHTML='<div class="dw-center"><div class="dw-big '+(pct>=70?"pos":pct<40?"neg":"")+'">'+pct+'%</div>'+
+          '<div class="dw-sub">de tes '+list.length+' dernières séances démarrées avec une check-list complète.</div></div>';
+      }},
+    insight:{ name:"Le constat du jour", ic:"💡", cat:"psycho", w:3,h:1, minW:2,
+      q:"Qu'est-ce que mes données me disent que je ne vois pas ?",
+      render:function(b){
+        var ins=dashInsights();
+        if(!ins.length){
+          b.innerHTML='<div class="dw-empty">Continue à remplir tes séances — humeur, règles, tags. À partir de 5-6 séances notées, Edgio commence à repérer tes schémas et affiche ici un constat par jour.</div>';
+          return;
+        }
+        var day=Math.floor((new Date()).getTime()/86400000);
+        var pick=ins[day % ins.length];
+        b.innerHTML='<div class="dw-sub" style="margin:0 0 4px;color:'+(pick.tone==="neg"?"var(--red)":"var(--green)")+';font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;">'+esc(pick.t)+'</div>'+
+          '<div style="font-size:13.5px;line-height:1.5;">'+pick.h+'</div>';
+      }},
+
+    /* ---- Essentiel ---- */
+    today:{ name:"Aujourd'hui", ic:"📅", cat:"essentiel", w:2,h:1,
+      q:"Où j'en suis à l'instant, tous comptes confondus.",
+      render:function(b){
+        var tk=todayKey(), t=0,w=0,l=0,r=0,has=false;
+        accounts.forEach(function(a){ var s=a.sessions[tk]; if(!s) return; var st=statsForTrades(s.trades);
+          t+=st.taken; w+=st.win; l+=st.loss; if(hasResult(s)){ r+=sessionNet(s); has=true; } });
+        b.innerHTML='<div class="dw-center"><div class="dw-big '+(has?(r>0?"pos":r<0?"neg":""):"")+'">'+(has?dashFmt(r):"—")+'</div>'+
+          '<div class="dw-sub"><b>'+t+'</b> trade'+(t>1?"s":"")+' · <b>'+w+'</b> ✓ · <b>'+l+'</b> ✗ · '+frDate()+'</div></div>';
+      }},
+    accounts:{ name:"Mes comptes", ic:"💼", cat:"essentiel", w:3,h:2, minW:2,minH:2, interactive:true,
+      q:"Ouvrir le journal d'un compte en un clic.",
+      render:function(b){ renderAcctList(b); }},
+    calendar:{ name:"Calendrier cumulé", ic:"🗓️", cat:"essentiel", w:3,h:5, minW:2,minH:3, interactive:true,
+      q:"Quel mois j'ai eu, jour après jour ?",
+      render:function(b){
+        renderMonth(b, dashCombinedMap(), null);
+        b.querySelectorAll(".cal-nav button").forEach(function(btn){
+          btn.onclick=function(){
+            calMonth+=parseInt(btn.dataset.nav,10);
+            if(calMonth<0){calMonth=11;calYear--;} if(calMonth>11){calMonth=0;calYear++;}
+            dashRenderOne("calendar");
+          };
+        });
+      }},
+    recent:{ name:"Dernières séances", ic:"🕘", cat:"essentiel", w:2,h:2, minW:2, interactive:true,
+      q:"Reprendre une séance récente.",
+      render:function(b){
+        var list=dashSessions().reverse().slice(0,10);
+        if(!list.length){ b.innerHTML='<div class="dw-empty">Pas encore de séance enregistrée.</div>'; return; }
+        b.innerHTML='<div class="dw-rows">'+list.map(function(o){
+          var v=sessionNet(o.s), tone=v>0?"pos":v<0?"neg":"";
+          return '<div class="dw-row js-open" data-acc="'+o.a.id+'" data-key="'+o.k+'" style="cursor:pointer;">'+
+            '<span class="dr-l">'+esc(labelKey(o.k))+(accounts.length>1?' · '+esc(o.a.name):'')+'</span>'+
+            '<span class="dr-v '+tone+'">'+(hasResult(o.s)?fmtVal(v,o.a):"—")+'</span></div>';
+        }).join("")+'</div>';
+        b.querySelectorAll(".js-open").forEach(function(row){
+          row.onclick=function(){ setActiveAccount(row.dataset.acc); openSession(row.dataset.key); };
+        });
+      }},
+
+    /* ---- Performance ---- */
+    equity:{ name:"Courbe cumulée", ic:"📈", cat:"perf", w:3,h:2, minW:2,minH:2,
+      q:"Est-ce que ma courbe monte, tous comptes confondus ?",
+      render:function(b){
+        var map=dashCombinedMap(), keys=Object.keys(map).sort(), cum=0, vals=[];
+        keys.forEach(function(k){ cum+=map[k]; vals.push(cum); });
+        var tot=vals.length?vals[vals.length-1]:0;
+        b.innerHTML='<div class="dw-big '+(tot>0?"pos":tot<0?"neg":"")+'" style="font-size:24px;">'+(vals.length?dashFmt(tot):"—")+'</div>'+
+          '<div class="dw-sub" style="margin-bottom:8px;">Cumulé sur <b>'+vals.length+'</b> séance'+(vals.length>1?"s":"")+' enregistrée'+(vals.length>1?"s":"")+'.</div>'+
+          dashSpark(vals, 74);
+      }},
+    winrate:{ name:"Séances gagnantes", ic:"🎯", cat:"perf", w:1,h:1,
+      q:"Quelle proportion de mes séances finit dans le vert ?",
+      render:function(b){
+        var sc=dashScored();
+        if(!sc.length){ b.innerHTML='<div class="dw-empty">Renseigne le résultat de tes séances.</div>'; return; }
+        var w=sc.filter(function(o){return sessionNet(o.s)>0;}).length;
+        var pct=Math.round(w/sc.length*100);
+        b.innerHTML='<div class="dw-center"><div class="dw-big '+(pct>=50?"pos":"neg")+'">'+pct+'%</div>'+
+          '<div class="dw-sub">'+w+' séances gagnantes sur '+sc.length+'.</div></div>';
+      }},
+    bestworst:{ name:"Meilleur / pire jour", ic:"⚖️", cat:"perf", w:2,h:1,
+      q:"Quelle est l'amplitude réelle de mes journées ?",
+      render:function(b){
+        var map=dashCombinedMap(), keys=Object.keys(map);
+        if(!keys.length){ b.innerHTML='<div class="dw-empty">Pas encore de séance chiffrée.</div>'; return; }
+        var best=keys[0], worst=keys[0];
+        keys.forEach(function(k){ if(map[k]>map[best])best=k; if(map[k]<map[worst])worst=k; });
+        b.innerHTML='<div class="dw-rows" style="height:100%;justify-content:center;">'+
+          '<div class="dw-row"><span class="dr-l">Meilleur — '+esc(labelKey(best))+'</span><span class="dr-v pos">'+dashFmt(map[best])+'</span></div>'+
+          '<div class="dw-row"><span class="dr-l">Pire — '+esc(labelKey(worst))+'</span><span class="dr-v neg">'+dashFmt(map[worst])+'</span></div></div>';
+      }},
+    weekday:{ name:"Par jour de semaine", ic:"📊", cat:"perf", w:2,h:2, minW:2,
+      q:"Y a-t-il un jour où je ne devrais pas trader ?",
+      render:function(b){
+        var sc=dashScored();
+        if(sc.length<5){ b.innerHTML='<div class="dw-empty">À partir de 5 séances chiffrées, la répartition par jour devient lisible.</div>'; return; }
+        var names=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"], by={};
+        sc.forEach(function(o){ var p=o.k.split("-"); var d=(new Date(+p[0],+p[1]-1,+p[2]).getDay()+6)%7; (by[d]=by[d]||[]).push(sessionNet(o.s)); });
+        var rows=[], mx=0;
+        Object.keys(by).forEach(function(d){ var a=dashAvg(by[d]); mx=Math.max(mx,Math.abs(a)); });
+        Object.keys(by).sort().forEach(function(d){
+          var a=dashAvg(by[d]);
+          rows.push({label:names[d]+" ("+by[d].length+")", pct:mx?Math.abs(a)/mx*100:0, disp:dashFmt(a), tone:a>0?"pos":a<0?"neg":""});
+        });
+        b.innerHTML=dashBars(rows);
+      }},
+    objective:{ name:"Objectifs du plan", ic:"🎖️", cat:"perf", w:2,h:2, minW:2,
+      q:"Où j'en suis face aux objectifs que je me suis fixés ?",
+      render:function(b){
+        var a=acc()||accounts[0];
+        if(!a){ b.innerHTML='<div class="dw-empty">Aucun compte.</div>'; return; }
+        var pl=a.plan||{};
+        var objs=[["objD","Aujourd'hui",0],["objW","Cette semaine",1],["objM","Ce mois",2]];
+        var now=new Date(), rows=[];
+        objs.forEach(function(o){
+          var target=parseFloat(String(pl[o[0]]||"").replace(",",".")); if(isNaN(target)||target===0) return;
+          var done=0;
+          Object.keys(a.sessions).forEach(function(k){
+            var p=k.split("-"), d=new Date(+p[0],+p[1]-1,+p[2]);
+            var ok=false;
+            if(o[2]===0) ok = (k===todayKey());
+            else if(o[2]===1){ var mon=new Date(now); mon.setDate(now.getDate()-((now.getDay()+6)%7)); mon.setHours(0,0,0,0); ok = d>=mon; }
+            else ok = (d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth());
+            if(ok) done+=sessionNet(a.sessions[k]);
+          });
+          rows.push({label:o[1], pct:dashClamp(done/target*100,0,100), disp:fmtVal(Math.round(done*100)/100,a)+" / "+fmtVal(target,a), tone:done>=target?"pos":done<0?"neg":""});
+        });
+        if(!rows.length){ b.innerHTML='<div class="dw-empty">Renseigne des objectifs dans ton Plan de trading (jour, semaine, mois) — ils s\'affichent ici avec ta progression réelle.</div>'; return; }
+        b.innerHTML=dashBars(rows)+'<div class="dw-sub">Compte : <b>'+esc(a.name)+'</b>.</div>';
+      }},
+    propfirm:{ name:"Prop firm — marge du jour", ic:"🛡️", cat:"perf", w:2,h:2, minW:2,
+      q:"Combien il me reste avant de casser ma règle de perte du jour ?",
+      render:function(b){
+        var a=acc()||accounts[0];
+        var cfg=a?pfCfg(a):null;
+        if(!cfg){ b.innerHTML='<div class="dw-empty">Configure une prop firm dans l\'onglet Propfirm : la marge de perte restante s\'affiche ici chaque jour.</div>'; return; }
+        var lim=pfToMoney(cfg.dailyLoss,cfg);
+        var s=a.sessions[todayKey()], today=s?sessionNet(s):0;
+        if(!lim){ b.innerHTML='<div class="dw-empty">Cette prop firm n\'a pas de limite de perte journalière renseignée.</div>'; return; }
+        var used=Math.max(0,-today), left=Math.max(0,lim-used), pct=Math.round(used/lim*100);
+        b.innerHTML='<div class="dw-big '+(pct>=80?"neg":pct>=50?"":"pos")+'" style="font-size:26px;">'+pfThousand(left)+' '+pfSym(cfg)+'</div>'+
+          '<div class="dw-sub" style="margin-bottom:9px;">de marge avant la limite du jour ('+pfThousand(lim)+' '+pfSym(cfg)+').</div>'+
+          dashBars([{label:"Perte du jour consommée", pct:pct, disp:pct+"%", tone:pct>=80?"neg":pct>=50?"":"pos"}]);
+      }},
+
+    /* ---- Marché & outils ---- */
+    sessions:{ name:"Sessions de marché", ic:"🌍", cat:"marche", w:2,h:2, minW:2,
+      q:"Quelles places sont ouvertes en ce moment ?",
+      render:function(b){
+        var h='<div class="dw-rows">';
+        DASH_MARKETS.forEach(function(mk){
+          var now=dashTzNow(mk.tz);
+          if(!now){ h+='<div class="mk-row"><span class="mk-dot"></span><span class="mk-n">'+mk.n+'</span><span class="mk-h">—</span></div>'; return; }
+          var we=/^(sam|dim)/i.test(now.wd);
+          var open = !we && now.min>=mk.o && now.min<mk.c;
+          var info = we ? "week-end" : open ? ("ferme dans "+dashHM(mk.c-now.min)) : (now.min<mk.o ? ("ouvre dans "+dashHM(mk.o-now.min)) : "fermée");
+          h+='<div class="mk-row"><span class="mk-dot'+(open?" open":"")+'"></span><span class="mk-n">'+mk.n+'</span>'+
+             '<span class="mk-h">'+now.txt+' · '+info+'</span></div>';
+        });
+        b.innerHTML=h+'</div><div class="dw-sub">Heures locales de chaque place, changements d\'heure inclus.</div>';
+      }},
+    econ:{ name:"Calendrier économique", ic:"🗞️", cat:"marche", w:3,h:5, minW:2,minH:2, keep:true, themed:true, interactive:true,
+      q:"Quelles annonces peuvent secouer ma séance ?",
+      render:function(b){
+        b.className="dw-b flush";
+        b.innerHTML='<div class="tradingview-widget-container dw-embed" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div></div>';
+        if(!navigator.onLine){ b.innerHTML='<div class="dw-b"><div class="dw-empty">Hors-ligne : le calendrier se rechargera à la reconnexion.</div></div>'; return; }
+        var sc=document.createElement("script");
+        sc.type="text/javascript"; sc.async=true;
+        sc.src="https://s3.tradingview.com/external-embedding/embed-widget-events.js";
+        sc.text=JSON.stringify({colorTheme:resolvedTheme(),isTransparent:true,locale:"fr",countryFilter:"us,eu,fr,gb,jp",importanceFilter:"-1,0,1",width:"100%",height:"100%"});
+        b.querySelector(".tradingview-widget-container").appendChild(sc);
+      }},
+    chart:{ name:"Graphique", ic:"📉", cat:"marche", w:3,h:4, minW:2,minH:2, keep:true, themed:true, interactive:true,
+      q:"Jeter un œil au marché sans quitter mon journal.",
+      render:function(b){
+        b.className="dw-b flush";
+        var sym=(dashCfg&&dashCfg.chartSymbol)||"CME_MINI:NQ1!";
+        b.innerHTML='<div class="tradingview-widget-container dw-embed" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div></div>';
+        if(!navigator.onLine){ b.innerHTML='<div class="dw-b"><div class="dw-empty">Hors-ligne : le graphique se rechargera à la reconnexion.</div></div>'; return; }
+        var sc=document.createElement("script");
+        sc.type="text/javascript"; sc.async=true;
+        sc.src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+        sc.text=JSON.stringify({symbol:sym,interval:"15",theme:resolvedTheme(),style:"1",locale:"fr",
+          hide_top_toolbar:false,hide_legend:false,allow_symbol_change:true,save_image:false,
+          withdateranges:false,autosize:true});
+        b.querySelector(".tradingview-widget-container").appendChild(sc);
+      }},
+    calc:{ name:"Calculatrices", ic:"🧮", cat:"marche", w:2,h:2, minW:2,minH:2, keep:true, interactive:true,
+      q:"Combien je prends, et est-ce que ça tient la route ?",
+      render:function(b){ renderCalculators(b, true); }},
+    note:{ name:"Pense-bête", ic:"📝", cat:"marche", w:2,h:2, minW:1, keep:true, interactive:true,
+      q:"Ce que je dois me rappeler avant d'ouvrir une position.",
+      render:function(b){
+        var t=document.createElement("textarea");
+        t.className="dw-note"; t.placeholder="Ex : pas de trade avant 15h30. Une seule idée à la fois. Si je doute, je ne prends pas.";
+        t.value=(dashCfg&&dashCfg.note)||"";
+        var tmr=null;
+        t.addEventListener("input",function(){ dashCfg.note=t.value; clearTimeout(tmr); tmr=setTimeout(dashSave,800); });
+        b.innerHTML=""; b.appendChild(t);
+      }}
+  };
+
+  /* ---------- Rendu de la grille ---------- */
+  function dashBuildWidget(id, def){
+    var wrap=document.createElement("div");
+    wrap.className="dw"; wrap.dataset.wid=id;
+    if(def.interactive) wrap.dataset.interactive="1";
+    var head=document.createElement("div"); head.className="dw-h";
+    head.innerHTML='<span class="dw-ic">'+(def.ic||"▪")+'</span><span class="dw-t">'+esc(def.name)+'</span>'+
+                   '<span class="dw-tools"><button class="dw-tool grab" type="button" title="Déplacer">✥</button>'+
+                   '<button class="dw-tool del" type="button" title="Retirer">✕</button></span>';
+    var body=document.createElement("div"); body.className="dw-b";
+    var size=document.createElement("span"); size.className="dw-size";
+    var grip=document.createElement("span"); grip.className="dw-grip"; grip.title="Redimensionner";
+    wrap.appendChild(head); wrap.appendChild(body); wrap.appendChild(size); wrap.appendChild(grip);
+
+    head.querySelector(".dw-tool.del").addEventListener("click",function(e){ e.stopPropagation(); dashRemove(id); });
+    grip.addEventListener("pointerdown",function(e){ dashStartResize(e,id,wrap); });
+
+    wrap.addEventListener("dragstart",function(e){
+      if(!dashEditing){ e.preventDefault(); return; }
+      _dashDragId=id; wrap.classList.add("dragging");
+      try{ e.dataTransfer.effectAllowed="move"; e.dataTransfer.setData("text/plain",id); }catch(_){}
+    });
+    wrap.addEventListener("dragend",function(){ wrap.classList.remove("dragging"); dashClearDrop(); _dashDragId=null; });
+    wrap.addEventListener("dragover",function(e){
+      if(!dashEditing||!_dashDragId||_dashDragId===id) return;
+      e.preventDefault();
+      var r=wrap.getBoundingClientRect();
+      dashClearDrop();
+      wrap.classList.add((e.clientX-r.left)>r.width/2 ? "drop-after" : "drop-before");
+    });
+    wrap.addEventListener("dragleave",function(){ wrap.classList.remove("drop-before","drop-after"); });
+    wrap.addEventListener("drop",function(e){
+      if(!dashEditing||!_dashDragId||_dashDragId===id) return;
+      e.preventDefault();
+      var r=wrap.getBoundingClientRect();
+      dashMove(_dashDragId, id, (e.clientX-r.left)>r.width/2);
+      dashClearDrop();
+    });
+    return {wrap:wrap, body:body, sizeEl:size, def:def};
+  }
+  function dashClearDrop(){ document.querySelectorAll("#dashGrid .dw").forEach(function(x){ x.classList.remove("drop-before","drop-after"); }); }
+
+  function dashRenderOne(id){
+    var node=_dwNodes[id]; if(!node) return;
+    node.body.className="dw-b";
+    node.body.innerHTML="";
+    try{ node.def.render(node.body, node); }
+    catch(e){ node.body.innerHTML='<div class="dw-empty">Ce widget n\'a pas pu s\'afficher.</div>'; console.warn("widget "+id,e); }
+  }
+
+  function dashRender(){
+    var grid=el("dashGrid"), board=el("dashBoard");
+    if(!grid||!board||!dashCfg) return;
+    if(!dashIsDesktop()) return;                     // mobile / tablette : rien à faire
+    var want=dashCfg.widgets.filter(function(w){ return !!WIDGETS[w.id]; });
+
+    // 1. retirer les widgets qui ne sont plus dans l'agencement
+    Object.keys(_dwNodes).forEach(function(id){
+      if(!want.some(function(w){return w.id===id;})){
+        var n=_dwNodes[id];
+        if(n.wrap.parentNode) n.wrap.parentNode.removeChild(n.wrap);
+        delete _dwNodes[id];
+      }
+    });
+    var ph=grid.querySelector(".dash-empty"); if(ph) grid.removeChild(ph);
+
+    // 2. créer / mettre à jour / replacer
+    want.forEach(function(w,i){
+      var def=WIDGETS[w.id], node=_dwNodes[w.id], fresh=false;
+      if(!node){ node=dashBuildWidget(w.id,def); _dwNodes[w.id]=node; fresh=true; }
+      var cw=dashClamp(w.w, def.minW||1, Math.min(def.maxW||DASH_COLS, DASH_COLS));
+      var chh=dashClamp(w.h, def.minH||1, Math.min(def.maxH||DASH_MAXH, DASH_MAXH));
+      w.w=cw; w.h=chh;
+      node.wrap.style.gridColumn="span "+cw;
+      node.wrap.style.gridRow="span "+chh;
+      node.wrap.classList.toggle("narrow", cw<=1);
+      node.sizeEl.textContent=cw+"×"+chh;
+      node.wrap.draggable=dashEditing;
+      // insertBefore ne bouge le nœud que s'il n'est pas déjà à sa place :
+      // essentiel pour ne pas recharger les iframes TradingView à chaque rendu.
+      if(grid.children[i]!==node.wrap) grid.insertBefore(node.wrap, grid.children[i]||null);
+      if(fresh || !def.keep) dashRenderOne(w.id);
+    });
+
+    if(!want.length){
+      var e=document.createElement("div"); e.className="dash-empty";
+      e.innerHTML='Ton tableau de bord est vide.<br>Clique sur <b>＋ Ajouter un widget</b> pour le composer.';
+      grid.appendChild(e);
+    }
+    var info=el("dashInfo");
+    if(info) info.textContent = dashEditing
+      ? "Glisse un widget pour le déplacer, tire le coin bas-droit pour le redimensionner."
+      : want.length+" widget"+(want.length>1?"s":"")+" · tableau de bord de l'ordinateur";
+  }
+
+  // Rebâtit uniquement les widgets qui embarquent un thème (TradingView).
+  function refreshThemedWidgets(){
+    if(!dashIsDesktop()) return;
+    Object.keys(_dwNodes).forEach(function(id){ if(_dwNodes[id].def.themed) dashRenderOne(id); });
+  }
+
+  /* ---------- Actions sur l'agencement ---------- */
+  function dashAdd(id){
+    if(!WIDGETS[id] || dashFind(id)) return;
+    var def=WIDGETS[id];
+    dashCfg.widgets.push({id:id, w:def.w||2, h:def.h||1});
+    dashSave(); dashRender(); showToast("Widget « "+def.name+" » ajouté");
+  }
+  function dashRemove(id){
+    var i=-1; dashCfg.widgets.forEach(function(w,k){ if(w.id===id) i=k; });
+    if(i<0) return;
+    dashCfg.widgets.splice(i,1);
+    dashSave(); dashRender(); renderWidgetCatalog();
+  }
+  function dashMove(fromId, toId, after){
+    var list=dashCfg.widgets, fi=-1, ti=-1;
+    list.forEach(function(w,i){ if(w.id===fromId)fi=i; if(w.id===toId)ti=i; });
+    if(fi<0||ti<0||fi===ti) return;
+    var item=list.splice(fi,1)[0];
+    list.forEach(function(w,i){ if(w.id===toId) ti=i; });
+    list.splice(after?ti+1:ti, 0, item);
+    dashSave(); dashRender();
+  }
+  function dashStartResize(e, id, wrap){
+    if(!dashEditing) return;
+    e.preventDefault(); e.stopPropagation();
+    var grid=el("dashGrid"), board=el("dashBoard");
+    var gs=getComputedStyle(grid);
+    var gap=parseFloat(gs.columnGap||gs.gap)||14;
+    var cellW=(grid.clientWidth-gap*(DASH_COLS-1))/DASH_COLS;
+    var rowH=parseFloat(gs.gridAutoRows)||116;
+    var cfg=dashFind(id), def=WIDGETS[id];
+    if(!cfg||!def) return;
+    var x0=e.clientX, y0=e.clientY, w0=cfg.w, h0=cfg.h, changed=false;
+    wrap.draggable=false; board.classList.add("resizing");
+    function move(ev){
+      var nw=dashClamp(w0+Math.round((ev.clientX-x0)/(cellW+gap)), def.minW||1, Math.min(def.maxW||DASH_COLS, DASH_COLS));
+      var nh=dashClamp(h0+Math.round((ev.clientY-y0)/(rowH+gap)), def.minH||1, Math.min(def.maxH||DASH_MAXH, DASH_MAXH));
+      if(nw===cfg.w && nh===cfg.h) return;
+      cfg.w=nw; cfg.h=nh; changed=true;
+      wrap.style.gridColumn="span "+nw; wrap.style.gridRow="span "+nh;
+      wrap.classList.toggle("narrow", nw<=1);
+      _dwNodes[id].sizeEl.textContent=nw+"×"+nh;
+    }
+    function up(){
+      document.removeEventListener("pointermove",move);
+      document.removeEventListener("pointerup",up);
+      board.classList.remove("resizing");
+      wrap.draggable=dashEditing;
+      if(changed){ dashSave(); if(!def.keep) dashRenderOne(id); }
+    }
+    document.addEventListener("pointermove",move);
+    document.addEventListener("pointerup",up);
+  }
+  function dashSetEditing(on){
+    dashEditing=!!on;
+    var board=el("dashBoard"); if(!board) return;
+    board.classList.toggle("editing",dashEditing);
+    el("dashEditBtn").classList.toggle("hidden",dashEditing);
+    el("dashDoneBtn").classList.toggle("hidden",!dashEditing);
+    el("dashResetBtn").classList.toggle("hidden",!dashEditing);
+    Object.keys(_dwNodes).forEach(function(id){ _dwNodes[id].wrap.draggable=dashEditing; });
+    dashRender();
+  }
+
+  /* ---------- Catalogue ---------- */
+  var _wcatFilter="all";
+  function renderWidgetCatalog(){
+    var box=el("wcatList"); if(!box) return;
+    var f=el("wcatFilter");
+    if(f && !f.childNodes.length){
+      var cats=[{id:"all",label:"Tous"}].concat(DASH_CATS);
+      cats.forEach(function(c){
+        var b=document.createElement("button"); b.type="button"; b.className="wcat-fbtn"+(c.id===_wcatFilter?" on":"");
+        b.textContent=c.label; b.dataset.cat=c.id;
+        b.onclick=function(){ _wcatFilter=c.id; f.querySelectorAll(".wcat-fbtn").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); renderWidgetCatalog(); };
+        f.appendChild(b);
+      });
+    }
+    box.innerHTML="";
+    DASH_CATS.forEach(function(cat){
+      if(_wcatFilter!=="all" && _wcatFilter!==cat.id) return;
+      var ids=Object.keys(WIDGETS).filter(function(id){ return WIDGETS[id].cat===cat.id; });
+      if(!ids.length) return;
+      var h=document.createElement("div"); h.className="wcat-grp"; h.textContent=cat.label; box.appendChild(h);
+      ids.forEach(function(id){
+        var d=WIDGETS[id], on=!!dashFind(id);
+        var row=document.createElement("div"); row.className="wcat-item";
+        row.innerHTML='<span class="wcat-ic">'+(d.ic||"▪")+'</span>'+
+          '<span class="wcat-txt"><span class="wcat-t">'+esc(d.name)+'</span>'+
+          '<span class="wcat-q">'+esc(d.q||"")+'</span>'+
+          '<span class="wcat-sz">taille par défaut '+(d.w||2)+'×'+(d.h||1)+'</span></span>'+
+          '<button class="wcat-add'+(on?" added":"")+'" type="button">'+(on?"Ajouté":"Ajouter")+'</button>';
+        var btn=row.querySelector(".wcat-add");
+        if(!on) btn.onclick=function(){ dashAdd(id); renderWidgetCatalog(); };
+        box.appendChild(row);
+      });
+    });
+  }
+  function openWidgetDrawer(){ renderWidgetCatalog(); el("overlay").classList.add("open"); el("widgetDrawer").classList.add("open"); }
+
+  /* ---------- Câblage ---------- */
+  function dashBindUI(){
+    var add=el("dashAddBtn"); if(!add) return;
+    add.addEventListener("click", openWidgetDrawer);
+    el("dashEditBtn").addEventListener("click", function(){ dashSetEditing(true); });
+    el("dashDoneBtn").addEventListener("click", function(){ dashSetEditing(false); showToast("Tableau de bord enregistré ✓"); });
+    el("dashResetBtn").addEventListener("click", function(){
+      openConfirm("Réinitialiser le tableau de bord ?","Tes widgets reviennent à l'agencement par défaut. Tes données de trading ne sont pas touchées.","Réinitialiser",function(){
+        var note=dashCfg.note, sym=dashCfg.chartSymbol;
+        dashCfg=dashDefaultCfg(); dashCfg.note=note; dashCfg.chartSymbol=sym;
+        Object.keys(_dwNodes).forEach(function(id){ var n=_dwNodes[id]; if(n.wrap.parentNode) n.wrap.parentNode.removeChild(n.wrap); delete _dwNodes[id]; });
+        dashSave(); dashRender(); showToast("Tableau de bord réinitialisé");
+      });
+    });
+    el("widgetDrawerDone").addEventListener("click", function(){ closeDrawer(); });
+    // Bascule ordinateur <-> mobile : on repart d'une grille propre.
+    var onBp=function(){
+      if(!dashIsDesktop()){ dashSetEditingSilently(false); }
+      else dashRender();
+    };
+    try{ _dashMql.addEventListener("change",onBp); }catch(e){ try{ _dashMql.addListener(onBp); }catch(_){} }
+    // L'horloge des sessions se rafraîchit toute seule, sans toucher au reste.
+    setInterval(function(){ if(dashIsDesktop() && _dwNodes.sessions && view.tab==="journal" && (view.jlevel||"accounts")==="accounts") dashRenderOne("sessions"); }, 60000);
+  }
+  function dashSetEditingSilently(on){
+    dashEditing=!!on;
+    var b=el("dashBoard"); if(b) b.classList.toggle("editing",dashEditing);
+    var e=el("dashEditBtn"), d=el("dashDoneBtn"), r=el("dashResetBtn");
+    if(e) e.classList.toggle("hidden",dashEditing);
+    if(d) d.classList.toggle("hidden",!dashEditing);
+    if(r) r.classList.toggle("hidden",!dashEditing);
+  }
+
+  // ---------- GLOBAL ----------
+  // Liste des comptes : extraite de renderGlobal pour être réutilisée telle
+  // quelle par le widget « Mes comptes » du tableau de bord ordinateur.
+  function renderAcctList(list){
+    if(!list) return;
+    var tk=todayKey();
+    list.innerHTML="";
     accounts.forEach(function(a){
       var s=a.sessions[tk]; var st=statsForTrades(s?s.trades:[]);
       var rv="—",rc="flat";
@@ -2392,9 +3710,23 @@
     });
     if(accounts.length===0){ var e=document.createElement("div"); e.className="empty-note"; e.textContent="Aucun compte pour l'instant."; list.appendChild(e); }
     var add=document.createElement("div"); add.className="add-row"; add.innerHTML='<span class="plus">+</span><span>Ajouter un compte</span>'; add.onclick=addAccount; list.appendChild(add);
+  }
 
-    var comb={}; accounts.forEach(function(a){ Object.keys(a.sessions).forEach(function(k){ comb[k]=(comb[k]||0)+sessionNet(a.sessions[k]); }); });
-    renderMonth(el("gCal"), comb, null);
+  function renderGlobal(){
+    renderInstallTeaser();
+    var tk=todayKey();
+    var tT=0,tW=0,tL=0,tR=0,has=false;
+    accounts.forEach(function(a){ var s=a.sessions[tk]; if(s){ var st=statsForTrades(s.trades); tT+=st.taken;tW+=st.win;tL+=st.loss; if(hasResult(s)){ tR+=sessionNet(s); has=true; } } });
+    el("gTrades").textContent=tT; el("gWins").textContent=tW+" ✓"; el("gLoss").textContent=tL+" ✗";
+    var gr=el("gResult");
+    if(has){ gr.textContent=(tR>0?"+":tR<0?"−":"")+Math.abs(tR); gr.className="kv "+(tR>0?"pos":tR<0?"neg":""); }
+    else { gr.textContent="—"; gr.className="kv"; }
+
+    renderAcctList(el("acctList"));
+    renderMonth(el("gCal"), dashCombinedMap(), null);
+
+    // Ordinateur : la grille de widgets prend le relais au-dessus de cette pile.
+    dashRender();
   }
 
   // ---------- ACCOUNT OVERVIEW ----------
@@ -2490,6 +3822,7 @@
     el("cardChecklist").classList.toggle("hidden",!a.showChecklist);
     el("cardRules").classList.toggle("hidden",!a.showRules);
     el("cardTags").classList.toggle("hidden",!a.showTags);
+    el("cardRating").classList.toggle("hidden",!a.showRating);
     el("cardTrades").classList.toggle("hidden",!isDetailed(a));
     el("fromTradesBtn").classList.toggle("hidden", !(isDetailed(a) && a.showResult));
   }
@@ -2588,6 +3921,45 @@
       row.appendChild(b);
     })(i);}
   }
+  /* Auto-évaluation : trois axes que le trader maîtrise vraiment, à l'inverse
+     du résultat. C'est le pendant « process » du journal — une bonne séance
+     mal payée reste une bonne séance, et l'analyse le montre ensuite. */
+  var RATING_AXES=[
+    {k:"exec", t:"Exécution",           d:"Entrées et sorties conformes à ce que j'avais vu"},
+    {k:"plan", t:"Respect du plan",     d:"Setups, taille de position, horaires"},
+    {k:"emo",  t:"Maîtrise émotionnelle", d:"Patience, pas de revanche, pas de FOMO"}
+  ];
+  function ratingAvg(r){
+    if(!r) return null;
+    var v=RATING_AXES.map(function(x){ return r[x.k]; }).filter(function(n){ return n>0; });
+    if(!v.length) return null;
+    var t=0; v.forEach(function(n){t+=n;});
+    return t/v.length;
+  }
+  function renderSessRating(){
+    var s=curSession(); if(!s) return;
+    if(!s.rating || typeof s.rating!=="object") s.rating={};
+    var box=el("sessRating"); box.innerHTML="";
+    RATING_AXES.forEach(function(ax){
+      var blk=document.createElement("div"); blk.className="rt-block";
+      blk.innerHTML='<div class="rt-head"><span class="rt-t">'+ax.t+'</span><span class="rt-d">'+ax.d+'</span></div><div class="rt-row"></div>';
+      var row=blk.querySelector(".rt-row");
+      for(var i=1;i<=5;i++){(function(n){
+        var b=document.createElement("button"); b.type="button";
+        b.className="rt-btn"+(s.rating[ax.k]===n?" on":""); b.textContent=n;
+        b.onclick=function(){ s.rating[ax.k]=(s.rating[ax.k]===n?0:n); renderSessRating(); refreshSaveBtn(); };
+        row.appendChild(b);
+      })(i);}
+      box.appendChild(blk);
+    });
+    var avg=ratingAvg(s.rating);
+    var sum=document.createElement("div"); sum.className="rt-sum";
+    sum.innerHTML = avg===null
+      ? "Note ta séance sur ce que tu contrôlais, pas sur le résultat. Edgio croise ensuite ces notes avec tes résultats."
+      : "Note de séance : <b>"+(Math.round(avg*10)/10)+"/5</b>"+(hasResult(s)?" — pour un résultat de <b>"+fmtVal(sessionNet(s),acc())+"</b>.":".");
+    box.appendChild(sum);
+  }
+
   function renderSessTags(){
     var a=acc(), s=curSession(); if(!a||!s) return;
     var box=el("sessTags"); box.innerHTML="";
@@ -2620,6 +3992,7 @@
     if(a.showChecklist) renderSessChecklist();
     if(a.showMood){ renderMood("moodBeforeRow","moodBefore"); renderMood("moodAfterRow","moodAfter"); }
     if(a.showTags) renderSessTags();
+    if(a.showRating) renderSessRating();
     if(isDetailed(a)) renderTrades(a);
     updateStopBanner();
   }
@@ -2770,12 +4143,12 @@
     var s='<svg viewBox="0 0 '+W+' '+h+'" width="100%" height="'+h+'" preserveAspectRatio="xMidYMid meet" font-family="inherit">';
     rows.forEach(function(r,i){
       var y=i*rh;
-      var col=r.tone==='pos'?'#22c98a':r.tone==='neg'?'#f2545b':'#8a97a6';
+      var col=r.tone==='pos'?'var(--green)':r.tone==='neg'?'var(--red)':'var(--txt-dim)';
       var bw=Math.max(4, Math.round(Math.abs(r.value)/max*(W-6)));
       var tx=Math.min(bw+8, W-52);
-      s+='<text x="0" y="'+(y+13)+'" fill="#8a97a6" font-size="12">'+esc(r.label)+'</text>';
+      s+='<text x="0" y="'+(y+13)+'" fill="var(--txt-dim)" font-size="12">'+esc(r.label)+'</text>';
       s+='<rect x="0" y="'+(y+19)+'" rx="5.5" width="'+bw+'" height="11" fill="'+col+'"/>';
-      s+='<text x="'+tx+'" y="'+(y+29)+'" fill="#e7edf3" font-size="12" font-weight="700">'+esc(r.disp)+'</text>';
+      s+='<text x="'+tx+'" y="'+(y+29)+'" fill="var(--txt)" font-size="12" font-weight="700">'+esc(r.disp)+'</text>';
     });
     return s+'</svg>';
   }
@@ -2875,6 +4248,46 @@
     ],{max:100}));
   }
 
+  // Croise la note que le trader s'est donnée avec ce que la séance a produit.
+  // C'est le constat que TraderWaves ne fait pas : leurs curseurs restent
+  // décoratifs, ici ils deviennent une mesure.
+  function secSelfRating(scope){
+    var sessions=anWithResult(sessionsOf(scope)).filter(function(s){ return ratingAvg(s.rating)!==null; });
+    if(sessions.length<5) return anInsufficient("Ton auto-évaluation");
+    var hi=sessions.filter(function(s){ return ratingAvg(s.rating)>=4; });
+    var lo=sessions.filter(function(s){ return ratingAvg(s.rating)<=2.5; });
+    if(hi.length<3 || lo.length<3) return anInsufficient("Ton auto-évaluation");
+    var gA=anGrp(hi), gB=anGrp(lo);
+    var num = scope.unit ? fmtVal(anRound(gA.avg),scope.unit) : gA.winRate+'%';
+    var txt = scope.unit
+      ? 'Tes <b>bonnes séances</b> (note ≥ 4/5) : <b>'+fmtVal(anRound(gA.avg),scope.unit)+'</b> en moyenne ('+gA.winRate+'% gagnantes, '+gA.n+' séances). Tes <b>séances ratées</b> (≤ 2,5/5) : <b>'+fmtVal(anRound(gB.avg),scope.unit)+'</b> ('+gB.winRate+'%, '+gB.n+' séances).'
+      : 'Tes <b>bonnes séances</b> (note ≥ 4/5) : <b>'+gA.winRate+'%</b> gagnantes. Tes <b>séances ratées</b> (≤ 2,5/5) : <b>'+gB.winRate+'%</b>.';
+    txt += ' Autrement dit, ce que tu ressens de ta séance '+((gA.avg-gB.avg)>0?'se retrouve bien dans tes chiffres':'ne correspond pas à tes chiffres — ta lecture de toi-même est à recalibrer')+'.';
+    return anCard('Ton auto-évaluation', num, anTone(gA.avg-gB.avg), txt, svgCompare([
+      {label:'Séances bien jouées', value:gA.winRate, disp:gA.winRate+'%', tone:'pos'},
+      {label:'Séances ratées',      value:gB.winRate, disp:gB.winRate+'%', tone:'neg'}
+    ],{max:100}));
+  }
+  // Quel axe (exécution / plan / émotions) te coûte le plus.
+  function secRatingAxis(scope){
+    var sessions=anWithResult(sessionsOf(scope)).filter(function(s){ return ratingAvg(s.rating)!==null; });
+    if(sessions.length<6) return null;
+    var rows=[], worst=null;
+    RATING_AXES.forEach(function(ax){
+      var noted=sessions.filter(function(s){ return s.rating[ax.k]>0; });
+      if(noted.length<4) return;
+      var t=0; noted.forEach(function(s){ t+=s.rating[ax.k]; });
+      var avg=t/noted.length;
+      rows.push({label:ax.t+' ('+noted.length+')', value:avg, disp:(Math.round(avg*10)/10)+'/5', tone:avg>=4?'pos':avg<=2.5?'neg':'neutral'});
+      if(!worst || avg<worst.avg) worst={ax:ax, avg:avg};
+    });
+    if(rows.length<2) return null;
+    return anCard('Ton point faible', (Math.round(worst.avg*10)/10)+'/5',
+      worst.avg>=3.5?'neutral':'neg',
+      'Sur les trois axes que tu notes, c\'est <b>'+esc(worst.ax.t.toLowerCase())+'</b> qui reçoit tes notes les plus basses (<b>'+(Math.round(worst.avg*10)/10)+'/5</b> en moyenne). C\'est là que tu as le plus à gagner, avant même de changer de stratégie.',
+      svgCompare(rows,{max:5}));
+  }
+
   function secDiscipline(scope){
     if(scope.accounts.length!==1) return null;
     var a=scope.accounts[0];
@@ -2918,11 +4331,12 @@
     if(showChecklist){ disc.push(secChecklist(scope)); }
     if(showMood){ psy.push(secMood(scope)); }
     if(showTags){ psy.push(secTags(scope)); }
+    if(accs.some(function(a){return a.showRating;})){ psy.push(secSelfRating(scope)); psy.push(secRatingAxis(scope)); }
     grp("Rigueur & discipline", disc);
     grp("Psychologie", psy);
-    if(!showRules && !showTags && !showMood && !showChecklist){
+    if(!showRules && !showTags && !showMood && !showChecklist && !accs.some(function(a){return a.showRating;})){
       var e=document.createElement('div'); e.className='an-card';
-      e.innerHTML='<div class="an-txt"><span class="an-empty">Active des modules (règles, tags, humeur, check-list) sur au moins un compte et enregistre quelques séances : tes constats apparaîtront ici.</span></div>';
+      e.innerHTML='<div class="an-txt"><span class="an-empty">Active des modules (règles, tags, humeur, check-list, auto-évaluation) sur au moins un compte et enregistre quelques séances : tes constats apparaîtront ici.</span></div>';
       body.appendChild(e);
     }
   }
@@ -3462,7 +4876,7 @@
     s.src="https://s3.tradingview.com/external-embedding/embed-widget-events.js";
     s.async=true;
     s.onerror=function(){ off.classList.remove("hidden"); };
-    s.text=JSON.stringify({colorTheme:"dark",isTransparent:true,locale:"fr",countryFilter:"us,eu,fr,gb,jp",importanceFilter:"-1,0,1",width:"100%",height:"100%"});
+    s.text=JSON.stringify({colorTheme:resolvedTheme(),isTransparent:true,locale:"fr",countryFilter:"us,eu,fr,gb,jp",importanceFilter:"-1,0,1",width:"100%",height:"100%"});
     wrap.querySelector(".tradingview-widget-container").appendChild(s);
     setTimeout(function(){ if(view.tab==="calendar" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
   }
@@ -3603,7 +5017,7 @@
     container.appendChild(add);
   }
   var onbActive=false;
-  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); }
+  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("calcDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   // Verrou de scroll iOS-safe : overflow:hidden seul ne bloque pas le scroll tactile
   // derrière un popup sur iOS Safari. Tant qu'un tiroir OU la modale de confirmation
@@ -3664,6 +5078,7 @@
     if(k==="showRules") el("rulesLink").classList.toggle("hidden",!a.showRules);
     if(k==="showChecklist") el("checklistLink").classList.toggle("hidden",!a.showChecklist);
     if(k==="showTags") el("tagsEditor").classList.toggle("hidden",!a.showTags);
+    if(k==="showRating") saveAccountMeta(a);
     saveAccount(a); }); });
   el("lossLimitIn").addEventListener("input",function(){ var a=acc(); if(a)a.dailyLossLimit=this.value; });
   el("lossLimitIn").addEventListener("change",function(){ saveAccount(acc()); });
@@ -3673,15 +5088,23 @@
   function openAppDrawer(){
     var sw=el("appSwatches"); sw.innerHTML="";
     COLORS.forEach(function(c){
-      var s=document.createElement("div"); s.className="sw"+(c.id===accentId?" sel":""); s.style.background=c.accent;
+      var s=document.createElement("div"); s.className="sw"+(c.id===accentId?" sel":"");
+      s.style.background = resolvedTheme()==="light" ? (c.accentL||c.accent) : c.accent;
+      s.title = c.label||c.id;
       s.onclick=function(){ accentId=c.id; applyAccent(); document.querySelectorAll("#appSwatches .sw").forEach(function(x){x.classList.remove("sel");}); s.classList.add("sel"); saveSettings({accent:accentId}); };
       sw.appendChild(s);
     });
     document.querySelectorAll(".appsw").forEach(function(t){ t.classList.toggle("on",!!settings[t.dataset.key]); });
+    renderThemeSeg();
     renderSubscription();
     renderInstallBox();
     el("overlay").classList.add("open"); el("appDrawer").classList.add("open");
   }
+  document.querySelectorAll("#themeSeg button").forEach(function(b){ b.addEventListener("click",function(){ setThemePref(b.dataset.themePref); }); });
+  el("calcBtn").addEventListener("click", openCalcDrawer);
+  el("calcDone").addEventListener("click", closeDrawer);
+  el("expSessBtn").addEventListener("click", exportSessionsCSV);
+  el("expTradesBtn").addEventListener("click", exportTradesCSV);
   el("analysisLockSubBtn").addEventListener("click",function(){ openUpsell(el("analysisLockSubBtn")); });
   el("analysisLockBackBtn").addEventListener("click",function(){ hideAnalysisLock(); });
   document.querySelectorAll(".appsw").forEach(function(t){ t.addEventListener("click",function(){ var k=t.dataset.key; settings[k]=!settings[k]; t.classList.toggle("on",settings[k]); saveSettings({notif_recap:settings.notifRecap,notif_quota:settings.notifQuota,notif_daily:settings.notifDaily}); }); });
