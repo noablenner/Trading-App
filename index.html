@@ -145,6 +145,15 @@
   .chip{border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;font-size:13px;font-weight:700;padding:7px 13px;border-radius:20px;cursor:pointer;}
   .chip.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
   .econ-wrap-light{background:#fff;}
+  .news-seg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+  .news-seg button{border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;
+    font-size:12px;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer;}
+  .news-seg button.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
+  /* Widget graphique : sélecteur de symbole au-dessus de l'iframe. */
+  .dw-chart{display:flex;flex-direction:column;height:100%;min-height:0;}
+  .dw-chart > .dw-sym{border:none;border-bottom:1px solid var(--line);border-radius:0;margin:0;flex:0 0 auto;}
+  .dw-chart > .tradingview-widget-container{flex:1;min-height:0;}
+  .chart-wrap{position:relative;height:70vh;min-height:420px;width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface-2);}
   .poweredBy{margin-top:8px;font-size:11px;color:var(--txt-faint);}
   .poweredBy a{color:var(--accent);font-weight:700;text-decoration:none;}
 
@@ -1241,6 +1250,19 @@
     </div>
 
     <div class="card">
+      <h2>Actualités marché <span class="hint">fil en direct</span></h2>
+      <div id="newsOffline" class="econ-offline hidden">Le fil d'actualités n'a pas pu se charger. Vérifie ta connexion internet, puis reviens sur cet écran.</div>
+      <div class="news-seg" id="newsSeg">
+        <button type="button" data-market="futures" class="sel">Futures</button>
+        <button type="button" data-market="forex">Forex</button>
+        <button type="button" data-market="index">Indices</button>
+        <button type="button" data-market="crypto">Crypto</button>
+        <button type="button" data-market="stock">Actions</button>
+      </div>
+      <div id="newsWidgetWrap" class="econ-wrap"></div>
+    </div>
+
+    <div class="card">
       <h2>Investing.com</h2>
       <div id="invOffline" class="econ-offline hidden">Le calendrier Investing.com n'a pas pu se charger (hors-ligne ou bloqué par le réseau).</div>
       <div id="invWidgetWrap" class="econ-wrap econ-wrap-light"></div>
@@ -1619,6 +1641,15 @@
   <div class="auth-err" id="profErr"></div>
   <div class="auth-ok" id="profOk"></div>
   <button class="drawer-done sticky" id="profSaveBtn">Enregistrer</button>
+</div>
+
+<!-- Graphique d'un instrument (ouvert depuis un trade détaillé) -->
+<div class="drawer" id="chartDrawer">
+  <div class="grab"></div>
+  <h3 id="chartTitle">Graphique</h3>
+  <div class="dsub" id="chartSub">Graphique de marché fourni par TradingView. Repère-toi avec l'heure et le prix notés sur ton trade.</div>
+  <div id="chartWrap" class="chart-wrap"></div>
+  <button class="drawer-done sticky" id="chartDone">Fermer</button>
 </div>
 
 <!-- Aide à la rédaction du journal de séance -->
@@ -3229,6 +3260,27 @@
     showToast(n+" trade"+(n>1?"s":"")+" exporté"+(n>1?"s":"")+" ✓");
   }
 
+  /* Graphique d'un instrument, ouvert depuis un trade. Le widget TradingView
+     embarque ses propres données de marché : rien à payer pour l'afficher. */
+  function openChartDrawer(instr, t){
+    el("chartTitle").textContent = instr ? ("Graphique — "+instr) : "Graphique";
+    var bits=[];
+    if(t){
+      if(t.date) bits.push(labelKey(t.date));
+      if(t.entryTime||t.exitTime) bits.push((t.entryTime||"?")+" → "+(t.exitTime||"?"));
+      if(t.entryPrice||t.exitPrice) bits.push("entrée "+(t.entryPrice||"?")+" / sortie "+(t.exitPrice||"?"));
+    }
+    el("chartSub").textContent = bits.length
+      ? ("Ton trade : "+bits.join(" · ")+". Le graphique ne place pas encore de marqueur — repère-toi avec ces repères.")
+      : "Graphique de marché fourni par TradingView.";
+    tvMount(el("chartWrap"), "embed-widget-advanced-chart.js", {
+      symbol:tvSymbol(instr), interval:"15", theme:resolvedTheme(), style:"1", locale:"fr",
+      hide_top_toolbar:false, hide_legend:false, allow_symbol_change:true, save_image:false,
+      withdateranges:true, autosize:true
+    }, null);
+    el("overlay").classList.add("open"); el("chartDrawer").classList.add("open");
+  }
+
   function openCalcDrawer(){
     renderCalculators(el("calcBody"), false);
     el("overlay").classList.add("open"); el("calcDrawer").classList.add("open");
@@ -3505,28 +3557,50 @@
       q:"Quelles annonces peuvent secouer ma séance ?",
       render:function(b){
         b.className="dw-b flush";
-        b.innerHTML='<div class="tradingview-widget-container dw-embed" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div></div>';
-        if(!navigator.onLine){ b.innerHTML='<div class="dw-b"><div class="dw-empty">Hors-ligne : le calendrier se rechargera à la reconnexion.</div></div>'; return; }
-        var sc=document.createElement("script");
-        sc.type="text/javascript"; sc.async=true;
-        sc.src="https://s3.tradingview.com/external-embedding/embed-widget-events.js";
-        sc.text=JSON.stringify({colorTheme:resolvedTheme(),isTransparent:true,locale:"fr",countryFilter:"us,eu,fr,gb,jp",importanceFilter:"-1,0,1",width:"100%",height:"100%"});
-        b.querySelector(".tradingview-widget-container").appendChild(sc);
+        if(!navigator.onLine){ b.className="dw-b"; b.innerHTML='<div class="dw-empty">Hors-ligne : le calendrier se rechargera à la reconnexion.</div>'; return; }
+        tvMount(b, "embed-widget-events.js", {colorTheme:resolvedTheme(),isTransparent:true,locale:"fr",
+          countryFilter:"us,eu,fr,gb,jp",importanceFilter:"-1,0,1",width:"100%",height:"100%"}, null);
+      }},
+    news:{ name:"Actualités marché", ic:"📰", cat:"marche", w:3,h:4, minW:2,minH:2, keep:true, themed:true, interactive:true,
+      q:"Qu'est-ce qui bouge en ce moment, et pourquoi ?",
+      render:function(b){
+        b.className="dw-b flush";
+        tvMount(b, "embed-widget-timeline.js", {
+          feedMode:"market", market:(dashCfg&&dashCfg.newsMarket)||"futures", isTransparent:true,
+          displayMode:"regular", colorTheme:resolvedTheme(), locale:"fr", width:"100%", height:"100%"
+        }, null);
+        if(!navigator.onLine) b.innerHTML='<div class="dw-b"><div class="dw-empty">Hors-ligne : le fil se rechargera à la reconnexion.</div></div>';
       }},
     chart:{ name:"Graphique", ic:"📉", cat:"marche", w:3,h:4, minW:2,minH:2, keep:true, themed:true, interactive:true,
       q:"Jeter un œil au marché sans quitter mon journal.",
       render:function(b){
         b.className="dw-b flush";
+        if(!navigator.onLine){ b.className="dw-b"; b.innerHTML='<div class="dw-empty">Hors-ligne : le graphique se rechargera à la reconnexion.</div>'; return; }
         var sym=(dashCfg&&dashCfg.chartSymbol)||"CME_MINI:NQ1!";
-        b.innerHTML='<div class="tradingview-widget-container dw-embed" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div></div>';
-        if(!navigator.onLine){ b.innerHTML='<div class="dw-b"><div class="dw-empty">Hors-ligne : le graphique se rechargera à la reconnexion.</div></div>'; return; }
-        var sc=document.createElement("script");
-        sc.type="text/javascript"; sc.async=true;
-        sc.src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-        sc.text=JSON.stringify({symbol:sym,interval:"15",theme:resolvedTheme(),style:"1",locale:"fr",
-          hide_top_toolbar:false,hide_legend:false,allow_symbol_change:true,save_image:false,
-          withdateranges:false,autosize:true});
-        b.querySelector(".tradingview-widget-container").appendChild(sc);
+        // Sélecteur alimenté par NOS instruments : on retrouve les symboles
+        // qu'on trade vraiment, pas un champ vide à remplir à la main.
+        var wrap=document.createElement("div"); wrap.className="dw-chart";
+        var sel=document.createElement("select"); sel.className="cx-sel dw-sym";
+        var h="";
+        Object.keys(INSTRUMENTS).forEach(function(grp){
+          h+='<optgroup label="'+esc(grp)+'">';
+          INSTRUMENTS[grp].forEach(function(code){
+            var v=tvSymbol(code);
+            h+='<option value="'+esc(v)+'"'+(v===sym?" selected":"")+'>'+esc(code)+'</option>';
+          });
+          h+='</optgroup>';
+        });
+        sel.innerHTML=h;
+        var host=document.createElement("div"); host.style.cssText="flex:1;min-height:0;";
+        wrap.appendChild(sel); wrap.appendChild(host);
+        b.innerHTML=""; b.appendChild(wrap);
+        function mount(){
+          tvMount(host, "embed-widget-advanced-chart.js", {symbol:sym,interval:"15",theme:resolvedTheme(),
+            style:"1",locale:"fr",hide_top_toolbar:false,hide_legend:false,allow_symbol_change:true,
+            save_image:false,withdateranges:false,autosize:true}, null);
+        }
+        sel.onchange=function(){ sym=sel.value; if(dashCfg){ dashCfg.chartSymbol=sym; dashSave(); } mount(); };
+        mount();
       }},
     calc:{ name:"Calculatrices", ic:"🧮", cat:"marche", w:2,h:2, minW:2,minH:2, keep:true, interactive:true,
       q:"Combien je prends, et est-ce que ça tient la route ?",
@@ -4255,6 +4329,12 @@
     if(fc.instrument){
       var g=group('<div class="set-label">Instrument</div><button class="set-input" id="tfInstr" type="button" style="text-align:left;cursor:pointer;">'+(t.instrument?esc(t.instrument):'<span style="color:var(--txt-faint)">Choisir…</span>')+'</button>');
       box.appendChild(g); g.querySelector("#tfInstr").addEventListener("click",function(){ openInstrPicker(); });
+      if(t.instrument){
+        var gc=document.createElement("button"); gc.type="button"; gc.className="dw-link"; gc.style.margin="-8px 0 16px";
+        gc.textContent="📉 Voir « "+t.instrument+" » sur le graphique";
+        gc.onclick=function(){ openChartDrawer(t.instrument, t); };
+        box.appendChild(gc);
+      }
     }
     if(fc.side){
       var gs=group('<div class="set-label">Sens</div><div class="type-seg" id="tfSide"><button data-side="buy">Achat</button><button data-side="sell">Vente</button></div>');
@@ -5390,24 +5470,64 @@
 
   // ---------- Calendrier économique (widgets chargés depuis le réseau, jamais mis en cache) ----------
 
-  function loadEconWidget(){ buildTV(); buildInvesting(); }
+  /* Correspondance entre nos instruments et les symboles TradingView.
+     Le widget est gratuit et embarque ses propres données : il n'y a donc
+     aucun flux de marché à payer pour afficher un graphique. */
+  var TV_SYMBOLS={
+    "ES":"CME_MINI:ES1!","MES":"CME_MINI:MES1!","NQ":"CME_MINI:NQ1!","MNQ":"CME_MINI:MNQ1!",
+    "YM":"CBOT_MINI:YM1!","MYM":"CBOT_MINI:MYM1!","RTY":"CME_MINI:RTY1!","M2K":"CME_MINI:M2K1!",
+    "CL":"NYMEX:CL1!","MCL":"NYMEX:MCL1!","NG":"NYMEX:NG1!",
+    "GC":"COMEX:GC1!","MGC":"COMEX:MGC1!","SI":"COMEX:SI1!","SIL":"COMEX:SIL1!","HG":"COMEX:HG1!",
+    "EUR/USD":"FX:EURUSD","GBP/USD":"FX:GBPUSD","USD/JPY":"FX:USDJPY","USD/CHF":"FX:USDCHF",
+    "AUD/USD":"FX:AUDUSD","USD/CAD":"FX:USDCAD","NZD/USD":"FX:NZDUSD","EUR/JPY":"FX:EURJPY","GBP/JPY":"FX:GBPJPY",
+    "XAU/USD":"OANDA:XAUUSD","XAG/USD":"OANDA:XAGUSD",
+    "BTC":"BINANCE:BTCUSDT","ETH":"BINANCE:ETHUSDT","SOL":"BINANCE:SOLUSDT","XRP":"BINANCE:XRPUSDT",
+    "BNB":"BINANCE:BNBUSDT","DOGE":"BINANCE:DOGEUSDT",
+    "US30":"FOREXCOM:DJI","US100":"FOREXCOM:NSXUSD","US500":"FOREXCOM:SPXUSD","GER40":"FOREXCOM:GRXEUR",
+    "UK100":"FOREXCOM:UKXGBP","FRA40":"FOREXCOM:FRXEUR","JP225":"FOREXCOM:JPXJPY",
+    "AAPL":"NASDAQ:AAPL","TSLA":"NASDAQ:TSLA","NVDA":"NASDAQ:NVDA","AMZN":"NASDAQ:AMZN",
+    "MSFT":"NASDAQ:MSFT","META":"NASDAQ:META","AMD":"NASDAQ:AMD","GOOGL":"NASDAQ:GOOGL"
+  };
+  function tvSymbol(instr){
+    instr=String(instr||"").trim();
+    if(!instr) return "";
+    if(TV_SYMBOLS[instr]) return TV_SYMBOLS[instr];
+    if(TV_SYMBOLS[instr.toUpperCase()]) return TV_SYMBOLS[instr.toUpperCase()];
+    return instr.indexOf(":")>=0 ? instr : instr.toUpperCase();   // laisse TradingView résoudre le reste
+  }
+  // Monte un widget TradingView dans un conteneur, en repartant de zéro à
+  // chaque appel (sinon on empile les iframes) et en suivant le thème actif.
+  function tvMount(wrap, script, config, offlineEl){
+    if(!wrap) return;
+    if(offlineEl) offlineEl.classList.add("hidden");
+    wrap.innerHTML='<div class="tradingview-widget-container" style="height:100%;width:100%">'
+      +'<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div></div>';
+    if(!navigator.onLine){ if(offlineEl) offlineEl.classList.remove("hidden"); return; }
+    var sc=document.createElement("script");
+    sc.type="text/javascript"; sc.async=true;
+    sc.src="https://s3.tradingview.com/external-embedding/"+script;
+    if(offlineEl) sc.onerror=function(){ offlineEl.classList.remove("hidden"); };
+    sc.text=JSON.stringify(config);
+    wrap.querySelector(".tradingview-widget-container").appendChild(sc);
+  }
+
+  var newsMarket="futures";
+  function buildNews(){
+    var wrap=el("newsWidgetWrap"), off=el("newsOffline");
+    tvMount(wrap, "embed-widget-timeline.js", {
+      feedMode:"market", market:newsMarket, isTransparent:true, displayMode:"regular",
+      colorTheme:resolvedTheme(), locale:"fr", width:"100%", height:"100%"
+    }, off);
+    // Même filet que le calendrier : si aucune iframe n'est apparue au bout de
+    // 8 s, c'est que le script n'est jamais arrivé (réseau, bloqueur).
+    setTimeout(function(){ if(view.tab==="calendar" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
+  }
+  function loadEconWidget(){ buildTV(); buildInvesting(); buildNews(); }
 
   function buildTV(){
     var wrap=el("econWidgetWrap"), off=el("econOffline");
-    off.classList.add("hidden");
-    // on reconstruit le conteneur à chaque fois (évite les iframes en double)
-    wrap.innerHTML='<div class="tradingview-widget-container" style="height:100%;width:100%">'
-      +'<div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>'
-      +'<div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span>Track all markets on TradingView</span></a></div>'
-      +'</div>';
-    if(!navigator.onLine){ off.classList.remove("hidden"); return; }
-    var s=document.createElement("script");
-    s.type="text/javascript";
-    s.src="https://s3.tradingview.com/external-embedding/embed-widget-events.js";
-    s.async=true;
-    s.onerror=function(){ off.classList.remove("hidden"); };
-    s.text=JSON.stringify({colorTheme:resolvedTheme(),isTransparent:true,locale:"fr",countryFilter:"us,eu,fr,gb,jp",importanceFilter:"-1,0,1",width:"100%",height:"100%"});
-    wrap.querySelector(".tradingview-widget-container").appendChild(s);
+    tvMount(wrap, "embed-widget-events.js", {colorTheme:resolvedTheme(),isTransparent:true,locale:"fr",
+      countryFilter:"us,eu,fr,gb,jp",importanceFilter:"-1,0,1",width:"100%",height:"100%"}, off);
     setTimeout(function(){ if(view.tab==="calendar" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
   }
 
@@ -5547,7 +5667,7 @@
     container.appendChild(add);
   }
   var onbActive=false;
-  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("calcDrawer").classList.remove("open"); el("pbDrawer").classList.remove("open"); el("noteDrawer").classList.remove("open"); }
+  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("calcDrawer").classList.remove("open"); el("pbDrawer").classList.remove("open"); el("noteDrawer").classList.remove("open"); el("chartDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   // Verrou de scroll iOS-safe : overflow:hidden seul ne bloque pas le scroll tactile
   // derrière un popup sur iOS Safari. Tant qu'un tiroir OU la modale de confirmation
@@ -5631,10 +5751,18 @@
     el("overlay").classList.add("open"); el("appDrawer").classList.add("open");
   }
   document.querySelectorAll("#themeSeg button").forEach(function(b){ b.addEventListener("click",function(){ setThemePref(b.dataset.themePref); }); });
+  document.querySelectorAll("#newsSeg button").forEach(function(b){
+    b.addEventListener("click",function(){
+      newsMarket=b.dataset.market;
+      document.querySelectorAll("#newsSeg button").forEach(function(x){ x.classList.toggle("sel", x===b); });
+      buildNews();
+    });
+  });
   el("noteHelpBtn").addEventListener("click", openNoteDrawer);
   el("noteDone").addEventListener("click", closeDrawer);
   el("calcBtn").addEventListener("click", openCalcDrawer);
   el("calcDone").addEventListener("click", closeDrawer);
+  el("chartDone").addEventListener("click", function(){ el("chartWrap").innerHTML=""; closeDrawer(); });
   el("expSessBtn").addEventListener("click", exportSessionsCSV);
   el("expTradesBtn").addEventListener("click", exportTradesCSV);
   el("analysisLockSubBtn").addEventListener("click",function(){ openUpsell(el("analysisLockSubBtn")); });
