@@ -803,7 +803,7 @@
   .dw-tool{width:24px;height:24px;border-radius:7px;border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
   .dw-tool:hover{color:var(--txt);border-color:var(--txt-faint);}
   .dw-tool.del:hover{color:var(--red);border-color:var(--red);}
-  .dw-tool.grab{cursor:grab;}
+  .dw-tool.move{cursor:grab;}
   .dw-size{display:none;position:absolute;left:12px;bottom:9px;font-size:10.5px;font-weight:700;color:var(--accent);background:var(--accent-dim);border-radius:7px;padding:2px 7px;pointer-events:none;}
   .dash.editing .dw-size{display:block;}
   .dw-grip{display:none;position:absolute;right:0;bottom:0;width:26px;height:26px;cursor:nwse-resize;touch-action:none;}
@@ -3617,7 +3617,7 @@
     // comme les autres, mais jamais retirable — c'est la porte d'entrée du
     // Journal, elle ne doit jamais pouvoir disparaître du tableau de bord.
     head.innerHTML='<span class="dw-ic">'+(def.ic||"▪")+'</span><span class="dw-t">'+esc(def.name)+'</span>'+
-                   '<span class="dw-tools"><button class="dw-tool grab" type="button" title="Déplacer">✥</button>'+
+                   '<span class="dw-tools"><button class="dw-tool move" type="button" title="Déplacer">✥</button>'+
                    (def.pinned ? '' : '<button class="dw-tool del" type="button" title="Retirer">✕</button>')+'</span>';
     var body=document.createElement("div"); body.className="dw-b";
     var size=document.createElement("span"); size.className="dw-size";
@@ -3885,7 +3885,7 @@
       if(def.interactive) wrap.dataset.interactive="1";
       var head=document.createElement("div"); head.className="dw-h";
       head.innerHTML='<span class="dw-ic">'+(def.ic||"▪")+'</span><span class="dw-t">'+esc(def.name)+'</span>'+
-                     '<span class="dw-tools"><button class="dw-tool grab" type="button" title="Déplacer">✥</button>'+
+                     '<span class="dw-tools"><button class="dw-tool move" type="button" title="Déplacer">✥</button>'+
                      '<button class="dw-tool del" type="button" title="Retirer">✕</button></span>';
       var body=document.createElement("div"); body.className="dw-b";
       var size=document.createElement("span"); size.className="dw-size";
