@@ -158,12 +158,11 @@
   .news-seg button{border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;
     font-size:12px;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer;}
   .news-seg button.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
-  /* Ligne « Par marché / Par instrument / Tout » : un cran au-dessus des
-     familles, donc un peu plus discrète que la ligne du dessous. */
-  .news-modes{margin-bottom:8px;}
-  .news-modes button{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;}
-  .news-hint{font-size:12px;color:var(--txt-faint);margin-bottom:10px;}
-  .news-sym{margin-bottom:10px;}
+  /* Filtre du fil d'actualités : un unique sélecteur déroulant, pas un module
+     à plusieurs étages posé sur le widget. */
+  .news-sel-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .news-sel-row label{font-size:11.5px;font-weight:700;color:var(--txt-faint);text-transform:uppercase;letter-spacing:.04em;flex:0 0 auto;}
+  .news-sel-row select{flex:1;min-width:0;}
   /* --- Outils : fiche contrat, minuteur, horloges --- */
   .tw-specs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0;}
   .tw-specs>div{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px 9px;min-width:0;}
@@ -176,10 +175,7 @@
   .tw-lab{font-size:12px;color:var(--txt-dim);text-align:center;margin:5px 0 10px;line-height:1.4;}
   .tw-presets{justify-content:center;}
   .dw-newsbar{flex:0 0 auto;padding-bottom:2px;}
-  .dw-newsbar .news-seg{margin-bottom:6px;gap:5px;}
-  .dw-newsbar .news-seg button{padding:4px 9px;font-size:11px;}
-  .dw-newsbar .news-modes{margin-bottom:6px;}
-  .dw-newsbar .news-hint,.dw-newsbar .news-sym{margin-bottom:6px;}
+  .dw-newsbar .news-sel-row{margin-bottom:6px;}
   /* Widget graphique : sélecteur de symbole au-dessus de l'iframe. */
   .dw-chart{display:flex;flex-direction:column;height:100%;min-height:0;}
   .dw-chart > .dw-sym{border:none;border-bottom:1px solid var(--line);border-radius:0;margin:0;flex:0 0 auto;}
@@ -426,6 +422,13 @@
   .tabbar .tb-locked{display:none;}
   .tb-lock{width:15px;height:15px;flex:0 0 auto;margin-left:auto;opacity:.75;}
   .tb-lock svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  /* Petite bulle « Prochainement » au survol/tap de l'entrée verrouillée,
+     plutôt que la bulle native du navigateur (lente, peu lisible). */
+  .tb-tip{position:absolute;left:50%;bottom:100%;margin-bottom:9px;transform:translate(-50%,4px);
+    background:var(--surface-2);color:var(--txt);border:1px solid var(--line);box-shadow:0 6px 18px rgba(0,0,0,.2);
+    font-size:11.5px;font-weight:700;padding:6px 10px;border-radius:9px;white-space:nowrap;
+    opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:5;}
+  .tb-locked:hover .tb-tip, .tb-locked:focus-visible .tb-tip, .tb-locked.tb-tip-show .tb-tip{opacity:1;transform:translate(-50%,0);}
   .tab{flex:1;background:none;border:none;font-family:inherit;color:var(--txt-faint);display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 0;cursor:pointer;font-size:10.5px;font-weight:700;-webkit-tap-highlight-color:transparent;border-radius:14px;transition:color .15s,background .15s;}
   /* Sous-titre du Calendrier ("Économique et actualité") : réservé à la sidebar
      ordinateur (voir plus bas) — pas de place pour lui dans la barre mobile. */
@@ -712,12 +715,6 @@
   .dash-btn.solid:hover{color:var(--on-accent);}
   .dash-grid{display:grid;grid-template-columns:repeat(var(--dash-cols,6),minmax(0,1fr));grid-auto-rows:var(--dash-row,116px);grid-auto-flow:row dense;gap:14px;align-items:stretch;}
   .dash-empty{grid-column:1/-1;border:1px dashed var(--line);border-radius:var(--radius);padding:34px 20px;text-align:center;color:var(--txt-dim);font-size:14px;line-height:1.6;}
-  /* Ligne fixe au-dessus de la grille de widgets : même rythme de colonnes/
-     marges que #dashGrid, pour que l'entrée « Analyse » reste alignée et
-     homogène, sans jamais être déplaçable/redimensionnable comme un widget. */
-  .dash-pinned-row{ margin-bottom:14px; }
-  .dash-pinned-row:empty{ display:none; }
-  .dash-pinned-row > .nav-tile{ grid-column:1/-1; margin-top:0; box-shadow:var(--sh-card); }
 
   .dw{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--sh-card);position:relative;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
   .dw-h{display:flex;align-items:center;gap:8px;padding:13px 15px 0;flex:0 0 auto;}
@@ -1209,10 +1206,6 @@
         <button class="dash-btn hidden" id="dashResetBtn" type="button">↺ Réinitialiser</button>
         <button class="dash-btn solid hidden" id="dashDoneBtn" type="button">✓ Terminé</button>
       </div>
-      <!-- Emplacement fixe, aligné sur la grille : accueille l'entrée vers
-           l'Analyse (voir #anCumulBtn plus bas), toujours à la même place,
-           jamais déplaçable ni redimensionnable. -->
-      <div class="dash-grid dash-pinned-row" id="dashPinnedRow"></div>
       <div class="dash-grid" id="dashGrid"></div>
     </div>
 
@@ -1260,21 +1253,6 @@
     </div>
 
     </div><!-- /#globalLegacy -->
-
-    <!-- Hors de #globalLegacy : reste accessible aussi sur ordinateur — c'est
-         la porte d'entrée de l'analyse discipline & psychologie, à ne jamais
-         laisser disparaître. Sur ordinateur, applyAnCumulLayout() déplace ce
-         bouton dans #dashPinnedRow (juste au-dessus de la grille de widgets,
-         toujours à la même place, jamais déplaçable/redimensionnable) ; sur
-         mobile/tablette il reste ici, à sa position d'origine. -->
-    <button class="nav-tile" id="anCumulBtn" type="button">
-      <span class="nt-ic">📊</span>
-      <span>
-        <span class="nt-t">Analyse cumulée</span>
-        <span class="nt-s">Discipline & psychologie · choisis tes comptes</span>
-      </span>
-      <span class="nt-arr">›</span>
-    </button>
   </div>
 
   <!-- ========== VUE D'UN COMPTE (journal du compte) ========== -->
@@ -1385,8 +1363,16 @@
     </div>
   </div>
 
-  <!-- ========== ANALYSE (coach psycho, intégrée au Journal) ========== -->
+  <!-- ========== ANALYSE (coach discipline & psychologie) ========== -->
   <div id="screenAnalysis" class="hidden">
+    <button class="nav-tile hidden" id="anPickBtn" type="button">
+      <span class="nt-ic">👤</span>
+      <span>
+        <span class="nt-t" id="anPickBtnT">Tous les comptes</span>
+        <span class="nt-s">Touche pour choisir les comptes analysés</span>
+      </span>
+      <span class="nt-arr">›</span>
+    </button>
     <div id="analysisBody"></div>
   </div>
 
@@ -1505,12 +1491,13 @@
   </div>
   <button class="tab" data-tab="plan" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 10h7M8.5 14h7M8.5 18h4"/></svg></span><span class="tt">Plan</span></button>
   <button class="tab primary" data-tab="journal" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="13" height="18" rx="2"/><path d="M9.5 3v18"/><path d="M12.5 8.5h4M12.5 12.5h4"/></svg></span><span class="tt">Journal</span></button>
+  <button class="tab" data-tab="analysis" type="button"><span class="ti"><svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M7 19V10M12 19V5M17 19v-7"/></svg></span><span class="tt">Analyse</span></button>
   <button class="tab" data-tab="calendar" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg></span><span class="tt-col"><span class="tt">Calendrier</span><span class="tt-sub">Économique et actualité</span></span></button>
   <button class="tab" data-tab="tools" type="button"><span class="ti"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2-2z"/></svg></span><span class="tt">Outils</span></button>
   <!-- Prop firm : chantier en cours, volontairement inaccessible. Masqué sur
        mobile (la barre du bas n'a que 5 places) et présenté en bas de la
        sidebar ordinateur, cadenassé, pour annoncer ce qui arrive. -->
-  <button class="tab tb-locked" data-locked="propfirm" type="button" disabled aria-disabled="true" title="Bientôt disponible"><span class="ti"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9.2 12l2 2 3.6-3.8"/></svg></span><span class="tt">Propfirm</span><span class="tb-lock" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></button>
+  <button class="tab tb-locked" data-locked="propfirm" type="button" aria-disabled="true" aria-label="Propfirm — prochainement"><span class="ti"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9.2 12l2 2 3.6-3.8"/></svg></span><span class="tt">Propfirm</span><span class="tb-lock" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><span class="tb-tip" role="status" aria-hidden="true">Prochainement</span></button>
   <button class="tab tb-settings" id="sidebarSettingsBtn" type="button"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.1"/><path d="M19.1 14.4a1.5 1.5 0 0 0 .3 1.7l.05.05a1.9 1.9 0 1 1-2.65 2.65l-.05-.05a1.5 1.5 0 0 0-1.7-.3 1.5 1.5 0 0 0-.9 1.37v.13a1.9 1.9 0 1 1-3.8 0v-.07a1.5 1.5 0 0 0-.98-1.37 1.5 1.5 0 0 0-1.7.3l-.05.05A1.9 1.9 0 1 1 4.87 16.2l.05-.05a1.5 1.5 0 0 0 .3-1.7 1.5 1.5 0 0 0-1.37-.9h-.13a1.9 1.9 0 1 1 0-3.8h.07a1.5 1.5 0 0 0 1.37-.98 1.5 1.5 0 0 0-.3-1.7l-.05-.05A1.9 1.9 0 1 1 7.46 4.37l.05.05a1.5 1.5 0 0 0 1.7.3h.07a1.5 1.5 0 0 0 .9-1.37v-.13a1.9 1.9 0 1 1 3.8 0v.07a1.5 1.5 0 0 0 .9 1.37 1.5 1.5 0 0 0 1.7-.3l.05-.05a1.9 1.9 0 1 1 2.65 2.65l-.05.05a1.5 1.5 0 0 0-.3 1.7v.07a1.5 1.5 0 0 0 1.37.9h.13a1.9 1.9 0 1 1 0 3.8h-.07a1.5 1.5 0 0 0-1.37.9z"/></svg></span><span class="tt">Paramètres du compte</span></button>
 </nav>
 
@@ -2541,26 +2528,9 @@
         }
       });
     });
-    applyAnCumulLayout();
   }
   try{ _railMql.addEventListener("change", applyRailLayout); }catch(e){ try{ _railMql.addListener(applyRailLayout); }catch(_){} }
   window.addEventListener("resize", applyRailLayout);
-
-  // ---- Entrée « Analyse cumulée » : même mécanique que le rail ci-dessus.
-  // Sur ordinateur, elle rejoint #dashPinnedRow (juste au-dessus de la grille
-  // de widgets, toujours au même endroit, jamais déplaçable/redimensionnable) ;
-  // sur mobile/tablette, elle reste à sa position d'origine dans le DOM.
-  var _anCumulOrig = null;
-  function applyAnCumulLayout(){
-    var btn = el("anCumulBtn"), slot = el("dashPinnedRow");
-    if(!btn || !slot) return;
-    if(!_anCumulOrig) _anCumulOrig = { parent: btn.parentNode, next: btn.nextSibling };
-    if(_railMql.matches){
-      if(btn.parentNode !== slot) slot.appendChild(btn);
-    } else if(btn.parentNode !== _anCumulOrig.parent) {
-      _anCumulOrig.parent.insertBefore(btn, _anCumulOrig.next);
-    }
-  }
 
   // navigation (onglets)
   var view={tab:"journal", jlevel:"accounts", accId:null, editKey:null, anIds:[]};
@@ -4164,14 +4134,19 @@
     return d;
   }
   function twClocks(b){
-    var st={tz:"America/New_York", t:"14:30"};
-    try{ var r=JSON.parse(localStorage.getItem("edgioClocks")||"null"); if(r&&r.tz) st=r; }catch(e){}
+    var st={tz:"America/New_York", t:"14:30", live:false};
+    try{ var r=JSON.parse(localStorage.getItem("edgioClocks")||"null");
+      if(r&&r.tz){ st.tz=r.tz; if(r.t)st.t=r.t; st.live=!!r.live; }
+    }catch(e){}
+    function nowInTz(){ var n=dashTzNow(st.tz); return n?n.txt:st.t; }
     function draw(){
+      if(st.live) st.t=nowInTz();      // toujours l'heure actuelle du fuseau de référence
       var h='<div class="cx-grid">'
-        +'<div class="cx-f"><label>Heure annoncée</label><input type="time" data-k="t" value="'+esc(st.t)+'"></div>'
+        +'<div class="cx-f"><label>Heure annoncée</label><input type="time" data-k="t" value="'+esc(st.t)+'"'+(st.live?" disabled":"")+'></div>'
         +'<div class="cx-f"><label>Dans le fuseau</label><select class="cx-sel" data-k="tz">'
         +TW_ZONES.map(function(z){ return '<option value="'+z[0]+'"'+(z[0]===st.tz?" selected":"")+'>'+z[1]+'</option>'; }).join("")
         +'</select></div></div>';
+      h+='<div class="news-seg tw-presets"><button type="button" data-act="live"'+(st.live?' class="sel"':'')+'>🕒 '+(st.live?"Heure actuelle — activée":"Utiliser l'heure actuelle")+'</button></div>';
       var m=String(st.t||"").match(/^(\d{1,2}):(\d{2})$/);
       var src=twOffset(st.tz);
       if(m&&src!==null){
@@ -4185,7 +4160,9 @@
             +(day>0?" (+1 j)":day<0?" (−1 j)":"")+(z[0]===st.tz?" · référence":"")+'</span></div>';
         }).join("")+'</div>';
       } else h+='<div class="dw-sub">Entre une heure pour la voir dans les autres places.</div>';
-      h+='<div class="dw-sub">Changements d\'heure inclus : les écarts sont ceux d\'aujourd\'hui, pas des écarts figés.</div>';
+      h+='<div class="dw-sub">'+(st.live
+        ? "Se met à jour automatiquement avec l'heure de ton appareil : plus besoin de recalculer un créneau qui a déjà changé."
+        : "Changements d'heure inclus : les écarts sont ceux d'aujourd'hui, pas des écarts figés.")+'</div>';
       b.innerHTML=h;
       b.querySelectorAll("[data-k]").forEach(function(i){
         i.addEventListener(i.tagName==="SELECT"?"change":"input",function(){
@@ -4195,8 +4172,17 @@
           var back=b.querySelector('[data-k="'+i.dataset.k+'"]'); if(back) back.focus();
         });
       });
+      var liveBtn=b.querySelector('[data-act="live"]');
+      if(liveBtn) liveBtn.onclick=function(){
+        st.live=!st.live; if(st.live) st.t=nowInTz();
+        try{ localStorage.setItem("edgioClocks",JSON.stringify(st)); }catch(e){}
+        draw();
+      };
     }
     draw();
+    // Tant que l'heure actuelle est active et le widget monté, on redessine
+    // pour suivre la minute qui passe.
+    var iv=setInterval(function(){ if(!b.isConnected){ clearInterval(iv); return; } if(st.live) draw(); },15000);
   }
 
   var TOOLS_WIDGETS = {
@@ -5049,6 +5035,12 @@
     var ids=view.anIds||[];
     var accs=accounts.filter(function(a){return ids.indexOf(a.id)>=0;});
     if(accs.length===0) accs=accounts.slice();
+    var pickBtn=el('anPickBtn');
+    if(pickBtn){
+      pickBtn.classList.toggle('hidden', accounts.length<=1);
+      var pickT=el('anPickBtnT');
+      if(pickT) pickT.textContent = accs.length===accounts.length ? "Tous les comptes" : (accs.length===1 ? accs[0].name : accs.length+" comptes");
+    }
     var body=el('analysisBody'); body.innerHTML='';
     if(accs.length===0){ body.innerHTML='<div class="an-card"><div class="an-txt"><span class="an-empty">Aucun compte à analyser.</span></div></div>'; return; }
     var sessions=[]; accs.forEach(function(a){ Object.keys(a.sessions).forEach(function(k){ sessions.push(a.sessions[k]); }); });
@@ -5108,7 +5100,8 @@
   el("anPickGo").addEventListener("click",function(){
     var ids=accounts.filter(function(a){return anPickSel[a.id];}).map(function(a){return a.id;});
     if(ids.length===0){ showToast("Sélectionne au moins un compte"); return; }
-    closeDrawer(); openAnalysis(ids,"accounts");
+    view.anIds = ids.length===accounts.length ? [] : ids;   // [] = tous les comptes
+    closeDrawer(); showTab("analysis");
   });
 
   // ============ NAVIGATION PAR ONGLETS ============
@@ -5131,6 +5124,7 @@
     view.tab=tab;
     document.querySelectorAll('#tabbar .tab[data-tab]').forEach(function(t){ t.classList.toggle("on", t.dataset.tab===tab); });
     if(tab==="journal"){ renderJournalTab(); }
+    else if(tab==="analysis"){ el("screenAnalysis").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Analyse","Discipline & psychologie", true); renderAnalysisScreen(); }
     else if(tab==="plan"){ el("screenPlan").classList.remove("hidden"); if(a){ setGearBadge("📋"); } else { el("gearBtn").classList.add("hidden"); } setTitle("Plan de trading", a?a.name:"", true); renderPlan(); }
     else if(tab==="calendar"){ el("screenCalendar").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Calendrier","Économique et actualité", true); loadEconWidget(); calBoard.render(); }
     else if(tab==="propfirm"){ el("screenPropfirm").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Prop firm", "Briefing pré-séance", true); renderPropfirm(); }
@@ -5142,22 +5136,20 @@
     refreshAds();
     requestAnimationFrame(updateTopbarHeight);
   }
-  // niveaux du Journal : tous comptes -> un compte -> une séance ; + analyse intégrée
+  // niveaux du Journal : tous comptes -> un compte -> une séance
   function renderJournalTab(){
     var a=acc(), lvl=view.jlevel||"accounts";
     if(lvl!=="accounts" && !a){ lvl="accounts"; view.jlevel="accounts"; }
     el("screenGlobal").classList.toggle("hidden", lvl!=="accounts");
     el("screenAccount").classList.toggle("hidden", lvl!=="account");
     el("screenSession").classList.toggle("hidden", lvl!=="session");
-    el("screenAnalysis").classList.toggle("hidden", lvl!=="analysis");
     if(lvl==="accounts"){ el("backBtn").classList.add("hidden"); setGearBadge("👤"); setTitle("Journal", frDate(), true); renderGlobal(); }
     else if(lvl==="account"){ el("backBtn").classList.remove("hidden"); setGearBadge("📓"); setTitle(a.name, a.type+" · journal du compte", true); renderAccountOverview(a); }
-    else if(lvl==="analysis"){ el("backBtn").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); var multi=(view.anIds||[]).length>1; setTitle("Analyse", multi?"Tous comptes · discipline & psycho":(a?a.name:"")+" · discipline & psycho", true); renderAnalysisScreen(); }
     else { el("backBtn").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); var isToday=view.editKey===todayKey(); setTitle(isToday?"Séance du jour":labelKey(view.editKey), a.name+" · "+(isToday?"aujourd'hui":labelKey(view.editKey)), false); renderSession(); }
   }
   function currentScreenId(){
-    if(view.tab==="plan")return "screenPlan"; if(view.tab==="calendar")return "screenCalendar"; if(view.tab==="propfirm")return "screenPropfirm"; if(view.tab==="tools")return "screenTools";
-    var lvl=view.jlevel||"accounts"; return lvl==="accounts"?"screenGlobal":lvl==="account"?"screenAccount":lvl==="analysis"?"screenAnalysis":"screenSession";
+    if(view.tab==="plan")return "screenPlan"; if(view.tab==="analysis")return "screenAnalysis"; if(view.tab==="calendar")return "screenCalendar"; if(view.tab==="propfirm")return "screenPropfirm"; if(view.tab==="tools")return "screenTools";
+    var lvl=view.jlevel||"accounts"; return lvl==="accounts"?"screenGlobal":lvl==="account"?"screenAccount":"screenSession";
   }
   function animateTab(){ var e=el(currentScreenId()); if(!e) return; e.classList.remove("anim-r","anim-l"); void e.offsetWidth; e.classList.add("anim-r"); window.scrollTo(0,0); }
   function showTab(tab){ applyTab(tab); animateTab(); }
@@ -5165,10 +5157,10 @@
 
   function openAccountView(id){ setActiveAccount(id); view.tab="journal"; view.jlevel="account"; showTab("journal"); }
   function openSession(key){ saveJournal(); view.editKey=key; view.tab="journal"; view.jlevel="session"; showTab("journal"); }
-  // Point d'entrée UNIQUE de la section Analyse : verrouillée hors essai / hors abonnement actif.
-  function openAnalysis(ids,from){
+  // Ouvre la page Analyse (onglet à part), verrouillée hors essai / hors abonnement actif.
+  function openAnalysis(ids){
     if(!premiumActive()){ showAnalysisLock(); return; }
-    view.anIds=ids; view.anFrom=from; view.tab="journal"; view.jlevel="analysis"; showTab("journal");
+    view.anIds=ids||[]; showTab("analysis");
   }
   function renderAccountOverview(a){
     var st=accStats(a);
@@ -5178,12 +5170,25 @@
     renderJournalHistory(a);
   }
 
+  // ---- entrée verrouillée (Propfirm) : pas de navigation, juste une bulle
+  // « Prochainement » — au survol sur ordinateur (CSS), au tap ici (le survol
+  // n'existe pas au toucher, et un bouton sans data-tab ne mène nulle part).
+  document.querySelectorAll('.tb-locked').forEach(function(t){
+    t.addEventListener("click",function(e){
+      e.preventDefault();
+      t.classList.add("tb-tip-show");
+      clearTimeout(t._tipT);
+      t._tipT=setTimeout(function(){ t.classList.remove("tb-tip-show"); },1800);
+    });
+  });
+
   // ---- onglets : clics ----
   document.querySelectorAll('#tabbar .tab[data-tab]').forEach(function(t){
     t.addEventListener("click",function(){
       if(view.tab==="journal" && view.jlevel==="session") saveJournal();
       var target=t.dataset.tab;
       if(target==="journal") view.jlevel="accounts";
+      if(target==="analysis" && !premiumActive()){ showAnalysisLock(); return; }
       showTab(target);
     });
   });
@@ -5192,10 +5197,9 @@
   el("dateGo").addEventListener("click",function(){ var v=el("newSessDate").value||todayKey(); closeDrawer(); openSession(v); });
   window.addEventListener("resize", updateTopbarHeight);
   // points d'entrée Analyse
-  el("anAcctBtn").addEventListener("click",function(){ var a=acc(); if(!a)return; openAnalysis([a.id],"account"); });
-  el("anCumulBtn").addEventListener("click",function(){
+  el("anAcctBtn").addEventListener("click",function(){ var a=acc(); if(!a)return; openAnalysis([a.id]); });
+  el("anPickBtn").addEventListener("click",function(){
     if(accounts.length===0){ showToast("Aucun compte"); return; }
-    if(accounts.length===1){ openAnalysis([accounts[0].id],"accounts"); return; }
     openAnalysisPicker();
   });
   el("finishSessionBtn").addEventListener("click",function(){
@@ -6103,7 +6107,6 @@
   el("backBtn").addEventListener("click",function(){
     if(view.tab!=="journal") return;
     if(view.jlevel==="session"){ saveJournal(); view.jlevel="account"; showTab("journal"); }
-    else if(view.jlevel==="analysis"){ view.jlevel = (view.anFrom==="account")?"account":"accounts"; showTab("journal"); }
     else if(view.jlevel==="account"){ view.jlevel="accounts"; showTab("journal"); }
   });
 
@@ -6150,61 +6153,40 @@
     wrap.querySelector(".tradingview-widget-container").appendChild(sc);
   }
 
-  /* ---------- Fil d'actualités : filtres ----------
-     Le widget TradingView accepte trois modes de flux. On les expose tous les
-     trois au lieu du seul « par marché » : par marché (5 familles), par
-     instrument (notre propre liste, la même que le graphique) et tout le fil.
-     La préférence est partagée entre la carte mobile et le widget ordinateur,
-     et survit au rechargement. */
-  var NEWS_MARKETS=[["futures","Futures"],["forex","Forex"],["index","Indices"],["crypto","Crypto"],["stock","Actions"]];
+  /* ---------- Fil d'actualités : filtre ----------
+     Un unique sélecteur déroulant pour choisir la catégorie du fil (au lieu
+     d'un mini-module à deux étages posé sur le widget) : plus simple à
+     comprendre, une seule interaction. La préférence est partagée entre la
+     carte mobile et le widget ordinateur, et survit au rechargement. */
+  var NEWS_CATS=[["all","Toutes les actualités"],["futures","Futures"],["forex","Forex"],["index","Indices"],["crypto","Crypto"],["stock","Actions"]];
   var NEWS_KEY="edgioNews";
   var newsPref=(function(){
-    var d={mode:"market", market:"futures", symbol:"CME_MINI:NQ1!"};
+    var d={cat:"futures"};
     try{ var r=JSON.parse(localStorage.getItem(NEWS_KEY)||"null");
-      if(r&&typeof r==="object"){ if(r.mode)d.mode=r.mode; if(r.market)d.market=r.market; if(r.symbol)d.symbol=r.symbol; }
+      if(r&&typeof r==="object"){
+        if(r.cat) d.cat=r.cat;
+        else if(r.mode==="all") d.cat="all";       // migration de l'ancien format (mode+market/symbol)
+        else if(r.mode==="market"&&r.market) d.cat=r.market;
+      }
     }catch(e){}
+    if(!NEWS_CATS.some(function(c){return c[0]===d.cat;})) d.cat="futures";
     return d;
   })();
   function newsSave(){ try{ localStorage.setItem(NEWS_KEY, JSON.stringify(newsPref)); }catch(e){} }
   function newsConfig(){
-    if(newsPref.mode==="all")    return {feedMode:"all_symbols"};
-    if(newsPref.mode==="symbol") return {feedMode:"symbol", symbol:newsPref.symbol||"CME_MINI:NQ1!"};
-    return {feedMode:"market", market:newsPref.market||"futures"};
+    if(newsPref.cat==="all") return {feedMode:"all_symbols"};
+    return {feedMode:"market", market:newsPref.cat};
   }
-  // Construit la barre de filtres dans `host` et rappelle `onChange` à chaque
-  // modification. Utilisée telle quelle par la carte mobile et par le widget.
+  // Construit le sélecteur dans `host` et rappelle `onChange` à chaque
+  // modification. Utilisé tel quel par la carte mobile et par le widget.
   function newsControls(host,onChange){
     function draw(){
-      var h='<div class="news-seg news-modes">'
-        +[["market","Par marché"],["symbol","Par instrument"],["all","Tout"]].map(function(m){
-            return '<button type="button" data-mode="'+m[0]+'"'+(newsPref.mode===m[0]?' class="sel"':'')+'>'+m[1]+'</button>';
-          }).join("")
-        +'</div>';
-      if(newsPref.mode==="market"){
-        h+='<div class="news-seg">'+NEWS_MARKETS.map(function(m){
-          return '<button type="button" data-market="'+m[0]+'"'+(newsPref.market===m[0]?' class="sel"':'')+'>'+m[1]+'</button>';
-        }).join("")+'</div>';
-      } else if(newsPref.mode==="symbol"){
-        var o="";
-        Object.keys(INSTRUMENTS).forEach(function(g){
-          o+='<optgroup label="'+esc(g)+'">';
-          INSTRUMENTS[g].forEach(function(c){ var v=tvSymbol(c);
-            o+='<option value="'+esc(v)+'"'+(v===newsPref.symbol?" selected":"")+'>'+esc(c)+'</option>'; });
-          o+='</optgroup>';
-        });
-        h+='<select class="cx-sel news-sym">'+o+'</select>';
-      } else {
-        h+='<div class="news-hint">Toutes les actualités du marché, sans filtre.</div>';
-      }
+      var h='<div class="news-sel-row"><label for="newsCatSel">Catégorie</label>'
+        +'<select class="cx-sel" id="newsCatSel">'
+        +NEWS_CATS.map(function(c){ return '<option value="'+c[0]+'"'+(newsPref.cat===c[0]?" selected":"")+'>'+c[1]+'</option>'; }).join("")
+        +'</select></div>';
       host.innerHTML=h;
-      host.querySelectorAll("[data-mode]").forEach(function(b){
-        b.onclick=function(){ newsPref.mode=b.dataset.mode; newsSave(); draw(); onChange(); };
-      });
-      host.querySelectorAll("[data-market]").forEach(function(b){
-        b.onclick=function(){ newsPref.market=b.dataset.market; newsSave(); draw(); onChange(); };
-      });
-      var sel=host.querySelector(".news-sym");
-      if(sel) sel.onchange=function(){ newsPref.symbol=sel.value; newsSave(); onChange(); };
+      host.querySelector("#newsCatSel").onchange=function(){ newsPref.cat=this.value; newsSave(); onChange(); };
     }
     draw();
   }
