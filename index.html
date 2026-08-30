@@ -569,7 +569,8 @@
   body:has(.overlay.open) .topbar,
   body:has(.overlay.open) .app,
   body:has(.overlay.open) .bottombar,
-  body:has(.overlay.open) .tabbar{pointer-events:none;}
+  body:has(.overlay.open) .tabbar,
+  body:has(.overlay.open) .tb-collapse-btn{pointer-events:none;}
   /* body.scroll-locked : posé par JS (voir plus bas) en complément de overflow:hidden.
      Sur iOS Safari, overflow:hidden seul ne bloque pas le scroll tactile de la page
      derrière un tiroir/modale : on fige donc aussi le body en position:fixed pendant
@@ -887,14 +888,17 @@
       font-size:11.5px; font-weight:600; color:var(--txt-dim); margin-top:3px; white-space:nowrap;
     }
     /* petit filet de séparation avant les onglets */
-    .tb-brand{ border-bottom:1px solid var(--line); margin:0 -4px 10px; padding-bottom:12px; }
+    .tb-brand{ border-bottom:1px solid var(--line); margin:0 -4px 10px; padding-bottom:17px; }
     /* Bouton pour réduire/étendre la sidebar : à cheval sur la bordure de la
        colonne (à moitié dans le menu, à moitié dans le contenu), plutôt que
        dans la ligne du logo — pour ne jamais risquer de faire passer "Mon
-       Journal de Trading" à la ligne et décaler le filet sous le logo. */
+       Journal de Trading" à la ligne et décaler le filet sous le logo.
+       En position:fixed par rapport à la fenêtre (et non plus ancré à la
+       sidebar) : un ascendant avec overflow-y:auto force sinon un clip en x
+       qui rognait la moitié débordant sur le contenu. */
     .tb-collapse-btn{
-      position:absolute; left:100%; top:41px; transform:translate(-50%,-50%);
-      width:24px; height:24px; border-radius:50%; z-index:10;
+      position:fixed; left:var(--sidebarW); top:41px; transform:translate(-50%,-50%);
+      width:24px; height:24px; border-radius:50%; z-index:101;
       border:1px solid var(--line); background:var(--surface-2); color:var(--txt-dim);
       display:flex; align-items:center; justify-content:center; cursor:pointer;
       box-shadow:var(--sh-card);
@@ -1512,10 +1516,10 @@
 
 </div>
 
+<button class="tb-collapse-btn" id="sidebarCollapseBtn" type="button" aria-label="Réduire le menu">
+  <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+</button>
 <nav class="tabbar hidden" id="tabbar">
-  <button class="tb-collapse-btn" id="sidebarCollapseBtn" type="button" aria-label="Réduire le menu">
-    <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
-  </button>
   <div class="tb-brand" aria-hidden="true">
     <img class="tb-brand-logo" src="./icon-192.png" alt="">
     <div class="tb-brand-txt">
@@ -3443,9 +3447,17 @@
   /* Page Graphique : le même widget TradingView avancé que le tiroir
      ci-dessus, mais fixe (pas un widget de tableau de bord) et occupant
      toute la page — changement d'instrument directement dans le widget. */
+  // Ne remonte le widget que si le thème a changé : TradingView affiche un
+  // popup d'info (contrat continu, ex. NQ1!) à chaque nouveau montage — en
+  // gardant le même iframe d'un passage à l'autre sur l'onglet, on ne le
+  // revoit plus après l'avoir fermé une fois.
+  var _chartBuiltTheme=null;
   function buildFullChart(){
+    var th=resolvedTheme();
+    if(_chartBuiltTheme===th) return;
+    _chartBuiltTheme=th;
     tvMount(el("chartFullWrap"), "embed-widget-advanced-chart.js", {
-      symbol:"CME_MINI:NQ1!", interval:"15", theme:resolvedTheme(), style:"1", locale:"fr",
+      symbol:"CME_MINI:NQ1!", interval:"15", theme:th, style:"1", locale:"fr",
       hide_top_toolbar:false, hide_legend:false, allow_symbol_change:true, save_image:false,
       withdateranges:true, autosize:true
     }, null);
