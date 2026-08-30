@@ -158,6 +158,28 @@
   .news-seg button{border:1px solid var(--line);background:var(--surface-2);color:var(--txt-dim);font-family:inherit;
     font-size:12px;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer;}
   .news-seg button.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
+  /* Ligne « Par marché / Par instrument / Tout » : un cran au-dessus des
+     familles, donc un peu plus discrète que la ligne du dessous. */
+  .news-modes{margin-bottom:8px;}
+  .news-modes button{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;}
+  .news-hint{font-size:12px;color:var(--txt-faint);margin-bottom:10px;}
+  .news-sym{margin-bottom:10px;}
+  /* --- Outils : fiche contrat, minuteur, horloges --- */
+  .tw-specs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0;}
+  .tw-specs>div{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px 9px;min-width:0;}
+  .tw-specs span{display:block;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-faint);font-weight:700;}
+  .tw-specs b{display:block;font-size:14.5px;font-weight:800;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tw-peer{font-size:12px;color:var(--txt-dim);margin-top:9px;line-height:1.45;}
+  .tw-peer b{color:var(--txt);}
+  .tw-clock{font-size:40px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.05;text-align:center;margin-top:4px;}
+  .tw-clock.run{color:var(--accent);} .tw-clock.done{color:var(--green);}
+  .tw-lab{font-size:12px;color:var(--txt-dim);text-align:center;margin:5px 0 10px;line-height:1.4;}
+  .tw-presets{justify-content:center;}
+  .dw-newsbar{flex:0 0 auto;padding-bottom:2px;}
+  .dw-newsbar .news-seg{margin-bottom:6px;gap:5px;}
+  .dw-newsbar .news-seg button{padding:4px 9px;font-size:11px;}
+  .dw-newsbar .news-modes{margin-bottom:6px;}
+  .dw-newsbar .news-hint,.dw-newsbar .news-sym{margin-bottom:6px;}
   /* Widget graphique : sélecteur de symbole au-dessus de l'iframe. */
   .dw-chart{display:flex;flex-direction:column;height:100%;min-height:0;}
   .dw-chart > .dw-sym{border:none;border-bottom:1px solid var(--line);border-radius:0;margin:0;flex:0 0 auto;}
@@ -399,6 +421,11 @@
      Sélecteur volontairement plus spécifique que .tab, qui est déclaré plus bas
      avec display:flex et l'emporterait autrement. */
   .tabbar .tb-settings{display:none;}
+  /* Entrée verrouillée (Prop firm) : invisible sur la barre mobile, visible en
+     bas de la sidebar ordinateur (voir la requête média plus bas). */
+  .tabbar .tb-locked{display:none;}
+  .tb-lock{width:15px;height:15px;flex:0 0 auto;margin-left:auto;opacity:.75;}
+  .tb-lock svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   .tab{flex:1;background:none;border:none;font-family:inherit;color:var(--txt-faint);display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 0;cursor:pointer;font-size:10.5px;font-weight:700;-webkit-tap-highlight-color:transparent;border-radius:14px;transition:color .15s,background .15s;}
   /* Sous-titre du Calendrier ("Économique et actualité") : réservé à la sidebar
      ordinateur (voir plus bas) — pas de place pour lui dans la barre mobile. */
@@ -867,7 +894,22 @@
     /* ----- RÉGLAGES DU COMPTE : ancrés en bas de la sidebar -----
        margin-top:auto pousse l'élément tout en bas ; le filet (::before) se pose
        dans l'espace laissé libre et s'aligne sur celui du bloc de marque. */
-    .tabbar .tb-settings{ display:flex; margin-top:auto; position:relative; }
+    /* L'entrée verrouillée porte le margin-top:auto : elle et les Réglages
+       forment le bloc collé au bas de la sidebar. */
+    .tabbar .tb-locked{
+      display:flex; margin-top:auto; position:relative;
+      color:var(--txt-faint); cursor:not-allowed; opacity:.62;
+    }
+    .tabbar .tb-locked:hover{ background:none; color:var(--txt-faint); }
+    .tabbar .tb-locked .ti{ opacity:.6; }
+    .tb-locked::before{
+      content:""; position:absolute; left:-4px; right:-4px; top:-9px;
+      border-top:1px solid var(--line);
+    }
+    /* Quand l'entrée verrouillée est là, c'est elle qui pousse le bloc en bas :
+       les Réglages la suivent immédiatement, sans second filet ni second auto. */
+    .tabbar .tb-settings{ display:flex; margin-top:0; position:relative; }
+    .tabbar .tb-locked ~ .tb-settings::before{ border-top:none; }
     .tb-settings::before{
       content:""; position:absolute; left:-4px; right:-4px; top:-9px;
       border-top:1px solid var(--line);
@@ -1295,13 +1337,7 @@
     <div class="card">
       <h2>Actualités marché <span class="hint">fil en direct</span></h2>
       <div id="newsOffline" class="econ-offline hidden">Le fil d'actualités n'a pas pu se charger. Vérifie ta connexion internet, puis reviens sur cet écran.</div>
-      <div class="news-seg" id="newsSeg">
-        <button type="button" data-market="futures" class="sel">Futures</button>
-        <button type="button" data-market="forex">Forex</button>
-        <button type="button" data-market="index">Indices</button>
-        <button type="button" data-market="crypto">Crypto</button>
-        <button type="button" data-market="stock">Actions</button>
-      </div>
+      <div id="newsSeg"></div>
       <div id="newsWidgetWrap" class="econ-wrap"></div>
     </div>
 
@@ -1333,6 +1369,18 @@
       <div class="card">
         <h2>Calculatrices</h2>
         <div id="toolsCalcBody"></div>
+      </div>
+      <div class="card">
+        <h2>Valeur du point <span class="hint">fiche contrat</span></h2>
+        <div id="toolsTicksBody"></div>
+      </div>
+      <div class="card">
+        <h2>Minuteur de pause</h2>
+        <div id="toolsTimerBody"></div>
+      </div>
+      <div class="card">
+        <h2>Heures de marché</h2>
+        <div id="toolsClocksBody"></div>
       </div>
     </div>
   </div>
@@ -1458,8 +1506,11 @@
   <button class="tab" data-tab="plan" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 10h7M8.5 14h7M8.5 18h4"/></svg></span><span class="tt">Plan</span></button>
   <button class="tab primary" data-tab="journal" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="13" height="18" rx="2"/><path d="M9.5 3v18"/><path d="M12.5 8.5h4M12.5 12.5h4"/></svg></span><span class="tt">Journal</span></button>
   <button class="tab" data-tab="calendar" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg></span><span class="tt-col"><span class="tt">Calendrier</span><span class="tt-sub">Économique et actualité</span></span></button>
-  <button class="tab" data-tab="propfirm" type="button"><span class="ti"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9.2 12l2 2 3.6-3.8"/></svg></span><span class="tt">Propfirm</span></button>
   <button class="tab" data-tab="tools" type="button"><span class="ti"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2-2z"/></svg></span><span class="tt">Outils</span></button>
+  <!-- Prop firm : chantier en cours, volontairement inaccessible. Masqué sur
+       mobile (la barre du bas n'a que 5 places) et présenté en bas de la
+       sidebar ordinateur, cadenassé, pour annoncer ce qui arrive. -->
+  <button class="tab tb-locked" data-locked="propfirm" type="button" disabled aria-disabled="true" title="Bientôt disponible"><span class="ti"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9.2 12l2 2 3.6-3.8"/></svg></span><span class="tt">Propfirm</span><span class="tb-lock" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></button>
   <button class="tab tb-settings" id="sidebarSettingsBtn" type="button"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.1"/><path d="M19.1 14.4a1.5 1.5 0 0 0 .3 1.7l.05.05a1.9 1.9 0 1 1-2.65 2.65l-.05-.05a1.5 1.5 0 0 0-1.7-.3 1.5 1.5 0 0 0-.9 1.37v.13a1.9 1.9 0 1 1-3.8 0v-.07a1.5 1.5 0 0 0-.98-1.37 1.5 1.5 0 0 0-1.7.3l-.05.05A1.9 1.9 0 1 1 4.87 16.2l.05-.05a1.5 1.5 0 0 0 .3-1.7 1.5 1.5 0 0 0-1.37-.9h-.13a1.9 1.9 0 1 1 0-3.8h.07a1.5 1.5 0 0 0 1.37-.98 1.5 1.5 0 0 0-.3-1.7l-.05-.05A1.9 1.9 0 1 1 7.46 4.37l.05.05a1.5 1.5 0 0 0 1.7.3h.07a1.5 1.5 0 0 0 .9-1.37v-.13a1.9 1.9 0 1 1 3.8 0v.07a1.5 1.5 0 0 0 .9 1.37 1.5 1.5 0 0 0 1.7-.3l.05-.05a1.9 1.9 0 1 1 2.65 2.65l-.05.05a1.5 1.5 0 0 0-.3 1.7v.07a1.5 1.5 0 0 0 1.37.9h.13a1.9 1.9 0 1 1 0 3.8h-.07a1.5 1.5 0 0 0-1.37.9z"/></svg></span><span class="tt">Paramètres du compte</span></button>
 </nav>
 
@@ -3749,7 +3800,7 @@
               list.push({id:String(w.id), w:parseInt(w.w,10)||1, h:parseInt(w.h,10)||1}); });
             c.widgets=list;
           }
-          // Champs additionnels propres à ce tableau (ex: newsMarket) : conservés tels quels.
+          // Champs additionnels propres à ce tableau (ex: chartSymbol) : conservés tels quels.
           Object.keys(o).forEach(function(k){ if(k!=="widgets") c[k]=o[k]; });
         }
       }catch(e){}
@@ -3988,18 +4039,186 @@
     };
   }
 
-  /* ---------- Page OUTILS : catalogue (une seule calculatrice pour l'instant,
-     d'autres outils viendront s'y ajouter) ---------- */
+  /* ---------- Page OUTILS : catalogue ---------- */
+
+  /* Spécifications des contrats futures : pas de cotation, valeur du tick,
+     valeur du point entier, et le contrat micro/mini équivalent. C'est la
+     donnée que les calculatrices RÉCLAMENT en entrée (« valeur du point »)
+     sans jamais la donner — d'où l'outil de référence ci-dessous. */
+  var CONTRACT_SPECS={
+    ES:{n:"S&P 500",       tick:0.25,  tickV:12.5, pt:50,    peer:"MES"},
+    MES:{n:"Micro S&P 500", tick:0.25,  tickV:1.25, pt:5,     peer:"ES"},
+    NQ:{n:"Nasdaq 100",    tick:0.25,  tickV:5,    pt:20,    peer:"MNQ"},
+    MNQ:{n:"Micro Nasdaq",  tick:0.25,  tickV:0.5,  pt:2,     peer:"NQ"},
+    YM:{n:"Dow Jones",     tick:1,     tickV:5,    pt:5,     peer:"MYM"},
+    MYM:{n:"Micro Dow",     tick:1,     tickV:0.5,  pt:0.5,   peer:"YM"},
+    RTY:{n:"Russell 2000",  tick:0.1,   tickV:5,    pt:50,    peer:"M2K"},
+    M2K:{n:"Micro Russell",  tick:0.1,   tickV:0.5,  pt:5,     peer:"RTY"},
+    CL:{n:"Pétrole WTI",   tick:0.01,  tickV:10,   pt:1000,  peer:"MCL"},
+    MCL:{n:"Micro WTI",     tick:0.01,  tickV:1,    pt:100,   peer:"CL"},
+    NG:{n:"Gaz naturel",   tick:0.001, tickV:10,   pt:10000, peer:""},
+    GC:{n:"Or",            tick:0.1,   tickV:10,   pt:100,   peer:"MGC"},
+    MGC:{n:"Micro or",      tick:0.1,   tickV:1,    pt:10,    peer:"GC"},
+    SI:{n:"Argent",        tick:0.005, tickV:25,   pt:5000,  peer:"SIL"},
+    SIL:{n:"Mini argent",   tick:0.005, tickV:5,    pt:1000,  peer:"SI"},
+    HG:{n:"Cuivre",        tick:0.0005,tickV:12.5, pt:25000, peer:""}
+  };
+  // Le moteur prop firm consomme la même source : une seule vérité.
+  var PF_POINT=(function(){ var m={}; Object.keys(CONTRACT_SPECS).forEach(function(k){ m[k]=CONTRACT_SPECS[k].pt; }); return m; })();
+
+  function twMoney(v){
+    if(v===null||v===undefined||isNaN(v)) return "—";
+    var r=Math.round(v*100)/100;
+    return (r===Math.round(r)? String(Math.round(r)) : r.toFixed(2).replace(".",","))+" $";
+  }
+
+  /* Outil 1 — Valeur du point : la fiche technique d'un contrat, plus le coût
+     réel d'un stop, plus l'équivalence micro/mini. */
+  function twContract(b){
+    var st={sym:"MNQ", stop:"", qty:"1"};
+    try{ var r=JSON.parse(localStorage.getItem("edgioTicks")||"null"); if(r&&r.sym&&CONTRACT_SPECS[r.sym]) st=r; }catch(e){}
+    function draw(){
+      var sp=CONTRACT_SPECS[st.sym];
+      var h='<select class="cx-sel" data-k="sym">'+Object.keys(CONTRACT_SPECS).map(function(k){
+        return '<option value="'+k+'"'+(k===st.sym?" selected":"")+'>'+k+' — '+esc(CONTRACT_SPECS[k].n)+'</option>'; }).join("")+'</select>';
+      h+='<div class="tw-specs">'
+        +'<div><span>Pas de cotation</span><b>'+String(sp.tick).replace(".",",")+'</b></div>'
+        +'<div><span>Valeur du tick</span><b>'+twMoney(sp.tickV)+'</b></div>'
+        +'<div><span>Valeur du point</span><b>'+twMoney(sp.pt)+'</b></div>'
+        +'</div>';
+      h+='<div class="cx-grid">'
+        +'<div class="cx-f"><label>Mon stop (points)</label><input type="text" inputmode="decimal" data-k="stop" value="'+esc(st.stop)+'"></div>'
+        +'<div class="cx-f"><label>Contrats</label><input type="text" inputmode="decimal" data-k="qty" value="'+esc(st.qty)+'"></div>'
+        +'</div>';
+      var stop=cxNum(st.stop), qty=cxNum(st.qty);
+      if(stop!==null&&stop>0&&qty!==null&&qty>0){
+        var cost=stop*sp.pt*qty;
+        h+='<div class="cx-out"><div class="cxv">'+twMoney(cost)+'</div>'
+          +'<div class="cxl">Ce que coûte ce stop si tu es sorti — soit '+Math.round(stop/sp.tick)+' ticks par contrat.</div></div>';
+        if(sp.peer){
+          var pc=stop*CONTRACT_SPECS[sp.peer].pt*qty;
+          h+='<div class="tw-peer">Le même trade en <b>'+sp.peer+'</b> coûterait <b>'+twMoney(pc)+'</b>'
+            +' — '+(sp.pt>CONTRACT_SPECS[sp.peer].pt?"soit "+Math.round(sp.pt/CONTRACT_SPECS[sp.peer].pt)+"× moins":"soit "+Math.round(CONTRACT_SPECS[sp.peer].pt/sp.pt)+"× plus")+'.</div>';
+        }
+      } else {
+        h+='<div class="dw-sub">Entre ton stop pour voir ce qu\'il coûte vraiment, et ce qu\'il coûterait sur le contrat micro.</div>';
+      }
+      b.innerHTML=h;
+      b.querySelectorAll("[data-k]").forEach(function(i){
+        i.addEventListener(i.tagName==="SELECT"?"change":"input",function(){
+          st[i.dataset.k]=i.value;
+          try{ localStorage.setItem("edgioTicks",JSON.stringify(st)); }catch(e){}
+          var act=document.activeElement, k=act&&act.dataset?act.dataset.k:null, pos=act&&act.selectionStart;
+          draw();
+          if(k){ var back=b.querySelector('[data-k="'+k+'"]'); if(back){ back.focus(); try{ back.setSelectionRange(pos,pos); }catch(e){} } }
+        });
+      });
+    }
+    draw();
+  }
+
+  /* Outil 2 — Minuteur : la pause qu'on ne s'impose jamais tout seul. */
+  var twTimerEnd=0, twTimerLeft=0, twTimerRun=false, twTimerLab="";
+  function twTimer(b){
+    var PRESETS=[[5,"5 min"],[15,"15 min"],[30,"30 min"],[60,"1 h"]];
+    function left(){ return twTimerRun ? Math.max(0,Math.round((twTimerEnd-Date.now())/1000)) : twTimerLeft; }
+    function fmt(s){ var m=Math.floor(s/60); return (m<10?"0":"")+m+":"+((s%60)<10?"0":"")+(s%60); }
+    function draw(){
+      var s=left(), done=twTimerRun&&s===0;
+      if(done){ twTimerRun=false; twTimerLeft=0; }
+      var h='<div class="tw-clock'+(done?" done":twTimerRun?" run":"")+'">'+fmt(s)+'</div>';
+      h+='<div class="tw-lab">'+(done?"Temps écoulé — tu peux revenir au marché.":(twTimerLab||"Choisis une durée."))+'</div>';
+      h+='<div class="news-seg tw-presets">'+PRESETS.map(function(p){
+        return '<button type="button" data-min="'+p[0]+'">'+p[1]+'</button>'; }).join("")+'</div>';
+      h+='<div class="news-seg tw-presets">'
+        +'<button type="button" data-act="'+(twTimerRun?"pause":"go")+'" class="sel">'+(twTimerRun?"⏸ Pause":"▶ Démarrer")+'</button>'
+        +'<button type="button" data-act="reset">↺ Remettre à zéro</button></div>';
+      b.innerHTML=h;
+      b.querySelectorAll("[data-min]").forEach(function(x){ x.onclick=function(){
+        twTimerLeft=parseInt(x.dataset.min,10)*60; twTimerEnd=Date.now()+twTimerLeft*1000; twTimerRun=true;
+        twTimerLab="Pause en cours — pas de position d'ici là."; draw(); }; });
+      b.querySelectorAll("[data-act]").forEach(function(x){ x.onclick=function(){
+        var act=x.dataset.act;
+        if(act==="go"){ if(twTimerLeft<=0) twTimerLeft=15*60; twTimerEnd=Date.now()+twTimerLeft*1000; twTimerRun=true; twTimerLab="Pause en cours — pas de position d'ici là."; }
+        else if(act==="pause"){ twTimerLeft=left(); twTimerRun=false; twTimerLab="En pause."; }
+        else { twTimerRun=false; twTimerLeft=0; twTimerLab=""; }
+        draw(); }; });
+    }
+    draw();
+    // Un seul intervalle par montage, qui s'arrête dès que le widget disparaît.
+    var t=setInterval(function(){
+      if(!b.isConnected){ clearInterval(t); return; }
+      if(twTimerRun) draw();
+    },1000);
+  }
+
+  /* Outil 3 — Heures de marché : convertir une heure d'annonce dans les places
+     qui comptent, changements d'heure inclus (offsets lus via Intl). */
+  var TW_ZONES=[["Europe/Paris","Paris"],["Europe/London","Londres"],["America/New_York","New York"],
+                ["America/Chicago","Chicago"],["Asia/Tokyo","Tokyo"],["Australia/Sydney","Sydney"]];
+  function twOffset(tz){                       // minutes d'écart avec UTC, aujourd'hui
+    var loc=dashTzNow(tz), utc=dashTzNow("UTC");
+    if(!loc||!utc) return null;
+    var d=loc.min-utc.min;
+    if(d>720) d-=1440; else if(d<-720) d+=1440;   // la date peut différer d'un jour
+    return d;
+  }
+  function twClocks(b){
+    var st={tz:"America/New_York", t:"14:30"};
+    try{ var r=JSON.parse(localStorage.getItem("edgioClocks")||"null"); if(r&&r.tz) st=r; }catch(e){}
+    function draw(){
+      var h='<div class="cx-grid">'
+        +'<div class="cx-f"><label>Heure annoncée</label><input type="time" data-k="t" value="'+esc(st.t)+'"></div>'
+        +'<div class="cx-f"><label>Dans le fuseau</label><select class="cx-sel" data-k="tz">'
+        +TW_ZONES.map(function(z){ return '<option value="'+z[0]+'"'+(z[0]===st.tz?" selected":"")+'>'+z[1]+'</option>'; }).join("")
+        +'</select></div></div>';
+      var m=String(st.t||"").match(/^(\d{1,2}):(\d{2})$/);
+      var src=twOffset(st.tz);
+      if(m&&src!==null){
+        var base=parseInt(m[1],10)*60+parseInt(m[2],10)-src;      // en UTC
+        h+='<div class="dw-rows">'+TW_ZONES.map(function(z){
+          var off=twOffset(z[0]); if(off===null) return "";
+          var v=((base+off)%1440+1440)%1440, day=Math.floor((base+off)/1440);
+          var hh=Math.floor(v/60), mm=v%60;
+          return '<div class="mk-row"><span class="mk-n">'+z[1]+'</span><span class="mk-h">'
+            +(hh<10?"0":"")+hh+":"+(mm<10?"0":"")+mm
+            +(day>0?" (+1 j)":day<0?" (−1 j)":"")+(z[0]===st.tz?" · référence":"")+'</span></div>';
+        }).join("")+'</div>';
+      } else h+='<div class="dw-sub">Entre une heure pour la voir dans les autres places.</div>';
+      h+='<div class="dw-sub">Changements d\'heure inclus : les écarts sont ceux d\'aujourd\'hui, pas des écarts figés.</div>';
+      b.innerHTML=h;
+      b.querySelectorAll("[data-k]").forEach(function(i){
+        i.addEventListener(i.tagName==="SELECT"?"change":"input",function(){
+          st[i.dataset.k]=i.value;
+          try{ localStorage.setItem("edgioClocks",JSON.stringify(st)); }catch(e){}
+          draw();
+          var back=b.querySelector('[data-k="'+i.dataset.k+'"]'); if(back) back.focus();
+        });
+      });
+    }
+    draw();
+  }
+
   var TOOLS_WIDGETS = {
     calc:{ name:"Calculatrices", ic:"🧮", w:2,h:2, minW:2,minH:2, keep:true, interactive:true,
       q:"Combien je prends, et est-ce que ça tient la route ?",
-      render:function(b){ renderCalculators(b, true); }}
+      render:function(b){ renderCalculators(b, true); }},
+    ticks:{ name:"Valeur du point", ic:"📏", w:2,h:3, minW:2,minH:2, keep:true, interactive:true,
+      q:"Combien vaut un point sur ce contrat, et ce que mon stop coûte vraiment.",
+      render:function(b){ twContract(b); }},
+    timer:{ name:"Minuteur de pause", ic:"⏳", w:2,h:2, minW:1,minH:2, keep:true, interactive:true,
+      q:"M'obliger à souffler après une perte, au lieu de renvoyer un ordre.",
+      render:function(b){ twTimer(b); }},
+    clocks:{ name:"Heures de marché", ic:"🕰️", w:2,h:3, minW:2,minH:2, keep:true, interactive:true,
+      q:"Cette annonce à 14h30, c'est quelle heure chez moi ?",
+      render:function(b){ twClocks(b); }}
   };
   var toolsBoard = createMiniBoard({
     gridId:"toolsGrid", boardId:"toolsBoard", infoId:"toolsInfo",
     addBtnId:"toolsAddBtn", editBtnId:"toolsEditBtn", doneBtnId:"toolsDoneBtn", resetBtnId:"toolsResetBtn",
     catalogListId:"toolsCatList", catalogDoneId:"toolsCatDone", drawerId:"toolsCatDrawer",
-    widgets:TOOLS_WIDGETS, defaultLayout:[{id:"calc",w:2,h:2}],
+    widgets:TOOLS_WIDGETS,
+    defaultLayout:[{id:"calc",w:2,h:2},{id:"ticks",w:2,h:3},{id:"timer",w:2,h:2},{id:"clocks",w:2,h:3}],
     emptyMsg:'Cet espace est vide.<br>Clique sur <b>＋ Ajouter un widget</b> pour ajouter un outil.',
     infoSuffix:"page Outils",
     persist:function(c){ dashCfg.tools=c; dashSave(); }
@@ -4019,23 +4238,20 @@
       q:"Qu'est-ce qui bouge en ce moment, et pourquoi ?",
       render:function(b){
         b.className="dw-b flush";
-        var mkt=calBoard.getExtra("newsMarket")||"futures";
         var wrap=document.createElement("div"); wrap.className="dw-chart";
-        var sel=document.createElement("select"); sel.className="cx-sel dw-sym";
-        sel.innerHTML=[["futures","Futures"],["forex","Forex"],["index","Indices"],["crypto","Crypto"],["stock","Actions"]]
-          .map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===mkt?" selected":"")+'>'+o[1]+'</option>'; }).join("");
+        var bar=document.createElement("div"); bar.className="dw-newsbar";
         var host=document.createElement("div"); host.style.cssText="flex:1;min-height:0;";
-        wrap.appendChild(sel); wrap.appendChild(host);
+        wrap.appendChild(bar); wrap.appendChild(host);
         b.innerHTML=""; b.appendChild(wrap);
         function mount(){
           host.innerHTML='<div class="dw-empty">Hors-ligne : le fil se rechargera à la reconnexion.</div>';
           if(!navigator.onLine) return;
-          tvMount(host, "embed-widget-timeline.js", {
-            feedMode:"market", market:mkt, isTransparent:true,
-            displayMode:"regular", colorTheme:resolvedTheme(), locale:"fr", width:"100%", height:"100%"
-          }, null);
+          var conf={isTransparent:true, displayMode:"regular",
+            colorTheme:resolvedTheme(), locale:"fr", width:"100%", height:"100%"};
+          var f=newsConfig(); Object.keys(f).forEach(function(k){ conf[k]=f[k]; });
+          tvMount(host, "embed-widget-timeline.js", conf, null);
         }
-        sel.onchange=function(){ mkt=sel.value; calBoard.setExtra("newsMarket",mkt); mount(); };
+        newsControls(bar, mount);
         mount();
       }},
     investing:{ name:"Investing.com", ic:"📆", w:3,h:5, minW:2,minH:2, keep:true, interactive:true,
@@ -4909,13 +5125,19 @@
     el("backBtn").classList.add("hidden");
     var a=acc();
     if(tab==="plan" && !a){ showToast("Choisis d'abord un compte"); tab="journal"; view.jlevel="accounts"; }
+    // Prop firm est en chantier : aucun chemin ne doit y mener (onglet retiré,
+    // mais un état de vue restauré ou un appel direct pourrait encore essayer).
+    if(tab==="propfirm"){ tab="journal"; view.jlevel="accounts"; }
     view.tab=tab;
     document.querySelectorAll('#tabbar .tab[data-tab]').forEach(function(t){ t.classList.toggle("on", t.dataset.tab===tab); });
     if(tab==="journal"){ renderJournalTab(); }
     else if(tab==="plan"){ el("screenPlan").classList.remove("hidden"); if(a){ setGearBadge("📋"); } else { el("gearBtn").classList.add("hidden"); } setTitle("Plan de trading", a?a.name:"", true); renderPlan(); }
     else if(tab==="calendar"){ el("screenCalendar").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Calendrier","Économique et actualité", true); loadEconWidget(); calBoard.render(); }
     else if(tab==="propfirm"){ el("screenPropfirm").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Prop firm", "Briefing pré-séance", true); renderPropfirm(); }
-    else if(tab==="tools"){ el("screenTools").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Outils","", true); renderCalculators(el("toolsCalcBody"), false); toolsBoard.render(); }
+    else if(tab==="tools"){ el("screenTools").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Outils","", true);
+      renderCalculators(el("toolsCalcBody"), false);
+      twContract(el("toolsTicksBody")); twTimer(el("toolsTimerBody")); twClocks(el("toolsClocksBody"));
+      toolsBoard.render(); }
     syncGearMode();
     refreshAds();
     requestAnimationFrame(updateTopbarHeight);
@@ -5513,10 +5735,8 @@
   // est exact tant que l'utilisateur journalise, et il le dit quand il ne l'est
   // pas (voir pfEngine().stale).
 
-  // Valeur d'un point entier, par contrat (futures). Sert au calcul de la
-  // taille de position : perte d'un trade = contrats × points de stop × valeur.
-  var PF_POINT={ES:50,MES:5,NQ:20,MNQ:2,YM:5,MYM:0.5,RTY:50,M2K:5,
-                CL:1000,MCL:100,NG:10000,GC:100,MGC:10,SI:5000,SIL:1000,HG:25000};
+  // La valeur du point par contrat vient de CONTRACT_SPECS (page Outils) :
+  // une seule table, utilisée par l'outil de référence et par ce moteur.
 
   // Journées exploitables du compte, triées par date.
   function pfDays(a){
@@ -5930,13 +6150,72 @@
     wrap.querySelector(".tradingview-widget-container").appendChild(sc);
   }
 
-  var newsMarket="futures";
+  /* ---------- Fil d'actualités : filtres ----------
+     Le widget TradingView accepte trois modes de flux. On les expose tous les
+     trois au lieu du seul « par marché » : par marché (5 familles), par
+     instrument (notre propre liste, la même que le graphique) et tout le fil.
+     La préférence est partagée entre la carte mobile et le widget ordinateur,
+     et survit au rechargement. */
+  var NEWS_MARKETS=[["futures","Futures"],["forex","Forex"],["index","Indices"],["crypto","Crypto"],["stock","Actions"]];
+  var NEWS_KEY="edgioNews";
+  var newsPref=(function(){
+    var d={mode:"market", market:"futures", symbol:"CME_MINI:NQ1!"};
+    try{ var r=JSON.parse(localStorage.getItem(NEWS_KEY)||"null");
+      if(r&&typeof r==="object"){ if(r.mode)d.mode=r.mode; if(r.market)d.market=r.market; if(r.symbol)d.symbol=r.symbol; }
+    }catch(e){}
+    return d;
+  })();
+  function newsSave(){ try{ localStorage.setItem(NEWS_KEY, JSON.stringify(newsPref)); }catch(e){} }
+  function newsConfig(){
+    if(newsPref.mode==="all")    return {feedMode:"all_symbols"};
+    if(newsPref.mode==="symbol") return {feedMode:"symbol", symbol:newsPref.symbol||"CME_MINI:NQ1!"};
+    return {feedMode:"market", market:newsPref.market||"futures"};
+  }
+  // Construit la barre de filtres dans `host` et rappelle `onChange` à chaque
+  // modification. Utilisée telle quelle par la carte mobile et par le widget.
+  function newsControls(host,onChange){
+    function draw(){
+      var h='<div class="news-seg news-modes">'
+        +[["market","Par marché"],["symbol","Par instrument"],["all","Tout"]].map(function(m){
+            return '<button type="button" data-mode="'+m[0]+'"'+(newsPref.mode===m[0]?' class="sel"':'')+'>'+m[1]+'</button>';
+          }).join("")
+        +'</div>';
+      if(newsPref.mode==="market"){
+        h+='<div class="news-seg">'+NEWS_MARKETS.map(function(m){
+          return '<button type="button" data-market="'+m[0]+'"'+(newsPref.market===m[0]?' class="sel"':'')+'>'+m[1]+'</button>';
+        }).join("")+'</div>';
+      } else if(newsPref.mode==="symbol"){
+        var o="";
+        Object.keys(INSTRUMENTS).forEach(function(g){
+          o+='<optgroup label="'+esc(g)+'">';
+          INSTRUMENTS[g].forEach(function(c){ var v=tvSymbol(c);
+            o+='<option value="'+esc(v)+'"'+(v===newsPref.symbol?" selected":"")+'>'+esc(c)+'</option>'; });
+          o+='</optgroup>';
+        });
+        h+='<select class="cx-sel news-sym">'+o+'</select>';
+      } else {
+        h+='<div class="news-hint">Toutes les actualités du marché, sans filtre.</div>';
+      }
+      host.innerHTML=h;
+      host.querySelectorAll("[data-mode]").forEach(function(b){
+        b.onclick=function(){ newsPref.mode=b.dataset.mode; newsSave(); draw(); onChange(); };
+      });
+      host.querySelectorAll("[data-market]").forEach(function(b){
+        b.onclick=function(){ newsPref.market=b.dataset.market; newsSave(); draw(); onChange(); };
+      });
+      var sel=host.querySelector(".news-sym");
+      if(sel) sel.onchange=function(){ newsPref.symbol=sel.value; newsSave(); onChange(); };
+    }
+    draw();
+  }
+
   function buildNews(){
-    var wrap=el("newsWidgetWrap"), off=el("newsOffline");
-    tvMount(wrap, "embed-widget-timeline.js", {
-      feedMode:"market", market:newsMarket, isTransparent:true, displayMode:"regular",
-      colorTheme:resolvedTheme(), locale:"fr", width:"100%", height:"100%"
-    }, off);
+    var wrap=el("newsWidgetWrap"), off=el("newsOffline"), seg=el("newsSeg");
+    if(seg && !seg._bound){ seg._bound=1; newsControls(seg, function(){ buildNews(); }); }
+    var conf={isTransparent:true, displayMode:"regular",
+      colorTheme:resolvedTheme(), locale:"fr", width:"100%", height:"100%"};
+    var f=newsConfig(); Object.keys(f).forEach(function(k){ conf[k]=f[k]; });
+    tvMount(wrap, "embed-widget-timeline.js", conf, off);
     // Même filet que le calendrier : si aucune iframe n'est apparue au bout de
     // 8 s, c'est que le script n'est jamais arrivé (réseau, bloqueur).
     setTimeout(function(){ if(view.tab==="calendar" && !wrap.querySelector("iframe")) off.classList.remove("hidden"); },8000);
@@ -6170,13 +6449,6 @@
     el("overlay").classList.add("open"); el("appDrawer").classList.add("open");
   }
   document.querySelectorAll("#themeSeg button").forEach(function(b){ b.addEventListener("click",function(){ setThemePref(b.dataset.themePref); }); });
-  document.querySelectorAll("#newsSeg button").forEach(function(b){
-    b.addEventListener("click",function(){
-      newsMarket=b.dataset.market;
-      document.querySelectorAll("#newsSeg button").forEach(function(x){ x.classList.toggle("sel", x===b); });
-      buildNews();
-    });
-  });
   el("noteHelpBtn").addEventListener("click", openNoteDrawer);
   el("noteDone").addEventListener("click", closeDrawer);
   el("chartDone").addEventListener("click", function(){ el("chartWrap").innerHTML=""; closeDrawer(); });
