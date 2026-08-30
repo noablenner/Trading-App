@@ -660,6 +660,12 @@
   .pf-warn{font-size:12px;color:var(--amber);background:rgba(244,183,64,.1);border:1px solid var(--amber);border-radius:11px;padding:10px 12px;margin-top:10px;line-height:1.4;}
   .pf-sec-h{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-faint);font-weight:800;margin:18px 0 4px;}
   .pf-empty{text-align:center;color:var(--txt-dim);padding:22px 10px;font-size:14px;line-height:1.5;}
+  .pf-bar{height:7px;border-radius:20px;background:var(--line);overflow:hidden;margin:9px 0 6px;}
+  .pf-bar>span{display:block;height:100%;border-radius:20px;transition:width .25s ease;}
+  .pf-note{font-size:12.5px;line-height:1.45;color:var(--txt-dim);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-top:9px;}
+  .pf-note b{color:var(--txt);}
+  .pf-note.warn{border-color:var(--amber);color:var(--amber);} .pf-note.warn b{color:var(--amber);}
+  .pf-note.bad{border-color:var(--red);color:var(--red);} .pf-note.bad b{color:var(--red);}
 
 
   /* =====================================================================
@@ -5440,11 +5446,11 @@
      consistencyPct:null,consistencyScope:null,minDays:1,minDayDef:"activity",minDayThreshold:null,prohibitions:[],notes:"Perte journalière souple (pause) sur 50K uniquement.",
      rows:[{size:"25K",cap:25000,target:1500,dd:1000,daily:""},{size:"50K",cap:50000,target:3000,dd:2000,daily:1000}]},
     {id:"apex",firm:"Apex Trader Funding",plan:"Standard",market:"futures",unit:"currency",phaseModel:"one_step",
-     drawdownBasis:"trailing_intraday",drawdownLocks:true,drawdownLockRule:"Se verrouille à +100 $ au-dessus du solde de départ",dailyLossType:"none",
+     drawdownBasis:"trailing_intraday",drawdownLocks:true,lockProfit:100,drawdownLockRule:"Se verrouille à +100 $ au-dessus du solde de départ",dailyLossType:"none",
      consistencyPct:30,consistencyScope:"payout",minDays:8,minDayDef:"winning_amount",minDayThreshold:50,prohibitions:[],notes:"⚠ Tailles/paramètres à revérifier sur le dashboard Apex. 8 jours de retrait dont 5 à ≥ 50 $.",
      rows:[{size:"25K",cap:25000,target:1500,dd:1500,contracts:4},{size:"50K",cap:50000,target:3000,dd:2500,contracts:10},{size:"75K",cap:75000,target:3750,dd:2750,contracts:12},{size:"100K",cap:100000,target:5000,dd:3000,contracts:14},{size:"150K",cap:150000,target:7500,dd:5000,contracts:17},{size:"250K",cap:250000,target:12500,dd:6500,contracts:27},{size:"300K",cap:300000,target:15000,dd:7500,contracts:35}]},
     {id:"topstep",firm:"Topstep",plan:"Standard",market:"futures",unit:"currency",phaseModel:"one_step",
-     drawdownBasis:"trailing_eod",drawdownLocks:true,drawdownLockRule:"Se verrouille au solde de départ",dailyLossType:"soft_pause",
+     drawdownBasis:"trailing_eod",drawdownLocks:true,lockProfit:0,drawdownLockRule:"Se verrouille au solde de départ",dailyLossType:"soft_pause",
      consistencyPct:50,consistencyScope:"eval",minDays:5,minDayDef:"winning_amount",minDayThreshold:150,prohibitions:[],notes:"Cohérence 50 % en éval puis 40 % au retrait. Perte journalière optionnelle.",
      rows:[{size:"50K",cap:50000,target:3000,dd:2000,daily:1000},{size:"100K",cap:100000,target:6000,dd:3000,daily:2000},{size:"150K",cap:150000,target:9000,dd:4500,daily:3000}]},
     {id:"fundednext_flex",firm:"FundedNext Futures",plan:"Flex",market:"futures",unit:"currency",phaseModel:"one_step",
@@ -5472,7 +5478,7 @@
      consistencyPct:35,consistencyScope:"eval",minDays:1,minDayDef:"activity",minDayThreshold:null,prohibitions:[],notes:"Cohérence 35 % (option Beta).",
      rows:[{phase:"eval",target:6,dd:6,daily:3,minDays:1},{phase:"verif",target:6,dd:6,daily:3,minDays:1}]},
     {id:"fundingpips_zero",firm:"FundingPips",plan:"Zero",market:"forex",unit:"percent",phaseModel:"instant",
-     drawdownBasis:"trailing_eod",drawdownLocks:true,drawdownLockRule:"Verrouille à +5 %",dailyLossType:"hard",
+     drawdownBasis:"trailing_eod",drawdownLocks:true,lockProfit:5,drawdownLockRule:"Verrouille à +5 %",dailyLossType:"hard",
      consistencyPct:15,consistencyScope:"payout",minDays:1,minDayDef:"activity",minDayThreshold:null,prohibitions:[],notes:"",
      rows:[{phase:"funded",target:"",dd:5,daily:3,minDays:1}]},
     {id:"the5ers_hyper",firm:"The5ers",plan:"Hyper Growth",market:"forex",unit:"percent",phaseModel:"one_step",
@@ -5500,7 +5506,130 @@
   function pfSelect(id,opts,val){ var h='<select class="set-input" id="'+id+'">'; opts.forEach(function(o){ h+='<option value="'+o[0]+'"'+(String(o[0])===String(val)?" selected":"")+'>'+o[1]+'</option>'; }); return h+"</select>"; }
   function pfLabel(list,v){ for(var i=0;i<list.length;i++) if(String(list[i][0])===String(v)) return list[i][1]; return v||"—"; }
 
+  // ================= MOTEUR PROP FIRM (Lot 2) =================
+  // Tout ce qui suit se calcule à partir du journal du compte (résultats de
+  // séance déjà saisis) et de la config déclarée. Aucune connexion broker :
+  // l'equity est la somme cumulée des journées enregistrées, donc le moteur
+  // est exact tant que l'utilisateur journalise, et il le dit quand il ne l'est
+  // pas (voir pfEngine().stale).
+
+  // Valeur d'un point entier, par contrat (futures). Sert au calcul de la
+  // taille de position : perte d'un trade = contrats × points de stop × valeur.
+  var PF_POINT={ES:50,MES:5,NQ:20,MNQ:2,YM:5,MYM:0.5,RTY:50,M2K:5,
+                CL:1000,MCL:100,NG:10000,GC:100,MGC:10,SI:5000,SIL:1000,HG:25000};
+
+  // Journées exploitables du compte, triées par date.
+  function pfDays(a){
+    var out=[];
+    Object.keys(a.sessions||{}).sort().forEach(function(k){
+      var s=a.sessions[k]; if(!s) return;
+      var det=(a.tradesByDate&&a.tradesByDate[k])?a.tradesByDate[k].length:0;
+      var taken=statsForTrades(s.trades).taken+det;
+      var hasR=hasResult(s);
+      if(!hasR && taken===0) return;
+      out.push({k:k, v:hasR?sessionNet(s):0, hasR:hasR, taken:taken});
+    });
+    return out;
+  }
+  // Instrument le plus tradé du compte (pour pré-remplir la valeur du point).
+  function pfTopInstrument(a){
+    var m={},best="",n=0;
+    Object.keys(a.tradesByDate||{}).forEach(function(k){
+      (a.tradesByDate[k]||[]).forEach(function(t){
+        var i=String(t.instrument||"").trim(); if(!i) return;
+        m[i]=(m[i]||0)+1; if(m[i]>n){n=m[i];best=i;}
+      });
+    });
+    return best;
+  }
+
+  // Cœur du moteur : rejoue l'historique du compte et en sort l'état réel.
+  function pfEngine(a,cfg){
+    var days=pfDays(a).filter(function(d){return d.hasR;});
+    var start=pfNum(cfg.capital);
+    var ddAbs=pfHas(cfg.maxDrawdown)?pfToMoney(cfg.maxDrawdown,cfg):0;
+    var lockAbs=pfHas(cfg.lockProfit)?pfToMoney(cfg.lockProfit,cfg):null;
+    var trailing=(cfg.drawdownBasis==="trailing_eod"||cfg.drawdownBasis==="trailing_intraday");
+    var eq=start, peak=start, floor=start-ddAbs;
+    var best=0, worst=0;
+    days.forEach(function(d){
+      eq+=d.v;
+      if(d.v>best) best=d.v; if(d.v<worst) worst=d.v;
+      if(eq>peak) peak=eq;
+      if(trailing && ddAbs>0){
+        var cand=peak-ddAbs;
+        if(lockAbs!==null && cand>start+lockAbs) cand=start+lockAbs;
+        if(cand>floor) floor=cand;
+      }
+    });
+    var e={};
+    e.hasData=days.length>0;
+    e.nbDays=days.length;
+    e.lastDay=days.length?days[days.length-1].k:"";
+    e.stale=e.hasData && e.lastDay<todayKey();
+    e.start=start; e.equity=eq; e.peak=peak; e.profit=eq-start;
+    e.ddAbs=ddAbs; e.floor=ddAbs>0?floor:null; e.trailing=trailing;
+    e.cushion=(ddAbs>0)?(eq-floor):null;                  // ce qu'il reste avant rupture
+    e.ddUsed=(ddAbs>0)?Math.max(0,Math.min(ddAbs,ddAbs-e.cushion)):null;
+    e.ddPct=(ddAbs>0)?Math.max(0,Math.min(100,Math.round(e.ddUsed/ddAbs*100))):null;
+    e.bestDay=best; e.worstDay=worst;
+    // Verrouillage du plancher : combien de profit avant qu'il cesse de suivre.
+    e.lockAbs=lockAbs;
+    e.lockDone=(lockAbs===null)?null:(trailing && ddAbs>0 && floor>=start+lockAbs-0.0001);
+    e.toLock=(lockAbs===null||e.lockDone||!trailing||ddAbs<=0)?null:Math.max(0,(start+lockAbs+ddAbs)-peak);
+    // Objectif de la phase.
+    e.target=pfHas(cfg.profitTarget)?pfToMoney(cfg.profitTarget,cfg):null;
+    e.targetLeft=(e.target===null)?null:Math.max(0,e.target-e.profit);
+    e.targetPct=(e.target>0)?Math.max(0,Math.min(100,Math.round(e.profit/e.target*100))):null;
+    // Cohérence : poids du meilleur jour dans le profit total.
+    var capPct=pfNum(cfg.consistencyPct);
+    e.consistCap=capPct>0?capPct:null;
+    e.consistRatio=(capPct>0&&e.profit>0&&best>0)?Math.round(best/e.profit*1000)/10:null;
+    e.consistOk=(e.consistRatio===null)?null:(e.consistRatio<=capPct);
+    e.consistNeed=(e.consistRatio===null||e.consistOk)?null:Math.max(0,(best/(capPct/100))-e.profit);
+    // Jours minimum, comptés selon la définition de la firme.
+    var thr=pfNum(cfg.minDayThreshold);
+    var all=pfDays(a);
+    e.daysCounted=all.filter(function(d){
+      if(cfg.minDayDef==="winning_amount") return d.hasR && d.v>=(thr>0?thr:0.01);
+      if(cfg.minDayDef==="profit_pct")    return d.hasR && start>0 && d.v>=start*(thr/100);
+      return d.taken>0 || d.hasR;                                    // activité
+    }).length;
+    e.minDaysLeft=Math.max(0,Math.round(pfNum(cfg.minDays))-e.daysCounted);
+    // Budget-perte du jour : le plus contraignant entre perte journalière et coussin.
+    var cands=[];
+    if(cfg.dailyLossType && cfg.dailyLossType!=="none" && pfHas(cfg.dailyLoss))
+      cands.push({v:pfToMoney(cfg.dailyLoss,cfg), src:"daily"});
+    if(e.cushion!==null) cands.push({v:Math.max(0,e.cushion), src:"dd"});
+    var b=null; cands.forEach(function(c){ if(b===null||c.v<b.v) b=c; });
+    e.budget=b; // {v,src} en $ ou null
+    return e;
+  }
+
+  // Fenêtre de taille : le plafond de survie et ce que l'objectif exige.
+  function pfSizing(a,cfg,e){
+    var s={};
+    s.n=Math.max(1,Math.round(pfNum(cfg.riskDivN)||3));
+    s.risk=e.budget?e.budget.v/s.n:null;                  // $ par trade
+    s.instr=cfg.instrument||"";
+    s.pv=PF_POINT[String(s.instr).toUpperCase()]||null;
+    s.stop=pfNum(cfg.stopPoints);
+    s.firmMax=pfNum(cfg.contractsMax);
+    s.perContract=(s.pv&&s.stop>0)?s.stop*s.pv:null;      // perte d'un contrat
+    s.safe=(s.risk!==null&&s.perContract)?Math.floor(s.risk/s.perContract):null;
+    s.overLeveraged=(s.safe!==null&&s.firmMax>0&&s.firmMax>s.safe);
+    s.lossAtFirmMax=(s.perContract&&s.firmMax>0)?s.firmMax*s.perContract:null;
+    s.killsInOne=(s.lossAtFirmMax!==null&&e.cushion!==null&&s.lossAtFirmMax>=e.cushion);
+    // Ce que l'objectif demande à cette taille (en trades gagnants nets à 1R).
+    s.tradesToTarget=(e.targetLeft!==null&&e.targetLeft>0&&s.risk>0)?Math.ceil(e.targetLeft/s.risk):null;
+    s.underSized=(s.tradesToTarget!==null&&s.tradesToTarget>40);
+    return s;
+  }
+
   // ---- écran Briefing pré-séance ----
+  function pfBar(pct,col){
+    return '<div class="pf-bar"><span style="width:'+Math.max(0,Math.min(100,pct))+'%;background:'+col+';"></span></div>';
+  }
   function renderPropfirm(){
     var a=acc(), box=el("pfContent");
     if(!a){ box.innerHTML='<div class="card"><div class="pf-empty">Choisis d\'abord un compte dans le Journal pour configurer sa prop firm.</div></div>'; return; }
@@ -5508,56 +5637,133 @@
     if(!cfg){
       box.innerHTML='<div class="card"><div class="pf-empty">Ce compte n\'a pas encore de prop firm configurée.<br>Renseigne les règles de ta firme (ou une firme personnalisée) pour obtenir ton briefing pré-séance.</div>'
         +'<button class="main-cta" id="pfConfigBtn" type="button">⚙ Configurer ma prop firm</button>'
-        +'<div class="pf-honesty">EdGio ne se connecte à aucun broker et ne surveille rien en temps réel. Tout repose sur ce que tu saisis, et les règles des firmes changent sans préavis : vérifie toujours sur le site officiel de ta firme.</div></div>';
+        +'<div class="pf-honesty">EdGio ne se connecte à aucun broker et ne surveille rien en temps réel. Le briefing se calcule à partir de ce que tu déclares ici et de ce que tu enregistres dans ton journal. Les règles des firmes changent sans préavis : vérifie toujours sur le site officiel de ta firme.</div></div>';
       el("pfConfigBtn").addEventListener("click",function(){ pfStepFirm(); });
       return;
     }
-    // calcul du budget-perte du jour = min(perte journalière si active, distance au drawdown max)
-    var hasDaily = cfg.dailyLossType && cfg.dailyLossType!=="none" && pfHas(cfg.dailyLoss);
-    var distDD = pfNum(cfg.maxDrawdown) - pfNum(cfg.currentDrawdown||0);
-    var candidates=[]; if(hasDaily) candidates.push({v:pfNum(cfg.dailyLoss),src:"daily"}); if(pfHas(cfg.maxDrawdown)) candidates.push({v:distDD,src:"dd"});
-    var budget=null; candidates.forEach(function(c){ if(budget===null||c.v<budget.v) budget=c; });
-    var riskN=Math.max(1,Math.round(pfNum(cfg.riskDivN)||3));
-    var minLeft=Math.max(0, Math.round(pfNum(cfg.minDays)) - Math.round(pfNum(cfg.daysTraded||0)));
-    var proh=(cfg.prohibitions||[]);
+    var e=pfEngine(a,cfg), s=pfSizing(a,cfg,e);
+    var funded=(cfg.currentPhase==="funded");
+    var money=function(v){ return pfThousand(v)+" $"; };
 
     var h='<div class="card">';
+    // ---- en-tête ----
     h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'
       +'<div><div style="font-weight:800;font-size:17px;">'+esc(cfg.firmName||"Prop firm")+'</div>'
       +'<div class="pf-sub2">'+esc(cfg.planName||"")+(cfg.sizeLabel?" · "+esc(cfg.sizeLabel):"")+(cfg.currentPhase?" · "+pfLabel(PF_PHASE,cfg.currentPhase):"")+'</div></div>'
       +'<span class="pf-verif">✓ vérifié le '+esc(cfg.verifiedOn||PF_VERIFIED)+'</span></div>';
     if(cfg.notes) h+='<div class="pf-warn">⚠ '+esc(cfg.notes)+'</div>';
-    // a) budget-perte du jour
+    if(!e.hasData) h+='<div class="pf-warn">⚠ Aucune journée enregistrée sur ce compte : le briefing part du solde de départ. Renseigne le résultat de tes séances dans le Journal pour que le plancher, le drawdown consommé et les jours comptés deviennent réels.</div>';
+    else if(e.stale) h+='<div class="pf-warn">⚠ Dernière séance journalisée le '+esc(labelKey(e.lastDay))+'. Si tu as tradé depuis, les chiffres ci-dessous sont en retard.</div>';
+
+    // ---- a) budget-perte du jour ----
     h+='<div class="pf-metric"><div class="pf-lab">Ta perte à ne pas dépasser aujourd\'hui</div>';
-    if(budget){ h+='<div class="pf-big warn">'+pfValStr(budget.v,cfg)+'</div>';
-      h+='<div class="pf-sub2">'+(budget.src==="dd"
-          ? "Distance jusqu'au drawdown max"+(pfNum(cfg.currentDrawdown||0)>0?"":" (théorique — le suivi du drawdown arrive bientôt)")+"."
-          : "Perte journalière "+(cfg.dailyLossType==="hard"?"stricte":"souple")+" de ta firme.")
-        +'</div>'; }
-    else h+='<div class="pf-big">—</div><div class="pf-sub2">Renseigne une perte journalière ou un drawdown max.</div>';
+    if(e.budget){
+      h+='<div class="pf-big warn">'+money(e.budget.v)+'</div>';
+      h+='<div class="pf-sub2">'+(e.budget.src==="dd"
+          ? "C\'est ce qui te reste avant le plancher, pas le drawdown affiché par ta firme."
+          : "Perte journalière "+(cfg.dailyLossType==="hard"?"stricte":"souple")+" de ta firme — plus contraignante aujourd\'hui que ton coussin de "+money(e.cushion||0)+".")
+        +'</div>';
+    } else h+='<div class="pf-big">—</div><div class="pf-sub2">Renseigne une perte journalière ou un drawdown max.</div>';
     h+='</div>';
-    // b) risque conseillé / trade
-    h+='<div class="pf-metric"><div class="pf-lab">Risque conseillé par trade</div>';
-    h+='<div class="pf-big">'+(budget?pfValStr(budget.v/riskN,cfg):"—")+'</div>';
-    h+='<div class="pf-sub2">Budget du jour ÷ '+riskN+' trades. C\'est un repère perso, pas une règle de la firme.</div></div>';
-    // c) jours minimum
+
+    // ---- b) plancher réel & drawdown consommé ----
+    if(e.floor!==null){
+      var col = e.ddPct>=90?"var(--red)" : e.ddPct>=70?"var(--amber)" : "var(--green)";
+      h+='<div class="pf-metric"><div class="pf-lab">Ton plancher réel — '+esc(pfLabel(PF_DDBASIS,cfg.drawdownBasis))+'</div>';
+      h+='<div class="pf-big" style="color:'+col+'">'+money(e.floor)+'</div>';
+      h+='<div class="pf-sub2">Solde '+money(e.equity)+' · coussin '+money(e.cushion)
+        +(e.cushion>e.ddAbs?' (ton plancher ne te suit plus, ton profit est devenu de la marge)':' sur '+money(e.ddAbs))+'.</div>';
+      h+=pfBar(e.ddPct,col);
+      h+='<div class="pf-sub2">'+e.ddPct+' % du drawdown consommé.'+(e.ddPct>=70?' <b style="color:'+col+'">Zone de pré-rupture.</b>':'')+'</div>';
+      if(e.trailing && e.toLock!==null && e.toLock>0)
+        h+='<div class="pf-note">Ton plancher te suit encore : une journée gagnante ne t\'achète aucune marge. Il te reste <b>'+money(e.toLock)+'</b> de profit à faire pour qu\'il se fige'+(cfg.drawdownLockRule?" ("+esc(cfg.drawdownLockRule)+")":"")+'.</div>';
+      else if(e.trailing && e.lockDone)
+        h+='<div class="pf-note">✓ Plancher verrouillé : à partir d\'ici, ton profit te protège vraiment.</div>';
+      else if(e.trailing && e.lockAbs===null)
+        h+='<div class="pf-note">Drawdown suiveur sans seuil de verrouillage renseigné : tant qu\'il te suit, ton coussin reste constant même quand tu gagnes.</div>';
+      if(cfg.drawdownBasis==="trailing_intraday")
+        h+='<div class="pf-note warn">⚠ Ta firme calcule le drawdown sur ton flottant, tick par tick. Le plancher ci-dessus est calculé sur tes clôtures de journée : le vrai est <b>plus haut</b> si tu as laissé courir des gains non pris. Ne t\'approche jamais du seuil en comptant sur ce chiffre.</div>';
+      h+='</div>';
+    }
+
+    // ---- c) fenêtre de taille ----
+    h+='<div class="pf-metric"><div class="pf-lab">Ta taille de position</div>';
+    if(s.risk===null){
+      h+='<div class="pf-big">—</div><div class="pf-sub2">Renseigne un drawdown ou une perte journalière pour calculer ta taille.</div>';
+    } else if(!s.perContract){
+      h+='<div class="pf-big">'+money(s.risk)+'</div>';
+      h+='<div class="pf-sub2">Risque maximum par trade, pour encaisser '+s.n+' pertes d\'affilée sans rupture.</div>';
+      h+='<div class="pf-note">Ajoute ton instrument principal et ton stop habituel dans les paramètres pour convertir ce montant en nombre de contrats.</div>';
+    } else {
+      h+='<div class="pf-big" style="color:'+(s.overLeveraged?"var(--red)":"var(--green)")+'">'+s.safe+' contrat'+(s.safe>1?"s":"")+'</div>';
+      h+='<div class="pf-sub2">'+esc(s.instr)+' · stop '+s.stop+' pts · '+money(s.perContract)+' par contrat. '
+        +'Au-delà, '+s.n+' pertes d\'affilée passent le plancher.</div>';
+      if(s.firmMax>0){
+        h+='<div class="pf-note'+(s.overLeveraged?" bad":"")+'">'
+          +(s.overLeveraged
+            ? 'Ta firme t\'autorise <b>'+s.firmMax+' contrats</b>. Ta survie t\'en autorise <b>'+s.safe+'</b>.'
+              +(s.killsInOne?' À '+s.firmMax+' contrats, <b>un seul trade perdant ('+money(s.lossAtFirmMax)+') dépasse ton coussin</b> : le compte est mort avant la deuxième idée de la journée.':' Un trade au maximum autorisé coûterait '+money(s.lossAtFirmMax)+'.')
+            : 'Sous le maximum de ta firme ('+s.firmMax+' contrats). Marge saine.')
+          +'</div>';
+      }
+      if(s.safe<1)
+        h+='<div class="pf-note bad">À ce stop, <b>même un seul contrat</b> dépasse ton budget par trade ('+money(s.perContract)+' contre '+money(s.risk)+'). Il faut un stop plus serré, un contrat micro, ou ce compte n\'est plus jouable.</div>';
+    }
+    if(s.tradesToTarget!==null)
+      h+='<div class="pf-note'+(s.underSized?" warn":"")+'">À cette taille, il te faut <b>'+s.tradesToTarget+' trades gagnants nets</b> (à 1R) pour boucler l\'objectif.'
+        +(s.underSized?' C\'est beaucoup : à ce rythme tu passeras plus de temps exposé que nécessaire, et la règle de cohérence deviendra ton vrai plafond.':'')+'</div>';
+    h+='</div>';
+
+    // ---- d) phase : évaluation → objectif · financé → cohérence & retrait ----
+    if(!funded && e.target!==null){
+      h+='<div class="pf-metric"><div class="pf-lab">Distance à l\'objectif</div>';
+      h+='<div class="pf-big">'+money(e.targetLeft)+'</div>';
+      h+=pfBar(e.targetPct||0,"var(--accent)");
+      h+='<div class="pf-sub2">'+(e.targetPct||0)+' % de l\'objectif de '+money(e.target)+' · profit actuel '+money(e.profit)+'.</div>';
+      h+='</div>';
+    }
+    if(e.consistCap!==null){
+      h+='<div class="pf-metric"><div class="pf-lab">Cohérence — plafond '+e.consistCap+' %'+(cfg.consistencyScope?' ('+pfLabel(PF_SCOPE,cfg.consistencyScope).toLowerCase()+')':'')+'</div>';
+      if(e.consistRatio===null){
+        h+='<div class="pf-big">—</div><div class="pf-sub2">Calculable dès que ton profit cumulé est positif.</div>';
+      } else {
+        var cc=e.consistOk?"var(--green)":"var(--red)";
+        h+='<div class="pf-big" style="color:'+cc+'">'+e.consistRatio+' %</div>';
+        h+='<div class="pf-sub2">Ta meilleure journée ('+money(e.bestDay)+') pèse '+e.consistRatio+' % de ton profit cumulé ('+money(e.profit)+').</div>';
+        if(!e.consistOk)
+          h+='<div class="pf-note bad">Ton retrait serait refusé en l\'état. Il te faut <b>'+money(e.consistNeed)+' de profit supplémentaire</b> pour repasser sous '+e.consistCap+' % — et surtout <b>aucune nouvelle journée au-dessus de '+money(e.bestDay)+'</b>, sinon la barre remonte avec toi.</div>';
+        else
+          h+='<div class="pf-note">Pour rester conforme, ne dépasse pas <b>'+money(e.profit*e.consistCap/100)+'</b> sur une seule journée au niveau de profit actuel.</div>';
+      }
+      h+='</div>';
+    }
+
+    // ---- e) jours minimum ----
     h+='<div class="pf-metric"><div class="pf-lab">Jours minimum restants</div>';
-    h+='<div class="pf-big">'+(pfNum(cfg.minDays)>0?minLeft:"—")+'</div>';
-    h+='<div class="pf-sub2">'+(pfNum(cfg.minDays)>0
-        ? "Sur "+Math.round(pfNum(cfg.minDays))+" jours requis. Un jour compte : "+pfLabel(PF_MINDEF,cfg.minDayDef).toLowerCase()+(pfHas(cfg.minDayThreshold)?" ("+cfg.minDayThreshold+(cfg.minDayDef==="winning_amount"?" $":cfg.minDayDef==="profit_pct"?" %":"")+")":"")+"."
-        : "Pas de minimum de jours.")+'</div></div>';
-    // d) interdits
+    if(pfNum(cfg.minDays)>0){
+      h+='<div class="pf-big">'+e.minDaysLeft+'</div>';
+      h+='<div class="pf-sub2">'+e.daysCounted+' compté'+(e.daysCounted>1?"s":"")+' sur '+Math.round(pfNum(cfg.minDays))+' requis. '
+        +'Un jour compte : '+pfLabel(PF_MINDEF,cfg.minDayDef).toLowerCase()
+        +(pfHas(cfg.minDayThreshold)?" ("+cfg.minDayThreshold+(cfg.minDayDef==="winning_amount"?" $":cfg.minDayDef==="profit_pct"?" %":"")+")":"")+'.</div>';
+      if(cfg.minDayDef!=="activity")
+        h+='<div class="pf-note">Attention : ta firme ne compte pas les jours où tu as simplement tradé, mais ceux qui atteignent le seuil. Une séance ouverte à l\'équilibre ne compte pas.</div>';
+    } else h+='<div class="pf-big">—</div><div class="pf-sub2">Pas de minimum de jours.</div>';
+    h+='</div>';
+
+    // ---- f) interdits ----
+    var proh=(cfg.prohibitions||[]);
     h+='<div class="pf-metric"><div class="pf-lab">Interdits du jour</div><div class="pf-chips">';
     if(proh.length===0) h+='<span class="pf-chip none">Aucun interdit déclaré</span>';
     else proh.forEach(function(p){ h+='<span class="pf-chip">🚫 '+pfLabel(PF_PROHIB,p)+'</span>'; });
     h+='</div></div>';
-    // e) honnêteté + actions
-    h+='<div class="pf-honesty">Calcul basé sur tes paramètres, pas sur une connexion à ton broker. Vérifie toujours sur ta plateforme et le site de ta firme.</div>';
+
+    // ---- g) honnêteté + actions ----
+    h+='<div class="pf-honesty">Calculé à partir de ta config déclarée et des '+e.nbDays+' journée'+(e.nbDays>1?"s":"")+' enregistrée'+(e.nbDays>1?"s":"")+' dans ton journal — pas d\'une connexion à ton broker. Vérifie toujours sur ta plateforme et le site de ta firme.</div>';
     h+='<div style="display:flex;gap:8px;margin-top:12px;">'
       +'<button class="logout-btn" id="pfEditBtn" type="button" style="margin-top:0;">Modifier les paramètres</button>'
       +'<button class="logout-btn" id="pfChangeBtn" type="button" style="margin-top:0;">Changer de firme</button></div>';
-    h+='<div style="margin-top:10px;"><label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt-dim);">Trades prévus aujourd\'hui (pour le risque) '
-      +'<input class="set-input" id="pfRiskNLive" type="number" min="1" max="20" value="'+riskN+'" style="width:70px;"></label></div>';
+    h+='<div style="margin-top:10px;"><label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt-dim);">Pertes d\'affilée à encaisser '
+      +'<input class="set-input" id="pfRiskNLive" type="number" min="1" max="20" value="'+s.n+'" style="width:70px;"></label></div>';
     h+='</div>';
     box.innerHTML=h;
     el("pfEditBtn").addEventListener("click",function(){ pfStepConfirm(pfClone(cfg), cfg.templateId?pfTpl(cfg.templateId):null); });
@@ -5588,7 +5794,7 @@
     if(id==="__custom"){ pfStepConfirm(pfNewCustom(),null); return; }
     var tpl=pfTpl(id); if(!tpl) return; pfStepSize(tpl);
   }
-  function pfNewCustom(){ return {enabled:true,isCustom:true,templateId:null,firmName:"",planName:"",market:"futures",unit:"currency",phaseModel:"one_step",currentPhase:"eval",capital:"",sizeLabel:"",profitTarget:"",dailyLoss:"",dailyLossType:"none",maxDrawdown:"",drawdownBasis:"static",drawdownLocks:false,drawdownLockRule:"",minDays:0,minDayDef:"activity",minDayThreshold:"",consistencyPct:"",consistencyScope:"",prohibitions:[],verifiedOn:todayKey(),notes:"",riskDivN:3,daysTraded:0,currentDrawdown:0,highWaterMark:null}; }
+  function pfNewCustom(){ return {enabled:true,isCustom:true,templateId:null,firmName:"",planName:"",market:"futures",unit:"currency",phaseModel:"one_step",currentPhase:"eval",capital:"",sizeLabel:"",profitTarget:"",dailyLoss:"",dailyLossType:"none",maxDrawdown:"",drawdownBasis:"static",drawdownLocks:false,lockProfit:"",drawdownLockRule:"",instrument:"",stopPoints:"",contractsMax:"",minDays:0,minDayDef:"activity",minDayThreshold:"",consistencyPct:"",consistencyScope:"",prohibitions:[],verifiedOn:todayKey(),notes:"",riskDivN:3,daysTraded:0,currentDrawdown:0,highWaterMark:null}; }
   // étape 2 : taille (futures) ou capital + phase (forex)
   function pfStepSize(tpl){
     var h='<h3>'+esc(tpl.firm)+' · '+esc(tpl.plan)+'</h3>';
@@ -5610,7 +5816,9 @@
     return {enabled:true,isCustom:false,templateId:tpl.id,firmName:tpl.firm,planName:tpl.plan,market:tpl.market,unit:tpl.unit,
       phaseModel:tpl.phaseModel,currentPhase:(r.phase||"funded"),capital:(r.cap!=null?r.cap:""),sizeLabel:(r.size||""),
       profitTarget:(r.target===""?"":r.target),dailyLoss:(r.daily!=null?r.daily:""),dailyLossType:tpl.dailyLossType,
-      maxDrawdown:r.dd,drawdownBasis:tpl.drawdownBasis,drawdownLocks:!!tpl.drawdownLocks,drawdownLockRule:tpl.drawdownLockRule||"",
+      maxDrawdown:r.dd,drawdownBasis:tpl.drawdownBasis,drawdownLocks:!!tpl.drawdownLocks,
+      lockProfit:(tpl.lockProfit==null?"":tpl.lockProfit),drawdownLockRule:tpl.drawdownLockRule||"",
+      instrument:"",stopPoints:"",contractsMax:(r.contracts!=null?r.contracts:""),
       minDays:(r.minDays!=null?r.minDays:tpl.minDays),minDayDef:tpl.minDayDef,minDayThreshold:(tpl.minDayThreshold==null?"":tpl.minDayThreshold),
       consistencyPct:(tpl.consistencyPct==null?"":tpl.consistencyPct),consistencyScope:(tpl.consistencyScope||""),
       prohibitions:(tpl.prohibitions||[]).slice(),verifiedOn:PF_VERIFIED,notes:tpl.notes||"",
@@ -5635,6 +5843,11 @@
     h+=row("Drawdown max"+sym,inp("pf_dd",cfg.maxDrawdown,""));
     h+=row("Base du drawdown",pfSelect("pf_ddbasis",PF_DDBASIS,cfg.drawdownBasis));
     h+=row("Le drawdown se verrouille",'<label style="display:flex;align-items:center;gap:8px;font-size:14px;"><input type="checkbox" id="pf_ddlock" '+(cfg.drawdownLocks?"checked":"")+'> Oui, il se fige</label>'+inp("pf_ddlockrule",cfg.drawdownLockRule,"Règle de verrouillage (optionnel)"));
+    h+=row("Le plancher cesse de monter à"+sym+" au-dessus du départ — vide = jamais",inp("pf_lockprofit",cfg.lockProfit,"Ex : 0 pour un verrouillage au solde de départ"));
+    h+='<div class="pf-sec-h">Ta taille de position</div><div class="dsub" style="margin-bottom:10px;">Sert à convertir ton budget-perte en nombre de contrats — c\'est ce qui répond à « combien de pertes d\'affilée mon compte encaisse ».</div>';
+    h+=row("Instrument principal",inp("pf_instr",cfg.instrument||pfTopInstrument(acc()||{})||"","Ex : ES, MNQ, MCL"));
+    h+=row("Stop habituel (en points de l'instrument)",inp("pf_stop",cfg.stopPoints,"Ex : 8"));
+    h+=row("Contrats max autorisés par la firme",inp("pf_cmax",cfg.contractsMax,""));
     h+=row("Jours minimum",inp("pf_mindays",cfg.minDays,"0"));
     h+=row("Définition d'un jour valable",pfSelect("pf_mindef",PF_MINDEF,cfg.minDayDef));
     h+=row("Seuil du jour (montant ou %) — optionnel",inp("pf_minthr",cfg.minDayThreshold,""));
@@ -5657,6 +5870,8 @@
     cfg.profitTarget=el("pf_target").value; cfg.dailyLoss=el("pf_daily").value; cfg.dailyLossType=el("pf_dltype").value;
     cfg.maxDrawdown=el("pf_dd").value; cfg.drawdownBasis=el("pf_ddbasis").value;
     cfg.drawdownLocks=el("pf_ddlock").checked; cfg.drawdownLockRule=el("pf_ddlockrule").value;
+    cfg.lockProfit=el("pf_lockprofit").value;
+    cfg.instrument=el("pf_instr").value.trim().toUpperCase(); cfg.stopPoints=el("pf_stop").value; cfg.contractsMax=el("pf_cmax").value;
     cfg.minDays=el("pf_mindays").value; cfg.minDayDef=el("pf_mindef").value; cfg.minDayThreshold=el("pf_minthr").value;
     cfg.consistencyPct=el("pf_consist").value; cfg.consistencyScope=el("pf_scope").value;
     cfg.verifiedOn=el("pf_verif").value||PF_VERIFIED; cfg.riskDivN=Math.max(1,Math.round(pfNum(el("pf_riskn").value)||3));
