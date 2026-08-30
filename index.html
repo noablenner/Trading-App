@@ -136,6 +136,11 @@
   .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-top:12px;box-shadow:var(--sh-card);}
   .card h2{margin:0 0 12px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-dim);font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .card h2 .hint{font-size:11px;color:var(--txt-faint);text-transform:none;letter-spacing:0;font-weight:500;text-align:right;}
+  /* Carte « Mes journaux de trading » : la vraie porte d'entrée du Journal —
+     un peu plus mise en avant que les autres cartes de la page. */
+  .card-highlight{border-color:var(--accent-dim);box-shadow:0 0 0 1px var(--accent-dim) inset, var(--sh-card);}
+  .card-highlight h2{font-size:15px;color:var(--txt);letter-spacing:0;text-transform:none;}
+  .card-highlight h2 .hint{font-size:12px;}
 
   /* écran Calendrier économique */
   .nav-tile{display:flex;align-items:center;gap:14px;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-top:12px;color:var(--txt);cursor:pointer;text-align:left;font-family:inherit;}
@@ -326,15 +331,18 @@
 
   /* account rows (global) */
   /* cartes de comptes (journal global) — bien visibles et clairement cliquables */
-  .acct-card{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 16px 15px 18px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);cursor:pointer;margin-bottom:10px;position:relative;overflow:hidden;transition:border-color .15s,transform .05s;}
+  .acct-card{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:17px 18px 17px 21px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);cursor:pointer;margin-bottom:10px;position:relative;overflow:hidden;transition:border-color .15s,transform .05s,box-shadow .15s;}
   .acct-card:active{transform:scale(.99);}
+  .acct-card:hover{border-color:var(--accent-dim);box-shadow:0 4px 14px rgba(0,0,0,.18);}
   .acct-card.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
-  .acct-card .al{font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-  .acct-card .as{font-size:12.5px;color:var(--txt-dim);margin-top:4px;}
+  /* Liseré d'accent à gauche : renforce l'idée de carte cliquable, pas une simple ligne d'info. */
+  .acct-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent);opacity:.7;}
+  .acct-card .al{font-weight:800;font-size:18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .acct-card .as{font-size:13px;color:var(--txt-dim);margin-top:4px;}
   .acct-card .ar-val{text-align:right;font-weight:800;font-size:16px;white-space:nowrap;}
   .acct-card .ar-val.pos{color:var(--green);}.acct-card .ar-val.neg{color:var(--red);}.acct-card .ar-val.flat{color:var(--txt-faint);}
-  .acct-card .open-tag{font-size:11px;font-weight:700;color:var(--accent);margin-top:3px;}
-  .chev{color:var(--accent);font-size:22px;margin-left:8px;flex:0 0 auto;}
+  .acct-card .open-tag{font-size:12.5px;font-weight:800;color:var(--accent);margin-top:5px;text-transform:uppercase;letter-spacing:.03em;}
+  .chev{color:var(--accent);font-size:26px;margin-left:8px;flex:0 0 auto;}
   .add-row{display:flex;align-items:center;gap:12px;padding:15px 0 2px;border-top:1px solid var(--line);margin-top:2px;color:var(--accent);font-weight:700;font-size:15px;cursor:pointer;}
   .add-row .plus{width:32px;height:32px;border-radius:9px;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:20px;flex:0 0 auto;}
 
@@ -745,6 +753,9 @@
   .dash-empty{grid-column:1/-1;border:1px dashed var(--line);border-radius:var(--radius);padding:34px 20px;text-align:center;color:var(--txt-dim);font-size:14px;line-height:1.6;}
 
   .dw{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--sh-card);position:relative;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+  /* Widget « Mes comptes » (épinglé) : un peu plus mis en avant que les
+     autres widgets du tableau de bord — c'est la porte d'entrée du Journal. */
+  .dw[data-wid="accounts"]{border-color:var(--accent-dim);box-shadow:0 0 0 1px var(--accent-dim) inset, var(--sh-card);}
   .dw-h{display:flex;align-items:center;gap:8px;padding:13px 15px 0;flex:0 0 auto;}
   .dw-h .dw-ic{font-size:13px;flex:0 0 auto;line-height:1;}
   .dw-h .dw-t{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-dim);font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -1281,8 +1292,8 @@
       </div>
     </div>
 
-    <div class="card">
-      <h2>Mes journaux de trading <span class="hint">touche un compte pour l'ouvrir</span></h2>
+    <div class="card card-highlight">
+      <h2>Mes journaux de trading <span class="hint">touche un compte pour ouvrir son journal</span></h2>
       <div id="acctList"></div>
     </div>
 
@@ -2994,7 +3005,7 @@
 
   var DASH_DEFAULT = [
     {id:"today",w:2,h:1},
-    {id:"accounts",w:3,h:2},
+    {id:"accounts",w:4,h:3},
     {id:"sessions",w:2,h:2},
     {id:"calendar",w:3,h:5}
   ];
@@ -3016,6 +3027,15 @@
           list.push({ id:String(w.id), w:parseInt(w.w,10)||1, h:parseInt(w.h,10)||1 });
         });
         c.widgets = list;                                   // liste vide assumée : l'utilisateur a tout retiré
+        // Un widget épinglé (ex. « Mes comptes ») ne peut plus être retiré depuis
+        // ce fix, mais un agencement sauvegardé avant ce fix pouvait déjà l'avoir
+        // retiré — on le réinjecte pour qu'il redevienne bien impossible à perdre.
+        Object.keys(WIDGETS).forEach(function(wid){
+          if(WIDGETS[wid].pinned && !seen[wid]){
+            var def=WIDGETS[wid];
+            c.widgets.unshift({id:wid, w:def.w||2, h:def.h||1});
+          }
+        });
         if(typeof o.note==="string") c.note=o.note;
         if(typeof o.chartSymbol==="string" && o.chartSymbol) c.chartSymbol=o.chartSymbol;
       }
@@ -3497,7 +3517,7 @@
         b.innerHTML='<div class="dw-center"><div class="dw-big '+(has?(r>0?"pos":r<0?"neg":""):"")+'">'+(has?dashFmt(r):"—")+'</div>'+
           '<div class="dw-sub"><b>'+t+'</b> trade'+(t>1?"s":"")+' · <b>'+w+'</b> ✓ · <b>'+l+'</b> ✗ · '+frDate()+'</div></div>';
       }},
-    accounts:{ name:"Mes comptes", ic:"💼", cat:"essentiel", w:3,h:2, minW:2,minH:2, interactive:true,
+    accounts:{ name:"Mes comptes", ic:"💼", cat:"essentiel", w:4,h:3, minW:2,minH:2, interactive:true, pinned:true,
       q:"Ouvrir le journal d'un compte en un clic.",
       render:function(b){ renderAcctList(b); }},
     calendar:{ name:"Calendrier cumulé", ic:"🗓️", cat:"essentiel", w:3,h:5, minW:2,minH:3, interactive:true,
@@ -3593,15 +3613,19 @@
     wrap.className="dw"; wrap.dataset.wid=id;
     if(def.interactive) wrap.dataset.interactive="1";
     var head=document.createElement("div"); head.className="dw-h";
+    // Widget épinglé (ex. « Mes comptes ») : déplaçable et redimensionnable
+    // comme les autres, mais jamais retirable — c'est la porte d'entrée du
+    // Journal, elle ne doit jamais pouvoir disparaître du tableau de bord.
     head.innerHTML='<span class="dw-ic">'+(def.ic||"▪")+'</span><span class="dw-t">'+esc(def.name)+'</span>'+
                    '<span class="dw-tools"><button class="dw-tool grab" type="button" title="Déplacer">✥</button>'+
-                   '<button class="dw-tool del" type="button" title="Retirer">✕</button></span>';
+                   (def.pinned ? '' : '<button class="dw-tool del" type="button" title="Retirer">✕</button>')+'</span>';
     var body=document.createElement("div"); body.className="dw-b";
     var size=document.createElement("span"); size.className="dw-size";
     var grip=document.createElement("span"); grip.className="dw-grip"; grip.title="Redimensionner";
     wrap.appendChild(head); wrap.appendChild(body); wrap.appendChild(size); wrap.appendChild(grip);
 
-    head.querySelector(".dw-tool.del").addEventListener("click",function(e){ e.stopPropagation(); dashRemove(id); });
+    var delBtn=head.querySelector(".dw-tool.del");
+    if(delBtn) delBtn.addEventListener("click",function(e){ e.stopPropagation(); dashRemove(id); });
     grip.addEventListener("pointerdown",function(e){ dashStartResize(e,id,wrap); });
 
     wrap.addEventListener("dragstart",function(e){
@@ -3698,6 +3722,7 @@
     dashSave(); dashRender(); showToast("Widget « "+def.name+" » ajouté");
   }
   function dashRemove(id){
+    if(WIDGETS[id] && WIDGETS[id].pinned) return;
     var i=-1; dashCfg.widgets.forEach(function(w,k){ if(w.id===id) i=k; });
     if(i<0) return;
     dashCfg.widgets.splice(i,1);
