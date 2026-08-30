@@ -400,6 +400,9 @@
      avec display:flex et l'emporterait autrement. */
   .tabbar .tb-settings{display:none;}
   .tab{flex:1;background:none;border:none;font-family:inherit;color:var(--txt-faint);display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 0;cursor:pointer;font-size:10.5px;font-weight:700;-webkit-tap-highlight-color:transparent;border-radius:14px;transition:color .15s,background .15s;}
+  /* Sous-titre du Calendrier ("Économique et actualité") : réservé à la sidebar
+     ordinateur (voir plus bas) — pas de place pour lui dans la barre mobile. */
+  .tt-sub{display:none;}
   .tab .ti{width:23px;height:23px;display:block;opacity:.7;transition:opacity .15s;}
   .tab .ti svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
   .tab.on{color:var(--accent);} .tab.on .ti{opacity:1;}
@@ -762,13 +765,13 @@
   .cx-out .cxl{font-size:11px;color:var(--txt-dim);font-weight:600;margin-top:2px;line-height:1.4;}
   .cx-help{margin-top:12px;font-size:12.5px;color:var(--txt-dim);line-height:1.55;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:11px 12px;}
   .cx-help b{color:var(--txt);}
-  /* Tiroir Calculatrices : champs plus confortables qu'en widget. */
-  #calcDrawer .cx-sel{font-size:14px;padding:12px 11px;margin-bottom:14px;}
-  #calcDrawer .cx-grid{gap:10px;}
-  #calcDrawer .cx-f input{font-size:15px;padding:11px 11px;}
-  #calcDrawer .cx-out{padding:14px 16px;}
-  #calcDrawer .cx-out .cxv{font-size:26px;}
-  #calcDrawer .cx-out .cxl{font-size:12.5px;}
+  /* Calculatrices pleine page (Outils, mobile) : champs plus confortables qu'en widget. */
+  #toolsCalcBody .cx-sel{font-size:14px;padding:12px 11px;margin-bottom:14px;}
+  #toolsCalcBody .cx-grid{gap:10px;}
+  #toolsCalcBody .cx-f input{font-size:15px;padding:11px 11px;}
+  #toolsCalcBody .cx-out{padding:14px 16px;}
+  #toolsCalcBody .cx-out .cxv{font-size:26px;}
+  #toolsCalcBody .cx-out .cxl{font-size:12.5px;}
   /* Export de données */
   .exp-btn{width:100%;display:flex;align-items:center;gap:11px;text-align:left;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);font-family:inherit;border-radius:13px;padding:13px 14px;cursor:pointer;margin-bottom:8px;}
   .exp-btn .eb-ic{font-size:19px;flex:0 0 auto;}
@@ -844,6 +847,10 @@
     .tab.primary{ color:var(--txt-dim); }
     .tab.primary.on{ background:var(--accent); color:var(--on-accent); }
     .tab.primary.on .ti{ opacity:1; }
+    /* Sous-titre du Calendrier : uniquement la place pour lui en sidebar. */
+    .tt-col{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+    .tt-sub{ display:block; font-size:10.5px; font-weight:600; color:var(--txt-faint); line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .tab.on .tt-sub{ color:inherit; opacity:.75; }
 
     /* ----- RÉGLAGES DU COMPTE : ancrés en bas de la sidebar -----
        margin-top:auto pousse l'élément tout en bas ; le filet (::before) se pose
@@ -1207,14 +1214,6 @@
       </span>
       <span class="nt-arr">›</span>
     </button>
-    <button class="nav-tile" id="calcBtn" type="button">
-      <span class="nt-ic">🧮</span>
-      <span>
-        <span class="nt-t">Calculatrices</span>
-        <span class="nt-s">Taille de position, risque de ruine, série de pertes…</span>
-      </span>
-      <span class="nt-arr">›</span>
-    </button>
   </div>
 
   <!-- ========== VUE D'UN COMPTE (journal du compte) ========== -->
@@ -1439,7 +1438,7 @@
   </div>
   <button class="tab" data-tab="plan" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 10h7M8.5 14h7M8.5 18h4"/></svg></span><span class="tt">Plan</span></button>
   <button class="tab primary" data-tab="journal" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="13" height="18" rx="2"/><path d="M9.5 3v18"/><path d="M12.5 8.5h4M12.5 12.5h4"/></svg></span><span class="tt">Journal</span></button>
-  <button class="tab" data-tab="calendar" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg></span><span class="tt">Calendrier</span></button>
+  <button class="tab" data-tab="calendar" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg></span><span class="tt-col"><span class="tt">Calendrier</span><span class="tt-sub">Économique et actualité</span></span></button>
   <button class="tab" data-tab="propfirm" type="button"><span class="ti"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9.2 12l2 2 3.6-3.8"/></svg></span><span class="tt">Propfirm</span></button>
   <button class="tab" data-tab="tools" type="button"><span class="ti"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2-2z"/></svg></span><span class="tt">Outils</span></button>
   <button class="tab tb-settings" id="sidebarSettingsBtn" type="button"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.1"/><path d="M19.1 14.4a1.5 1.5 0 0 0 .3 1.7l.05.05a1.9 1.9 0 1 1-2.65 2.65l-.05-.05a1.5 1.5 0 0 0-1.7-.3 1.5 1.5 0 0 0-.9 1.37v.13a1.9 1.9 0 1 1-3.8 0v-.07a1.5 1.5 0 0 0-.98-1.37 1.5 1.5 0 0 0-1.7.3l-.05.05A1.9 1.9 0 1 1 4.87 16.2l.05-.05a1.5 1.5 0 0 0 .3-1.7 1.5 1.5 0 0 0-1.37-.9h-.13a1.9 1.9 0 1 1 0-3.8h.07a1.5 1.5 0 0 0 1.37-.98 1.5 1.5 0 0 0-.3-1.7l-.05-.05A1.9 1.9 0 1 1 7.46 4.37l.05.05a1.5 1.5 0 0 0 1.7.3h.07a1.5 1.5 0 0 0 .9-1.37v-.13a1.9 1.9 0 1 1 3.8 0v.07a1.5 1.5 0 0 0 .9 1.37 1.5 1.5 0 0 0 1.7-.3l.05-.05a1.9 1.9 0 1 1 2.65 2.65l-.05.05a1.5 1.5 0 0 0-.3 1.7v.07a1.5 1.5 0 0 0 1.37.9h.13a1.9 1.9 0 1 1 0 3.8h-.07a1.5 1.5 0 0 0-1.37.9z"/></svg></span><span class="tt">Paramètres du compte</span></button>
@@ -1715,15 +1714,6 @@
 <div class="drawer" id="pbDrawer">
   <div class="grab"></div>
   <div id="pbDrawerBody"></div>
-</div>
-
-<!-- Calculatrices (accessible sur mobile comme sur ordinateur) -->
-<div class="drawer" id="calcDrawer">
-  <div class="grab"></div>
-  <h3>Calculatrices</h3>
-  <div class="dsub">Dix calculs de trading, sans formule à retenir. Les champs se pré-remplissent avec ton plan de trading quand c'est possible.</div>
-  <div id="calcBody"></div>
-  <button class="drawer-done sticky" id="calcDone">Terminé</button>
 </div>
 
 <!-- Catalogue de widgets du tableau de bord (ordinateur) -->
@@ -3356,11 +3346,6 @@
       withdateranges:true, autosize:true
     }, null);
     el("overlay").classList.add("open"); el("chartDrawer").classList.add("open");
-  }
-
-  function openCalcDrawer(){
-    renderCalculators(el("calcBody"), false);
-    el("overlay").classList.add("open"); el("calcDrawer").classList.add("open");
   }
 
   /* ---------- Catalogue des widgets ---------- */
@@ -5856,7 +5841,7 @@
     container.appendChild(add);
   }
   var onbActive=false;
-  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("toolsCatDrawer").classList.remove("open"); el("calCatDrawer").classList.remove("open"); el("calcDrawer").classList.remove("open"); el("pbDrawer").classList.remove("open"); el("noteDrawer").classList.remove("open"); el("chartDrawer").classList.remove("open"); }
+  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("toolsCatDrawer").classList.remove("open"); el("calCatDrawer").classList.remove("open"); el("pbDrawer").classList.remove("open"); el("noteDrawer").classList.remove("open"); el("chartDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   // Verrou de scroll iOS-safe : overflow:hidden seul ne bloque pas le scroll tactile
   // derrière un popup sur iOS Safari. Tant qu'un tiroir OU la modale de confirmation
@@ -5949,8 +5934,6 @@
   });
   el("noteHelpBtn").addEventListener("click", openNoteDrawer);
   el("noteDone").addEventListener("click", closeDrawer);
-  el("calcBtn").addEventListener("click", openCalcDrawer);
-  el("calcDone").addEventListener("click", closeDrawer);
   el("chartDone").addEventListener("click", function(){ el("chartWrap").innerHTML=""; closeDrawer(); });
   el("expSessBtn").addEventListener("click", exportSessionsCSV);
   el("expTradesBtn").addEventListener("click", exportTradesCSV);
