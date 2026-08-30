@@ -200,7 +200,7 @@
   /* Page Graphique : le widget occupe toute la place disponible, bord à bord
      (pas de cadre ni de marge latérale comme un widget parmi d'autres) et
      toute la hauteur sous le bandeau — fixe, non déplaçable. */
-  #screenChart{ height:calc(100vh - var(--topbarH,82px) - 12px); display:flex; margin:0 -20px; }
+  #screenChart{ height:calc(100vh - var(--topbarH,82px) - 4px); display:flex; margin:-8px -20px 0; }
   .chart-full-wrap{position:relative;flex:1;min-height:420px;width:100%;overflow:hidden;background:var(--surface-2);}
   .chart-full-wrap iframe{ color-scheme: normal; }
   .poweredBy{margin-top:8px;font-size:11px;color:var(--txt-faint);}
@@ -1064,7 +1064,7 @@
     #globalLegacy{ display:none; }
     #toolsBoard, #calBoard{ display:block; }
     #toolsLegacy, #calLegacy{ display:none; }
-    #screenChart{ margin:0 -28px; }
+    #screenChart{ margin:-8px -28px 0; }
     .sess-footer{ bottom:0; }
 
     /* Calendrier (Journal cumulé #gCal + Calendrier du compte #aCal) : les
