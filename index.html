@@ -21,6 +21,11 @@
     document.documentElement.setAttribute('data-theme', t);
     document.documentElement.style.colorScheme = t;
   }catch(e){ document.documentElement.setAttribute('data-theme','dark'); }
+  // Sidebar (ordinateur) réduite ou non : posé avant le CSS pour éviter un
+  // sursaut de mise en page pendant le chargement.
+  try{
+    if(localStorage.getItem('edgioSidebarCollapsed')==='1') document.documentElement.classList.add('sb-collapsed');
+  }catch(e){}
 })();
 </script>
 <link rel="manifest" href="./manifest.webmanifest">
@@ -81,7 +86,10 @@
   .backbtn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--surface);color:var(--txt);font-size:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:0;flex:0 0 auto;padding-bottom:3px;}
   .backbtn:active{transform:scale(.92);}
   .ttl{font-size:20px;font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .sub{font-size:12.5px;color:var(--txt-dim);margin-top:1px;}
+  /* line-height + min-height fixes : réservée même sans texte, pour que la
+     hauteur du bandeau (et le filet sous le titre) reste toujours la même,
+     avec ou sans sous-titre. */
+  .sub{font-size:12.5px;color:var(--txt-dim);margin-top:1px;line-height:1.3;min-height:1.3em;}
   .gear{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--surface);color:var(--txt-dim);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;}
   .gear:active{transform:scale(.94);}
   /* Carte date de séance : ligne compacte (libellé à gauche, date à droite) */
@@ -162,7 +170,10 @@
      à plusieurs étages posé sur le widget. */
   .news-sel-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
   .news-sel-row label{font-size:11.5px;font-weight:700;color:var(--txt-faint);text-transform:uppercase;letter-spacing:.04em;flex:0 0 auto;}
-  .news-sel-row select{flex:1;min-width:0;}
+  /* Largeur au contenu, pas à toute la largeur du widget : un sélecteur
+     discret, pas un module qui prend toute la place (mais qui peut quand
+     même rétrécir si la carte est étroite, ex. widget du tableau de bord). */
+  .news-sel-row .cx-sel{width:auto;max-width:220px;min-width:0;margin-bottom:0;flex:0 1 auto;}
   /* --- Outils : fiche contrat, minuteur, horloges --- */
   .tw-specs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0;}
   .tw-specs>div{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px 9px;min-width:0;}
@@ -857,7 +868,7 @@
     /* Bloc de marque en haut de la sidebar : logo + "Edgio" + baseline. */
     .tb-brand{
       display:flex; align-items:center; gap:10px;
-      padding:4px 10px 6px;
+      padding:2px 10px 8px;
     }
     .tb-brand-logo{
       width:34px; height:34px; border-radius:9px; flex:0 0 auto; display:block;
@@ -871,6 +882,14 @@
     }
     /* petit filet de séparation avant les onglets */
     .tb-brand{ border-bottom:1px solid var(--line); margin:0 -4px 10px; padding-bottom:12px; }
+    /* Bouton pour réduire/étendre la sidebar : icônes seules quand repliée. */
+    .tb-collapse-btn{
+      flex:0 0 auto; margin-left:auto; width:26px; height:26px; border-radius:8px;
+      border:1px solid var(--line); background:var(--surface-2); color:var(--txt-dim);
+      display:flex; align-items:center; justify-content:center; cursor:pointer;
+    }
+    .tb-collapse-btn:hover{ color:var(--txt); background:var(--surface); }
+    .tb-collapse-btn svg{ width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:transform .15s; }
     .tab{
       flex:0 0 auto; flex-direction:row; align-items:center; justify-content:flex-start;
       gap:13px; padding:12px 14px; font-size:14px; border-radius:12px; text-align:left;
@@ -888,25 +907,27 @@
     .tt-sub{ display:block; font-size:10.5px; font-weight:600; color:var(--txt-faint); line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .tab.on .tt-sub{ color:inherit; opacity:.75; }
 
-    /* ----- RÉGLAGES DU COMPTE : ancrés en bas de la sidebar -----
-       margin-top:auto pousse l'élément tout en bas ; le filet (::before) se pose
-       dans l'espace laissé libre et s'aligne sur celui du bloc de marque. */
-    /* L'entrée verrouillée porte le margin-top:auto : elle et les Réglages
-       forment le bloc collé au bas de la sidebar. */
+    /* ----- SIDEBAR RÉDUITE : icônes seules, texte masqué ----- */
+    html.sb-collapsed{ --sidebarW:76px; }
+    html.sb-collapsed .tb-brand{ justify-content:center; padding-left:0; padding-right:0; }
+    html.sb-collapsed .tb-brand-txt{ display:none; }
+    html.sb-collapsed .tb-collapse-btn{ margin-left:0; }
+    html.sb-collapsed .tb-collapse-btn svg{ transform:rotate(180deg); }
+    html.sb-collapsed .tab{ justify-content:center; padding-left:0; padding-right:0; gap:0; }
+    html.sb-collapsed .tab .tt, html.sb-collapsed .tab .tt-col, html.sb-collapsed .tab .tb-lock{ display:none; }
+
+    /* Propfirm : grisée en permanence (chantier en cours), au même rang que
+       les autres pages — pas isolée en bas contre les Réglages. */
     .tabbar .tb-locked{
-      display:flex; margin-top:auto; position:relative;
+      display:flex; position:relative;
       color:var(--txt-faint); cursor:not-allowed; opacity:.62;
     }
     .tabbar .tb-locked:hover{ background:none; color:var(--txt-faint); }
     .tabbar .tb-locked .ti{ opacity:.6; }
-    .tb-locked::before{
-      content:""; position:absolute; left:-4px; right:-4px; top:-9px;
-      border-top:1px solid var(--line);
-    }
-    /* Quand l'entrée verrouillée est là, c'est elle qui pousse le bloc en bas :
-       les Réglages la suivent immédiatement, sans second filet ni second auto. */
-    .tabbar .tb-settings{ display:flex; margin-top:0; position:relative; }
-    .tabbar .tb-locked ~ .tb-settings::before{ border-top:none; }
+    /* ----- RÉGLAGES DU COMPTE : ancrés en bas de la sidebar -----
+       margin-top:auto pousse l'élément tout en bas, avec un filet (::before)
+       qui marque l'écart avec le reste des pages (dont Propfirm). */
+    .tabbar .tb-settings{ display:flex; margin-top:auto; position:relative; }
     .tb-settings::before{
       content:""; position:absolute; left:-4px; right:-4px; top:-9px;
       border-top:1px solid var(--line);
@@ -1482,12 +1503,15 @@
 </div>
 
 <nav class="tabbar hidden" id="tabbar">
-  <div class="tb-brand" aria-hidden="true">
-    <img class="tb-brand-logo" src="./icon-192.png" alt="">
-    <div class="tb-brand-txt">
+  <div class="tb-brand">
+    <img class="tb-brand-logo" src="./icon-192.png" alt="" aria-hidden="true">
+    <div class="tb-brand-txt" aria-hidden="true">
       <div class="tb-brand-name">Edgio</div>
       <div class="tb-brand-tag">Mon Journal de Trading</div>
     </div>
+    <button class="tb-collapse-btn" id="sidebarCollapseBtn" type="button" aria-label="Réduire le menu">
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
   </div>
   <button class="tab" data-tab="plan" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 10h7M8.5 14h7M8.5 18h4"/></svg></span><span class="tt">Plan</span></button>
   <button class="tab primary" data-tab="journal" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="13" height="18" rx="2"/><path d="M9.5 3v18"/><path d="M12.5 8.5h4M12.5 12.5h4"/></svg></span><span class="tt">Journal</span></button>
@@ -5128,7 +5152,7 @@
     else if(tab==="plan"){ el("screenPlan").classList.remove("hidden"); if(a){ setGearBadge("📋"); } else { el("gearBtn").classList.add("hidden"); } setTitle("Plan de trading", a?a.name:"", true); renderPlan(); }
     else if(tab==="calendar"){ el("screenCalendar").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Calendrier","Économique et actualité", true); loadEconWidget(); calBoard.render(); }
     else if(tab==="propfirm"){ el("screenPropfirm").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Prop firm", "Briefing pré-séance", true); renderPropfirm(); }
-    else if(tab==="tools"){ el("screenTools").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Outils","", true);
+    else if(tab==="tools"){ el("screenTools").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Outils","Boîte à outils", true);
       renderCalculators(el("toolsCalcBody"), false);
       twContract(el("toolsTicksBody")); twTimer(el("toolsTimerBody")); twClocks(el("toolsClocksBody"));
       toolsBoard.render(); }
@@ -5196,6 +5220,22 @@
   el("addSessionBtn").addEventListener("click", openDatePicker);
   el("dateGo").addEventListener("click",function(){ var v=el("newSessDate").value||todayKey(); closeDrawer(); openSession(v); });
   window.addEventListener("resize", updateTopbarHeight);
+  // ---- Sidebar (ordinateur) : réduire/étendre le menu à icônes seules ----
+  (function(){
+    var btn = el("sidebarCollapseBtn"); if(!btn) return;
+    function apply(){
+      var on = document.documentElement.classList.contains("sb-collapsed");
+      btn.setAttribute("aria-label", on ? "Étendre le menu" : "Réduire le menu");
+      requestAnimationFrame(updateTopbarHeight);
+    }
+    apply();
+    btn.addEventListener("click",function(){
+      var on = !document.documentElement.classList.contains("sb-collapsed");
+      document.documentElement.classList.toggle("sb-collapsed", on);
+      try{ localStorage.setItem("edgioSidebarCollapsed", on?"1":"0"); }catch(e){}
+      apply();
+    });
+  })();
   // points d'entrée Analyse
   el("anAcctBtn").addEventListener("click",function(){ var a=acc(); if(!a)return; openAnalysis([a.id]); });
   el("anPickBtn").addEventListener("click",function(){
