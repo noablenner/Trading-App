@@ -74,7 +74,7 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
   html{background:var(--bg);overscroll-behavior-y:none;}
-  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45;max-width:var(--appW,520px);margin:0 auto;padding:0 0 calc(108px + env(safe-area-inset-bottom));min-height:100vh;position:relative;overflow-x:hidden;overscroll-behavior-y:none;}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45;max-width:var(--appW,520px);margin:0 auto;padding:0 0 calc(98px + env(safe-area-inset-bottom));min-height:100vh;position:relative;overflow-x:hidden;overscroll-behavior-y:none;}
   .app{padding:calc(var(--topbarH, 82px) + 12px) 20px 0;}
   /* Cale opaque derrière la barre d'état iOS : couvre toute la zone safe-area au-dessus du header */
   .topbar::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:100vh;background:var(--bg);}
@@ -192,10 +192,11 @@
   .dw-chart > .dw-sym{border:none;border-bottom:1px solid var(--line);border-radius:0;margin:0;flex:0 0 auto;}
   .dw-chart > .tradingview-widget-container{flex:1;min-height:0;}
   .chart-wrap{position:relative;height:70vh;min-height:420px;width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface-2);}
-  /* Page Graphique : le widget occupe toute la hauteur disponible sous le
-     bandeau, pas une taille de widget parmi d'autres — fixe, non déplaçable. */
-  #screenChart{ height:calc(100vh - var(--topbarH,82px) - 24px); display:flex; }
-  .chart-full-wrap{position:relative;flex:1;min-height:420px;width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface-2);}
+  /* Page Graphique : le widget occupe toute la place disponible, bord à bord
+     (pas de cadre ni de marge latérale comme un widget parmi d'autres) et
+     toute la hauteur sous le bandeau — fixe, non déplaçable. */
+  #screenChart{ height:calc(100vh - var(--topbarH,82px) - 12px); display:flex; margin:0 -20px; }
+  .chart-full-wrap{position:relative;flex:1;min-height:420px;width:100%;overflow:hidden;background:var(--surface-2);}
   .chart-full-wrap iframe{ color-scheme: normal; }
   .poweredBy{margin-top:8px;font-size:11px;color:var(--txt-faint);}
   .poweredBy a{color:var(--accent);font-weight:700;text-decoration:none;}
@@ -425,7 +426,7 @@
   .main-btn:active{transform:scale(.98);}
   .main-btn.done{background:var(--green);}
   /* ===== barre d'onglets (nav bas) ===== */
-  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:45;max-width:var(--appW,520px);margin:0 auto;display:flex;align-items:stretch;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line);padding:9px 8px calc(18px + env(safe-area-inset-bottom));gap:4px;box-shadow:0 -6px 18px rgba(0,0,0,.28);}
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:45;max-width:var(--appW,520px);margin:0 auto;display:flex;align-items:stretch;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line);padding:9px 8px calc(8px + env(safe-area-inset-bottom));gap:4px;box-shadow:0 -6px 18px rgba(0,0,0,.28);}
   /* Bloc de marque : uniquement visible en mode sidebar (ordinateur). */
   .tb-brand{display:none;}
   .tb-collapse-btn{display:none;}
@@ -618,6 +619,15 @@
   /* CTA principal (ajouter une séance) */
   .main-cta{width:100%;border:none;border-radius:15px;padding:16px;font-size:16px;font-weight:800;font-family:inherit;background:var(--accent);color:var(--on-accent);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.35);margin:4px 0;}
   .main-cta:active{transform:scale(.99);}
+  /* Pied de page fixe (ex. Terminer la séance / Supprimer) : toujours visible
+     sans avoir à scroller, juste au-dessus de la barre d'onglets mobile. */
+  .sess-footer{
+    position:sticky; bottom:var(--tabbarH,80px); z-index:5;
+    display:flex; flex-direction:column; gap:8px;
+    margin-top:18px; padding-top:12px; padding-bottom:6px;
+    background:linear-gradient(0deg,var(--bg) 70%,transparent);
+  }
+  .sess-footer .main-cta, .sess-footer .danger-btn{ margin:0; }
   /* confettis (gamification) */
   #confetti{position:fixed;inset:0;pointer-events:none;z-index:150;overflow:hidden;}
   .conf{position:absolute;top:-14px;width:9px;height:14px;border-radius:2px;will-change:transform,opacity;animation:conffall linear forwards;}
@@ -652,7 +662,7 @@
   .cmodal .confirm{background:var(--red);color:var(--on-accent);border-color:var(--red);}
 
   .hidden{display:none !important;}
-  .toast{position:fixed;bottom:calc(120px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:var(--on-green);font-weight:800;font-size:14px;padding:12px 20px;border-radius:12px;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;max-width:90%;text-align:center;}
+  .toast{position:fixed;bottom:calc(110px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:var(--on-green);font-weight:800;font-size:14px;padding:12px 20px;border-radius:12px;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;max-width:90%;text-align:center;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* auth / loading screens */
@@ -1043,6 +1053,8 @@
     #globalLegacy{ display:none; }
     #toolsBoard, #calBoard{ display:block; }
     #toolsLegacy, #calLegacy{ display:none; }
+    #screenChart{ margin:0 -28px; }
+    .sess-footer{ bottom:0; }
 
     /* Calendrier (Journal cumulé #gCal + Calendrier du compte #aCal) : les
        cases grandissent déjà avec la largeur de la carte (grille 7 colonnes,
@@ -1510,8 +1522,10 @@
       <textarea id="notesText" placeholder="Comment j'ai été aujourd'hui ? Ce qui a marché, ce qui a merdé, les erreurs à corriger demain…"></textarea>
     </div>
 
-    <button class="main-cta" id="finishSessionBtn" type="button" style="margin-top:18px;">✓ Terminer la séance</button>
-    <button class="danger-btn" id="deleteSessionBtn" type="button" style="margin-top:10px;">Supprimer cette séance</button>
+    <div class="sess-footer">
+      <button class="main-cta" id="finishSessionBtn" type="button">✓ Terminer la séance</button>
+      <button class="danger-btn" id="deleteSessionBtn" type="button">Supprimer cette séance</button>
+    </div>
   </div>
 
 </div>
@@ -1767,7 +1781,7 @@
   <div class="set-group"><div class="set-label">Apparence — couleur de l'app</div><div class="sw-lg" id="appSwatches"></div>
     <div class="set-hint">La couleur s'adapte automatiquement au thème clair ou sombre.</div>
   </div>
-  <button class="drawer-done" id="appDrawerDone">Terminé</button>
+  <button class="drawer-done sticky" id="appDrawerDone">Terminé</button>
 </div>
 
 <!-- Modifier mon profil (prénom, nom, email) -->
@@ -3446,18 +3460,21 @@
 
   /* Page Graphique : le même widget TradingView avancé que le tiroir
      ci-dessus, mais fixe (pas un widget de tableau de bord) et occupant
-     toute la page — changement d'instrument directement dans le widget. */
-  // Ne remonte le widget que si le thème a changé : TradingView affiche un
-  // popup d'info (contrat continu, ex. NQ1!) à chaque nouveau montage — en
-  // gardant le même iframe d'un passage à l'autre sur l'onglet, on ne le
-  // revoit plus après l'avoir fermé une fois.
+     toute la page — changement d'instrument directement dans le widget.
+     Symbole par défaut : un CFD (FOREXCOM), pas le contrat future continu
+     (ex. CME_MINI:NQ1!) — celui-ci n'a pas de données temps réel libres
+     dans le widget embarqué et affiche systématiquement un popup « Symbole
+     disponible uniquement sur TradingView ». L'utilisateur reste libre de
+     chercher n'importe quel symbole dans le widget lui-même. */
+  // Ne remonte le widget que si le thème a changé, pour éviter de le
+  // réinitialiser (et de revoir un éventuel popup) à chaque passage sur l'onglet.
   var _chartBuiltTheme=null;
   function buildFullChart(){
     var th=resolvedTheme();
     if(_chartBuiltTheme===th) return;
     _chartBuiltTheme=th;
     tvMount(el("chartFullWrap"), "embed-widget-advanced-chart.js", {
-      symbol:"CME_MINI:NQ1!", interval:"15", theme:th, style:"1", locale:"fr",
+      symbol:"FOREXCOM:NSXUSD", interval:"15", theme:th, style:"1", locale:"fr",
       hide_top_toolbar:false, hide_legend:false, allow_symbol_change:true, save_image:false,
       withdateranges:true, autosize:true
     }, null);
@@ -5168,6 +5185,9 @@
   function setTitle(t,sub,big){ var e=el("screenTitle"); e.textContent=t; e.classList.toggle("big",!!big); el("screenSub").textContent=sub||""; }
 
   function updateTopbarHeight(){ var tb=document.querySelector(".topbar"); if(tb) document.documentElement.style.setProperty("--topbarH", tb.offsetHeight+"px"); }
+  // Hauteur réelle de la barre d'onglets mobile, pour que le pied de page fixe
+  // (ex. Terminer la séance) se pose juste au-dessus, jamais dessous.
+  function updateTabbarHeight(){ var tb=el("tabbar"); if(tb && !dashIsDesktop()) document.documentElement.style.setProperty("--tabbarH", tb.offsetHeight+"px"); }
   function applyTab(tab){
     view.tab=tab;
     hideMainScreens();
@@ -5194,6 +5214,7 @@
     syncGearMode();
     refreshAds();
     requestAnimationFrame(updateTopbarHeight);
+    requestAnimationFrame(updateTabbarHeight);
   }
   // niveaux du Journal : tous comptes -> un compte -> une séance
   function renderJournalTab(){
@@ -5255,6 +5276,7 @@
   el("addSessionBtn").addEventListener("click", openDatePicker);
   el("dateGo").addEventListener("click",function(){ var v=el("newSessDate").value||todayKey(); closeDrawer(); openSession(v); });
   window.addEventListener("resize", updateTopbarHeight);
+  window.addEventListener("resize", updateTabbarHeight);
   // ---- Sidebar (ordinateur) : réduire/étendre le menu à icônes seules ----
   (function(){
     var btn = el("sidebarCollapseBtn"); if(!btn) return;
@@ -6424,6 +6446,35 @@
   var onbActive=false;
   function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("toolsCatDrawer").classList.remove("open"); el("calCatDrawer").classList.remove("open"); el("pbDrawer").classList.remove("open"); el("noteDrawer").classList.remove("open"); el("chartDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
+  // Fermeture au glissement vers le bas (mobile) : on ne réagit qu'à partir
+  // de la poignée (.grab), pour ne jamais gêner le scroll du contenu du
+  // tiroir. Sous le seuil, la feuille revient à sa place.
+  document.querySelectorAll(".drawer > .grab").forEach(function(handle){
+    var drawer=handle.parentElement, startY=0, dy=0, dragging=false;
+    handle.addEventListener("touchstart",function(e){
+      if(!drawer.classList.contains("open")) return;
+      dragging=true; dy=0; startY=e.touches[0].clientY;
+      drawer.style.transition="none";
+    },{passive:true});
+    handle.addEventListener("touchmove",function(e){
+      if(!dragging) return;
+      dy=Math.max(0, e.touches[0].clientY-startY);
+      drawer.style.transform="translateY("+dy+"px)";
+    },{passive:true});
+    function onEnd(){
+      if(!dragging) return;
+      dragging=false;
+      drawer.style.transition="";
+      if(dy>90){
+        drawer.style.transform="translateY(100%)";
+        setTimeout(function(){ if(onbActive) return; closeDrawer(); drawer.style.transform=""; },220);
+      } else {
+        drawer.style.transform="";
+      }
+    }
+    handle.addEventListener("touchend",onEnd);
+    handle.addEventListener("touchcancel",onEnd);
+  });
   // Verrou de scroll iOS-safe : overflow:hidden seul ne bloque pas le scroll tactile
   // derrière un popup sur iOS Safari. Tant qu'un tiroir OU la modale de confirmation
   // est ouvert, on fige le body en position:fixed (en mémorisant le scroll courant)
