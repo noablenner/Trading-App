@@ -679,6 +679,12 @@
   .dash-btn.solid:hover{color:var(--on-accent);}
   .dash-grid{display:grid;grid-template-columns:repeat(var(--dash-cols,6),minmax(0,1fr));grid-auto-rows:var(--dash-row,116px);grid-auto-flow:row dense;gap:14px;align-items:stretch;}
   .dash-empty{grid-column:1/-1;border:1px dashed var(--line);border-radius:var(--radius);padding:34px 20px;text-align:center;color:var(--txt-dim);font-size:14px;line-height:1.6;}
+  /* Ligne fixe au-dessus de la grille de widgets : même rythme de colonnes/
+     marges que #dashGrid, pour que l'entrée « Analyse » reste alignée et
+     homogène, sans jamais être déplaçable/redimensionnable comme un widget. */
+  .dash-pinned-row{ margin-bottom:14px; }
+  .dash-pinned-row:empty{ display:none; }
+  .dash-pinned-row > .nav-tile{ grid-column:1/-1; margin-top:0; box-shadow:var(--sh-card); }
 
   .dw{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--sh-card);position:relative;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
   .dw-h{display:flex;align-items:center;gap:8px;padding:13px 15px 0;flex:0 0 auto;}
@@ -1155,6 +1161,10 @@
         <button class="dash-btn hidden" id="dashResetBtn" type="button">↺ Réinitialiser</button>
         <button class="dash-btn solid hidden" id="dashDoneBtn" type="button">✓ Terminé</button>
       </div>
+      <!-- Emplacement fixe, aligné sur la grille : accueille l'entrée vers
+           l'Analyse (voir #anCumulBtn plus bas), toujours à la même place,
+           jamais déplaçable ni redimensionnable. -->
+      <div class="dash-grid dash-pinned-row" id="dashPinnedRow"></div>
       <div class="dash-grid" id="dashGrid"></div>
     </div>
 
@@ -1203,9 +1213,12 @@
 
     </div><!-- /#globalLegacy -->
 
-    <!-- Hors de #globalLegacy : reste accessible aussi sur ordinateur,
-         sous le tableau de bord. C'est la porte d'entrée de l'analyse
-         discipline & psychologie — à ne jamais laisser disparaître. -->
+    <!-- Hors de #globalLegacy : reste accessible aussi sur ordinateur — c'est
+         la porte d'entrée de l'analyse discipline & psychologie, à ne jamais
+         laisser disparaître. Sur ordinateur, applyAnCumulLayout() déplace ce
+         bouton dans #dashPinnedRow (juste au-dessus de la grille de widgets,
+         toujours à la même place, jamais déplaçable/redimensionnable) ; sur
+         mobile/tablette il reste ici, à sa position d'origine. -->
     <button class="nav-tile" id="anCumulBtn" type="button">
       <span class="nt-ic">📊</span>
       <span>
@@ -2471,9 +2484,26 @@
         }
       });
     });
+    applyAnCumulLayout();
   }
   try{ _railMql.addEventListener("change", applyRailLayout); }catch(e){ try{ _railMql.addListener(applyRailLayout); }catch(_){} }
   window.addEventListener("resize", applyRailLayout);
+
+  // ---- Entrée « Analyse cumulée » : même mécanique que le rail ci-dessus.
+  // Sur ordinateur, elle rejoint #dashPinnedRow (juste au-dessus de la grille
+  // de widgets, toujours au même endroit, jamais déplaçable/redimensionnable) ;
+  // sur mobile/tablette, elle reste à sa position d'origine dans le DOM.
+  var _anCumulOrig = null;
+  function applyAnCumulLayout(){
+    var btn = el("anCumulBtn"), slot = el("dashPinnedRow");
+    if(!btn || !slot) return;
+    if(!_anCumulOrig) _anCumulOrig = { parent: btn.parentNode, next: btn.nextSibling };
+    if(_railMql.matches){
+      if(btn.parentNode !== slot) slot.appendChild(btn);
+    } else if(btn.parentNode !== _anCumulOrig.parent) {
+      _anCumulOrig.parent.insertBefore(btn, _anCumulOrig.next);
+    }
+  }
 
   // navigation (onglets)
   var view={tab:"journal", jlevel:"accounts", accId:null, editKey:null, anIds:[]};
