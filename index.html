@@ -885,6 +885,7 @@
     :root{ --appW:680px; }
     .app{ padding-left:26px; padding-right:26px; }
     .topbar{ padding-left:26px; padding-right:26px; }
+    #screenChart{ margin:-8px -26px 0; }
   }
 
   /* --- ORDINATEUR : menu latéral à gauche --- */
@@ -1079,7 +1080,15 @@
     #globalLegacy{ display:none; }
     #toolsBoard, #calBoard{ display:block; }
     #toolsLegacy, #calLegacy{ display:none; }
-    #screenChart{ margin:-8px -28px 0; }
+    /* Page Graphique : sort complètement du couloir centré à --appW (qui existe
+       pour garder les pages de texte lisibles) et se cale directement sur la
+       fenêtre, de la sidebar jusqu'au bord droit — donc jamais de bordure qui
+       apparaît/reste selon la largeur de fenêtre, quelle que soit sa taille. */
+    #screenChart{
+      position:fixed; margin:0;
+      top:var(--topbarH,82px); left:var(--sidebarW); right:0; bottom:0;
+      height:auto;
+    }
 
     /* Calendrier (Journal cumulé #gCal + Calendrier du compte #aCal) : les
        cases grandissent déjà avec la largeur de la carte (grille 7 colonnes,
@@ -1766,7 +1775,6 @@
       <div class="sub-setting hidden" id="rulesLink"><div class="link-note">🔗 Tes règles sont celles définies dans ton <b>Plan de trading</b> (onglet Plan). Elles s'affichent toutes en séance, à noter ✓/✗.</div></div>
       <div class="toggle-row"><div><div class="tl">Check-list pré-séance</div><div class="td">Des cases à cocher avant de trader.</div></div><div class="switch" data-key="showChecklist"><i></i></div></div>
       <div class="sub-setting hidden" id="checklistLink"><div class="link-note">🔗 Ta check-list est celle définie dans ton <b>Plan de trading</b> (onglet Plan) : vérif des annonces éco, setup, ordinateur…</div></div>
-      <div class="toggle-row"><div><div class="tl">Série de discipline</div><div class="td">Séances consécutives sans faute — visible dans Analyses.</div></div><div class="switch" data-key="showStreak"><i></i></div></div>
     </div>
   </div>
 
@@ -5199,8 +5207,7 @@
     var showChecklist=accs.some(function(a){return a.showChecklist;});
     function grp(title,cards){ cards=cards.filter(Boolean); if(!cards.length) return; var h=document.createElement('div'); h.className='an-group'; h.textContent=title; body.appendChild(h); cards.forEach(function(c){body.appendChild(c);}); }
     var disc=[], psy=[];
-    if(showRules){ disc.push(secRulesRespect(scope)); disc.push(secCostliestRule(scope)); }
-    if(accs.some(function(a){return a.showStreak;})) disc.push(secDiscipline(scope));
+    if(showRules){ disc.push(secRulesRespect(scope)); disc.push(secCostliestRule(scope)); disc.push(secDiscipline(scope)); }
     if(showChecklist){ disc.push(secChecklist(scope)); }
     if(accs.some(function(a){return a.showPlaybooks;})){ disc.push(secPlaybooks(scope)); }
     if(showMood){ psy.push(secMood(scope)); }
