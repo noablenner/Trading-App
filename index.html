@@ -639,13 +639,12 @@
   /* CTA principal (ajouter une séance) */
   .main-cta{width:100%;border:none;border-radius:15px;padding:16px;font-size:16px;font-weight:800;font-family:inherit;background:var(--accent);color:var(--on-accent);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.35);margin:4px 0;}
   .main-cta:active{transform:scale(.99);}
-  /* Pied de page fixe (ex. Terminer la séance / Supprimer) : toujours visible
-     sans avoir à scroller, juste au-dessus de la barre d'onglets mobile. */
+  /* Pied de page de la séance (Terminer / Supprimer) : simple bloc en fin de
+     page, pas un élément posé par-dessus le contenu — on ne le voit qu'en
+     arrivant en bas de la séance (ou tout de suite si elle est courte). */
   .sess-footer{
-    position:sticky; bottom:var(--tabbarH,80px); z-index:5;
     display:flex; flex-direction:column; gap:8px;
     margin-top:18px; padding-top:12px; padding-bottom:6px;
-    background:linear-gradient(0deg,var(--bg) 70%,transparent);
   }
   .sess-footer .main-cta, .sess-footer .danger-btn{ margin:0; }
   /* confettis (gamification) */
@@ -890,7 +889,11 @@
 
   /* --- ORDINATEUR : menu latéral à gauche --- */
   @media (min-width:1100px){
-    :root{ --sidebarW:250px; --appW:1180px; }
+    /* --appW suit la largeur de fenêtre disponible (moins la sidebar et les
+       marges) au lieu d'un plafond fixe : plus l'écran est large, plus le
+       contenu (colonnes, widgets du tableau de bord, graphique…) en profite,
+       jusqu'à un maximum raisonnable pour ne pas étirer le texte à l'infini. */
+    :root{ --sidebarW:250px; --appW:clamp(1180px, calc(100vw - var(--sidebarW) - 96px), 1800px); }
     html{ background:radial-gradient(1200px 900px at 72% -8%, var(--bg-glow) 0%, var(--bg) 62%); }
 
     /* Le corps réserve une gouttière à gauche pour la sidebar ; le contenu se
@@ -1077,7 +1080,6 @@
     #toolsBoard, #calBoard{ display:block; }
     #toolsLegacy, #calLegacy{ display:none; }
     #screenChart{ margin:-8px -28px 0; }
-    .sess-footer{ bottom:0; }
 
     /* Calendrier (Journal cumulé #gCal + Calendrier du compte #aCal) : les
        cases grandissent déjà avec la largeur de la carte (grille 7 colonnes,
@@ -1095,15 +1097,13 @@
     /* Barres & tiroirs fixes : décalés derrière la sidebar */
     .bottombar{ left:var(--sidebarW); right:0; margin:0; max-width:none; }
     .drawer{ left:var(--sidebarW); right:0; margin:0 auto; max-width:760px; }
+    /* Le tiroir Graphique n'est pas un formulaire : il profite lui aussi de la
+       largeur disponible plutôt que de rester figé à 760px. */
+    #chartDrawer{ max-width:min(1400px, calc(100vw - var(--sidebarW) - 64px)); }
     .toast{ left:calc(50% + (var(--sidebarW) / 2)); }
 
     /* Curseur main au survol souris */
     .acct-card,.nav-tile,.tab,.main-cta,.promo-foot,.aff-card,.add-row,.gear,.chev{ cursor:pointer; }
-  }
-
-  /* --- GRAND ÉCRAN --- */
-  @media (min-width:1600px){
-    :root{ --appW:900px; }
   }
 
   /* ===================== TUTORIEL D'INSTALLATION PWA =====================
