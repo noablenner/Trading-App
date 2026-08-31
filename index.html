@@ -197,10 +197,10 @@
   .dw-chart > .dw-sym{border:none;border-bottom:1px solid var(--line);border-radius:0;margin:0;flex:0 0 auto;}
   .dw-chart > .tradingview-widget-container{flex:1;min-height:0;}
   .chart-wrap{position:relative;height:70vh;min-height:420px;width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface-2);}
-  /* Page Graphique : le widget occupe toute la place disponible, bord à bord
-     (pas de cadre ni de marge latérale comme un widget parmi d'autres) et
+  /* Page Graphique : le widget occupe toute la place disponible, avec une
+     toute petite marge (3px) pour ne pas coller au bord de l'écran, et
      toute la hauteur sous le bandeau — fixe, non déplaçable. */
-  #screenChart{ height:calc(100vh - var(--topbarH,82px) - 4px); display:flex; margin:-8px -20px 0; }
+  #screenChart{ height:calc(100vh - var(--topbarH,82px) - 4px); display:flex; margin:-8px -20px 0; padding:3px; box-sizing:border-box; }
   .chart-full-wrap{position:relative;flex:1;min-height:420px;width:100%;overflow:hidden;background:var(--surface-2);}
   .chart-full-wrap iframe{ color-scheme: normal; }
   .poweredBy{margin-top:8px;font-size:11px;color:var(--txt-faint);}
