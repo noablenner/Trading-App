@@ -588,8 +588,14 @@
   /* overscroll-behavior-y:contain : le tiroir peut défiler SON propre contenu
      s'il déborde, mais un scroll qui atteint son bord (ou un tiroir trop court
      pour déborder) ne se répercute jamais sur la page derrière lui. */
-  .drawer{position:fixed;left:0;right:0;bottom:0;z-index:108;max-width:var(--appW,520px);margin:0 auto;background:var(--surface);border-radius:22px 22px 0 0;border-top:1px solid var(--line);transform:translateY(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1);max-height:88vh;overflow-y:auto;overscroll-behavior-y:contain;padding:8px 18px 30px;}
+  /* .drawer : conteneur en colonne flex — poignée, puis zone scrollable (.drawer-scroll,
+     seule partie qui défile), puis pied d'actions (.drawer-foot) qui reste un élément
+     flex normal (pas de position:absolute/fixed) : posé juste après le contenu s'il
+     est court, ou plaqué en bas du tiroir plein écran s'il faut scroller. */
+  .drawer{position:fixed;left:0;right:0;bottom:0;z-index:108;max-width:var(--appW,520px);margin:0 auto;background:var(--surface);border-radius:22px 22px 0 0;border-top:1px solid var(--line);transform:translateY(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1);max-height:88vh;display:flex;flex-direction:column;}
   .drawer.open{transform:translateY(0);}
+  .drawer > .grab{flex:0 0 auto;}
+  .drawer-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;padding:0 18px 18px;}
   .grab{width:40px;height:4px;border-radius:4px;background:var(--line);margin:8px auto 14px;}
   .drawer h3{margin:0 0 4px;font-size:18px;font-weight:800;}
   .drawer .dsub{font-size:13px;color:var(--txt-dim);margin-bottom:18px;}
@@ -623,12 +629,12 @@
   .tpl-seg button.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--txt);box-shadow:0 0 0 2px var(--accent) inset;}
   .tpl-seg button.sel::before{content:"✓ ";font-weight:900;color:var(--accent);}
   .drawer-done{width:100%;margin-top:8px;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:800;background:var(--accent);color:var(--on-accent);cursor:pointer;}
-  /* Pied de tiroir fixe : les actions principales (Terminer, Supprimer…) restent
-     ancrées en bas du tiroir plutôt que de s'insérer dans le flux du contenu — elles
-     ne prennent alors plus de place au milieu des réglages et ne bougent pas au scroll.
-     position:absolute sur un ancêtre position:fixed (.drawer, qui gère lui-même son
-     propre scroll) reste collé au bord bas visible sans suivre le défilement interne. */
-  .drawer-foot{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:8px;padding:10px 18px calc(14px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -10px 20px -10px rgba(0,0,0,.25);}
+  /* Pied de tiroir : les actions principales (Terminer, Supprimer…) sortent du flux
+     scrollable pour rester un simple dernier élément flex du tiroir (.drawer étant en
+     colonne flex) — posées juste sous le contenu si le tiroir est court, ou plaquées
+     en bas du tiroir plein écran s'il faut faire défiler le contenu au-dessus. */
+  .drawer-foot{flex:0 0 auto;display:flex;flex-direction:column;gap:8px;padding:10px 18px calc(14px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -10px 20px -10px rgba(0,0,0,.25);}
+  .drawer-foot:empty{display:none;}
   .drawer-foot .drawer-done,.drawer-foot .danger-btn,.drawer-foot .onb-skip{margin:0;}
   /* CTA principal (ajouter une séance) */
   .main-cta{width:100%;border:none;border-radius:15px;padding:16px;font-size:16px;font-weight:800;font-family:inherit;background:var(--accent);color:var(--on-accent);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.35);margin:4px 0;}
@@ -1581,21 +1587,25 @@
 <!-- Nouvelle séance : choix de la date -->
 <div class="drawer" id="dateDrawer">
   <div class="grab"></div>
+  <div class="drawer-scroll">
   <h3>Nouvelle séance</h3>
   <div class="dsub">Choisis la date de la séance à ouvrir.</div>
   <div class="set-group"><div class="set-label">Date</div><input class="set-input" id="newSessDate" type="date"></div>
+  </div>
   <div class="drawer-foot"><button class="drawer-done" id="dateGo">Ouvrir la séance</button></div>
 </div>
 
 <!-- Prop firm : onboarding / édition de la config du compte -->
 <div class="drawer" id="pfDrawer">
   <div class="grab"></div>
-  <div id="pfDrawerBody"></div>
+  <div class="drawer-scroll"><div id="pfDrawerBody"></div></div>
+  <div class="drawer-foot" id="pfDrawerFoot"></div>
 </div>
 
 <!-- Plan de trading : édition (ouverte par la roue crantée de l'onglet Plan) -->
 <div class="drawer" id="planDrawer">
   <div class="grab"></div>
+  <div class="drawer-scroll">
   <h3>Modifier le plan</h3>
   <div class="dsub">Ton plan de trading, rangé par catégories. Remplis ce qui te parle, laisse vide le reste. Les changements s'appliquent quand tu appuies sur « Terminé ».</div>
 
@@ -1684,11 +1694,13 @@
     </div>
   </div>
 
+  </div>
   <div class="drawer-foot"><button class="drawer-done" id="planDone">✓ Terminé</button></div>
 </div>
 
 <div class="drawer" id="drawer">
   <div class="grab"></div>
+  <div class="drawer-scroll">
   <h3 id="drawerTitle">Réglages du compte</h3>
   <div class="dsub" id="drawerSub">Tout est optionnel et par compte. Déplie une catégorie pour l'ajuster.</div>
 
@@ -1759,12 +1771,14 @@
     </div>
   </div>
 
+  </div>
   <div class="drawer-foot"><button class="drawer-done" id="drawerDone">✓ Terminé</button><button class="danger-btn" id="deleteAcctBtn">Supprimer ce compte</button></div>
 </div>
 
 <!-- App settings -->
 <div class="drawer" id="appDrawer">
   <div class="grab"></div>
+  <div class="drawer-scroll">
   <h3>Réglages</h3>
   <div class="dsub">Les réglages généraux de l'application.</div>
   <div class="set-group"><div class="set-label">Compte</div>
@@ -1797,12 +1811,14 @@
   <div class="set-group"><div class="set-label">Apparence — couleur de l'app</div><div class="sw-lg" id="appSwatches"></div>
     <div class="set-hint">La couleur s'adapte automatiquement au thème clair ou sombre.</div>
   </div>
+  </div>
   <div class="drawer-foot"><button class="drawer-done" id="appDrawerDone">Terminé</button></div>
 </div>
 
 <!-- Modifier mon profil (prénom, nom, email) -->
 <div class="drawer" id="profileDrawer">
   <div class="grab"></div>
+  <div class="drawer-scroll">
   <h3>Modifier mon profil</h3>
   <div class="dsub">Prénom, nom et email sont synchronisés avec ton compte Supabase.</div>
   <div class="field-2">
@@ -1815,102 +1831,122 @@
   </div>
   <div class="auth-err" id="profErr"></div>
   <div class="auth-ok" id="profOk"></div>
+  </div>
   <div class="drawer-foot"><button class="drawer-done" id="profSaveBtn">Enregistrer</button></div>
 </div>
 
 <!-- Graphique d'un instrument (ouvert depuis un trade détaillé) -->
 <div class="drawer" id="chartDrawer">
   <div class="grab"></div>
+  <div class="drawer-scroll">
   <h3 id="chartTitle">Graphique</h3>
   <div class="dsub" id="chartSub">Graphique de marché fourni par TradingView. Repère-toi avec l'heure et le prix notés sur ton trade.</div>
   <div id="chartWrap" class="chart-wrap"></div>
+  </div>
   <div class="drawer-foot"><button class="drawer-done" id="chartDone">Fermer</button></div>
 </div>
 
 <!-- Aide à la rédaction du journal de séance -->
 <div class="drawer" id="noteDrawer">
   <div class="grab"></div>
+  <div class="drawer-scroll">
   <h3>M'aider à écrire</h3>
   <div class="dsub">La page blanche est la première raison pour laquelle on arrête de tenir un journal. Pars du résumé de ta séance ou d'un modèle, puis complète avec ce que la machine ne peut pas savoir.</div>
   <div id="noteBody"></div>
+  </div>
   <div class="drawer-foot"><button class="drawer-done" id="noteDone">Fermer</button></div>
 </div>
 
 <!-- Playbook : consultation et édition d'une fiche -->
 <div class="drawer" id="pbDrawer">
   <div class="grab"></div>
-  <div id="pbDrawerBody"></div>
+  <div class="drawer-scroll"><div id="pbDrawerBody"></div></div>
+  <div class="drawer-foot" id="pbDrawerFoot"></div>
 </div>
 
 <!-- Catalogue de widgets du tableau de bord (ordinateur) -->
 <div class="drawer" id="widgetDrawer">
   <div class="grab"></div>
+  <div class="drawer-scroll">
   <h3>Ajouter un widget</h3>
   <div class="dsub">Chaque widget répond à une question précise sur ta façon de trader. Ajoute ceux qui te parlent, déplace-les et redimensionne-les ensuite avec « Personnaliser ».</div>
   <div class="wcat-filter" id="wcatFilter"></div>
   <div id="wcatList"></div>
+  </div>
   <div class="drawer-foot"><button class="drawer-done" id="widgetDrawerDone">Terminé</button></div>
 </div>
 
 <!-- Catalogue de widgets de la page Outils (ordinateur) -->
 <div class="drawer" id="toolsCatDrawer">
   <div class="grab"></div>
+  <div class="drawer-scroll">
   <h3>Ajouter un widget</h3>
   <div class="dsub">Compose ta page Outils. D'autres outils viendront s'ajouter à la calculatrice avec le temps.</div>
   <div id="toolsCatList"></div>
+  </div>
   <div class="drawer-foot"><button class="drawer-done" id="toolsCatDone">Terminé</button></div>
 </div>
 
 <!-- Catalogue de widgets de la page Calendrier économique & actualités (ordinateur) -->
 <div class="drawer" id="calCatDrawer">
   <div class="grab"></div>
+  <div class="drawer-scroll">
   <h3>Ajouter un widget</h3>
   <div class="dsub">Garde le calendrier, les actualités et Investing.com — ou seulement ceux qui te servent.</div>
   <div id="calCatList"></div>
+  </div>
   <div class="drawer-foot"><button class="drawer-done" id="calCatDone">Terminé</button></div>
 </div>
 
 <!-- Analyse : sélecteur de comptes -->
 <div class="drawer" id="analysisPicker">
   <div class="grab"></div>
+  <div class="drawer-scroll">
   <h3>Analyse comportementale</h3>
   <div class="dsub">Discipline & psychologie — pas de statistiques de résultat pur. Choisis les comptes à analyser.</div>
   <div class="set-group"><div id="anPickList"></div></div>
+  </div>
   <div class="drawer-foot"><button class="drawer-done" id="anPickGo">Analyser</button></div>
 </div>
 
 <!-- Éditeur de trade détaillé -->
 <div class="drawer" id="tradeDrawer">
   <div class="grab"></div>
+  <div class="drawer-scroll">
   <h3 id="tradeDrawerTitle">Trade</h3>
   <div id="tradeFields"></div>
+  </div>
   <div class="drawer-foot"><button class="drawer-done" id="tradeSave">Enregistrer le trade</button><button class="onb-skip" id="tradeDelete" style="color:var(--red);">Supprimer ce trade</button></div>
 </div>
 
 <!-- Nombre de trades — cette séance uniquement -->
 <div class="drawer" id="sessQuotaDrawer">
   <div class="grab"></div>
+  <div class="drawer-scroll">
   <h3>Nombre de trades — cette séance</h3>
   <div class="dsub">Ce réglage ne change que la séance affichée. Les prochaines séances repartiront du quota par défaut de ce compte (<span id="sessQuotaDefaultTxt">30</span>).</div>
   <div class="set-group"><div class="set-label">Quota du jour</div>
     <div class="stepper"><button id="sessQuotaDown">−</button><span class="val" id="sessQuotaVal">30</span><button id="sessQuotaUp">+</button></div>
   </div>
   <button class="logout-btn hidden" id="sessQuotaResetBtn" type="button">↺ Revenir au quota par défaut du compte</button>
+  </div>
   <div class="drawer-foot"><button class="drawer-done" id="sessQuotaDone">✓ Terminé</button></div>
 </div>
 
 <!-- Sélecteur d'instrument -->
 <div class="drawer" id="instrDrawer">
   <div class="grab"></div>
+  <div class="drawer-scroll">
   <h3>Instrument</h3>
   <input class="instr-search" id="instrSearch" type="text" placeholder="Rechercher (ES, NQ, EUR/USD, BTC…)" autocomplete="off">
   <div class="instr-list" id="instrList"></div>
+  </div>
 </div>
 
 <!-- Onboarding création de compte -->
 <div class="drawer" id="onbDrawer">
   <div class="grab"></div>
-  <div id="onbBody"></div>
+  <div class="drawer-scroll"><div id="onbBody"></div></div>
 </div>
 
 <!-- Confirm modal -->
@@ -5605,7 +5641,15 @@
     ["invalid","Ce qui l'invalide","Le signal qui me dit que je me suis trompé"],
     ["mistakes","Mes erreurs fréquentes","Ce que je me connais comme travers sur ce setup"]
   ];
-  function openPbDrawer(html){ el("pbDrawerBody").innerHTML=html; el("overlay").classList.add("open"); el("pbDrawer").classList.add("open"); }
+  // Le HTML fourni peut inclure un ".drawer-foot" en fin de chaîne (boutons Terminer /
+  // Supprimer) : on le déplace vers le pied fixe du tiroir plutôt que de le laisser dans
+  // la zone scrollable, pour qu'il reste ancré en bas plutôt qu'au milieu du contenu.
+  function openPbDrawer(html){
+    var body=el("pbDrawerBody"); body.innerHTML=html;
+    var foot=el("pbDrawerFoot"), f=body.querySelector(".drawer-foot");
+    foot.innerHTML=""; if(f) foot.appendChild(f);
+    el("overlay").classList.add("open"); el("pbDrawer").classList.add("open");
+  }
 
   function pbView(id){
     var a=acc(); var p=pbById(a,id); if(!p) return;
@@ -6123,7 +6167,14 @@
   function pfClone(o){ return JSON.parse(JSON.stringify(o)); }
 
   // ---- onboarding : ouverture du tiroir ----
-  function openPfDrawer(html){ el("pfDrawerBody").innerHTML=html; el("overlay").classList.add("open"); el("pfDrawer").classList.add("open"); }
+  // Même logique que openPbDrawer : le ".drawer-foot" éventuellement présent dans le
+  // HTML de l'étape en cours est déplacé vers le pied fixe du tiroir.
+  function openPfDrawer(html){
+    var body=el("pfDrawerBody"); body.innerHTML=html;
+    var foot=el("pfDrawerFoot"), f=body.querySelector(".drawer-foot");
+    foot.innerHTML=""; if(f) foot.appendChild(f);
+    el("overlay").classList.add("open"); el("pfDrawer").classList.add("open");
+  }
   // étape 1 : choix de la firme
   function pfStepFirm(){
     var fut=PROPFIRMS.filter(function(t){return t.market==="futures";});
@@ -6476,10 +6527,11 @@
   function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("toolsCatDrawer").classList.remove("open"); el("calCatDrawer").classList.remove("open"); el("pbDrawer").classList.remove("open"); el("noteDrawer").classList.remove("open"); el("chartDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   // Fermeture au glissement vers le bas (mobile) : le geste démarre soit sur la
-  // poignée (.grab), soit n'importe où dans le tiroir tant que son contenu est
-  // déjà remonté tout en haut (scrollTop===0) — sinon on laisse le scroll normal
-  // du contenu agir. Sous le seuil, la feuille revient à sa place.
+  // poignée (.grab), soit n'importe où dans le tiroir tant que sa zone de contenu
+  // (.drawer-scroll) est déjà remontée tout en haut (scrollTop===0) — sinon on laisse
+  // le scroll normal du contenu agir. Sous le seuil, la feuille revient à sa place.
   document.querySelectorAll(".drawer").forEach(function(drawer){
+    var scroller=drawer.querySelector(".drawer-scroll");
     var startY=0, dy=0, dragging=false, deciding=false, onGrab=false;
     drawer.addEventListener("touchstart",function(e){
       if(!drawer.classList.contains("open")) return;
@@ -6491,7 +6543,7 @@
       if(!deciding) return;
       var d=e.touches[0].clientY-startY;
       if(!dragging){
-        if(!onGrab && drawer.scrollTop>0){ deciding=false; return; }
+        if(!onGrab && scroller && scroller.scrollTop>0){ deciding=false; return; }
         if(d<8){ if(d<-4) deciding=false; return; }
         dragging=true; drawer.style.transition="none";
       }
@@ -6514,23 +6566,6 @@
     drawer.addEventListener("touchend",onEnd);
     drawer.addEventListener("touchcancel",onEnd);
   });
-  // Réserve, sous le contenu scrollable, la place exacte du pied fixe (.drawer-foot :
-  // Terminer / Supprimer…) pour qu'aucun champ ne reste caché derrière. Recalculé à
-  // chaque ouverture et à chaque changement de contenu (tiroirs à contenu dynamique).
-  (function(){
-    function syncFoot(drawer){
-      if(!drawer.classList.contains("open")) return;
-      var foot=drawer.querySelector(".drawer-foot");
-      drawer.style.paddingBottom = foot ? (foot.offsetHeight+8)+"px" : "";
-    }
-    document.querySelectorAll(".drawer").forEach(function(drawer){
-      new MutationObserver(function(){ syncFoot(drawer); }).observe(drawer,{attributes:true,attributeFilter:["class"]});
-      new MutationObserver(function(){ syncFoot(drawer); }).observe(drawer,{childList:true,subtree:true});
-    });
-    window.addEventListener("resize",function(){
-      document.querySelectorAll(".drawer.open").forEach(syncFoot);
-    });
-  })();
   // Verrou de scroll iOS-safe : overflow:hidden seul ne bloque pas le scroll tactile
   // derrière un popup sur iOS Safari. Tant qu'un tiroir OU la modale de confirmation
   // est ouvert, on fige le body en position:fixed (en mémorisant le scroll courant)
