@@ -623,7 +623,13 @@
   .tpl-seg button.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--txt);box-shadow:0 0 0 2px var(--accent) inset;}
   .tpl-seg button.sel::before{content:"✓ ";font-weight:900;color:var(--accent);}
   .drawer-done{width:100%;margin-top:8px;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:800;background:var(--accent);color:var(--on-accent);cursor:pointer;}
-  .drawer-done.sticky{position:sticky;bottom:0;margin-top:12px;box-shadow:0 -10px 20px -6px var(--surface);}
+  /* Pied de tiroir fixe : les actions principales (Terminer, Supprimer…) restent
+     ancrées en bas du tiroir plutôt que de s'insérer dans le flux du contenu — elles
+     ne prennent alors plus de place au milieu des réglages et ne bougent pas au scroll.
+     position:absolute sur un ancêtre position:fixed (.drawer, qui gère lui-même son
+     propre scroll) reste collé au bord bas visible sans suivre le défilement interne. */
+  .drawer-foot{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:8px;padding:10px 18px calc(14px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -10px 20px -10px rgba(0,0,0,.25);}
+  .drawer-foot .drawer-done,.drawer-foot .danger-btn,.drawer-foot .onb-skip{margin:0;}
   /* CTA principal (ajouter une séance) */
   .main-cta{width:100%;border:none;border-radius:15px;padding:16px;font-size:16px;font-weight:800;font-family:inherit;background:var(--accent);color:var(--on-accent);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.35);margin:4px 0;}
   .main-cta:active{transform:scale(.99);}
@@ -1578,7 +1584,7 @@
   <h3>Nouvelle séance</h3>
   <div class="dsub">Choisis la date de la séance à ouvrir.</div>
   <div class="set-group"><div class="set-label">Date</div><input class="set-input" id="newSessDate" type="date"></div>
-  <button class="drawer-done" id="dateGo">Ouvrir la séance</button>
+  <div class="drawer-foot"><button class="drawer-done" id="dateGo">Ouvrir la séance</button></div>
 </div>
 
 <!-- Prop firm : onboarding / édition de la config du compte -->
@@ -1678,7 +1684,7 @@
     </div>
   </div>
 
-  <button class="drawer-done sticky" id="planDone">✓ Terminé</button>
+  <div class="drawer-foot"><button class="drawer-done" id="planDone">✓ Terminé</button></div>
 </div>
 
 <div class="drawer" id="drawer">
@@ -1753,8 +1759,7 @@
     </div>
   </div>
 
-  <div class="set-group" style="margin-top:6px;"><div class="set-label">Zone de danger</div><button class="danger-btn" id="deleteAcctBtn">Supprimer ce compte</button></div>
-  <button class="drawer-done sticky" id="drawerDone">✓ Terminé</button>
+  <div class="drawer-foot"><button class="drawer-done" id="drawerDone">✓ Terminé</button><button class="danger-btn" id="deleteAcctBtn">Supprimer ce compte</button></div>
 </div>
 
 <!-- App settings -->
@@ -1792,7 +1797,7 @@
   <div class="set-group"><div class="set-label">Apparence — couleur de l'app</div><div class="sw-lg" id="appSwatches"></div>
     <div class="set-hint">La couleur s'adapte automatiquement au thème clair ou sombre.</div>
   </div>
-  <button class="drawer-done sticky" id="appDrawerDone">Terminé</button>
+  <div class="drawer-foot"><button class="drawer-done" id="appDrawerDone">Terminé</button></div>
 </div>
 
 <!-- Modifier mon profil (prénom, nom, email) -->
@@ -1810,7 +1815,7 @@
   </div>
   <div class="auth-err" id="profErr"></div>
   <div class="auth-ok" id="profOk"></div>
-  <button class="drawer-done sticky" id="profSaveBtn">Enregistrer</button>
+  <div class="drawer-foot"><button class="drawer-done" id="profSaveBtn">Enregistrer</button></div>
 </div>
 
 <!-- Graphique d'un instrument (ouvert depuis un trade détaillé) -->
@@ -1819,7 +1824,7 @@
   <h3 id="chartTitle">Graphique</h3>
   <div class="dsub" id="chartSub">Graphique de marché fourni par TradingView. Repère-toi avec l'heure et le prix notés sur ton trade.</div>
   <div id="chartWrap" class="chart-wrap"></div>
-  <button class="drawer-done sticky" id="chartDone">Fermer</button>
+  <div class="drawer-foot"><button class="drawer-done" id="chartDone">Fermer</button></div>
 </div>
 
 <!-- Aide à la rédaction du journal de séance -->
@@ -1828,7 +1833,7 @@
   <h3>M'aider à écrire</h3>
   <div class="dsub">La page blanche est la première raison pour laquelle on arrête de tenir un journal. Pars du résumé de ta séance ou d'un modèle, puis complète avec ce que la machine ne peut pas savoir.</div>
   <div id="noteBody"></div>
-  <button class="drawer-done sticky" id="noteDone">Fermer</button>
+  <div class="drawer-foot"><button class="drawer-done" id="noteDone">Fermer</button></div>
 </div>
 
 <!-- Playbook : consultation et édition d'une fiche -->
@@ -1844,7 +1849,7 @@
   <div class="dsub">Chaque widget répond à une question précise sur ta façon de trader. Ajoute ceux qui te parlent, déplace-les et redimensionne-les ensuite avec « Personnaliser ».</div>
   <div class="wcat-filter" id="wcatFilter"></div>
   <div id="wcatList"></div>
-  <button class="drawer-done sticky" id="widgetDrawerDone">Terminé</button>
+  <div class="drawer-foot"><button class="drawer-done" id="widgetDrawerDone">Terminé</button></div>
 </div>
 
 <!-- Catalogue de widgets de la page Outils (ordinateur) -->
@@ -1853,7 +1858,7 @@
   <h3>Ajouter un widget</h3>
   <div class="dsub">Compose ta page Outils. D'autres outils viendront s'ajouter à la calculatrice avec le temps.</div>
   <div id="toolsCatList"></div>
-  <button class="drawer-done sticky" id="toolsCatDone">Terminé</button>
+  <div class="drawer-foot"><button class="drawer-done" id="toolsCatDone">Terminé</button></div>
 </div>
 
 <!-- Catalogue de widgets de la page Calendrier économique & actualités (ordinateur) -->
@@ -1862,7 +1867,7 @@
   <h3>Ajouter un widget</h3>
   <div class="dsub">Garde le calendrier, les actualités et Investing.com — ou seulement ceux qui te servent.</div>
   <div id="calCatList"></div>
-  <button class="drawer-done sticky" id="calCatDone">Terminé</button>
+  <div class="drawer-foot"><button class="drawer-done" id="calCatDone">Terminé</button></div>
 </div>
 
 <!-- Analyse : sélecteur de comptes -->
@@ -1871,7 +1876,7 @@
   <h3>Analyse comportementale</h3>
   <div class="dsub">Discipline & psychologie — pas de statistiques de résultat pur. Choisis les comptes à analyser.</div>
   <div class="set-group"><div id="anPickList"></div></div>
-  <button class="drawer-done" id="anPickGo">Analyser</button>
+  <div class="drawer-foot"><button class="drawer-done" id="anPickGo">Analyser</button></div>
 </div>
 
 <!-- Éditeur de trade détaillé -->
@@ -1879,8 +1884,7 @@
   <div class="grab"></div>
   <h3 id="tradeDrawerTitle">Trade</h3>
   <div id="tradeFields"></div>
-  <button class="drawer-done" id="tradeSave">Enregistrer le trade</button>
-  <button class="onb-skip" id="tradeDelete" style="color:var(--red);">Supprimer ce trade</button>
+  <div class="drawer-foot"><button class="drawer-done" id="tradeSave">Enregistrer le trade</button><button class="onb-skip" id="tradeDelete" style="color:var(--red);">Supprimer ce trade</button></div>
 </div>
 
 <!-- Nombre de trades — cette séance uniquement -->
@@ -1892,7 +1896,7 @@
     <div class="stepper"><button id="sessQuotaDown">−</button><span class="val" id="sessQuotaVal">30</span><button id="sessQuotaUp">+</button></div>
   </div>
   <button class="logout-btn hidden" id="sessQuotaResetBtn" type="button">↺ Revenir au quota par défaut du compte</button>
-  <button class="drawer-done sticky" id="sessQuotaDone">✓ Terminé</button>
+  <div class="drawer-foot"><button class="drawer-done" id="sessQuotaDone">✓ Terminé</button></div>
 </div>
 
 <!-- Sélecteur d'instrument -->
@@ -5620,8 +5624,8 @@
       if(!String(p[f[0]]||"").trim()) return;
       h+='<div class="set-group"><div class="set-label">'+f[1]+'</div><div class="plan-ro">'+esc(p[f[0]]).replace(/\n/g,"<br>")+'</div></div>';
     });
-    h+='<button class="drawer-done" id="pbEditBtn" type="button">Modifier ce playbook</button>'+
-       '<button class="onb-skip" id="pbDelBtn" type="button" style="color:var(--red);">Supprimer ce playbook</button>';
+    h+='<div class="drawer-foot"><button class="drawer-done" id="pbEditBtn" type="button">Modifier ce playbook</button>'+
+       '<button class="onb-skip" id="pbDelBtn" type="button" style="color:var(--red);">Supprimer ce playbook</button></div>';
     openPbDrawer(h);
     el("pbEditBtn").onclick=function(){ pbEdit(id); };
     el("pbDelBtn").onclick=function(){
@@ -5642,7 +5646,7 @@
       h+='<div class="set-group"><div class="set-label">'+f[1]+'</div><div class="cat-help" style="padding:0 0 6px;">'+f[2]+'</div>'+
          '<textarea id="pb_'+f[0]+'">'+esc(p[f[0]]||"")+'</textarea></div>';
     });
-    h+='<button class="drawer-done sticky" id="pbSaveBtn" type="button">Enregistrer</button>';
+    h+='<div class="drawer-foot"><button class="drawer-done" id="pbSaveBtn" type="button">Enregistrer</button></div>';
     openPbDrawer(h);
     PB_FIELDS.forEach(function(f){ var t=el("pb_"+f[0]); attachAutoGrow(t); requestAnimationFrame(function(){ autoGrow(t); }); });
     el("pbSaveBtn").onclick=function(){
@@ -6153,7 +6157,7 @@
       h+='<div class="dsub">Ton capital et ta phase actuelle. Les limites en % sont converties en montant à titre indicatif.</div>';
       h+='<div class="set-group"><div class="set-label">Capital du compte</div><input class="set-input" id="pfCapIn" type="text" inputmode="decimal" placeholder="Ex : 100000"></div>';
       h+='<div class="set-group"><div class="set-label">Phase</div>'+pfSelect("pfPhaseIn", tpl.rows.map(function(r){return [r.phase,pfLabel(PF_PHASE,r.phase)];}), tpl.rows[0].phase)+'</div>';
-      h+='<button class="drawer-done" id="pfSizeGo" type="button">Continuer</button>';
+      h+='<div class="drawer-foot"><button class="drawer-done" id="pfSizeGo" type="button">Continuer</button></div>';
       openPfDrawer(h);
       el("pfSizeGo").addEventListener("click",function(){ var ph=el("pfPhaseIn").value; var r=tpl.rows.filter(function(x){return x.phase===ph;})[0]||tpl.rows[0]; var cfg=pfResolve(tpl,r); cfg.capital=el("pfCapIn").value; pfStepConfirm(cfg,tpl); });
     }
@@ -6203,7 +6207,7 @@
     h+=row("Vérifié le",'<input class="set-input" id="pf_verif" type="date" value="'+esc(cfg.verifiedOn||PF_VERIFIED)+'">');
     h+=row("Trades/jour pour le calcul du risque",inp("pf_riskn",cfg.riskDivN||3,"3"));
     h+='<div class="pf-honesty">Aucune surveillance automatique : Edgio calcule à partir de ces valeurs déclarées. Les règles des firmes changent — reconfirme régulièrement.</div>';
-    h+='<button class="drawer-done" id="pfSaveBtn" type="button">Enregistrer</button>';
+    h+='<div class="drawer-foot"><button class="drawer-done" id="pfSaveBtn" type="button">Enregistrer</button></div>';
     openPfDrawer(h);
     el("pfSaveBtn").addEventListener("click",function(){ pfSaveFromForm(cfg); });
   }
@@ -6471,35 +6475,62 @@
   var onbActive=false;
   function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("toolsCatDrawer").classList.remove("open"); el("calCatDrawer").classList.remove("open"); el("pbDrawer").classList.remove("open"); el("noteDrawer").classList.remove("open"); el("chartDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
-  // Fermeture au glissement vers le bas (mobile) : on ne réagit qu'à partir
-  // de la poignée (.grab), pour ne jamais gêner le scroll du contenu du
-  // tiroir. Sous le seuil, la feuille revient à sa place.
-  document.querySelectorAll(".drawer > .grab").forEach(function(handle){
-    var drawer=handle.parentElement, startY=0, dy=0, dragging=false;
-    handle.addEventListener("touchstart",function(e){
+  // Fermeture au glissement vers le bas (mobile) : le geste démarre soit sur la
+  // poignée (.grab), soit n'importe où dans le tiroir tant que son contenu est
+  // déjà remonté tout en haut (scrollTop===0) — sinon on laisse le scroll normal
+  // du contenu agir. Sous le seuil, la feuille revient à sa place.
+  document.querySelectorAll(".drawer").forEach(function(drawer){
+    var startY=0, dy=0, dragging=false, deciding=false, onGrab=false;
+    drawer.addEventListener("touchstart",function(e){
       if(!drawer.classList.contains("open")) return;
-      dragging=true; dy=0; startY=e.touches[0].clientY;
-      drawer.style.transition="none";
+      if(e.touches.length!==1) return;
+      startY=e.touches[0].clientY; dy=0; dragging=false; deciding=true;
+      onGrab=!!(e.target.closest && e.target.closest(".grab"));
     },{passive:true});
-    handle.addEventListener("touchmove",function(e){
-      if(!dragging) return;
-      dy=Math.max(0, e.touches[0].clientY-startY);
+    drawer.addEventListener("touchmove",function(e){
+      if(!deciding) return;
+      var d=e.touches[0].clientY-startY;
+      if(!dragging){
+        if(!onGrab && drawer.scrollTop>0){ deciding=false; return; }
+        if(d<8){ if(d<-4) deciding=false; return; }
+        dragging=true; drawer.style.transition="none";
+      }
+      dy=Math.max(0,d);
       drawer.style.transform="translateY("+dy+"px)";
-    },{passive:true});
+      if(e.cancelable) e.preventDefault();
+    },{passive:false});
     function onEnd(){
+      deciding=false;
       if(!dragging) return;
       dragging=false;
       drawer.style.transition="";
       if(dy>90){
         drawer.style.transform="translateY(100%)";
-        setTimeout(function(){ if(onbActive) return; closeDrawer(); drawer.style.transform=""; },220);
+        setTimeout(function(){ drawer.style.transform=""; if(onbActive) return; closeDrawer(); },220);
       } else {
         drawer.style.transform="";
       }
     }
-    handle.addEventListener("touchend",onEnd);
-    handle.addEventListener("touchcancel",onEnd);
+    drawer.addEventListener("touchend",onEnd);
+    drawer.addEventListener("touchcancel",onEnd);
   });
+  // Réserve, sous le contenu scrollable, la place exacte du pied fixe (.drawer-foot :
+  // Terminer / Supprimer…) pour qu'aucun champ ne reste caché derrière. Recalculé à
+  // chaque ouverture et à chaque changement de contenu (tiroirs à contenu dynamique).
+  (function(){
+    function syncFoot(drawer){
+      if(!drawer.classList.contains("open")) return;
+      var foot=drawer.querySelector(".drawer-foot");
+      drawer.style.paddingBottom = foot ? (foot.offsetHeight+8)+"px" : "";
+    }
+    document.querySelectorAll(".drawer").forEach(function(drawer){
+      new MutationObserver(function(){ syncFoot(drawer); }).observe(drawer,{attributes:true,attributeFilter:["class"]});
+      new MutationObserver(function(){ syncFoot(drawer); }).observe(drawer,{childList:true,subtree:true});
+    });
+    window.addEventListener("resize",function(){
+      document.querySelectorAll(".drawer.open").forEach(syncFoot);
+    });
+  })();
   // Verrou de scroll iOS-safe : overflow:hidden seul ne bloque pas le scroll tactile
   // derrière un popup sur iOS Safari. Tant qu'un tiroir OU la modale de confirmation
   // est ouvert, on fige le body en position:fixed (en mémorisant le scroll courant)
