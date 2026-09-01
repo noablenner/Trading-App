@@ -906,7 +906,7 @@
       left:0; right:auto; top:0; bottom:0; width:var(--sidebarW); height:100vh;
       margin:0; max-width:none;
       flex-direction:column; align-items:stretch; justify-content:flex-start; gap:6px;
-      padding:24px 14px 24px; border-top:none; border-right:1px solid var(--line);
+      padding:24px 14px 14px; border-top:none; border-right:1px solid var(--line);
       box-shadow:var(--sh-rail); overflow-y:auto;
     }
     /* Bloc de marque en haut de la sidebar : logo + "Edgio" + baseline. */
@@ -5313,7 +5313,7 @@
     el("screenSession").classList.toggle("hidden", lvl!=="session");
     if(lvl==="accounts"){ el("backBtn").classList.add("hidden"); setGearBadge("👤"); setTitle("Journal", frDate(), true); renderGlobal(); }
     else if(lvl==="account"){ el("backBtn").classList.remove("hidden"); setGearBadge("📓"); setTitle(a.name, a.type+" · journal du compte", true); renderAccountOverview(a); }
-    else { el("backBtn").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); var isToday=view.editKey===todayKey(); setTitle(isToday?"Séance du jour":labelKey(view.editKey), a.name+" · "+(isToday?"aujourd'hui":labelKey(view.editKey)), false); renderSession(); }
+    else { el("backBtn").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); var isToday=view.editKey===todayKey(); setTitle(isToday?"Séance du jour":labelKey(view.editKey), a.name+" · "+(isToday?"aujourd'hui":labelKey(view.editKey)), true); renderSession(); }
   }
   function currentScreenId(){
     if(view.tab==="plan")return "screenPlan"; if(view.tab==="analysis")return "screenAnalysis"; if(view.tab==="calendar")return "screenCalendar"; if(view.tab==="propfirm")return "screenPropfirm"; if(view.tab==="tools")return "screenTools"; if(view.tab==="chart")return "screenChart";
