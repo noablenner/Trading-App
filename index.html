@@ -5012,7 +5012,16 @@
     var allOk=judged.filter(function(s){ var j=(s.rules||[]).filter(function(r){return r&&(r.ok===true||r.ok===false);}); return j.length>0 && j.every(function(r){return r.ok===true;}); });
     var broke=judged.filter(function(s){ return (s.rules||[]).some(function(r){return r&&r.ok===false;}); });
     var gA=anGrp(allOk), gB=anGrp(broke);
-    if(gA.n<3 || gB.n<3) return anInsufficient("Respect des règles");
+    if(gA.n<3 || gB.n<3){
+      // Pas assez de variété pour comparer (ex : règles quasi toujours respectées) —
+      // on affiche quand même un constat plutôt que le message générique "pas assez de données".
+      var gJ=anGrp(judged);
+      var num0 = scope.unit? fmtVal(anRound(gJ.avg),scope.unit) : gJ.winRate+'%';
+      var txt0 = gB.n<3
+        ? 'Tu respectes toutes tes règles sur <b>'+allOk.length+'/'+judged.length+'</b> séances jugées — pas encore assez de séances avec règle enfreinte pour comparer. '+(scope.unit? 'Résultat moyen sur ces séances : <b>'+fmtVal(anRound(gJ.avg),scope.unit)+'</b> ('+gJ.winRate+'% gagnantes).' : '<b>'+gJ.winRate+'%</b> de séances gagnantes.')
+        : 'Tu casses au moins une règle sur <b>'+broke.length+'/'+judged.length+'</b> séances jugées — pas encore assez de séances 100% respectées pour comparer. '+(scope.unit? 'Résultat moyen sur ces séances : <b>'+fmtVal(anRound(gJ.avg),scope.unit)+'</b> ('+gJ.winRate+'% gagnantes).' : '<b>'+gJ.winRate+'%</b> de séances gagnantes.');
+      return anCard('Respect des règles', num0, anTone(gJ.avg), txt0, null);
+    }
     var num, txt;
     if(scope.unit){
       num=fmtVal(anRound(gA.avg),scope.unit);
@@ -5089,7 +5098,16 @@
     if(sessions.length<5) return anInsufficient("Check-list");
     var complete=sessions.filter(function(s){return s.checklist.every(function(c){return c&&c.checked;});});
     var incomplete=sessions.filter(function(s){return !s.checklist.every(function(c){return c&&c.checked;});});
-    if(complete.length<3 || incomplete.length<3) return anInsufficient("Check-list");
+    if(complete.length<3 || incomplete.length<3){
+      // Pas assez de variété pour comparer (ex : check-list quasi toujours complète) —
+      // on affiche quand même un constat plutôt que le message générique "pas assez de données".
+      var gAll=anGrp(sessions);
+      var num0 = scope.unit? fmtVal(anRound(gAll.avg),scope.unit) : gAll.winRate+'%';
+      var txt0 = incomplete.length<3
+        ? 'Ta check-list est complète sur <b>'+complete.length+'/'+sessions.length+'</b> séances — pas encore assez de séances incomplètes pour comparer. '+(scope.unit? 'Résultat moyen : <b>'+fmtVal(anRound(gAll.avg),scope.unit)+'</b> ('+gAll.winRate+'% gagnantes).' : '<b>'+gAll.winRate+'%</b> de séances gagnantes.')
+        : 'Ta check-list est rarement complète (<b>'+complete.length+'/'+sessions.length+'</b> séances) — pas encore assez de séances complètes pour comparer. '+(scope.unit? 'Résultat moyen : <b>'+fmtVal(anRound(gAll.avg),scope.unit)+'</b> ('+gAll.winRate+'% gagnantes).' : '<b>'+gAll.winRate+'%</b> de séances gagnantes.');
+      return anCard('Effet de la check-list', num0, anTone(gAll.avg), txt0, null);
+    }
     var gc=anGrp(complete), gi=anGrp(incomplete);
     var num = scope.unit? fmtVal(anRound(gc.avg),scope.unit) : gc.winRate+'%';
     var txt = scope.unit
