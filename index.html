@@ -934,7 +934,10 @@
        sidebar) : un ascendant avec overflow-y:auto force sinon un clip en x
        qui rognait la moitié débordant sur le contenu. */
     .tb-collapse-btn{
-      position:fixed; left:var(--sidebarW); top:41px; transform:translate(-50%,-50%);
+      /* top affiné en JS (positionSidebarCollapseBtn) pour tomber pile sur le
+         filet horizontal sous le logo ; cette valeur n'est qu'un repli avant
+         le premier calcul. */
+      position:fixed; left:var(--sidebarW); top:78px; transform:translate(-50%,-50%);
       width:24px; height:24px; border-radius:50%; z-index:101;
       border:1px solid var(--line); background:var(--surface-2); color:var(--txt-dim);
       display:flex; align-items:center; justify-content:center; cursor:pointer;
@@ -1477,6 +1480,11 @@
       <input id="sessDateIn" type="date" class="sess-date-in">
     </div>
 
+    <div class="card hidden" id="cardPreNotes">
+      <h2>Journal de début de séance</h2>
+      <textarea id="preNotesText" placeholder="Comment j'arrive aujourd'hui ? Mon état d'esprit, ce à quoi je fais attention avant de trader…"></textarea>
+    </div>
+
     <div class="card hidden" id="cardMoodBefore">
       <h2>Humeur avant <span class="hint">comment tu te sens</span></h2>
       <div class="mood-row" id="moodBeforeRow"></div>
@@ -1764,6 +1772,7 @@
       <div class="sub-setting hidden" id="tagsEditor"><div class="set-label">Tes tags</div><div id="tagsList"></div></div>
       <div class="toggle-row"><div><div class="tl">Playbook joué</div><div class="td">Coche le ou les setups joués — chaque playbook porte alors ses propres statistiques.</div></div><div class="switch" data-key="showPlaybooks"><i></i></div></div>
       <div class="toggle-row"><div><div class="tl">Auto-évaluation</div><div class="td">Note ton exécution, ton respect du plan et ta maîtrise (1–5) — indépendamment du résultat.</div></div><div class="switch" data-key="showRating"><i></i></div></div>
+      <div class="toggle-row"><div><div class="tl">Journal de début de séance</div><div class="td">Tes notes libres avant de trader.</div></div><div class="switch" data-key="showPreNotes"><i></i></div></div>
       <div class="toggle-row"><div><div class="tl">Journal de fin de séance</div><div class="td">Tes notes libres après la session.</div></div><div class="switch" data-key="showNotes"><i></i></div></div>
     </div>
   </div>
@@ -2439,7 +2448,7 @@
   function todayKey(){ return ymd(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate()); }
   var MONTHS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
   var WD=["L","M","M","J","V","S","D"];
-  function newSession(){ return {objective:"", trades:[], result:"", notes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[], quotaOverride:null, rating:{}, playbooks:[]}; }
+  function newSession(){ return {objective:"", trades:[], result:"", notes:"", preNotes:"", rules:[], checklist:[], moodBefore:0, moodAfter:0, tags:[], quotaOverride:null, rating:{}, playbooks:[]}; }
 
   // ===================== ABONNEMENT / ESSAI GRATUIT =====================
   // Modèle freemium :
@@ -2657,7 +2666,7 @@
       showRules:!!r.show_rules, rules:Array.isArray(r.rules)?r.rules:[],
       showChecklist:!!r.show_checklist, checklistItems:Array.isArray(r.checklist_items)?r.checklist_items:[],
       showMood:!!r.show_mood, showTags:!!r.show_tags, tagsOptions:Array.isArray(r.tags_options)?r.tags_options:[],
-      showRating:!!r.show_rating, showPlaybooks:!!r.show_playbooks,
+      showRating:!!r.show_rating, showPlaybooks:!!r.show_playbooks, showPreNotes:!!r.show_pre_notes,
       dailyLossLimit:(r.daily_loss_limit===null||r.daily_loss_limit===undefined)?"":String(r.daily_loss_limit),
       showStreak:!!r.show_streak,
       plan:(r.plan&&typeof r.plan==='object'&&!Array.isArray(r.plan))?r.plan:{},
@@ -2667,7 +2676,7 @@
   }
   // sauvegardes isolées des colonnes récentes (si une colonne manque, seule cette requête échoue)
   function savePlan(a){ if(!a) return; db.from('accounts').update({plan:a.plan||{}}).eq('id',a.id).then(function(){},function(e){console.warn('plan (colonne manquante ?)',e);}); }
-  function saveAccountMeta(a){ if(!a) return; db.from('accounts').update({style:a.style||null, logging_mode:a.loggingMode||"quick", onboarded:!!a.onboarded, field_config:a.fieldConfig||{}, show_rating:!!a.showRating, show_playbooks:!!a.showPlaybooks}).eq('id',a.id).then(function(){},function(e){console.warn('meta (colonnes manquantes ?)',e);}); }
+  function saveAccountMeta(a){ if(!a) return; db.from('accounts').update({style:a.style||null, logging_mode:a.loggingMode||"quick", onboarded:!!a.onboarded, field_config:a.fieldConfig||{}, show_rating:!!a.showRating, show_playbooks:!!a.showPlaybooks, show_pre_notes:!!a.showPreNotes}).eq('id',a.id).then(function(){},function(e){console.warn('meta (colonnes manquantes ?)',e);}); }
   // ---- trades détaillés ----
   function rowToTrade(r){ return {id:r.id, date:r.session_date, instrument:r.instrument||"", side:r.side||"", entryTime:r.entry_time||"", exitTime:r.exit_time||"", entryPrice:(r.entry_price==null?"":String(r.entry_price)), exitPrice:(r.exit_price==null?"":String(r.exit_price)), result:(r.result==null?"":String(r.result)), tags:Array.isArray(r.tags)?r.tags:[], note:r.note||""}; }
   function tradesOf(a,date){ if(!a.tradesByDate[date]) a.tradesByDate[date]=[]; return a.tradesByDate[date]; }
@@ -2704,7 +2713,7 @@
     var qr = await db.from('sessions').select('*');
     (qr.data||[]).forEach(function(s){
       var a=accounts.find(function(x){return x.id===s.account_id;});
-      if(a){ a.sessions[s.date]={objective:s.objective||"",result:s.result||"",notes:s.notes||"",trades:Array.isArray(s.trades)?s.trades:[],
+      if(a){ a.sessions[s.date]={objective:s.objective||"",result:s.result||"",notes:s.notes||"",preNotes:s.pre_notes||"",trades:Array.isArray(s.trades)?s.trades:[],
         rules:Array.isArray(s.rules)?s.rules:[], checklist:Array.isArray(s.checklist)?s.checklist:[],
         moodBefore:s.mood_before||0, moodAfter:s.mood_after||0, tags:Array.isArray(s.tags)?s.tags:[],
         quotaOverride:(s.max_trades_override==null?null:s.max_trades_override),
@@ -2750,7 +2759,7 @@
         mood_before:s.moodBefore||null, mood_after:s.moodAfter||null, tags:s.tags||[]},{onConflict:'account_id,date'});
       // Écriture isolée (colonne récente) : si elle manque encore côté base,
       // seule CETTE requête échoue — la séance ci-dessus est déjà enregistrée.
-      db.from('sessions').update({max_trades_override:s.quotaOverride==null?null:s.quotaOverride, self_rating:s.rating||{}, playbooks:s.playbooks||[]})
+      db.from('sessions').update({max_trades_override:s.quotaOverride==null?null:s.quotaOverride, self_rating:s.rating||{}, playbooks:s.playbooks||[], pre_notes:s.preNotes||""})
         .eq('account_id',a.id).eq('date',key)
         .then(function(){},function(e){console.warn('quota / auto-évaluation séance (colonne manquante ?)',e);});
     }
@@ -2983,7 +2992,7 @@
     var quotaTouched=(s.quotaOverride!=null);
     var ratingTouched=!!(s.rating && (s.rating.exec||s.rating.plan||s.rating.emo));
     var pbTouched=((s.playbooks||[]).length>0);
-    return !s.objective && !s.result && !s.notes && tradesEmpty && !rulesTouched && !checkTouched && !tagsTouched && !moodTouched && !quotaTouched && !ratingTouched && !pbTouched;
+    return !s.objective && !s.result && !s.notes && !s.preNotes && tradesEmpty && !rulesTouched && !checkTouched && !tagsTouched && !moodTouched && !quotaTouched && !ratingTouched && !pbTouched;
   }
   // Quota effectif d'UNE séance : son propre réglage s'il en a un, sinon le
   // défaut du compte. Ne change jamais a.maxTrades (le défaut reste intact
@@ -3464,7 +3473,7 @@
     var rows=[["Compte","Type","Date","Résultat","Unité","Trades pris","Gagnants","Perdants","Quota",
                "Humeur avant","Humeur après","Tags","Règles respectées","Règles enfreintes","Détail règles enfreintes",
                "Check-list faite","Check-list totale","Exécution","Respect du plan","Maîtrise émotionnelle","Note de séance",
-               "Objectifs","Journal de séance"]];
+               "Objectifs","Journal de début de séance","Journal de séance"]];
     var n=0;
     accounts.forEach(function(a){
       Object.keys(a.sessions).sort().forEach(function(k){
@@ -3478,7 +3487,7 @@
           s2.moodBefore||"", s2.moodAfter||"", (s2.tags||[]).join(" | "),
           ok, ko, koList.join(" | "), clDone, cl.length,
           rt.exec||"", rt.plan||"", rt.emo||"", avg===null?"":Math.round(avg*10)/10,
-          s2.objective||"", s2.notes||""]);
+          s2.objective||"", s2.preNotes||"", s2.notes||""]);
         n++;
       });
     });
@@ -4537,6 +4546,7 @@
     el("cardTracker").classList.toggle("hidden",!a.showTracker);
     el("cardResult").classList.toggle("hidden",!a.showResult);
     el("cardNotes").classList.toggle("hidden",!a.showNotes);
+    el("cardPreNotes").classList.toggle("hidden",!a.showPreNotes);
     el("cardMoodBefore").classList.toggle("hidden",!a.showMood);
     el("cardMoodAfter").classList.toggle("hidden",!a.showMood);
     el("cardChecklist").classList.toggle("hidden",!a.showChecklist);
@@ -4828,9 +4838,9 @@
   function renderSession(){
     var a=acc(); var s=curSession(); if(!a||!s) return;
     if(el("sessDateIn")) el("sessDateIn").value=view.editKey;
-    el("objText").value=s.objective; el("resultIn").value=s.result; el("notesText").value=s.notes;
+    el("objText").value=s.objective; el("resultIn").value=s.result; el("notesText").value=s.notes; el("preNotesText").value=s.preNotes||"";
     refreshSignBtn(el("resultIn"),el("resultSign"));
-    requestAnimationFrame(function(){ autoGrow(el("objText")); autoGrow(el("notesText")); });
+    requestAnimationFrame(function(){ autoGrow(el("objText")); autoGrow(el("notesText")); autoGrow(el("preNotesText")); });
     el("resultLabel").textContent="Résultat ("+unitOf(a).label+")";
     applyBricks(); renderGrid();
     seedRuleSnapshot(a,s); seedChecklistSnapshot(a,s);
@@ -4966,8 +4976,58 @@
       it.onclick=function(){ if(editingTrade){ editingTrade.instrument=q.toUpperCase(); renderTradeFields(acc()); } el("instrDrawer").classList.remove("open"); };
       box.appendChild(it);
     }
+    renderTvSearchResults(q, box);
   }
   el("instrSearch").addEventListener("input",function(){ renderInstrList(this.value); });
+
+  // ---- recherche live TradingView (tous les symboles disponibles sur TradingView,
+  // en plus de notre liste "favoris" ci-dessus) ----
+  // Utilise le point de recherche public de TradingView (celui qu'utilisent leurs
+  // propres widgets embarqués) : aucune clé, aucun compte nécessaire. Best-effort :
+  // si l'appel échoue (hors-ligne, endpoint indisponible…) on se contente de la
+  // liste locale ci-dessus, sans rien casser.
+  var _tvSearchToken=0, _tvSearchTimer=null;
+  function stripTvTags(s){ return String(s||"").replace(/<[^>]*>/g,""); }
+  function tvSearchSymbols(q){
+    var urls=[
+      "https://symbol-search.tradingview.com/symbol_search/v3/?text="+encodeURIComponent(q)+"&hl=1&lang=fr&domain=production&sort_by_country=US",
+      "https://symbol-search.tradingview.com/symbol_search/?text="+encodeURIComponent(q)+"&type="
+    ];
+    function tryUrl(i){
+      if(i>=urls.length) return Promise.resolve([]);
+      return fetch(urls[i]).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(data){
+        var list=Array.isArray(data)?data:(Array.isArray(data.symbols)?data.symbols:[]);
+        return list.map(function(it){
+          var sym=stripTvTags(it.symbol||"");
+          var exch=it.exchange||it.source_id||it.prefix||"";
+          return { display:sym, full:exch?(exch+":"+sym):sym, desc:stripTvTags(it.description||"") };
+        }).filter(function(x){ return x.display; });
+      }).catch(function(){ return tryUrl(i+1); });
+    }
+    return tryUrl(0);
+  }
+  function renderTvSearchResults(q, box){
+    if(_tvSearchTimer){ clearTimeout(_tvSearchTimer); _tvSearchTimer=null; }
+    if(!q || q.length<2 || !navigator.onLine) return;
+    var token=++_tvSearchToken;
+    _tvSearchTimer=setTimeout(function(){
+      tvSearchSymbols(q).then(function(results){
+        if(token!==_tvSearchToken) return;                        // requête périmée (nouvelle frappe entre-temps)
+        if(el("instrSearch").value.toLowerCase().trim()!==q) return;
+        var known={}; box.querySelectorAll(".ii-sym").forEach(function(e){ known[e.textContent.toUpperCase()]=true; });
+        var fresh=results.filter(function(r){ return !known[r.display.toUpperCase()]; });
+        if(!fresh.length) return;
+        var h=document.createElement("div"); h.className="instr-cat"; h.textContent="TradingView"; box.appendChild(h);
+        fresh.slice(0,25).forEach(function(r){
+          TV_SYMBOLS[r.display]=r.full;                            // pour le bouton "Voir sur le graphique"
+          var it=document.createElement("div"); it.className="instr-item"+((editingTrade&&editingTrade.instrument===r.display)?" sel":"");
+          it.innerHTML='<span class="ii-sym">'+esc(r.display)+'</span>'+(r.desc?'<span class="ii-name">'+esc(r.desc)+'</span>':'');
+          it.onclick=function(){ if(editingTrade){ editingTrade.instrument=r.display; renderTradeFields(acc()); } el("instrDrawer").classList.remove("open"); };
+          box.appendChild(it);
+        });
+      }).catch(function(){});
+    },300);
+  }
 
   // ============ ANALYSE (assistant psycho / coach) ============
   function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
@@ -5280,6 +5340,7 @@
     view.tab=tab;
     hideMainScreens();
     el("tabbar").classList.remove("hidden");
+    requestAnimationFrame(positionSidebarCollapseBtn);
     el("gearBtn").classList.remove("hidden");
     el("backBtn").classList.add("hidden");
     var a=acc();
@@ -5366,12 +5427,25 @@
   window.addEventListener("resize", updateTopbarHeight);
   window.addEventListener("resize", updateTabbarHeight);
   // ---- Sidebar (ordinateur) : réduire/étendre le menu à icônes seules ----
+  // La flèche est calée sur la croisée des deux filets de séparation (le
+  // vertical entre sidebar et contenu, l'horizontal sous le bloc logo) :
+  // mesurée en JS plutôt que codée en dur, pour rester juste quelle que soit
+  // la police/le rendu (au lieu d'un pixel deviné qui décale selon le navigateur).
+  function positionSidebarCollapseBtn(){
+    var btn=el("sidebarCollapseBtn"), brand=document.querySelector(".tb-brand");
+    if(!btn || !brand) return;
+    if(!window.matchMedia("(min-width:1100px)").matches){ btn.style.top=""; return; }
+    btn.style.top = Math.round(brand.getBoundingClientRect().bottom)+"px";
+  }
+  window.addEventListener("resize", positionSidebarCollapseBtn);
+  window.addEventListener("load", positionSidebarCollapseBtn);
   (function(){
     var btn = el("sidebarCollapseBtn"); if(!btn) return;
     function apply(){
       var on = document.documentElement.classList.contains("sb-collapsed");
       btn.setAttribute("aria-label", on ? "Étendre le menu" : "Réduire le menu");
       requestAnimationFrame(updateTopbarHeight);
+      requestAnimationFrame(positionSidebarCollapseBtn);
     }
     apply();
     btn.addEventListener("click",function(){
@@ -6413,6 +6487,7 @@
   el("objText").addEventListener("input",function(){ var s=curSession(); if(s)s.objective=this.value; });
   el("resultIn").addEventListener("input",function(){ var s=curSession(); if(s){s.result=this.value; updateStopBanner(); refreshSaveBtn();} refreshSignBtn(el("resultIn"),el("resultSign")); });
   el("notesText").addEventListener("input",function(){ var s=curSession(); if(s)s.notes=this.value; });
+  el("preNotesText").addEventListener("input",function(){ var s=curSession(); if(s)s.preNotes=this.value; });
   // Bouton Gain/Perte : reflète et bascule le signe du résultat (saisie d'un négatif claire, tout clavier)
   function refreshSignBtn(input,btn){ if(!input||!btn) return; var neg=String(input.value).trim().charAt(0)==="-"; btn.textContent=neg?"Perte −":"Gain +"; btn.classList.toggle("neg",neg); btn.classList.toggle("pos",!neg); }
   function signToggle(input,btn){ if(!input) return; var v=String(input.value).trim().replace(/\s+/g,""); var neg=v.charAt(0)==="-"; var mag=neg?v.slice(1):v; input.value = neg ? mag : ("-"+mag); input.dispatchEvent(new Event("input",{bubbles:true})); refreshSignBtn(input,btn); input.focus(); }
@@ -6420,7 +6495,7 @@
   // Textareas auto-extensibles : la section grandit avec le texte, pas de scroll interne
   function autoGrow(t){ if(!t) return; t.style.height="auto"; t.style.height=(t.scrollHeight+2)+"px"; }
   function attachAutoGrow(t){ if(!t||t._ag) return; t._ag=1; t.addEventListener("input",function(){ autoGrow(t); }); }
-  ["objText","notesText","planStyle","planEntry","planExit"].forEach(function(id){ attachAutoGrow(el(id)); });
+  ["objText","notesText","preNotesText","planStyle","planEntry","planExit"].forEach(function(id){ attachAutoGrow(el(id)); });
   // Changer la date d'une séance = la déplacer (données + trades détaillés) vers la nouvelle date
   function moveSession(a,oldKey,newKey){
     if(!a||!newKey||newKey===oldKey) return false;
@@ -6633,7 +6708,7 @@
     if(k==="showRules") el("rulesLink").classList.toggle("hidden",!a.showRules);
     if(k==="showChecklist") el("checklistLink").classList.toggle("hidden",!a.showChecklist);
     if(k==="showTags") el("tagsEditor").classList.toggle("hidden",!a.showTags);
-    if(k==="showRating"||k==="showPlaybooks") saveAccountMeta(a);
+    if(k==="showRating"||k==="showPlaybooks"||k==="showPreNotes") saveAccountMeta(a);
     saveAccount(a); }); });
   el("lossLimitIn").addEventListener("input",function(){ var a=acc(); if(a)a.dailyLossLimit=this.value; });
   el("lossLimitIn").addEventListener("change",function(){ saveAccount(acc()); });
