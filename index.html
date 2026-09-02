@@ -6665,16 +6665,30 @@
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   // Fermeture au glissement vers le bas (mobile) : le geste démarre soit sur la
   // poignée (.grab), soit n'importe où dans le tiroir tant que sa zone de contenu
-  // (.drawer-scroll) est déjà remontée tout en haut (scrollTop===0) — sinon on laisse
-  // le scroll normal du contenu agir. Sous le seuil, la feuille revient à sa place.
+  // est déjà remontée tout en haut (scrollTop===0) — sinon on laisse le scroll
+  // normal du contenu agir. Sous le seuil, la feuille revient à sa place.
+  // Certains tiroirs ont un défilement imbriqué sous .drawer-scroll (ex. la
+  // liste de résultats de #instrDrawer, plafonnée à 46vh avec son propre
+  // overflow-y) : .drawer-scroll lui-même ne défile alors jamais (scrollTop
+  // toujours à 0), et se fier à lui laissait le tiroir se refermer dès qu'on
+  // scrollait cette liste, où qu'on en soit. On cherche donc, au doigt posé,
+  // le vrai conteneur défilant sous le point de contact (en repli, .drawer-scroll).
   document.querySelectorAll(".drawer").forEach(function(drawer){
-    var scroller=drawer.querySelector(".drawer-scroll");
-    var startY=0, dy=0, dragging=false, deciding=false, onGrab=false;
+    var fallbackScroller=drawer.querySelector(".drawer-scroll");
+    var startY=0, dy=0, dragging=false, deciding=false, onGrab=false, scroller=null;
+    function findScrollable(node){
+      while(node && node!==drawer){
+        if(node.scrollHeight>node.clientHeight+1 && /(auto|scroll)/.test(getComputedStyle(node).overflowY)) return node;
+        node=node.parentElement;
+      }
+      return fallbackScroller;
+    }
     drawer.addEventListener("touchstart",function(e){
       if(!drawer.classList.contains("open")) return;
       if(e.touches.length!==1) return;
       startY=e.touches[0].clientY; dy=0; dragging=false; deciding=true;
       onGrab=!!(e.target.closest && e.target.closest(".grab"));
+      scroller=onGrab?null:findScrollable(e.target);
     },{passive:true});
     drawer.addEventListener("touchmove",function(e){
       if(!deciding) return;
