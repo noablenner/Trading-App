@@ -197,6 +197,20 @@
   .dw-chart > .dw-sym{border:none;border-bottom:1px solid var(--line);border-radius:0;margin:0;flex:0 0 auto;}
   .dw-chart > .tradingview-widget-container{flex:1;min-height:0;}
   .chart-wrap{position:relative;height:70vh;min-height:420px;width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface-2);}
+  /* Supplément (pas dans le widget TradingView lui-même : c'est un iframe
+     tiers sans API pour y dessiner — c'est un bandeau juste au-dessus) qui
+     rappelle, pour l'instrument affiché, les jours où un trade a été noté
+     dans le journal. */
+  .chart-tag-toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:600;color:var(--txt-dim);margin:2px 0 10px;}
+  .chart-tag-toggle .switch{width:38px;height:22px;}
+  .chart-tag-toggle .switch i{width:16px;height:16px;}
+  .chart-tag-toggle .switch.on i{transform:translateX(16px);}
+  .chart-trades-strip{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;}
+  .cts-chip{flex:0 0 auto;display:flex;flex-direction:column;gap:2px;padding:7px 11px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);cursor:pointer;min-width:74px;}
+  .cts-chip:hover{border-color:var(--accent);}
+  .cts-chip .cts-d{font-size:11.5px;font-weight:700;color:var(--txt-dim);}
+  .cts-chip .cts-v{font-size:13px;font-weight:800;}
+  .cts-chip .cts-v.pos{color:var(--green);} .cts-chip .cts-v.neg{color:var(--red);}
   /* Page Graphique : le widget occupe toute la place disponible, avec une
      toute petite marge (3px) pour ne pas coller au bord de l'écran, et
      toute la hauteur sous le bandeau — fixe, non déplaçable. */
@@ -1857,6 +1871,11 @@
   <div class="drawer-scroll">
   <h3 id="chartTitle">Graphique</h3>
   <div class="dsub" id="chartSub">Graphique de marché fourni par TradingView. Repère-toi avec l'heure et le prix notés sur ton trade.</div>
+  <div class="chart-tag-toggle hidden" id="chartTagToggleRow">
+    <span>Afficher mes trades sur cet instrument</span>
+    <div class="switch" id="chartTagSwitch"><i></i></div>
+  </div>
+  <div class="chart-trades-strip hidden" id="chartTradesStrip"></div>
   <div id="chartWrap" class="chart-wrap"></div>
   <div class="drawer-foot"><button class="drawer-done" id="chartDone">Fermer</button></div>
   </div>
@@ -3523,14 +3542,59 @@
       if(t.entryPrice||t.exitPrice) bits.push("entrée "+(t.entryPrice||"?")+" / sortie "+(t.exitPrice||"?"));
     }
     el("chartSub").textContent = bits.length
-      ? ("Ton trade : "+bits.join(" · ")+". Le graphique ne place pas encore de marqueur — repère-toi avec ces repères.")
+      ? ("Ton trade : "+bits.join(" · ")+". Le widget TradingView ne permet pas d'y dessiner un marqueur — repère-toi avec ces repères et, ci-dessous, tes autres trades sur cet instrument.")
       : "Graphique de marché fourni par TradingView.";
     tvMount(el("chartWrap"), "embed-widget-advanced-chart.js", {
       symbol:tvSymbol(instr), interval:"15", theme:resolvedTheme(), style:"1", locale:"fr",
       hide_top_toolbar:false, hide_legend:false, allow_symbol_change:true, save_image:false,
       withdateranges:true, autosize:true
     }, null);
+    renderChartTradesStrip(instr);
     el("overlay").classList.add("open"); el("chartDrawer").classList.add("open");
+  }
+  // Le widget TradingView embarqué est un iframe tiers, sans API pour y dessiner
+  // un marqueur à une date donnée : ce bandeau, juste au-dessus, est le
+  // supplément qui rappelle les jours où l'instrument affiché a été tradé
+  // (et noté dans le journal), avec le résultat de chaque trade détaillé.
+  function tradesForInstrument(instr){
+    instr=String(instr||"").trim().toUpperCase(); if(!instr) return [];
+    var out=[];
+    accounts.forEach(function(a){
+      Object.keys(a.tradesByDate||{}).forEach(function(k){
+        (a.tradesByDate[k]||[]).forEach(function(t){
+          if(String(t.instrument||"").trim().toUpperCase()===instr) out.push({account:a, date:k, trade:t});
+        });
+      });
+    });
+    out.sort(function(x,y){ return x.date<y.date?1:-1; });
+    return out;
+  }
+  function renderChartTradesStrip(instr){
+    var toggleRow=el("chartTagToggleRow"), sw=el("chartTagSwitch"), strip=el("chartTradesStrip");
+    var list=tradesForInstrument(instr);
+    if(!list.length){ toggleRow.classList.add("hidden"); strip.classList.add("hidden"); strip.innerHTML=""; return; }
+    toggleRow.classList.remove("hidden");
+    var on = localStorage.getItem("edgioChartTradeMarks")!=="0";
+    sw.classList.toggle("on", on);
+    strip.classList.toggle("hidden", !on);
+    strip.innerHTML="";
+    list.slice(0,40).forEach(function(o){
+      var v=parseFloat(String(o.trade.result||"").replace(",","."));
+      var hasV=!isNaN(v);
+      var chip=document.createElement("div"); chip.className="cts-chip"; chip.title="Voir cette séance";
+      chip.innerHTML='<span class="cts-d">'+esc(labelKey(o.date))+'</span><span class="cts-v'+(hasV?(v>0?" pos":v<0?" neg":""):"")+'">'+(hasV?fmtVal(v,o.account):"—")+'</span>';
+      chip.onclick=function(){
+        el("overlay").classList.remove("open"); el("chartDrawer").classList.remove("open");
+        setActiveAccount(o.account.id); openSession(o.date);
+      };
+      strip.appendChild(chip);
+    });
+    sw.onclick=function(){
+      var newOn=!sw.classList.contains("on");
+      sw.classList.toggle("on", newOn);
+      strip.classList.toggle("hidden", !newOn);
+      try{ localStorage.setItem("edgioChartTradeMarks", newOn?"1":"0"); }catch(e){}
+    };
   }
 
   /* Page Graphique : le même widget TradingView avancé que le tiroir
@@ -4982,29 +5046,19 @@
 
   // ---- recherche live TradingView (tous les symboles disponibles sur TradingView,
   // en plus de notre liste "favoris" ci-dessus) ----
-  // Utilise le point de recherche public de TradingView (celui qu'utilisent leurs
-  // propres widgets embarqués) : aucune clé, aucun compte nécessaire. Best-effort :
-  // si l'appel échoue (hors-ligne, endpoint indisponible…) on se contente de la
+  // Le navigateur ne peut pas interroger symbol-search.tradingview.com en direct
+  // (CORS refusé côté TradingView) : on passe par notre fonction Supabase
+  // "symbol-search" qui relaie l'appel côté serveur. Best-effort : si l'appel
+  // échoue (hors-ligne, fonction pas encore déployée…) on se contente de la
   // liste locale ci-dessus, sans rien casser.
   var _tvSearchToken=0, _tvSearchTimer=null;
-  function stripTvTags(s){ return String(s||"").replace(/<[^>]*>/g,""); }
   function tvSearchSymbols(q){
-    var urls=[
-      "https://symbol-search.tradingview.com/symbol_search/v3/?text="+encodeURIComponent(q)+"&hl=1&lang=fr&domain=production&sort_by_country=US",
-      "https://symbol-search.tradingview.com/symbol_search/?text="+encodeURIComponent(q)+"&type="
-    ];
-    function tryUrl(i){
-      if(i>=urls.length) return Promise.resolve([]);
-      return fetch(urls[i]).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(data){
-        var list=Array.isArray(data)?data:(Array.isArray(data.symbols)?data.symbols:[]);
-        return list.map(function(it){
-          var sym=stripTvTags(it.symbol||"");
-          var exch=it.exchange||it.source_id||it.prefix||"";
-          return { display:sym, full:exch?(exch+":"+sym):sym, desc:stripTvTags(it.description||"") };
-        }).filter(function(x){ return x.display; });
-      }).catch(function(){ return tryUrl(i+1); });
-    }
-    return tryUrl(0);
+    return db.functions.invoke('symbol-search', { body:{ q:q } }).then(function(r){
+      if(r.error || !r.data || !Array.isArray(r.data.results)) return [];
+      return r.data.results.map(function(it){
+        return { display:it.symbol||"", full:it.full||it.symbol||"", desc:it.description||"" };
+      }).filter(function(x){ return x.display; });
+    }).catch(function(){ return []; });
   }
   function renderTvSearchResults(q, box){
     if(_tvSearchTimer){ clearTimeout(_tvSearchTimer); _tvSearchTimer=null; }
