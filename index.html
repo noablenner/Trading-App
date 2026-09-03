@@ -213,8 +213,10 @@
   .cts-chip .cts-v.pos{color:var(--green);} .cts-chip .cts-v.neg{color:var(--red);}
   /* Page Graphique : le widget occupe toute la place disponible, avec une
      toute petite marge (3px) pour ne pas coller au bord de l'écran, et
-     toute la hauteur sous le bandeau — fixe, non déplaçable. */
-  #screenChart{ height:calc(100vh - var(--topbarH,82px) - 4px); display:flex; margin:-8px -20px 0; padding:3px; box-sizing:border-box; }
+     toute la hauteur sous le bandeau — fixe, non déplaçable. Sur mobile on
+     retranche aussi la barre d'onglets du bas (fixe, en dehors du flux)
+     pour que le bas du widget arrive pile au-dessus du menu, sans scroll. */
+  #screenChart{ height:calc(100vh - var(--topbarH,82px) - 4px - 98px - env(safe-area-inset-bottom)); display:flex; margin:-8px -20px 0; padding:3px; box-sizing:border-box; }
   .chart-full-wrap{position:relative;flex:1;min-height:420px;width:100%;overflow:hidden;background:var(--surface-2);}
   .chart-full-wrap iframe{ color-scheme: normal; }
   .poweredBy{margin-top:8px;font-size:11px;color:var(--txt-faint);}
@@ -1976,16 +1978,11 @@
     </div>
     <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
   </div>
-  <div class="set-group"><div class="set-label">Mon abonnement</div>
+  <div class="set-group hidden" id="subGroup"><div class="set-label">Mon abonnement</div>
     <div id="subBox"></div>
   </div>
   <div class="set-group hidden" id="installGroup"><div class="set-label">Application</div>
     <div id="installBox"></div>
-  </div>
-  <div class="set-group"><div class="set-label">Mes données</div>
-    <button class="exp-btn" id="expSessBtn" type="button"><span class="eb-ic">📄</span><span><span class="eb-t">Exporter mes séances (CSV)</span><span class="eb-s">Résultats, humeur, tags, règles, auto-évaluation — une ligne par séance.</span></span></button>
-    <button class="exp-btn" id="expTradesBtn" type="button"><span class="eb-ic">📑</span><span><span class="eb-t">Exporter mes trades détaillés (CSV)</span><span class="eb-s">Une ligne par trade, pour Excel, Sheets ou ton propre tableur.</span></span></button>
-    <div class="exp-note">Tes données t'appartiennent : l'export est illimité et inclus, même sans abonnement.</div>
   </div>
   <div class="set-group"><div class="set-label">Apparence — thème</div>
     <div class="theme-seg" id="themeSeg">
@@ -3628,66 +3625,6 @@
     state.vals=prefill(state.id);
     build();
   }
-  /* ---------- Export CSV ----------
-     Séparateur « ; » et BOM UTF-8 : Excel en français ouvre le fichier
-     directement, sans assistant d'importation. */
-  function csvCell(v){
-    v = (v===null||v===undefined) ? "" : String(v);
-    return /[";\r\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
-  }
-  function csvDownload(name, rows){
-    var csv="\uFEFF"+rows.map(function(r){ return r.map(csvCell).join(";"); }).join("\r\n");
-    var blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
-    var url=URL.createObjectURL(blob);
-    var a=document.createElement("a");
-    a.href=url; a.download=name; a.style.display="none";
-    document.body.appendChild(a); a.click();
-    setTimeout(function(){ try{ document.body.removeChild(a); }catch(e){} URL.revokeObjectURL(url); }, 1500);
-  }
-  function csvStamp(){ var d=new Date(); return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
-  function exportSessionsCSV(){
-    var rows=[["Compte","Type","Date","Résultat","Unité","Trades pris","Gagnants","Perdants","Quota",
-               "Humeur avant","Humeur après","Tags","Règles respectées","Règles enfreintes","Détail règles enfreintes",
-               "Check-list faite","Check-list totale","Exécution","Respect du plan","Maîtrise émotionnelle","Note de séance",
-               "Objectifs","Journal de début de séance","Journal de séance"]];
-    var n=0;
-    accounts.forEach(function(a){
-      Object.keys(a.sessions).sort().forEach(function(k){
-        var s2=a.sessions[k], st=statsForTrades(s2.trades);
-        var ok=0, ko=0, koList=[];
-        (s2.rules||[]).forEach(function(r){ if(!r) return; if(r.ok===true) ok++; else if(r.ok===false){ ko++; koList.push(r.rule); } });
-        var cl=(s2.checklist||[]), clDone=cl.filter(function(c){return c&&c.checked;}).length;
-        var rt=s2.rating||{}, avg=ratingAvg(rt);
-        rows.push([a.name, a.type, k, hasResult(s2)?sessionNet(s2):"", unitOf(a).label,
-          st.taken, st.win, st.loss, effectiveQuota(a,s2),
-          s2.moodBefore||"", s2.moodAfter||"", (s2.tags||[]).join(" | "),
-          ok, ko, koList.join(" | "), clDone, cl.length,
-          rt.exec||"", rt.plan||"", rt.emo||"", avg===null?"":Math.round(avg*10)/10,
-          s2.objective||"", s2.preNotes||"", s2.notes||""]);
-        n++;
-      });
-    });
-    if(!n){ showToast("Aucune séance à exporter"); return; }
-    csvDownload("edgio-seances-"+csvStamp()+".csv", rows);
-    showToast(n+" séance"+(n>1?"s":"")+" exportée"+(n>1?"s":"")+" ✓");
-  }
-  function exportTradesCSV(){
-    var rows=[["Compte","Date","Instrument","Sens","Heure entrée","Heure sortie","Durée","Prix entrée","Prix sortie","Résultat","Unité","Tags","Note"]];
-    var n=0;
-    accounts.forEach(function(a){
-      Object.keys(a.tradesByDate).sort().forEach(function(k){
-        (a.tradesByDate[k]||[]).forEach(function(t){
-          rows.push([a.name, t.date, t.instrument||"", t.side||"", t.entryTime||"", t.exitTime||"", tradeDur(t)||"",
-                     t.entryPrice||"", t.exitPrice||"", t.result||"", unitOf(a).label, (t.tags||[]).join(" | "), t.note||""]);
-          n++;
-        });
-      });
-    });
-    if(!n){ showToast("Aucun trade détaillé à exporter"); return; }
-    csvDownload("edgio-trades-"+csvStamp()+".csv", rows);
-    showToast(n+" trade"+(n>1?"s":"")+" exporté"+(n>1?"s":"")+" ✓");
-  }
-
   /* Graphique d'un instrument, ouvert depuis un trade. Le widget TradingView
      embarque ses propres données de marché : rien à payer pour l'afficher. */
   function openChartDrawer(instr, t){
@@ -3839,37 +3776,6 @@
              '<span class="mk-h">'+now.txt+' · '+info+'</span></div>';
         });
         b.innerHTML=h+'</div><div class="dw-sub">Heures locales de chaque place, changements d\'heure inclus.</div>';
-      }},
-    chart:{ name:"Graphique", ic:"📉", cat:"marche", w:3,h:4, minW:2,minH:2, keep:true, themed:true, interactive:true,
-      q:"Jeter un œil au marché sans quitter mon journal.",
-      render:function(b){
-        b.className="dw-b flush";
-        if(!navigator.onLine){ b.className="dw-b"; b.innerHTML='<div class="dw-empty">Hors-ligne : le graphique se rechargera à la reconnexion.</div>'; return; }
-        var sym=(dashCfg&&dashCfg.chartSymbol)||"CME_MINI:NQ1!";
-        // Sélecteur alimenté par NOS instruments : on retrouve les symboles
-        // qu'on trade vraiment, pas un champ vide à remplir à la main.
-        var wrap=document.createElement("div"); wrap.className="dw-chart";
-        var sel=document.createElement("select"); sel.className="cx-sel dw-sym";
-        var h="";
-        Object.keys(INSTRUMENTS).forEach(function(grp){
-          h+='<optgroup label="'+esc(grp)+'">';
-          INSTRUMENTS[grp].forEach(function(code){
-            var v=tvSymbol(code);
-            h+='<option value="'+esc(v)+'"'+(v===sym?" selected":"")+'>'+esc(code)+'</option>';
-          });
-          h+='</optgroup>';
-        });
-        sel.innerHTML=h;
-        var host=document.createElement("div"); host.style.cssText="flex:1;min-height:0;";
-        wrap.appendChild(sel); wrap.appendChild(host);
-        b.innerHTML=""; b.appendChild(wrap);
-        function mount(){
-          tvMount(host, "embed-widget-advanced-chart.js", {symbol:sym,interval:"15",theme:resolvedTheme(),
-            style:"1",locale:"fr",hide_top_toolbar:false,hide_legend:false,allow_symbol_change:true,
-            save_image:false,withdateranges:false,autosize:true}, null);
-        }
-        sel.onchange=function(){ sym=sel.value; if(dashCfg){ dashCfg.chartSymbol=sym; dashSave(); } mount(); };
-        mount();
       }},
     note:{ name:"Pense-bête", ic:"📝", cat:"marche", w:2,h:2, minW:1, keep:true, interactive:true,
       q:"Ce que je dois me rappeler avant d'ouvrir une position.",
@@ -8126,8 +8032,6 @@
   el("noteHelpBtn").addEventListener("click", openNoteDrawer);
   el("noteDone").addEventListener("click", closeDrawer);
   el("chartDone").addEventListener("click", function(){ el("chartWrap").innerHTML=""; closeDrawer(); });
-  el("expSessBtn").addEventListener("click", exportSessionsCSV);
-  el("expTradesBtn").addEventListener("click", exportTradesCSV);
   el("analysisLockSubBtn").addEventListener("click",function(){ openUpsell(el("analysisLockSubBtn")); });
   el("analysisLockBackBtn").addEventListener("click",function(){ hideAnalysisLock(); });
   document.querySelectorAll(".appsw").forEach(function(t){ t.addEventListener("click",function(){ var k=t.dataset.key; settings[k]=!settings[k]; t.classList.toggle("on",settings[k]); saveSettings({notif_recap:settings.notifRecap,notif_quota:settings.notifQuota,notif_daily:settings.notifDaily}); }); });
