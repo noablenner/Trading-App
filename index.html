@@ -307,18 +307,171 @@
   /* --- stats discipline (vue compte) --- */
   .mini-stat{font-size:13px;color:var(--txt-dim);margin-top:8px;}
   .mini-stat b{color:var(--txt);font-weight:700;}
-  /* --- écran Analyse (coach) --- */
+  /* =====================================================================
+     ÉCRAN ANALYSE COMPORTEMENTALE
+     Mobile d'abord : une colonne de cartes, barre d'onglets horizontale
+     défilante. À partir de 760 px la page devient une grille de cartes
+     (2 colonnes), puis 3 colonnes sur ordinateur — les cartes « w2 »/« w3 »
+     s'étalent pour porter les visuels larges.
+     ===================================================================== */
+  /* Conservée : le mot d'accueil du Journal (#greeting) porte cette classe. */
   .an-intro{font-size:13.5px;color:var(--txt-dim);margin:2px 2px 4px;line-height:1.5;}
-  .an-note{font-size:12px;color:var(--txt-faint);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:12px;line-height:1.45;}
-  .an-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-top:12px;}
-  .an-h{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-dim);font-weight:700;margin:0 0 10px;}
-  .an-num{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.1;}
-  .an-num.pos{color:var(--green);} .an-num.neg{color:var(--red);} .an-num.neutral{color:var(--txt);}
-  .an-txt{font-size:14px;color:var(--txt-dim);margin-top:6px;line-height:1.55;}
-  .an-txt b{color:var(--txt);font-weight:700;}
-  .an-svg{margin-top:12px;}
-  .an-empty{font-size:13px;color:var(--txt-faint);}
-  .an-group{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:22px 2px 2px;}
+  .an-top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:2px;}
+  .an-scope{flex:1 1 220px;min-width:0;display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:11px 13px;color:var(--txt);font-family:inherit;text-align:left;cursor:pointer;box-shadow:var(--sh-card);}
+  .an-scope:active{transform:scale(.99);}
+  .an-scope .ans-ic{font-size:18px;flex:0 0 auto;line-height:1;}
+  .an-scope .ans-tx{flex:1;min-width:0;display:block;}
+  .an-scope .ans-t{display:block;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .an-scope .ans-s{display:block;font-size:11.5px;color:var(--txt-dim);margin-top:1px;}
+  .an-scope .ans-arr{flex:0 0 auto;color:var(--txt-faint);font-size:19px;line-height:1;}
+  .an-periods{flex:0 0 auto;display:flex;gap:5px;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:4px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .an-periods::-webkit-scrollbar{display:none;}
+  .an-pbtn{flex:0 0 auto;border:none;background:none;color:var(--txt-dim);font-family:inherit;font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:9px;cursor:pointer;white-space:nowrap;}
+  .an-pbtn:hover{color:var(--txt);}
+  .an-pbtn.on{background:var(--accent);color:var(--on-accent);}
+
+  /* --- onglets de sous-catégorie --- */
+  .an-nav{display:flex;gap:8px;overflow-x:auto;padding:12px 2px 4px;margin:0 -20px;padding-left:20px;padding-right:20px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .an-nav::-webkit-scrollbar{display:none;}
+  .an-tab{flex:0 0 auto;display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:var(--surface);color:var(--txt-dim);font-family:inherit;border-radius:14px;padding:9px 13px;cursor:pointer;text-align:left;box-shadow:var(--sh-card);}
+  .an-tab .ant-ic{font-size:16px;line-height:1;flex:0 0 auto;}
+  .an-tab .ant-tx{display:block;min-width:0;}
+  .an-tab .ant-t{display:block;font-size:13px;font-weight:800;color:var(--txt);white-space:nowrap;}
+  .an-tab .ant-s{display:none;}
+  .an-tab.on{border-color:var(--accent);background:var(--accent-dim);}
+  .an-tab.on .ant-t{color:var(--accent);}
+  .an-tab:hover{border-color:var(--accent);}
+
+  /* --- en-tête de section --- */
+  .an-shead{margin:16px 2px 2px;}
+  .an-sh-t{font-size:19px;font-weight:800;letter-spacing:-.02em;}
+  .an-sh-s{font-size:12px;color:var(--txt-faint);margin-top:2px;line-height:1.4;}
+
+  /* --- grille de cartes --- */
+  .an-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px;align-items:start;grid-auto-flow:dense;}
+  .an-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--sh-card);min-width:0;overflow:hidden;}
+  .an-ch{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+  .an-ch .an-ic{font-size:15px;line-height:1;flex:0 0 auto;}
+  .an-ch .an-t{flex:1;min-width:0;font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--txt-dim);font-weight:800;}
+  .an-badge{flex:0 0 auto;font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:20px;background:var(--surface-2);border:1px solid var(--line);color:var(--txt-dim);white-space:nowrap;}
+  .an-badge.pos{background:var(--green-dim);border-color:var(--green);color:var(--green);}
+  .an-badge.neg{background:var(--red-dim);border-color:var(--red);color:var(--red);}
+  .an-big{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.05;color:var(--txt);display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;}
+  .an-big.pos{color:var(--green);} .an-big.neg{color:var(--red);}
+  .an-bigsub{font-size:12px;font-weight:600;letter-spacing:0;color:var(--txt-dim);}
+  .an-sub{font-size:13.5px;color:var(--txt-dim);margin-top:8px;line-height:1.55;}
+  .an-sub b{color:var(--txt);font-weight:700;}
+  .an-sub i{font-style:italic;}
+  .an-body{margin-top:13px;}
+  .an-foot{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--txt-faint);line-height:1.5;}
+  .an-empty{font-size:13px;color:var(--txt-faint);line-height:1.55;}
+
+  /* --- barres --- */
+  .an-bars{display:flex;flex-direction:column;gap:11px;}
+  .an-bar{min-width:0;}
+  .anb-top{display:flex;align-items:baseline;gap:10px;}
+  .anb-l{flex:1;min-width:0;font-size:12.5px;color:var(--txt-dim);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .anb-v{flex:0 0 auto;font-size:13px;font-weight:800;color:var(--txt);}
+  .anb-v.pos{color:var(--green);} .anb-v.neg{color:var(--red);}
+  .anb-track{margin-top:5px;height:8px;border-radius:6px;background:var(--surface-2);overflow:hidden;}
+  .anb-track i{display:block;height:100%;border-radius:6px;background:var(--accent);transition:width .35s ease;}
+  .anb-track i.pos{background:var(--green);} .anb-track i.neg{background:var(--red);}
+  .anb-n{font-size:11px;color:var(--txt-faint);margin-top:4px;line-height:1.4;}
+
+  /* --- colonnes (distributions) --- */
+  .an-cols{display:flex;align-items:flex-end;gap:8px;height:150px;}
+  .an-col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;height:100%;}
+  .anc-v{font-size:12px;font-weight:800;color:var(--txt);margin-bottom:5px;}
+  .anc-v.pos{color:var(--green);} .anc-v.neg{color:var(--red);}
+  .anc-track{flex:1;width:100%;display:flex;align-items:flex-end;background:var(--surface-2);border-radius:8px;overflow:hidden;}
+  .anc-track i{display:block;width:100%;background:var(--accent);border-radius:8px;transition:height .35s ease;}
+  .anc-track i.pos{background:var(--green);} .anc-track i.neg{background:var(--red);}
+  .anc-l{font-size:11px;color:var(--txt-dim);font-weight:700;margin-top:6px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+
+  /* --- face à face --- */
+  .an-vs{display:flex;align-items:stretch;gap:10px;}
+  .anv-side{flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:12px 11px;text-align:center;}
+  .anv-v{display:block;font-size:21px;font-weight:800;letter-spacing:-.02em;color:var(--txt);}
+  .anv-v.pos{color:var(--green);} .anv-v.neg{color:var(--red);}
+  .anv-l{display:block;font-size:11px;color:var(--txt-dim);margin-top:4px;line-height:1.35;font-weight:600;}
+  .anv-sep{flex:0 0 auto;align-self:center;font-size:11px;font-weight:800;color:var(--txt-faint);text-transform:uppercase;letter-spacing:.06em;}
+
+  /* --- KPI --- */
+  .an-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+  .an-kpi{background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:12px 12px;min-width:0;}
+  .ank-v{display:block;font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--txt);line-height:1.1;}
+  .ank-v.pos{color:var(--green);} .ank-v.neg{color:var(--red);}
+  .ank-l{display:block;font-size:11px;color:var(--txt-dim);font-weight:600;margin-top:3px;line-height:1.35;}
+
+  /* --- chips --- */
+  .an-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:2px;}
+  .an-chip{font-size:12px;font-weight:700;padding:6px 11px;border-radius:20px;background:var(--surface-2);border:1px solid var(--line);color:var(--txt-dim);display:inline-flex;align-items:center;gap:6px;}
+  .an-chip b{font-size:10.5px;font-weight:800;opacity:.75;}
+  .an-chip.pos{border-color:var(--green);color:var(--green);background:var(--green-dim);}
+  .an-chip.neg{border-color:var(--red);color:var(--red);background:var(--red-dim);}
+  .an-chips + .an-bars{margin-top:13px;}
+
+  /* --- listes de constats --- */
+  .an-list{display:flex;flex-direction:column;gap:9px;}
+  .an-li{display:flex;gap:11px;align-items:flex-start;background:var(--surface-2);border:1px solid var(--line);border-left-width:3px;border-radius:12px;padding:11px 12px;}
+  .an-li.pos{border-left-color:var(--green);} .an-li.neg{border-left-color:var(--red);} .an-li.neutral{border-left-color:var(--amber);}
+  .anl-ic{flex:0 0 auto;font-size:15px;line-height:1.3;}
+  .anl-tx{flex:1;min-width:0;display:block;}
+  .anl-tx b{display:block;font-size:13px;font-weight:800;color:var(--txt);}
+  .anl-tx span{display:block;font-size:12px;color:var(--txt-dim);margin-top:3px;line-height:1.5;}
+  .anl-tx span b{display:inline;font-size:inherit;}
+
+  /* --- leviers --- */
+  .an-lev{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);}
+  .an-lev:first-child{border-top:none;padding-top:2px;}
+  .anlv-rk{flex:0 0 auto;width:24px;height:24px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+  .anlv-b{flex:1;min-width:0;}
+  .anlv-t{font-size:14px;font-weight:800;color:var(--txt);}
+  .anlv-n{font-size:12px;color:var(--txt-dim);margin-top:4px;line-height:1.5;}
+  .anlv-n b{color:var(--txt);} .anlv-n b.pos{color:var(--green);} .anlv-n b.neg{color:var(--red);}
+  .anlv-d{font-size:12.5px;color:var(--txt-faint);margin-top:5px;line-height:1.5;}
+  .anlv-dl{flex:0 0 auto;font-size:13px;font-weight:800;color:var(--txt-dim);white-space:nowrap;}
+  .anlv-dl.pos{color:var(--green);} .anlv-dl.neg{color:var(--red);}
+
+  /* --- score & radar --- */
+  .an-scorewrap{display:flex;flex-direction:column;align-items:center;gap:16px;}
+  .an-scoreg{flex:0 0 auto;}
+  .an-scoreb{width:100%;min-width:0;}
+  .an-gauge{display:block;}
+  .an-radarwrap{display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .an-radar{display:block;max-width:280px;}
+  .an-radarb{width:100%;min-width:0;}
+  .an-spark{display:block;width:100%;}
+
+  /* --- tablette et ordinateur : la page devient une grille --- */
+  @media (min-width:760px){
+    .an-nav{margin:0 -26px;padding-left:26px;padding-right:26px;}
+    .an-tab{padding:10px 15px;}
+    .an-tab .ant-s{display:block;font-size:10.5px;color:var(--txt-faint);font-weight:600;white-space:nowrap;margin-top:1px;}
+    .an-tab.on .ant-s{color:var(--accent);opacity:.8;}
+    .an-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+    .an-card.w2{grid-column:span 2;}
+    .an-scorewrap{flex-direction:row;align-items:center;gap:22px;}
+    .an-radarwrap{flex-direction:row;align-items:center;gap:20px;}
+    .an-radar{flex:0 0 252px;}
+    .an-kpis{grid-template-columns:repeat(3,minmax(0,1fr));}
+  }
+  @media (min-width:1100px){
+    .an-nav{margin:0;padding-left:2px;padding-right:2px;flex-wrap:wrap;overflow:visible;}
+    .an-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+    .an-card{padding:18px;}
+    .an-card.w2{grid-column:span 2;}
+    .an-card.w3{grid-column:span 3;}
+    .an-shead{margin-top:20px;}
+    .an-sh-t{font-size:22px;}
+    .an-kpis{grid-template-columns:repeat(3,minmax(0,1fr));}
+    .an-big{font-size:33px;}
+  }
+  @media (min-width:1500px){
+    .an-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
+    .an-card.w2{grid-column:span 2;}
+    .an-card.w3{grid-column:span 3;}
+  }
 
   textarea{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:15px;padding:12px;resize:none;overflow:hidden;min-height:64px;line-height:1.5;}
   /* champ numérique + bouton Gain/Perte (pour saisir un résultat négatif clairement) */
@@ -1461,14 +1614,18 @@
 
   <!-- ========== ANALYSE (coach discipline & psychologie) ========== -->
   <div id="screenAnalysis" class="hidden">
-    <button class="nav-tile hidden" id="anPickBtn" type="button">
-      <span class="nt-ic">👤</span>
-      <span>
-        <span class="nt-t" id="anPickBtnT">Tous les comptes</span>
-        <span class="nt-s">Touche pour choisir les comptes analysés</span>
-      </span>
-      <span class="nt-arr">›</span>
-    </button>
+    <div class="an-top">
+      <button class="an-scope hidden" id="anPickBtn" type="button">
+        <span class="ans-ic">👤</span>
+        <span class="ans-tx">
+          <span class="ans-t" id="anPickBtnT">Tous les comptes</span>
+          <span class="ans-s">Choisir les comptes analysés</span>
+        </span>
+        <span class="ans-arr">›</span>
+      </button>
+      <div class="an-periods" id="anPeriods"></div>
+    </div>
+    <div class="an-nav" id="anNav"></div>
     <div id="analysisBody"></div>
   </div>
 
@@ -5077,275 +5234,1448 @@
     },300);
   }
 
-  // ============ ANALYSE (assistant psycho / coach) ============
+  // ============ ANALYSE COMPORTEMENTALE (coach discipline & psychologie) ============
+  /* Cette page ne mesure pas la performance brute : chaque compte a déjà ses
+     chiffres dans le journal. Elle relit ce que le trader a NOTÉ — ses règles,
+     sa check-list, ses tags émotionnels, son humeur d'avant et d'après séance,
+     son auto-évaluation, ses playbooks, ses textes libres — et en tire des
+     constats lisibles, rangés par thème.
+     Tout est calculé côté client à partir des données déjà chargées : aucune
+     requête supplémentaire, aucune colonne à ajouter en base. */
+
   function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-  function anRound(v){ return Math.round(v*10)/10; }
+
+  var AN_TABS=[
+    {k:"synth", ic:"🧭", t:"Synthèse",        s:"Ce que dit ton journal, en un écran"},
+    {k:"disc",  ic:"🛡️", t:"Discipline",      s:"Règles, check-list, quota, séries"},
+    {k:"emo",   ic:"🧠", t:"Émotions",        s:"Humeur, tags, tilt, revanche"},
+    {k:"self",  ic:"🎯", t:"Auto-évaluation", s:"Tes notes, ta lucidité"},
+    {k:"prep",  ic:"📋", t:"Préparation",     s:"Avant-séance, objectif, debrief, playbooks"},
+    {k:"rythm", ic:"📆", t:"Rythme",          s:"Jours, horaires, régularité, instruments"},
+    {k:"words", ic:"✍️", t:"Écriture",        s:"Ce que tes mots racontent"}
+  ];
+  var AN_PERIODS=[{k:30,t:"30 j"},{k:90,t:"3 mois"},{k:180,t:"6 mois"},{k:365,t:"1 an"},{k:0,t:"Tout"}];
+  var AN_MIN=3;                 // taille minimale d'un groupe pour oser une comparaison
+  var AN_DAYS=["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+
+  /* ---------- Périmètre analysé ---------- */
+  function anScope(){
+    var ids=view.anIds||[];
+    var accs=accounts.filter(function(a){ return ids.indexOf(a.id)>=0; });
+    if(!accs.length) accs=accounts.slice();
+    var days=view.anPeriod||0, from=null;
+    if(days){ var d=new Date(); d.setDate(d.getDate()-days); from=ymd(d.getFullYear(),d.getMonth(),d.getDate()); }
+    var rows=[];
+    accs.forEach(function(a){
+      Object.keys(a.sessions).forEach(function(k){
+        if(from && k<from) return;
+        rows.push({a:a, k:k, s:a.sessions[k], tr:(a.tradesByDate&&a.tradesByDate[k])||[]});
+      });
+    });
+    rows.sort(function(x,y){ return x.k<y.k?-1:x.k>y.k?1:0; });
+    var units={}; accs.forEach(function(a){ units[a.resultUnit||"usd"]=1; });
+    return {
+      accs:accs, rows:rows, days:days, from:from,
+      unit:(Object.keys(units).length===1 ? accs[0] : null),
+      has:function(flag){ return accs.some(function(a){ return !!a[flag]; }); }
+    };
+  }
+
+  /* ---------- Mesures de base ---------- */
+  function anScored(rows){ return rows.filter(function(o){ return hasResult(o.s); }); }
+  function anStat(rows){
+    var sc=anScored(rows), n=sc.length, sum=0, w=0, l=0;
+    sc.forEach(function(o){ var v=sessionNet(o.s); sum+=v; if(v>0)w++; else if(v<0)l++; });
+    return {n:n, sum:sum, avg:n?sum/n:0, win:w, loss:l, winRate:n?Math.round(w/n*100):0};
+  }
+  function anFmt(sc,v){ v=Math.round(v*100)/100; return sc.unit ? fmtVal(v,sc.unit) : ((v>0?"+":v<0?"−":"")+Math.abs(v)); }
+  // Mesure de référence de la page : résultat moyen si tous les comptes partagent
+  // la même unité, sinon % de séances gagnantes (comparer des $ et des pips n'a
+  // aucun sens).
+  function anPerf(sc,rows){
+    var g=anStat(rows);
+    return {n:g.n, v:(sc.unit?g.avg:g.winRate), disp:(sc.unit?anFmt(sc,g.avg):g.winRate+"%"), g:g};
+  }
+  function anMetricName(sc){ return sc.unit ? "résultat moyen" : "% de séances gagnantes"; }
+  function anCmp(sc,aRows,bRows,min){
+    min=min||AN_MIN;
+    var A=anPerf(sc,aRows), B=anPerf(sc,bRows);
+    if(A.n<min || B.n<min) return null;
+    return {A:A, B:B, delta:A.v-B.v};
+  }
   function anTone(v){ return v>0?"pos":v<0?"neg":"neutral"; }
-  function anWithResult(list){ return list.filter(function(s){return hasResult(s);}); }
-  function anGrp(list){
-    var arr=anWithResult(list), n=arr.length, sum=0, w=0, l=0;
-    arr.forEach(function(s){ var v=sessionNet(s); sum+=v; if(v>0)w++; else if(v<0)l++; });
-    return {n:n, avg:n?sum/n:0, win:w, loss:l, winRate:n?Math.round(w/n*100):0, lossRate:n?Math.round(l/n*100):0};
+  function anPct(a,b){ return b?Math.round(a/b*100):0; }
+  function anAvg(arr){ if(!arr.length) return 0; var t=0; arr.forEach(function(v){t+=v;}); return t/arr.length; }
+  function anR1(v){ return Math.round(v*10)/10; }
+  function anNb(n,sing,plur){ return n+" "+(n>1?(plur||sing+"s"):sing); }
+  // Un écart signé, dans l'unité de la page. anFmt pose déjà le signe pour un
+  // montant : ne jamais en rajouter un devant, sous peine de « ++51$ ».
+  function anDelta(sc,v){ return sc.unit ? anFmt(sc,v) : ((v>0?"+":v<0?"−":"")+Math.abs(Math.round(v))+" pts"); }
+
+  /* ---------- Lectures d'une séance ---------- */
+  function anJudged(s){ return (s.rules||[]).filter(function(r){ return r && (r.ok===true||r.ok===false); }); }
+  function anAllOk(s){ var j=anJudged(s); return j.length>0 && j.every(function(r){ return r.ok===true; }); }
+  function anBroke(s){ return (s.rules||[]).some(function(r){ return r && r.ok===false; }); }
+  function anRuleRate(rows){
+    var ok=0, tot=0;
+    rows.forEach(function(o){ anJudged(o.s).forEach(function(r){ tot++; if(r.ok===true) ok++; }); });
+    return tot ? Math.round(ok/tot*100) : null;
   }
-  function sessionsOf(scope){ return scope.sessions; }
-  function anCard(h, num, tone, txtHtml, svg){
-    var c=document.createElement("div"); c.className="an-card";
-    var html='<div class="an-h">'+esc(h)+'</div>';
-    if(num!==null && num!==undefined) html+='<div class="an-num '+(tone||'neutral')+'">'+num+'</div>';
-    html+='<div class="an-txt">'+txtHtml+'</div>';
-    if(svg) html+='<div class="an-svg">'+svg+'</div>';
-    c.innerHTML=html; return c;
+  function anCheckFull(s){ return (s.checklist||[]).length>0 && s.checklist.every(function(c){ return c && c.checked; }); }
+  function anCheckRows(rows){ return rows.filter(function(o){ return (o.s.checklist||[]).length>0; }); }
+  function anQuotaOver(o){
+    if(!o.a.showTracker) return null;
+    var st=statsForTrades(o.s.trades);
+    if(!st.taken) return null;
+    return st.taken > effectiveQuota(o.a,o.s);
   }
-  function anInsufficient(title){ return anCard(title, null, 'neutral', '<span class="an-empty">Pas encore assez de données pour ce constat.</span>', null); }
-  // barres comparatives horizontales (SVG inline)
-  function svgCompare(rows, opts){
-    opts=opts||{}; var W=280, rh=42, h=rows.length*rh, max=opts.max||1;
-    rows.forEach(function(r){ max=Math.max(max, Math.abs(r.value)); });
-    var s='<svg viewBox="0 0 '+W+' '+h+'" width="100%" height="'+h+'" preserveAspectRatio="xMidYMid meet" font-family="inherit">';
-    rows.forEach(function(r,i){
-      var y=i*rh;
-      var col=r.tone==='pos'?'var(--green)':r.tone==='neg'?'var(--red)':'var(--txt-dim)';
-      var bw=Math.max(4, Math.round(Math.abs(r.value)/max*(W-6)));
-      var tx=Math.min(bw+8, W-52);
-      s+='<text x="0" y="'+(y+13)+'" fill="var(--txt-dim)" font-size="12">'+esc(r.label)+'</text>';
-      s+='<rect x="0" y="'+(y+19)+'" rx="5.5" width="'+bw+'" height="11" fill="'+col+'"/>';
-      s+='<text x="'+tx+'" y="'+(y+29)+'" fill="var(--txt)" font-size="12" font-weight="700">'+esc(r.disp)+'</text>';
+  function anTxt(v){ return String(v||"").trim(); }
+  function anHasTxt(v){ return anTxt(v).length>0; }
+  function anTradeCount(o){
+    var st=statsForTrades(o.s.trades);
+    return st.taken || (o.tr||[]).length;
+  }
+  function anKeyDate(k){ var p=String(k).split("-"); return new Date(+p[0], +p[1]-1, +p[2]); }
+
+  /* ---------- Briques visuelles (SVG / HTML inline) ---------- */
+  function anEmpty(msg){ return '<div class="an-empty">'+esc(msg)+'</div>'; }
+  function anBars(rows){
+    if(!rows || !rows.length) return anEmpty("Pas encore de données ici.");
+    var max=1; rows.forEach(function(r){ max=Math.max(max, Math.abs(r.v)); });
+    return '<div class="an-bars">'+rows.map(function(r){
+      var w=Math.max(3, Math.round(Math.abs(r.v)/max*100));
+      return '<div class="an-bar">'+
+        '<div class="anb-top"><span class="anb-l">'+esc(r.label)+'</span><span class="anb-v '+(r.tone||"")+'">'+esc(r.disp)+'</span></div>'+
+        '<div class="anb-track"><i class="'+(r.tone||"")+'" style="width:'+w+'%"></i></div>'+
+        (r.note?'<div class="anb-n">'+esc(r.note)+'</div>':'')+
+      '</div>';
+    }).join("")+'</div>';
+  }
+  // Barres de progression 0-100 % (respect, complétion…) : l'échelle est absolue,
+  // pas relative au plus grand — un 40 % doit se voir comme un 40 %.
+  function anMeters(rows){
+    if(!rows || !rows.length) return anEmpty("Pas encore de données ici.");
+    return '<div class="an-bars">'+rows.map(function(r){
+      var p=Math.max(0, Math.min(100, r.pct));
+      return '<div class="an-bar">'+
+        '<div class="anb-top"><span class="anb-l">'+esc(r.label)+'</span><span class="anb-v '+(r.tone||"")+'">'+esc(r.disp!=null?r.disp:(r.pct+"%"))+'</span></div>'+
+        '<div class="anb-track"><i class="'+(r.tone||"")+'" style="width:'+p+'%"></i></div>'+
+        (r.note?'<div class="anb-n">'+esc(r.note)+'</div>':'')+
+      '</div>';
+    }).join("")+'</div>';
+  }
+  function anGauge(pct,size){
+    size=size||120;
+    var r=(size/2)-10, cx=size/2, cy=size/2, C=2*Math.PI*r;
+    var col = pct>=75?"var(--green)" : pct>=55?"var(--accent)" : pct>=35?"var(--amber)" : "var(--red)";
+    return '<svg class="an-gauge" viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'" aria-hidden="true">'+
+      '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="var(--surface-2)" stroke-width="10"/>'+
+      '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="10" stroke-linecap="round" '+
+        'stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+(C*(1-Math.max(0,Math.min(100,pct))/100)).toFixed(1)+'" transform="rotate(-90 '+cx+' '+cy+')"/>'+
+      '<text x="'+cx+'" y="'+(cy+3)+'" text-anchor="middle" fill="var(--txt)" font-size="'+Math.round(size*0.28)+'" font-weight="800">'+pct+'</text>'+
+      '<text x="'+cx+'" y="'+(cy+18)+'" text-anchor="middle" fill="var(--txt-faint)" font-size="'+Math.round(size*0.1)+'" font-weight="700">/ 100</text>'+
+    '</svg>';
+  }
+  function anSpark(values,opts){
+    opts=opts||{};
+    if(!values || values.length<2) return anEmpty("Il faut au moins deux points pour tracer une courbe.");
+    var W=320, h=opts.h||76, min=Math.min.apply(null,values), max=Math.max.apply(null,values);
+    if(opts.min!=null) min=Math.min(min,opts.min);
+    if(opts.max!=null) max=Math.max(max,opts.max);
+    if(max===min){ max=min+1; min=min-1; }
+    var pts=values.map(function(v,i){
+      var x=i/(values.length-1)*W;
+      var y=h-((v-min)/(max-min))*(h-10)-5;
+      return x.toFixed(1)+","+y.toFixed(1);
+    });
+    var col=opts.color||"var(--accent)";
+    var out='<svg class="an-spark" viewBox="0 0 '+W+' '+h+'" height="'+h+'" preserveAspectRatio="none" aria-hidden="true">';
+    var zero = ("zero" in opts) ? opts.zero : 0;
+    if(zero!=null && min<=zero && max>=zero){
+      var zy=(h-((zero-min)/(max-min))*(h-10)-5).toFixed(1);
+      out+='<line x1="0" y1="'+zy+'" x2="'+W+'" y2="'+zy+'" stroke="var(--line)" stroke-width="1" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>';
+    }
+    out+='<polyline fill="none" stroke="'+col+'" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" points="'+pts.join(" ")+'"/>';
+    return out+'</svg>';
+  }
+  // Distribution en colonnes (humeur 1-5, tranches horaires…).
+  function anCols(rows){
+    if(!rows || !rows.length) return anEmpty("Pas encore de données ici.");
+    var max=1; rows.forEach(function(r){ max=Math.max(max, r.n); });
+    return '<div class="an-cols">'+rows.map(function(r){
+      var hp=Math.max(4, Math.round(r.n/max*100));
+      return '<div class="an-col">'+
+        '<div class="anc-v '+(r.tone||"")+'">'+esc(r.disp||String(r.n))+'</div>'+
+        '<div class="anc-track"><i class="'+(r.tone||"")+'" style="height:'+hp+'%"></i></div>'+
+        '<div class="anc-l">'+esc(r.label)+'</div>'+
+      '</div>';
+    }).join("")+'</div>';
+  }
+  // Radar (triangle pour les trois axes d'auto-évaluation).
+  function anRadar(axes,maxV){
+    maxV=maxV||5;
+    var N=axes.length; if(N<3) return "";
+    var W=252, H=182, cx=W/2, cy=H/2+4, R=54;
+    function pt(i,rad){ var ang=-Math.PI/2 + i*2*Math.PI/N; return [cx+Math.cos(ang)*rad, cy+Math.sin(ang)*rad]; }
+    var s='<svg class="an-radar" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true">';
+    [0.33,0.66,1].forEach(function(f){
+      var p=[]; for(var i=0;i<N;i++){ var q=pt(i,R*f); p.push(q[0].toFixed(1)+","+q[1].toFixed(1)); }
+      s+='<polygon points="'+p.join(" ")+'" fill="none" stroke="var(--line)" stroke-width="1"/>';
+    });
+    for(var i=0;i<N;i++){ var q=pt(i,R); s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+q[0].toFixed(1)+'" y2="'+q[1].toFixed(1)+'" stroke="var(--line)" stroke-width="1"/>'; }
+    var dp=[]; axes.forEach(function(ax,i){ var q=pt(i, R*Math.max(0.06, ax.v/maxV)); dp.push(q[0].toFixed(1)+","+q[1].toFixed(1)); });
+    s+='<polygon points="'+dp.join(" ")+'" fill="var(--accent)" fill-opacity="0.22" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>';
+    axes.forEach(function(ax,i){
+      var q=pt(i, R*Math.max(0.06, ax.v/maxV));
+      s+='<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="3.4" fill="var(--accent)"/>';
+      var l=pt(i, R+22), anchor = l[0]>cx+6 ? "start" : (l[0]<cx-6 ? "end" : "middle");
+      s+='<text x="'+l[0].toFixed(1)+'" y="'+(l[1]+4).toFixed(1)+'" text-anchor="'+anchor+'" fill="var(--txt-dim)" font-size="11" font-weight="700">'+esc(ax.t)+'</text>';
+      s+='<text x="'+l[0].toFixed(1)+'" y="'+(l[1]+16).toFixed(1)+'" text-anchor="'+anchor+'" fill="var(--txt)" font-size="11.5" font-weight="800">'+anR1(ax.v)+'/'+maxV+'</text>';
     });
     return s+'</svg>';
   }
+  function anChips(items){
+    if(!items || !items.length) return "";
+    return '<div class="an-chips">'+items.map(function(c){
+      return '<span class="an-chip '+(c.tone||"")+'">'+esc(c.t)+(c.n!=null?'<b>'+c.n+'</b>':'')+'</span>';
+    }).join("")+'</div>';
+  }
+  function anKpis(items){
+    if(!items || !items.length) return "";
+    return '<div class="an-kpis">'+items.map(function(k){
+      return '<div class="an-kpi"><span class="ank-v '+(k.tone||"")+'">'+k.v+'</span><span class="ank-l">'+esc(k.l)+'</span></div>';
+    }).join("")+'</div>';
+  }
+  function anVs(aLab,aDisp,aTone,bLab,bDisp,bTone){
+    return '<div class="an-vs">'+
+      '<div class="anv-side"><span class="anv-v '+(aTone||"")+'">'+esc(aDisp)+'</span><span class="anv-l">'+esc(aLab)+'</span></div>'+
+      '<span class="anv-sep">vs</span>'+
+      '<div class="anv-side"><span class="anv-v '+(bTone||"")+'">'+esc(bDisp)+'</span><span class="anv-l">'+esc(bLab)+'</span></div>'+
+    '</div>';
+  }
+  // Face à face dont les couleurs suivent l'écart mesuré, jamais l'ordre des
+  // arguments : un « avec » moins bon que le « sans » doit apparaître en rouge.
+  function anVsD(c,aLab,bLab){
+    var ta=c.delta>0?"pos":c.delta<0?"neg":"", tb=c.delta>0?"neg":c.delta<0?"pos":"";
+    return anVs(aLab+" ("+c.A.n+")", c.A.disp, ta, bLab+" ("+c.B.n+")", c.B.disp, tb);
+  }
+  function anList(items){
+    if(!items || !items.length) return "";
+    return '<div class="an-list">'+items.map(function(it){
+      return '<div class="an-li '+(it.tone||"")+'"><span class="anl-ic">'+(it.ic||"•")+'</span>'+
+        '<span class="anl-tx"><b>'+esc(it.t)+'</b>'+(it.d?'<span>'+it.d+'</span>':'')+'</span></div>';
+    }).join("")+'</div>';
+  }
+  function anCardHtml(o){
+    var h='<div class="an-card'+(o.span?" "+o.span:"")+'">';
+    h+='<div class="an-ch"><span class="an-ic">'+(o.ic||"•")+'</span><span class="an-t">'+esc(o.title)+'</span>'+
+       (o.badge?'<span class="an-badge '+(o.badgeTone||"")+'">'+esc(o.badge)+'</span>':'')+'</div>';
+    if(o.big!=null && o.big!=="") h+='<div class="an-big '+(o.bigTone||"")+'">'+o.big+(o.bigSub?'<span class="an-bigsub">'+o.bigSub+'</span>':'')+'</div>';
+    if(o.sub) h+='<div class="an-sub">'+o.sub+'</div>';
+    if(o.body) h+='<div class="an-body">'+o.body+'</div>';
+    if(o.foot) h+='<div class="an-foot">'+o.foot+'</div>';
+    return h+'</div>';
+  }
+  function anNote(txt){ return anCardHtml({ic:"ℹ️", title:"Pas encore mesurable", sub:'<span class="an-empty">'+esc(txt)+'</span>', span:"w2"}); }
 
-  function secRulesRespect(scope){
-    var judged=sessionsOf(scope).filter(function(s){ return hasResult(s) && (s.rules||[]).some(function(r){return r&&(r.ok===true||r.ok===false);}); });
-    if(judged.length<5) return anInsufficient("Respect des règles");
-    var allOk=judged.filter(function(s){ var j=(s.rules||[]).filter(function(r){return r&&(r.ok===true||r.ok===false);}); return j.length>0 && j.every(function(r){return r.ok===true;}); });
-    var broke=judged.filter(function(s){ return (s.rules||[]).some(function(r){return r&&r.ok===false;}); });
-    var gA=anGrp(allOk), gB=anGrp(broke);
-    if(gA.n<3 || gB.n<3){
-      // Pas assez de variété pour comparer (ex : règles quasi toujours respectées) —
-      // on affiche quand même un constat plutôt que le message générique "pas assez de données".
-      var gJ=anGrp(judged);
-      var num0 = scope.unit? fmtVal(anRound(gJ.avg),scope.unit) : gJ.winRate+'%';
-      var txt0 = gB.n<3
-        ? 'Tu respectes toutes tes règles sur <b>'+allOk.length+'/'+judged.length+'</b> séances jugées — pas encore assez de séances avec règle enfreinte pour comparer. '+(scope.unit? 'Résultat moyen sur ces séances : <b>'+fmtVal(anRound(gJ.avg),scope.unit)+'</b> ('+gJ.winRate+'% gagnantes).' : '<b>'+gJ.winRate+'%</b> de séances gagnantes.')
-        : 'Tu casses au moins une règle sur <b>'+broke.length+'/'+judged.length+'</b> séances jugées — pas encore assez de séances 100% respectées pour comparer. '+(scope.unit? 'Résultat moyen sur ces séances : <b>'+fmtVal(anRound(gJ.avg),scope.unit)+'</b> ('+gJ.winRate+'% gagnantes).' : '<b>'+gJ.winRate+'%</b> de séances gagnantes.');
-      return anCard('Respect des règles', num0, anTone(gJ.avg), txt0, null);
-    }
-    var num, txt;
-    if(scope.unit){
-      num=fmtVal(anRound(gA.avg),scope.unit);
-      txt='Quand tu respectes <b>toutes tes règles</b> : <b>'+fmtVal(anRound(gA.avg),scope.unit)+'</b> en moyenne ('+gA.winRate+'% gagnantes). Quand tu en casses au moins une : <b>'+fmtVal(anRound(gB.avg),scope.unit)+'</b> ('+gB.winRate+'% gagnantes).';
-    } else {
-      num=gA.winRate+'%';
-      txt='Quand tu respectes <b>toutes tes règles</b> : <b>'+gA.winRate+'%</b> de séances gagnantes. Quand tu en casses au moins une : <b>'+gB.winRate+'%</b>.';
-    }
-    var svg=svgCompare([
-      {label:'Toutes règles respectées', value:gA.winRate, disp:gA.winRate+'%', tone:'pos'},
-      {label:'≥1 règle enfreinte', value:gB.winRate, disp:gB.winRate+'%', tone:'neg'}
-    ],{max:100});
-    return anCard('Respect des règles', num, anTone(gA.avg-gB.avg), txt, svg);
+  /* =====================================================================
+     SCORE COMPORTEMENTAL — une note sur 100 qui ne regarde JAMAIS le résultat.
+     Chaque signal absent est ignoré et son poids redistribué : un compte qui
+     n'utilise pas la check-list n'est pas pénalisé pour autant.
+     ===================================================================== */
+  function anScore(sc){
+    var rows=sc.rows; if(!rows.length) return null;
+    var parts=[];
+    var judged=rows.filter(function(o){ return anJudged(o.s).length>0; });
+    var rr=anRuleRate(judged);
+    if(rr!==null && judged.length>=AN_MIN) parts.push({label:"Règles respectées", pct:rr, w:30, n:judged.length});
+    var cl=anCheckRows(rows);
+    if(cl.length>=AN_MIN) parts.push({label:"Check-list complète", pct:anPct(cl.filter(function(o){return anCheckFull(o.s);}).length, cl.length), w:15, n:cl.length});
+    var q=rows.map(anQuotaOver).filter(function(v){ return v!==null; });
+    if(q.length>=AN_MIN) parts.push({label:"Quota de trades tenu", pct:anPct(q.filter(function(v){return !v;}).length, q.length), w:15, n:q.length});
+    var rt=rows.filter(function(o){ return ratingAvg(o.s.rating)!==null; });
+    if(rt.length>=AN_MIN) parts.push({label:"Auto-évaluation", pct:Math.round(anAvg(rt.map(function(o){return ratingAvg(o.s.rating);}))/5*100), w:15, n:rt.length});
+    if(sc.has("showPreNotes") && rows.length>=AN_MIN)
+      parts.push({label:"Séance préparée par écrit", pct:anPct(rows.filter(function(o){ return anHasTxt(o.s.preNotes); }).length, rows.length), w:12, n:rows.length});
+    if(sc.has("showNotes") && rows.length>=AN_MIN)
+      parts.push({label:"Debrief écrit", pct:anPct(rows.filter(function(o){ return anHasTxt(o.s.notes); }).length, rows.length), w:13, n:rows.length});
+    if(!parts.length) return null;
+    var tw=0, tot=0; parts.forEach(function(p){ tw+=p.w; tot+=p.pct*p.w; });
+    return {score:Math.round(tot/tw), parts:parts};
+  }
+  function anScoreWord(v){
+    return v>=85?"exemplaire" : v>=70?"solide" : v>=55?"correcte, mais irrégulière" : v>=40?"fragile" : "à reconstruire";
   }
 
-  function secCostliestRule(scope){
-    var sessions=anWithResult(sessionsOf(scope)), m={};
-    sessions.forEach(function(s){ (s.rules||[]).forEach(function(r){ if(r&&r.ok===false){ var k=r.rule; if(!m[k])m[k]={n:0,loss:0,sum:0}; m[k].n++; var v=sessionNet(s); m[k].sum+=v; if(v<0)m[k].loss++; } }); });
-    var best=null;
-    Object.keys(m).forEach(function(k){ var o=m[k]; if(o.n>=3){ var avg=o.sum/o.n; if(!best || avg<best.avg) best={rule:k,n:o.n,loss:o.loss,avg:avg,lossRate:Math.round(o.loss/o.n*100)}; } });
-    if(!best) return null;
-    var num = scope.unit? fmtVal(anRound(best.avg),scope.unit) : best.lossRate+'%';
-    var txt='La règle qui te coûte le plus : <b>« '+esc(best.rule)+' »</b>. Quand tu l\'enfreins'+(scope.unit?' : <b>'+fmtVal(anRound(best.avg),scope.unit)+'</b> en moyenne, ':', ')+best.lossRate+'% de séances perdantes <b>('+best.n+' séances)</b>.';
-    return anCard('Ta règle la plus coûteuse', num, 'neg', txt, null);
-  }
-
-  function secTags(scope){
-    var sessions=anWithResult(sessionsOf(scope));
-    if(sessions.length<5) return anInsufficient("Impact des tags");
-    var tags={}; sessions.forEach(function(s){ (s.tags||[]).forEach(function(t){ tags[t]=true; }); });
-    var res=[];
-    Object.keys(tags).forEach(function(t){
-      var withT=sessions.filter(function(s){return (s.tags||[]).indexOf(t)>=0;});
-      var without=sessions.filter(function(s){return (s.tags||[]).indexOf(t)<0;});
-      if(withT.length>=3 && without.length>=3){
-        var gw=anGrp(withT), go=anGrp(without);
-        var mw=scope.unit?gw.avg:gw.winRate, mo=scope.unit?go.avg:go.winRate;
-        res.push({tag:t,n:withT.length,delta:mw-mo,gw:gw,go:go});
-      }
+  /* ---------- Régularité de tenue du journal ---------- */
+  function anRegularity(sc){
+    var rows=sc.rows; if(!rows.length) return null;
+    var first=anKeyDate(rows[0].k), last=anKeyDate(rows[rows.length-1].k);
+    if(sc.days){ var d=new Date(); d.setDate(d.getDate()-sc.days); if(d>first) first=d; last=new Date(); }
+    var open=0, cur=new Date(first.getTime());
+    while(cur<=last){ var wd=cur.getDay(); if(wd!==0 && wd!==6) open++; cur.setDate(cur.getDate()+1); }
+    var days={}; rows.forEach(function(o){ days[o.k]=1; });
+    var logged=Object.keys(days).length;
+    // plus longue série de jours ouvrés consécutifs journalisés
+    var keys=Object.keys(days).sort(), best=0, run=0, prev=null;
+    keys.forEach(function(k){
+      var d=anKeyDate(k);
+      if(prev){
+        var gap=Math.round((d-prev)/86400000), ok=false;
+        for(var g=1; g<=gap; g++){
+          var t=new Date(prev.getTime()); t.setDate(t.getDate()+g);
+          if(g===gap){ ok=true; break; }
+          if(t.getDay()!==0 && t.getDay()!==6){ ok=false; break; }
+          ok=true;
+        }
+        run = ok ? run+1 : 1;
+      } else run=1;
+      if(run>best) best=run;
+      prev=d;
     });
-    if(res.length===0) return anInsufficient("Impact des tags");
-    res.sort(function(a,b){return Math.abs(b.delta)-Math.abs(a.delta);});
-    res=res.slice(0,3);
-    var lines='', rows=[];
-    res.forEach(function(r){
-      if(scope.unit){
-        lines+='<div style="margin-top:8px;">Séances <b>« '+esc(r.tag)+' »</b> : <b>'+fmtVal(anRound(r.gw.avg),scope.unit)+'</b> en moyenne, contre <b>'+fmtVal(anRound(r.go.avg),scope.unit)+'</b> sans <b>('+r.n+' séances)</b>.</div>';
-        rows.push({label:'« '+r.tag+' »', value:r.gw.avg, disp:fmtVal(anRound(r.gw.avg),scope.unit), tone:anTone(r.gw.avg)});
-      } else {
-        lines+='<div style="margin-top:8px;">Séances <b>« '+esc(r.tag)+' »</b> : <b>'+r.gw.winRate+'%</b> gagnantes, contre <b>'+r.go.winRate+'%</b> sans <b>('+r.n+' séances)</b>.</div>';
-        rows.push({label:'« '+r.tag+' »', value:r.gw.winRate, disp:r.gw.winRate+'%', tone:r.gw.winRate>=r.go.winRate?'pos':'neg'});
-      }
-    });
-    var top=res[0];
-    var num = scope.unit? fmtVal(anRound(top.gw.avg),scope.unit) : top.gw.winRate+'%';
-    return anCard('Impact de tes tags', num, anTone(top.delta), lines, svgCompare(rows, scope.unit?{}:{max:100}));
+    return {open:open, logged:logged, pct:open?Math.min(100,Math.round(logged/open*100)):0, best:best};
   }
 
-  function secMood(scope){
-    var sessions=anWithResult(sessionsOf(scope)).filter(function(s){return s.moodBefore>0;});
-    if(sessions.length<5) return anInsufficient("Impact de l'humeur");
-    var rows=[];
-    function add(label,arr){ if(arr.length>=3){ var g=anGrp(arr); rows.push({label:label+' ('+arr.length+')', value:scope.unit?g.avg:g.winRate, disp:scope.unit?fmtVal(anRound(g.avg),scope.unit):g.winRate+'%', tone:scope.unit?anTone(g.avg):(g.winRate>=50?'pos':'neg')}); } }
-    add('Humeur basse (1-2)', sessions.filter(function(s){return s.moodBefore<=2;}));
-    add('Humeur moyenne (3)', sessions.filter(function(s){return s.moodBefore===3;}));
-    add('Humeur haute (4-5)', sessions.filter(function(s){return s.moodBefore>=4;}));
-    if(rows.length<2) return anInsufficient("Impact de l'humeur");
-    var txt='Ton résultat selon ton humeur <b>avant</b> la séance'+(scope.unit?'':' (% gagnantes)')+' :';
-    return anCard("Impact de l'humeur", null, 'neutral', txt, svgCompare(rows, scope.unit?{}:{max:100}));
-  }
-
-  function secChecklist(scope){
-    var sessions=anWithResult(sessionsOf(scope)).filter(function(s){return (s.checklist||[]).length>0;});
-    if(sessions.length<5) return anInsufficient("Check-list");
-    var complete=sessions.filter(function(s){return s.checklist.every(function(c){return c&&c.checked;});});
-    var incomplete=sessions.filter(function(s){return !s.checklist.every(function(c){return c&&c.checked;});});
-    if(complete.length<3 || incomplete.length<3){
-      // Pas assez de variété pour comparer (ex : check-list quasi toujours complète) —
-      // on affiche quand même un constat plutôt que le message générique "pas assez de données".
-      var gAll=anGrp(sessions);
-      var num0 = scope.unit? fmtVal(anRound(gAll.avg),scope.unit) : gAll.winRate+'%';
-      var txt0 = incomplete.length<3
-        ? 'Ta check-list est complète sur <b>'+complete.length+'/'+sessions.length+'</b> séances — pas encore assez de séances incomplètes pour comparer. '+(scope.unit? 'Résultat moyen : <b>'+fmtVal(anRound(gAll.avg),scope.unit)+'</b> ('+gAll.winRate+'% gagnantes).' : '<b>'+gAll.winRate+'%</b> de séances gagnantes.')
-        : 'Ta check-list est rarement complète (<b>'+complete.length+'/'+sessions.length+'</b> séances) — pas encore assez de séances complètes pour comparer. '+(scope.unit? 'Résultat moyen : <b>'+fmtVal(anRound(gAll.avg),scope.unit)+'</b> ('+gAll.winRate+'% gagnantes).' : '<b>'+gAll.winRate+'%</b> de séances gagnantes.');
-      return anCard('Effet de la check-list', num0, anTone(gAll.avg), txt0, null);
+  /* ---------- Comparaisons candidates : le moteur des « leviers » ---------- */
+  function anLevers(sc){
+    var rows=sc.rows, out=[];
+    function push(t,ic,aLab,bLab,aRows,bRows,adviceUp,adviceDown){
+      var c=anCmp(sc,aRows,bRows);
+      if(!c) return;
+      out.push({t:t, ic:ic, aLab:aLab, bLab:bLab, c:c, delta:c.delta,
+        advice:(c.delta>=0?adviceUp:adviceDown)});
     }
-    var gc=anGrp(complete), gi=anGrp(incomplete);
-    var num = scope.unit? fmtVal(anRound(gc.avg),scope.unit) : gc.winRate+'%';
-    var txt = scope.unit
-      ? 'Check-list <b>complète</b> : <b>'+fmtVal(anRound(gc.avg),scope.unit)+'</b> ('+gc.winRate+'% gagnantes). <b>Incomplète</b> : <b>'+fmtVal(anRound(gi.avg),scope.unit)+'</b> ('+gi.winRate+'%).'
-      : 'Check-list <b>complète</b> : <b>'+gc.winRate+'%</b> gagnantes. <b>Incomplète</b> : <b>'+gi.winRate+'%</b>.';
-    return anCard('Effet de la check-list', num, anTone(gc.avg-gi.avg), txt, svgCompare([
-      {label:'Check-list complète', value:gc.winRate, disp:gc.winRate+'%', tone:'pos'},
-      {label:'Check-list incomplète', value:gi.winRate, disp:gi.winRate+'%', tone:'neg'}
-    ],{max:100}));
+    if(sc.has("showRules")){
+      push("Respecter toutes tes règles","🛡️","Toutes règles tenues","Au moins une cassée",
+        rows.filter(function(o){ return anAllOk(o.s); }),
+        rows.filter(function(o){ return anBroke(o.s); }),
+        "Ta discipline se paie : c'est le levier le plus direct que tu aies.",
+        "Étrangement, casser une règle ne te coûte rien ici — vérifie que tes règles mesurent bien ce qui compte.");
+    }
+    if(sc.has("showChecklist")){
+      var cl=anCheckRows(rows);
+      push("Finir ta check-list","✅","Check-list complète","Check-list bâclée",
+        cl.filter(function(o){ return anCheckFull(o.s); }),
+        cl.filter(function(o){ return !anCheckFull(o.s); }),
+        "La routine d'avant-séance n'est pas un rituel décoratif : elle se voit dans tes chiffres.",
+        "Ta check-list n'a pas d'effet mesurable — elle coche peut-être des choses hors de ton contrôle.");
+    }
+    if(sc.has("showMood")){
+      var md=rows.filter(function(o){ return o.s.moodBefore>0; });
+      push("Arriver en forme","🌤️","Humeur 4-5 avant","Humeur 1-2 avant",
+        md.filter(function(o){ return o.s.moodBefore>=4; }),
+        md.filter(function(o){ return o.s.moodBefore<=2; }),
+        "Ton état d'esprit d'avant séance conditionne ta séance. Ne pas trader bas est une stratégie.",
+        "Tes meilleures séances arrivent quand tu démarres bas — signe que tu te méfies plus, et que tu joues mieux serré.");
+    }
+    var q=rows.filter(function(o){ return anQuotaOver(o)!==null; });
+    if(q.length){
+      push("Tenir ton quota de trades","🎚️","Dans le quota","Quota dépassé",
+        q.filter(function(o){ return anQuotaOver(o)===false; }),
+        q.filter(function(o){ return anQuotaOver(o)===true; }),
+        "Chaque trade au-delà de ton quota est un trade de trop.",
+        "Dépasser ton quota ne t'a pas coûté ici — ton quota est peut-être trop serré.");
+    }
+    if(sc.has("showRating")){
+      var rt=rows.filter(function(o){ return ratingAvg(o.s.rating)!==null; });
+      push("Bien exécuter (ta propre note)","🎯","Séances notées ≥ 4/5","Séances notées ≤ 2,5/5",
+        rt.filter(function(o){ return ratingAvg(o.s.rating)>=4; }),
+        rt.filter(function(o){ return ratingAvg(o.s.rating)<=2.5; }),
+        "Ce que tu ressens d'une séance est fiable : tu peux te faire confiance pour t'auto-corriger.",
+        "Tes bonnes séances au ressenti ne sont pas tes meilleures : ta lecture de toi-même est à recalibrer.");
+    }
+    if(sc.has("showPreNotes")){
+      push("Écrire ton avant-séance","📝","Avant-séance écrit","Rien d'écrit avant",
+        rows.filter(function(o){ return anHasTxt(o.s.preNotes); }),
+        rows.filter(function(o){ return !anHasTxt(o.s.preNotes); }),
+        "Poser tes mots avant d'ouvrir la plateforme change ta séance.",
+        "Écrire avant ne change rien pour l'instant — peut-être écris-tu par habitude plutôt que pour te cadrer.");
+    }
+    if(sc.has("showObjectives")){
+      push("Te fixer un objectif","🎯","Objectif défini","Sans objectif",
+        rows.filter(function(o){ return anHasTxt(o.s.objective); }),
+        rows.filter(function(o){ return !anHasTxt(o.s.objective); }),
+        "Une séance avec une intention écrite ne se joue pas comme une séance ouverte au hasard.",
+        "Ton objectif écrit ne pèse pas encore — essaie de le rendre plus concret (un comportement, pas un montant).");
+    }
+    // Tilt : la séance qui suit une perte, et celle qui suit deux pertes.
+    (function(){
+      var after1=[], after2=[], other=[], streak=0;
+      anScored(rows).forEach(function(o){
+        if(streak>=2) after2.push(o); else if(streak===1) after1.push(o); else other.push(o);
+        streak = sessionNet(o.s)<0 ? streak+1 : 0;
+      });
+      push("Repartir après deux pertes","🔥","Séance qui suit 2 pertes","Les autres séances",
+        after2, other.concat(after1),
+        "Tu encaisses bien les séries — rare, garde ce réflexe.",
+        "C'est ton tilt : après deux pertes d'affilée, ta séance suivante est structurellement moins bonne. Une pause y répondrait mieux qu'un trade.");
+    })();
+    // Tags émotionnels : chaque tag devient un levier candidat.
+    if(sc.has("showTags")){
+      var tagSet={}; rows.forEach(function(o){ (o.s.tags||[]).forEach(function(t){ tagSet[t]=1; }); });
+      Object.keys(tagSet).forEach(function(t){
+        var w=rows.filter(function(o){ return (o.s.tags||[]).indexOf(t)>=0; });
+        var wo=rows.filter(function(o){ return (o.s.tags||[]).indexOf(t)<0; });
+        push("Le tag « "+t+" »","🏷️","Séances « "+t+" »","Sans ce tag", w, wo,
+          "Quand tu te sens « "+t+" », tes séances sont meilleures. Sache reconnaître cet état et en profiter.",
+          "« "+t+" » est un signal d'alarme : quand tu poses ce tag, ta séance se dégrade.");
+      });
+    }
+    out.sort(function(x,y){ return Math.abs(y.delta)-Math.abs(x.delta); });
+    return out;
   }
 
-  // Croise la note que le trader s'est donnée avec ce que la séance a produit.
-  // C'est le constat que TraderWaves ne fait pas : leurs curseurs restent
-  // décoratifs, ici ils deviennent une mesure.
-  function secSelfRating(scope){
-    var sessions=anWithResult(sessionsOf(scope)).filter(function(s){ return ratingAvg(s.rating)!==null; });
-    if(sessions.length<5) return anInsufficient("Ton auto-évaluation");
-    var hi=sessions.filter(function(s){ return ratingAvg(s.rating)>=4; });
-    var lo=sessions.filter(function(s){ return ratingAvg(s.rating)<=2.5; });
-    if(hi.length<3 || lo.length<3) return anInsufficient("Ton auto-évaluation");
-    var gA=anGrp(hi), gB=anGrp(lo);
-    var num = scope.unit ? fmtVal(anRound(gA.avg),scope.unit) : gA.winRate+'%';
-    var txt = scope.unit
-      ? 'Tes <b>bonnes séances</b> (note ≥ 4/5) : <b>'+fmtVal(anRound(gA.avg),scope.unit)+'</b> en moyenne ('+gA.winRate+'% gagnantes, '+gA.n+' séances). Tes <b>séances ratées</b> (≤ 2,5/5) : <b>'+fmtVal(anRound(gB.avg),scope.unit)+'</b> ('+gB.winRate+'%, '+gB.n+' séances).'
-      : 'Tes <b>bonnes séances</b> (note ≥ 4/5) : <b>'+gA.winRate+'%</b> gagnantes. Tes <b>séances ratées</b> (≤ 2,5/5) : <b>'+gB.winRate+'%</b>.';
-    txt += ' Autrement dit, ce que tu ressens de ta séance '+((gA.avg-gB.avg)>0?'se retrouve bien dans tes chiffres':'ne correspond pas à tes chiffres — ta lecture de toi-même est à recalibrer')+'.';
-    return anCard('Ton auto-évaluation', num, anTone(gA.avg-gB.avg), txt, svgCompare([
-      {label:'Séances bien jouées', value:gA.winRate, disp:gA.winRate+'%', tone:'pos'},
-      {label:'Séances ratées',      value:gB.winRate, disp:gB.winRate+'%', tone:'neg'}
-    ],{max:100}));
+  /* ---------- Points de vigilance ---------- */
+  function anAlerts(sc){
+    var rows=sc.rows, out=[];
+    if(sc.has("showRules")){
+      var judged=rows.filter(function(o){ return anJudged(o.s).length>0; });
+      if(judged.length>=8){
+        var last=judged.slice(-10), before=judged.slice(0,-10);
+        var pL=anRuleRate(last), pB=before.length>=3?anRuleRate(before):null;
+        if(pB!==null && pL-pB<=-8) out.push({ic:"📉", tone:"neg", t:"Ta discipline s'effrite", d:"Tu respectes <b>"+pL+"%</b> de tes règles sur tes 10 dernières séances, contre <b>"+pB+"%</b> avant."});
+        if(pB!==null && pL-pB>=8) out.push({ic:"📈", tone:"pos", t:"Ta discipline progresse", d:"<b>"+pL+"%</b> de règles respectées récemment, contre <b>"+pB+"%</b> avant. Continue."});
+        if(pL!==null && pL<60) out.push({ic:"🛡️", tone:"neg", t:"Trop de règles enfreintes", d:"Seulement <b>"+pL+"%</b> de tes règles sont tenues. Soit tu relâches, soit tes règles ne sont pas tenables — les deux se corrigent."});
+      }
+    }
+    var q=rows.map(anQuotaOver).filter(function(v){ return v!==null; });
+    if(q.length>=5){
+      var over=anPct(q.filter(function(v){return v;}).length, q.length);
+      if(over>=30) out.push({ic:"🎚️", tone:"neg", t:"Tu dépasses souvent ton quota", d:"<b>"+over+"%</b> de tes séances vont au-delà du nombre de trades que tu t'étais fixé."});
+    }
+    if(sc.has("showMood")){
+      var md=rows.filter(function(o){ return o.s.moodBefore>0; });
+      if(md.length>=6){
+        var lowPct=anPct(md.filter(function(o){ return o.s.moodBefore<=2; }).length, md.length);
+        if(lowPct>=30) out.push({ic:"🌧️", tone:"neg", t:"Tu traites souvent en état bas", d:"<b>"+lowPct+"%</b> de tes séances démarrent avec une humeur de 1 ou 2 sur 5."});
+        var dd=md.filter(function(o){ return o.s.moodAfter>0; });
+        if(dd.length>=5){
+          var delta=anAvg(dd.map(function(o){ return o.s.moodAfter-o.s.moodBefore; }));
+          if(delta<=-0.5) out.push({ic:"🪫", tone:"neg", t:"Le trading te vide", d:"En moyenne tu ressors d'une séance <b>"+anR1(Math.abs(delta))+" point</b> plus bas que tu n'y es entré·e."});
+          if(delta>=0.5) out.push({ic:"🔋", tone:"pos", t:"Le trading te fait du bien", d:"Tu ressors en moyenne <b>+"+anR1(delta)+" point</b> d'humeur au-dessus de ton état d'arrivée."});
+        }
+      }
+    }
+    if(sc.has("showRating")){
+      var rt=rows.filter(function(o){ return o.s.rating && o.s.rating.emo>0; });
+      if(rt.length>=5){
+        var em=anAvg(rt.map(function(o){ return o.s.rating.emo; }));
+        if(em<3) out.push({ic:"🧠", tone:"neg", t:"Ta maîtrise émotionnelle te préoccupe", d:"Tu te notes <b>"+anR1(em)+"/5</b> en moyenne sur cet axe — c'est ton propre diagnostic."});
+      }
+    }
+    var reg=anRegularity(sc);
+    if(reg && reg.open>=10 && reg.pct<45) out.push({ic:"🗓️", tone:"neutral", t:"Ton journal a des trous", d:"Tu as journalisé <b>"+reg.logged+"</b> jours sur <b>"+reg.open+"</b> jours ouvrés de la période (<b>"+reg.pct+"%</b>). Les constats gagnent en fiabilité quand tu remplis."});
+    if(sc.has("showNotes")){
+      var withN=anPct(rows.filter(function(o){ return anHasTxt(o.s.notes); }).length, rows.length);
+      if(rows.length>=8 && withN<40) out.push({ic:"✍️", tone:"neutral", t:"Peu de debriefs écrits", d:"Seulement <b>"+withN+"%</b> de tes séances sont commentées. C'est la matière première de cette page."});
+    }
+    return out;
   }
-  // Quel axe (exécution / plan / émotions) te coûte le plus.
-  function secRatingAxis(scope){
-    var sessions=anWithResult(sessionsOf(scope)).filter(function(s){ return ratingAvg(s.rating)!==null; });
-    if(sessions.length<6) return null;
-    var rows=[], worst=null;
+
+  /* =====================================================================
+     SECTION 1 — SYNTHÈSE
+     ===================================================================== */
+  function anSecSynth(sc){
+    var out=[], rows=sc.rows;
+    var sco=anScore(sc);
+    if(sco){
+      out.push(anCardHtml({
+        ic:"🧭", title:"Score comportemental", span:"w2",
+        body:'<div class="an-scorewrap">'+
+             '<div class="an-scoreg">'+anGauge(sco.score,132)+'</div>'+
+             '<div class="an-scoreb">'+anMeters(sco.parts.map(function(p){
+                return {label:p.label, pct:p.pct, disp:p.pct+"%", tone:p.pct>=75?"pos":p.pct>=45?"":"neg", note:anNb(p.n,"séance")+" prise"+(p.n>1?"s":"")+" en compte"};
+             }))+'</div></div>',
+        sub:"Une note qui ne regarde <b>jamais</b> ton résultat : uniquement ce que tu contrôles. Ta tenue est <b>"+anScoreWord(sco.score)+"</b>.",
+        foot:"Les signaux que tu n'utilises pas sont retirés du calcul, pas comptés à zéro."
+      }));
+    }
+    // Repères chiffrés
+    var st=anStat(rows), reg=anRegularity(sc);
+    var streaks=sc.accs.map(function(a){ return {n:disciplineStreak(a), name:a.name}; }).sort(function(x,y){ return y.n-x.n; });
+    var kp=[
+      {l:"Séances journalisées", v:rows.length},
+      {l:"Séances chiffrées", v:st.n},
+      {l:"Série sans faute", v:(streaks.length?streaks[0].n:0), tone:(streaks.length&&streaks[0].n>=3)?"pos":""}
+    ];
+    if(reg) kp.push({l:"Jours ouvrés remplis", v:reg.pct+"%", tone:reg.pct>=60?"pos":reg.pct>=35?"":"neg"});
+    if(sc.has("showMood")){
+      var mb=rows.filter(function(o){ return o.s.moodBefore>0; });
+      if(mb.length) kp.push({l:"Humeur d'arrivée", v:anR1(anAvg(mb.map(function(o){return o.s.moodBefore;})))+"/5"});
+    }
+    if(sc.has("showRating")){
+      var rt=rows.filter(function(o){ return ratingAvg(o.s.rating)!==null; });
+      if(rt.length) kp.push({l:"Ta note moyenne", v:anR1(anAvg(rt.map(function(o){return ratingAvg(o.s.rating);})))+"/5"});
+    }
+    var rr=anRuleRate(rows);
+    if(rr!==null) kp.push({l:"Règles tenues", v:rr+"%", tone:rr>=75?"pos":rr>=50?"":"neg"});
+    out.push(anCardHtml({ic:"📌", title:"Tes repères", span:"w2", body:anKpis(kp),
+      foot:(sc.days?("Sur les "+sc.days+" derniers jours."):"Sur tout ton historique.")+" "+(sc.unit?"":"Comptes en unités différentes : les comparaisons se font en % de séances gagnantes.")}));
+
+    // Leviers
+    var lev=anLevers(sc);
+    if(lev.length){
+      var top=lev.slice(0,3);
+      out.push(anCardHtml({
+        ic:"⚡", title:"Tes trois leviers", span:"w2",
+        sub:"Classés par l'écart qu'ils créent sur ton "+anMetricName(sc)+". C'est là que tu gagnes le plus, avant de changer quoi que ce soit à ta stratégie.",
+        body:top.map(function(L,i){
+          var t=L.delta>0?"pos":L.delta<0?"neg":"";
+          return '<div class="an-lev">'+
+            '<span class="anlv-rk">'+(i+1)+'</span>'+
+            '<div class="anlv-b">'+
+              '<div class="anlv-t">'+L.ic+' '+esc(L.t)+'</div>'+
+              '<div class="anlv-n">'+esc(L.aLab)+' : <b>'+esc(L.c.A.disp)+'</b> ('+L.c.A.n+') · '+esc(L.bLab)+' : <b>'+esc(L.c.B.disp)+'</b> ('+L.c.B.n+')</div>'+
+              '<div class="anlv-d">'+esc(L.advice)+'</div>'+
+            '</div>'+
+            '<span class="anlv-dl '+t+'">'+anDelta(sc,L.delta)+'</span>'+
+          '</div>';
+        }).join("")
+      }));
+    }
+    var al=anAlerts(sc);
+    if(al.length){
+      out.push(anCardHtml({ic:"🚨", title:"Points de vigilance", span:"w2", body:anList(al),
+        foot:"Constats bruts tirés de ton journal — aucun jugement, juste ce que les chiffres disent."}));
+    }
+    if(!out.length) out.push(anNote("Enregistre quelques séances avec au moins un module actif (règles, humeur, tags, check-list, auto-évaluation) et la synthèse se remplira."));
+    return out;
+  }
+
+  /* =====================================================================
+     SECTION 2 — DISCIPLINE
+     ===================================================================== */
+  function anSecDisc(sc){
+    var out=[], rows=sc.rows;
+    var judged=rows.filter(function(o){ return anJudged(o.s).length>0; });
+
+    if(judged.length>=AN_MIN){
+      var rr=anRuleRate(judged);
+      var allOk=judged.filter(function(o){ return anAllOk(o.s); });
+      out.push(anCardHtml({
+        ic:"🛡️", title:"Respect global de tes règles",
+        big:rr+"%", bigTone:rr>=75?"pos":rr>=50?"":"neg", bigSub:"de tes coches sont « respectée »",
+        sub:"Sur <b>"+anNb(judged.length,"séance")+"</b> jugées, tu tiens <b>"+allOk.length+"</b> séances sans la moindre faute (<b>"+anPct(allOk.length,judged.length)+"%</b>).",
+        body:anMeters([{label:"Séances 100 % propres", pct:anPct(allOk.length,judged.length), disp:allOk.length+"/"+judged.length, tone:anPct(allOk.length,judged.length)>=60?"pos":""}])
+      }));
+      // Règle par règle
+      var per={};
+      judged.forEach(function(o){
+        (o.s.rules||[]).forEach(function(r){
+          if(!r || (r.ok!==true && r.ok!==false)) return;
+          var k=r.rule||"(règle sans nom)";
+          if(!per[k]) per[k]={ok:0, ko:0, rowsKo:[], rowsOk:[]};
+          if(r.ok===true){ per[k].ok++; per[k].rowsOk.push(o); } else { per[k].ko++; per[k].rowsKo.push(o); }
+        });
+      });
+      var keys=Object.keys(per).filter(function(k){ return per[k].ok+per[k].ko>=3; });
+      if(keys.length){
+        keys.sort(function(x,y){ return anPct(per[x].ok,per[x].ok+per[x].ko)-anPct(per[y].ok,per[y].ok+per[y].ko); });
+        out.push(anCardHtml({
+          ic:"📜", title:"Règle par règle", span:"w2",
+          sub:"Ton taux de respect pour chacune, de la plus fragile à la plus solide.",
+          body:anMeters(keys.map(function(k){
+            var p=per[k], tot=p.ok+p.ko, pct=anPct(p.ok,tot);
+            var perf=p.rowsKo.length>=AN_MIN?anPerf(sc,p.rowsKo):null;
+            return {label:k, pct:pct, disp:pct+"%", tone:pct>=80?"pos":pct>=55?"":"neg",
+              note:"enfreinte "+anNb(p.ko,"fois","fois")+" sur "+tot+(perf?" · ces séances-là : "+perf.disp:"")};
+          }))
+        }));
+      }
+      var cmp=anCmp(sc, allOk, judged.filter(function(o){ return anBroke(o.s); }));
+      if(cmp){
+        out.push(anCardHtml({
+          ic:"⚖️", title:"L'écart que fait ta discipline",
+          big:anDelta(sc,cmp.delta), bigTone:anTone(cmp.delta),
+          bigSub:"d'écart sur ton "+anMetricName(sc),
+          body:anVsD(cmp, "Toutes règles tenues", "Au moins une cassée"),
+          sub:cmp.delta>0 ? "Ta discipline se lit directement dans tes résultats." : "Casser une règle ne te pénalise pas encore statistiquement — c'est le signe que certaines règles ne servent à rien, ou que l'échantillon est trop court."
+        }));
+      }
+      // la règle la plus coûteuse
+      var worst=null;
+      Object.keys(per).forEach(function(k){
+        var p=per[k]; if(p.rowsKo.length<AN_MIN) return;
+        var g=anPerf(sc,p.rowsKo); if(g.n<AN_MIN) return;
+        if(!worst || g.v<worst.g.v) worst={rule:k, g:g, n:p.rowsKo.length};
+      });
+      if(worst){
+        out.push(anCardHtml({
+          ic:"💸", title:"Ta règle la plus coûteuse",
+          big:worst.g.disp, bigTone:"neg", bigSub:"quand tu l'enfreins",
+          sub:"« <b>"+esc(worst.rule)+"</b> » — sur les <b>"+anNb(worst.g.n,"séance")+"</b> où tu la casses, ton "+anMetricName(sc)+" tombe à <b>"+worst.g.disp+"</b> ("+worst.g.g.winRate+"% gagnantes).",
+          foot:"Si une seule chose devait changer cette semaine, ce serait celle-là."
+        }));
+      }
+      // discipline dans le temps
+      if(judged.length>=8){
+        var vals=[], win=5;
+        for(var i=win-1;i<judged.length;i++){ vals.push(anRuleRate(judged.slice(i-win+1,i+1))); }
+        var lastR=anRuleRate(judged.slice(-10)), befR=judged.length>10?anRuleRate(judged.slice(0,-10)):null;
+        var trend=befR===null?"":(lastR-befR>3?"en progrès 📈":lastR-befR<-3?"en baisse 📉":"stable →");
+        out.push(anCardHtml({
+          ic:"📈", title:"Ta discipline dans le temps", span:"w2",
+          badge:trend||null, badgeTone:(lastR-befR>3)?"pos":((lastR-befR<-3)?"neg":""),
+          big:lastR+"%", bigTone:lastR>=75?"pos":lastR>=50?"":"neg", bigSub:"sur tes 10 dernières séances",
+          body:anSpark(vals,{color:"var(--accent)", min:0, max:100, zero:null, h:84}),
+          sub:befR!==null ? "Contre <b>"+befR+"%</b> sur toutes les séances d'avant. La courbe est une moyenne glissante sur 5 séances jugées." : "La courbe est une moyenne glissante sur 5 séances jugées."
+        }));
+      }
+      // séries
+      var byAcc=sc.accs.map(function(a){ return {a:a, n:disciplineStreak(a)}; }).sort(function(x,y){ return y.n-x.n; });
+      if(byAcc.length){
+        out.push(anCardHtml({
+          ic:"🔥", title:"Séries sans faute",
+          big:String(byAcc[0].n), bigSub:byAcc[0].n>1?"séances d'affilée":"séance",
+          bigTone:byAcc[0].n>=5?"pos":byAcc[0].n>=2?"":"neg",
+          sub:sc.accs.length>1 ? "Meilleure série en cours : <b>"+esc(byAcc[0].a.name)+"</b>." : "Une séance compte dans la série si toutes tes règles jugées sont tenues et que le quota n'a pas sauté.",
+          body:sc.accs.length>1?anMeters(byAcc.map(function(o){ return {label:o.a.name, pct:Math.min(100,o.n*10), disp:String(o.n), tone:o.n>=5?"pos":""}; })):""
+        }));
+      }
+    }
+
+    // Check-list
+    var cl=anCheckRows(rows);
+    if(cl.length>=AN_MIN){
+      var full=cl.filter(function(o){ return anCheckFull(o.s); });
+      var pc=anPct(full.length,cl.length);
+      var itemMap={};
+      cl.forEach(function(o){ (o.s.checklist||[]).forEach(function(c){ if(!c) return; var k=c.item||c.label||c.text||"(item)"; if(!itemMap[k]) itemMap[k]={ok:0,tot:0}; itemMap[k].tot++; if(c.checked) itemMap[k].ok++; }); });
+      var iKeys=Object.keys(itemMap).filter(function(k){ return itemMap[k].tot>=3; })
+        .sort(function(x,y){ return anPct(itemMap[x].ok,itemMap[x].tot)-anPct(itemMap[y].ok,itemMap[y].tot); });
+      out.push(anCardHtml({
+        ic:"✅", title:"Ta check-list d'avant-séance", span:iKeys.length?"w2":"",
+        big:pc+"%", bigTone:pc>=70?"pos":pc>=40?"":"neg", bigSub:"de séances avec la check-list complète",
+        sub:"Complète sur <b>"+full.length+"</b> de tes <b>"+cl.length+"</b> séances check-listées.",
+        body:iKeys.length?anMeters(iKeys.map(function(k){
+          var it=itemMap[k], p=anPct(it.ok,it.tot);
+          return {label:k, pct:p, disp:p+"%", tone:p>=85?"pos":p>=55?"":"neg", note:"coché "+it.ok+" fois sur "+it.tot};
+        })):"",
+        foot:iKeys.length?"L'item du haut est celui que tu sautes le plus souvent — c'est souvent le plus contraignant, pas le moins utile.":""
+      }));
+      var cc=anCmp(sc, full, cl.filter(function(o){ return !anCheckFull(o.s); }));
+      if(cc) out.push(anCardHtml({
+        ic:"🔁", title:"Effet de la routine",
+        big:anDelta(sc,cc.delta), bigTone:anTone(cc.delta), bigSub:"quand la check-list est finie",
+        body:anVsD(cc, "Check-list complète", "Check-list incomplète")
+      }));
+    }
+
+    // Quota / sur-trading
+    var qRows=rows.filter(function(o){ return anQuotaOver(o)!==null; });
+    if(qRows.length>=AN_MIN){
+      var over=qRows.filter(function(o){ return anQuotaOver(o)===true; });
+      var under=qRows.filter(function(o){ return anQuotaOver(o)===false; });
+      var qc=anCmp(sc, under, over);
+      out.push(anCardHtml({
+        ic:"🎚️", title:"Sur-trading",
+        big:anPct(over.length,qRows.length)+"%", bigTone:anPct(over.length,qRows.length)<=15?"pos":anPct(over.length,qRows.length)<=35?"":"neg",
+        bigSub:"de séances au-dessus de ton quota",
+        sub:qc ? "Dans le quota : <b>"+qc.A.disp+"</b> ("+qc.A.n+" séances). Au-dessus : <b>"+qc.B.disp+"</b> ("+qc.B.n+")."
+               : "Tu dépasses ton quota sur <b>"+over.length+"</b> de tes <b>"+qRows.length+"</b> séances suivies.",
+        body:qc?anVsD(qc, "Quota tenu", "Quota dépassé"):"",
+        foot:"Le quota est le garde-fou le plus simple contre la séance qui part en vrille."
+      }));
+      // Le nombre de trades pris, palier par palier
+      var buckets=[{l:"1-2 trades",f:function(n){return n<=2;}},{l:"3-5",f:function(n){return n>=3&&n<=5;}},{l:"6-9",f:function(n){return n>=6&&n<=9;}},{l:"10+",f:function(n){return n>=10;}}];
+      var bRows=buckets.map(function(b){
+        var g=rows.filter(function(o){ var n=anTradeCount(o); return n>0 && b.f(n); });
+        var p=anPerf(sc,g);
+        return {label:b.l+" ("+p.n+")", v:p.v, disp:p.n>=AN_MIN?p.disp:"—", tone:p.n<AN_MIN?"":(sc.unit?anTone(p.v):(p.v>=50?"pos":"neg")), n:p.n};
+      }).filter(function(r){ return r.n>=AN_MIN; });
+      if(bRows.length>=2) out.push(anCardHtml({
+        ic:"🔢", title:"Combien de trades te réussissent",
+        sub:"Ton "+anMetricName(sc)+" selon le nombre de trades pris dans la séance.",
+        body:anBars(bRows),
+        foot:"Un palier nettement moins bon que les autres, c'est le moment où tu passes de la sélection à la compulsion."
+      }));
+    }
+
+    if(!out.length) out.push(anNote("Active les règles, la check-list ou le compteur de trades sur un compte pour que cette section se remplisse."));
+    return out;
+  }
+
+  /* =====================================================================
+     SECTION 3 — ÉMOTIONS
+     ===================================================================== */
+  var AN_MOOD_LAB=["", "Très bas", "Bas", "Neutre", "Bon", "Excellent"];
+  function anSecEmo(sc){
+    var out=[], rows=sc.rows;
+    var md=rows.filter(function(o){ return o.s.moodBefore>0; });
+
+    if(md.length>=AN_MIN){
+      var avgB=anAvg(md.map(function(o){ return o.s.moodBefore; }));
+      out.push(anCardHtml({
+        ic:"🌤️", title:"Ton humeur d'arrivée",
+        big:anR1(avgB)+"/5", bigTone:avgB>=3.5?"pos":avgB>=2.5?"":"neg", bigSub:"en moyenne avant de trader",
+        sub:"Comment tu te présentes devant l'écran, séance après séance.",
+        body:anCols([1,2,3,4,5].map(function(v){
+          var g=md.filter(function(o){ return o.s.moodBefore===v; });
+          return {label:String(v), n:g.length, disp:String(g.length), tone:v>=4?"pos":v<=2?"neg":""};
+        })),
+        foot:"1 = très bas · 5 = excellent"
+      }));
+      // impact sur le résultat
+      var moodRows=[
+        {l:"Bas (1-2)", g:md.filter(function(o){ return o.s.moodBefore<=2; }), tone:"neg"},
+        {l:"Neutre (3)", g:md.filter(function(o){ return o.s.moodBefore===3; }), tone:""},
+        {l:"Haut (4-5)", g:md.filter(function(o){ return o.s.moodBefore>=4; }), tone:"pos"}
+      ].map(function(b){ var p=anPerf(sc,b.g); return {label:b.l+" · "+anNb(b.g.length,"séance"), v:p.v, disp:p.n>=AN_MIN?p.disp:"—", tone:(p.n<AN_MIN?"":(sc.unit?anTone(p.v):(p.v>=50?"pos":"neg"))), n:b.g.length}; })
+       .filter(function(r){ return r.n>=AN_MIN; });
+      if(moodRows.length>=2) out.push(anCardHtml({
+        ic:"📊", title:"Ce que ton humeur change à ta séance",
+        sub:"Ton "+anMetricName(sc)+" selon l'état dans lequel tu arrives.",
+        body:anBars(moodRows),
+        foot:"Si l'écart est net, la meilleure décision de certaines journées est de ne pas ouvrir la plateforme."
+      }));
+      // humeur -> discipline (le lien le plus intéressant : l'émotion pilote le comportement)
+      var discRows=[
+        {l:"Arrivé bas (1-2)", g:md.filter(function(o){ return o.s.moodBefore<=2 && anJudged(o.s).length; })},
+        {l:"Arrivé neutre (3)", g:md.filter(function(o){ return o.s.moodBefore===3 && anJudged(o.s).length; })},
+        {l:"Arrivé haut (4-5)", g:md.filter(function(o){ return o.s.moodBefore>=4 && anJudged(o.s).length; })}
+      ].map(function(b){ var r=anRuleRate(b.g); return {label:b.l+" · "+anNb(b.g.length,"séance"), pct:r||0, disp:(r===null?"—":r+"%"), tone:r>=75?"pos":r>=50?"":"neg", n:b.g.length}; })
+       .filter(function(r){ return r.n>=AN_MIN; });
+      if(discRows.length>=2) out.push(anCardHtml({
+        ic:"🔗", title:"Humeur → discipline",
+        sub:"Le lien qui compte vraiment : ton état d'esprit change-t-il ta capacité à tenir tes règles ?",
+        body:anMeters(discRows),
+        foot:"Le résultat dépend aussi du marché ; ta discipline, elle, ne dépend que de toi."
+      }));
+      // avant / après
+      var dd=md.filter(function(o){ return o.s.moodAfter>0; });
+      if(dd.length>=AN_MIN){
+        var delta=anAvg(dd.map(function(o){ return o.s.moodAfter-o.s.moodBefore; }));
+        var up=dd.filter(function(o){ return o.s.moodAfter>o.s.moodBefore; }).length;
+        var dn=dd.filter(function(o){ return o.s.moodAfter<o.s.moodBefore; }).length;
+        out.push(anCardHtml({
+          ic:"🔋", title:"Ce que la séance te fait", span:"w2",
+          big:(delta>0?"+":"")+anR1(delta), bigTone:delta>0.2?"pos":delta<-0.2?"neg":"", bigSub:"point d'humeur en sortant",
+          sub:"Sur <b>"+anNb(dd.length,"séance")+"</b> notées avant ET après : tu ressors remonté·e <b>"+up+"</b> fois, à plat ou plus bas <b>"+(dd.length-up)+"</b> fois (dont <b>"+dn+"</b> en baisse).",
+          body:anMeters([
+            {label:"Séances qui te remontent", pct:anPct(up,dd.length), disp:anPct(up,dd.length)+"%", tone:"pos"},
+            {label:"Séances qui te plombent", pct:anPct(dn,dd.length), disp:anPct(dn,dd.length)+"%", tone:"neg"}
+          ]),
+          foot:delta<-0.2 ? "Une activité qui te laisse plus bas qu'elle ne t'a pris, séance après séance, use plus vite qu'un drawdown."
+                          : "Ton humeur de sortie est le meilleur signal que ta pratique est tenable dans la durée."
+        }));
+        // gagne-t-on l'humeur, ou la perd-on indépendamment du résultat ?
+        var win=dd.filter(function(o){ return hasResult(o.s) && sessionNet(o.s)>0; });
+        var los=dd.filter(function(o){ return hasResult(o.s) && sessionNet(o.s)<0; });
+        if(win.length>=AN_MIN && los.length>=AN_MIN){
+          var dw=anAvg(win.map(function(o){ return o.s.moodAfter-o.s.moodBefore; }));
+          var dl=anAvg(los.map(function(o){ return o.s.moodAfter-o.s.moodBefore; }));
+          out.push(anCardHtml({
+            ic:"⚖️", title:"Ton humeur dépend-elle du résultat ?",
+            body:anVs("Après un gain ("+win.length+")", (dw>0?"+":"")+anR1(dw), dw>0?"pos":"neg", "Après une perte ("+los.length+")", (dl>0?"+":"")+anR1(dl), dl>0?"pos":"neg"),
+            sub:Math.abs(dw-dl)>=1.2
+              ? "Ton moral suit ton P&L de très près (<b>"+anR1(Math.abs(dw-dl))+" points</b> d'écart). C'est le terrain du tilt."
+              : "Ton moral ne suit pas mécaniquement ton résultat (<b>"+anR1(Math.abs(dw-dl))+" point</b> d'écart) — c'est un vrai marqueur de maturité."
+          }));
+        }
+      }
+    }
+
+    // Tags émotionnels
+    if(sc.has("showTags")){
+      var tagSet={}; rows.forEach(function(o){ (o.s.tags||[]).forEach(function(t){ tagSet[t]=1; }); });
+      var tags=Object.keys(tagSet);
+      if(tags.length){
+        var freq=tags.map(function(t){
+          var w=rows.filter(function(o){ return (o.s.tags||[]).indexOf(t)>=0; });
+          return {t:t, n:w.length, rows:w};
+        }).sort(function(x,y){ return y.n-x.n; });
+        out.push(anCardHtml({
+          ic:"🏷️", title:"Ta signature émotionnelle", span:"w2",
+          sub:"Les états que tu te reconnais le plus souvent, du plus fréquent au plus rare — sur <b>"+anNb(rows.length,"séance")+"</b>.",
+          body:anChips(freq.map(function(f){
+            var p=anPerf(sc,f.rows);
+            var tone = f.n<AN_MIN ? "" : (sc.unit ? anTone(p.v) : (p.v>=50?"pos":"neg"));
+            return {t:f.t, n:f.n, tone:tone};
+          }))+
+          anMeters(freq.slice(0,8).map(function(f){
+            return {label:f.t, pct:anPct(f.n,rows.length), disp:anPct(f.n,rows.length)+"%", tone:"", note:anNb(f.n,"séance")};
+          })),
+          foot:"La couleur d'une étiquette indique si tes séances marquées ainsi tournent bien ou mal."
+        }));
+        // impact résultat
+        var imp=[];
+        tags.forEach(function(t){
+          var w=rows.filter(function(o){ return (o.s.tags||[]).indexOf(t)>=0; });
+          var wo=rows.filter(function(o){ return (o.s.tags||[]).indexOf(t)<0; });
+          var c=anCmp(sc,w,wo); if(!c) return;
+          imp.push({t:t, delta:c.delta, A:c.A, B:c.B});
+        });
+        if(imp.length){
+          imp.sort(function(x,y){ return y.delta-x.delta; });
+          out.push(anCardHtml({
+            ic:"💥", title:"Ce que chaque tag te coûte ou te rapporte", span:"w2",
+            sub:"Écart de "+anMetricName(sc)+" entre les séances portant l'étiquette et les autres.",
+            body:anBars(imp.map(function(i){
+              return {label:"« "+i.t+" » ("+i.A.n+")", v:i.delta, tone:i.delta>0?"pos":i.delta<0?"neg":"",
+                disp:anDelta(sc,i.delta),
+                note:"avec : "+i.A.disp+" · sans : "+i.B.disp};
+            })),
+            foot:"Un tag franchement négatif est un signal d'arrêt : le repérer en séance vaut mieux que le noter après coup."
+          }));
+        }
+        // impact discipline
+        var impD=[];
+        tags.forEach(function(t){
+          var w=rows.filter(function(o){ return (o.s.tags||[]).indexOf(t)>=0 && anJudged(o.s).length; });
+          if(w.length<AN_MIN) return;
+          var r=anRuleRate(w);
+          impD.push({t:t, pct:r, n:w.length});
+        });
+        if(impD.length>=2){
+          impD.sort(function(x,y){ return x.pct-y.pct; });
+          var base=anRuleRate(rows.filter(function(o){ return anJudged(o.s).length; }));
+          out.push(anCardHtml({
+            ic:"🧨", title:"Les états où tu casses tes règles", span:"w2",
+            sub:"Taux de règles respectées selon l'étiquette posée. Ta moyenne toutes séances confondues : <b>"+base+"%</b>.",
+            body:anMeters(impD.map(function(i){
+              return {label:"« "+i.t+" »", pct:i.pct, disp:i.pct+"%", tone:i.pct>=base+5?"pos":i.pct<=base-5?"neg":"", note:anNb(i.n,"séance")};
+            })),
+            foot:"Le haut de cette liste, c'est l'état dans lequel tu ne devrais pas trader."
+          }));
+        }
+      }
+    }
+
+    // Tilt et enchaînements
+    (function(){
+      var scr=anScored(rows);
+      if(scr.length<8) return;
+      var after1=[], after2=[], other=[], afterBigWin=[], streak=0, prev=null;
+      var nets=scr.map(function(o){ return sessionNet(o.s); });
+      var absAvg=anAvg(nets.map(Math.abs))||1;
+      scr.forEach(function(o){
+        if(streak>=2) after2.push(o); else if(streak===1) after1.push(o); else other.push(o);
+        if(prev!==null && prev>absAvg*1.5) afterBigWin.push(o);
+        prev=sessionNet(o.s);
+        streak = prev<0 ? streak+1 : 0;
+      });
+      var rowsB=[];
+      function add(l,g,tone){ var p=anPerf(sc,g); if(p.n>=AN_MIN) rowsB.push({label:l+" ("+p.n+")", v:p.v, disp:p.disp, tone:tone}); }
+      add("Séance « normale »", other, "");
+      add("Après 1 perte", after1, "");
+      add("Après 2 pertes ou plus", after2, "neg");
+      add("Après un gros gain", afterBigWin, "");
+      if(rowsB.length>=2){
+        out.push(anCardHtml({
+          ic:"🔥", title:"Tilt & revanche", span:"w2",
+          sub:"Ce que devient ta séance selon ce qui vient de se passer la veille.",
+          body:anBars(rowsB),
+          foot:"Le tilt ne se voit jamais sur une séance isolée — seulement dans l'enchaînement."
+        }));
+      }
+      // discipline après une perte
+      var d1=anRuleRate(after1.concat(after2).filter(function(o){ return anJudged(o.s).length; }));
+      var d0=anRuleRate(other.filter(function(o){ return anJudged(o.s).length; }));
+      if(d1!==null && d0!==null) out.push(anCardHtml({
+        ic:"🧯", title:"Ta discipline après une perte",
+        body:anVs("Après une perte", d1+"%", d1>=d0?"pos":"neg", "Séance normale", d0+"%", ""),
+        sub:d1<d0-4 ? "Tu tiens <b>"+(d0-d1)+" points</b> de règles en moins juste après une perte. C'est la définition du tilt, en une ligne."
+                    : "Tu ne relâches pas après une perte — c'est exactement ce qui sépare une série de pertes d'une spirale."
+      }));
+    })();
+
+    if(!out.length) out.push(anNote("Active l'humeur ou les tags émotionnels sur un compte et note quelques séances : cette section vit de ces deux champs."));
+    return out;
+  }
+
+  /* =====================================================================
+     SECTION 4 — AUTO-ÉVALUATION
+     ===================================================================== */
+  var AN_AX_SHORT={exec:"Exécution", plan:"Plan", emo:"Émotions"};
+  function anSecSelf(sc){
+    var out=[], rows=sc.rows;
+    var rt=rows.filter(function(o){ return ratingAvg(o.s.rating)!==null; });
+    if(rt.length<AN_MIN) return [anNote("Active l'auto-évaluation sur un compte et note au moins trois séances : c'est le seul endroit où tu juges ta séance sans regarder le résultat.")];
+
+    var axes=[];
     RATING_AXES.forEach(function(ax){
-      var noted=sessions.filter(function(s){ return s.rating[ax.k]>0; });
-      if(noted.length<4) return;
-      var t=0; noted.forEach(function(s){ t+=s.rating[ax.k]; });
-      var avg=t/noted.length;
-      rows.push({label:ax.t+' ('+noted.length+')', value:avg, disp:(Math.round(avg*10)/10)+'/5', tone:avg>=4?'pos':avg<=2.5?'neg':'neutral'});
-      if(!worst || avg<worst.avg) worst={ax:ax, avg:avg};
+      var noted=rt.filter(function(o){ return o.s.rating[ax.k]>0; });
+      if(noted.length<AN_MIN) return;
+      axes.push({k:ax.k, t:ax.t, d:ax.d, v:anAvg(noted.map(function(o){ return o.s.rating[ax.k]; })), n:noted.length});
     });
-    if(rows.length<2) return null;
-    return anCard('Ton point faible', (Math.round(worst.avg*10)/10)+'/5',
-      worst.avg>=3.5?'neutral':'neg',
-      'Sur les trois axes que tu notes, c\'est <b>'+esc(worst.ax.t.toLowerCase())+'</b> qui reçoit tes notes les plus basses (<b>'+(Math.round(worst.avg*10)/10)+'/5</b> en moyenne). C\'est là que tu as le plus à gagner, avant même de changer de stratégie.',
-      svgCompare(rows,{max:5}));
+    var glob=anAvg(rt.map(function(o){ return ratingAvg(o.s.rating); }));
+    out.push(anCardHtml({
+      ic:"🎯", title:"Comment tu te notes", span:"w2",
+      big:anR1(glob)+"/5", bigTone:anR1(glob)>=4?"pos":anR1(glob)>=3?"":"neg", bigSub:"toutes séances et tous axes confondus",
+      sub:"Sur <b>"+anNb(rt.length,"séance")+"</b> auto-évaluées.",
+      body:(axes.length>=3?'<div class="an-radarwrap">'+anRadar(axes.map(function(a){return {t:(AN_AX_SHORT[a.k]||a.t), v:a.v};}))+'<div class="an-radarb">'+
+            anMeters(axes.map(function(a){ return {label:a.t, pct:Math.round(a.v/5*100), disp:anR1(a.v)+"/5", tone:a.v>=4?"pos":a.v>=3?"":"neg", note:a.d}; }))+'</div></div>'
+           : anMeters(axes.map(function(a){ return {label:a.t, pct:Math.round(a.v/5*100), disp:anR1(a.v)+"/5", tone:a.v>=4?"pos":a.v>=3?"":"neg", note:a.d}; })))
+    }));
+    if(axes.length>=2){
+      var worst=axes.slice().sort(function(x,y){ return x.v-y.v; })[0];
+      out.push(anCardHtml({
+        ic:"🪫", title:"Ton point faible",
+        big:anR1(worst.v)+"/5", bigTone:anR1(worst.v)>=3.5?"":"neg", bigSub:worst.t.toLowerCase(),
+        sub:"C'est l'axe où tu te notes le plus bas, sur <b>"+anNb(worst.n,"séance")+"</b>. <i>"+esc(worst.d)+"</i>",
+        foot:"C'est là que tu as le plus à gagner — avant même de toucher à ta stratégie."
+      }));
+    }
+    // évolution
+    if(rt.length>=8){
+      var win=5, vals=[];
+      for(var i=win-1;i<rt.length;i++){ vals.push(anAvg(rt.slice(i-win+1,i+1).map(function(o){ return ratingAvg(o.s.rating); }))); }
+      var last=anAvg(rt.slice(-5).map(function(o){ return ratingAvg(o.s.rating); }));
+      var bef=anAvg(rt.slice(0,-5).map(function(o){ return ratingAvg(o.s.rating); }));
+      out.push(anCardHtml({
+        ic:"📈", title:"L'évolution de ta note", span:"w2",
+        badge:(last-bef>0.2?"en progrès 📈":last-bef<-0.2?"en baisse 📉":"stable →"),
+        badgeTone:(last-bef>0.2?"pos":last-bef<-0.2?"neg":""),
+        big:anR1(last)+"/5", bigSub:"sur tes 5 dernières séances notées",
+        body:anSpark(vals,{color:"var(--accent)", min:1, max:5, zero:null, h:84}),
+        sub:"Contre <b>"+anR1(bef)+"/5</b> sur toutes les précédentes. Moyenne glissante sur 5 séances."
+      }));
+    }
+    // lucidité : la note prédit-elle le résultat ?
+    var hi=rt.filter(function(o){ return ratingAvg(o.s.rating)>=4; });
+    var lo=rt.filter(function(o){ return ratingAvg(o.s.rating)<=2.5; });
+    var luc=anCmp(sc,hi,lo);
+    if(luc){
+      out.push(anCardHtml({
+        ic:"🔍", title:"Ta lucidité", span:"w2",
+        big:anDelta(sc,luc.delta), bigTone:anTone(luc.delta),
+        bigSub:"d'écart entre tes bonnes et tes mauvaises séances, à tes yeux",
+        body:anVsD(luc, "Tu te notes ≥ 4/5", "Tu te notes ≤ 2,5/5"),
+        sub:luc.delta>0
+          ? "Ce que tu ressens d'une séance se retrouve dans tes chiffres : ton jugement sur toi-même est fiable, tu peux t'appuyer dessus pour corriger sans attendre le P&L."
+          : "Les séances que tu juges bonnes ne sont pas tes meilleures. Soit tu te notes sur le confort plutôt que sur le process, soit tu te sous-estimes quand ça passe mal — dans les deux cas, ta grille est à revoir.",
+        foot:"C'est le constat le plus rare d'un journal : mesurer la valeur de son propre ressenti."
+      }));
+    }
+    // note vs discipline
+    var rj=rt.filter(function(o){ return anJudged(o.s).length; });
+    if(rj.length>=6){
+      var g1=rj.filter(function(o){ return ratingAvg(o.s.rating)>=4; });
+      var g2=rj.filter(function(o){ return ratingAvg(o.s.rating)<=2.5; });
+      if(g1.length>=AN_MIN && g2.length>=AN_MIN){
+        var r1=anRuleRate(g1), r2=anRuleRate(g2);
+        out.push(anCardHtml({
+          ic:"🧩", title:"Ta note colle-t-elle à ton comportement ?",
+          body:anVs("Séances notées ≥ 4/5", r1+"%", r1>=r2?"pos":"neg", "Séances notées ≤ 2,5/5", r2+"%", r2>r1?"pos":"neg"),
+          sub:(r1-r2>=10) ? "Oui : quand tu te donnes une bonne note, tu as réellement tenu tes règles. Ta grille mesure ce qu'elle prétend mesurer."
+                          : "Pas vraiment : tes bonnes notes ne correspondent pas à un meilleur respect des règles. Tu notes sans doute le confort ressenti plutôt que ton exécution."
+        }));
+      }
+    }
+    // axe par axe : celui qui pèse le plus sur le résultat
+    var axImp=[];
+    RATING_AXES.forEach(function(ax){
+      var noted=rt.filter(function(o){ return o.s.rating[ax.k]>0; });
+      var h=noted.filter(function(o){ return o.s.rating[ax.k]>=4; });
+      var l=noted.filter(function(o){ return o.s.rating[ax.k]<=2; });
+      var c=anCmp(sc,h,l); if(!c) return;
+      axImp.push({t:ax.t, delta:c.delta, A:c.A, B:c.B});
+    });
+    if(axImp.length>=2){
+      axImp.sort(function(x,y){ return y.delta-x.delta; });
+      out.push(anCardHtml({
+        ic:"⚙️", title:"L'axe qui pèse le plus", span:"w2",
+        sub:"Écart de "+anMetricName(sc)+" entre tes séances bien notées (≥ 4) et mal notées (≤ 2) sur chaque axe.",
+        body:anBars(axImp.map(function(i){
+          return {label:i.t, v:i.delta, tone:i.delta>0?"pos":"neg",
+            disp:anDelta(sc,i.delta),
+            note:"bien noté : "+i.A.disp+" ("+i.A.n+") · mal noté : "+i.B.disp+" ("+i.B.n+")"};
+        })),
+        foot:"L'axe du haut est celui dont ta séance dépend le plus. Travaille-le en priorité."
+      }));
+    }
+    return out;
   }
 
-  // Le playbook est un tag de setup, pas d'émotion : il répond à « lequel de
-  // mes setups mérite encore ma place en séance ». Restreint à un seul compte,
-  // les playbooks étant définis par compte.
-  function secPlaybooks(scope){
-    if(scope.accounts.length!==1) return null;
-    var a=scope.accounts[0], list=pbList(a);
-    if(!list.length) return null;
-    var rows=[], best=null, worst=null, any=false;
-    list.forEach(function(pb){
-      var st=pbStats(a,pb.id);
-      if(st.scored<3) return;
-      any=true;
-      rows.push({label:pb.name+' ('+st.scored+')', value:st.avg, disp:fmtVal(anRound(st.avg),a), tone:anTone(st.avg)});
-      if(!best||st.avg>best.st.avg) best={pb:pb,st:st};
-      if(!worst||st.avg<worst.st.avg) worst={pb:pb,st:st};
-    });
-    if(!any) return anInsufficient("Tes playbooks");
-    var txt='Ton setup le plus rentable est <b>« '+esc(best.pb.name)+' »</b> : <b>'+fmtVal(anRound(best.st.avg),a)+'</b> par séance ('+best.st.winRate+'% gagnantes, '+best.st.scored+' séances).';
-    if(worst && worst.pb.id!==best.pb.id) txt+=' Le moins rentable est <b>« '+esc(worst.pb.name)+' »</b> : <b>'+fmtVal(anRound(worst.st.avg),a)+'</b> ('+worst.st.winRate+'%, '+worst.st.scored+' séances)'+(worst.st.avg<0?' — celui-là mérite une relecture de sa fiche, ou une pause.':'.');
-    return anCard('Tes playbooks', fmtVal(anRound(best.st.avg),a), anTone(best.st.avg), txt, svgCompare(rows,{}));
+  /* =====================================================================
+     SECTION 5 — PRÉPARATION & ROUTINE
+     ===================================================================== */
+  function anSecPrep(sc){
+    var out=[], rows=sc.rows;
+    if(rows.length<AN_MIN) return [anNote("Il faut au moins trois séances journalisées pour parler de routine.")];
+
+    function fillCard(ic,title,field,label,adviceUp,adviceDown){
+      var w=rows.filter(function(o){ return anHasTxt(o.s[field]); });
+      var wo=rows.filter(function(o){ return !anHasTxt(o.s[field]); });
+      var pct=anPct(w.length,rows.length);
+      var c=anCmp(sc,w,wo);
+      out.push(anCardHtml({
+        ic:ic, title:title,
+        big:pct+"%", bigTone:pct>=70?"pos":pct>=40?"":"neg", bigSub:"de tes séances "+label,
+        sub:c ? "Ton "+anMetricName(sc)+" selon que tu l'aies fait ou non :"
+              : "Sur <b>"+anNb(rows.length,"séance")+"</b>, tu l'as fait <b>"+w.length+"</b> fois. Il en faut un peu plus des deux côtés pour comparer.",
+        body:c ? anVsD(c, "Avec", "Sans") : "",
+        foot:c ? (c.delta>0?adviceUp:adviceDown) : ""
+      }));
+    }
+    if(sc.has("showPreNotes")) fillCard("📝","Ton journal d'avant-séance","preNotes","commencent par quelques mots écrits",
+      "Poser tes mots avant d'ouvrir la plateforme te fait entrer en séance autrement.",
+      "Écrire avant ne change rien pour l'instant : essaie d'y noter une intention de comportement, pas un pronostic de marché.");
+    if(sc.has("showObjectives")) fillCard("🎯","Ton objectif de séance","objective","démarrent avec un objectif écrit",
+      "Une intention écrite tient mieux qu'une intention pensée.",
+      "Ton objectif n'a pas encore d'effet mesurable — rends-le concret et vérifiable en fin de séance.");
+    if(sc.has("showNotes")) fillCard("🗒️","Ton debrief de fin de séance","notes","sont débriefées par écrit",
+      "Tu écris surtout tes bonnes séances — attention au biais : ce sont les mauvaises qui ont le plus à t'apprendre.",
+      "Tu écris surtout quand ça se passe mal. C'est déjà une preuve de lucidité ; écris aussi tes bonnes séances pour savoir ce que tu reproduis.");
+
+    // Effet du debrief sur la séance SUIVANTE — le vrai test d'une routine.
+    (function(){
+      if(!sc.has("showNotes")) return;
+      var byAcc={};
+      rows.forEach(function(o){ (byAcc[o.a.id]=byAcc[o.a.id]||[]).push(o); });
+      var after=[], afterNo=[];
+      Object.keys(byAcc).forEach(function(id){
+        var list=byAcc[id];
+        for(var i=1;i<list.length;i++){ (anHasTxt(list[i-1].s.notes) ? after : afterNo).push(list[i]); }
+      });
+      var c=anCmp(sc,after,afterNo);
+      if(!c) return;
+      out.push(anCardHtml({
+        ic:"↩️", title:"Le debrief change-t-il ta séance suivante ?", span:"w2",
+        big:anDelta(sc,c.delta), bigTone:anTone(c.delta),
+        bigSub:"sur la séance d'après",
+        body:anVsD(c, "Séance précédée d'un debrief", "Séance sans debrief la veille"),
+        sub:c.delta>0 ? "Écrire ta séance influence la suivante. C'est la boucle qui fait progresser un trader, et elle est mesurable chez toi."
+                      : "Pas d'effet visible pour l'instant sur la séance suivante — souvent le signe d'un debrief descriptif plutôt que décisionnel (« ce que je change demain »).",
+        foot:"Comparaison faite compte par compte, sur des séances qui se suivent dans ton journal."
+      }));
+    })();
+
+    // Routine complète
+    (function(){
+      var mods=[];
+      if(sc.has("showPreNotes")) mods.push(function(s){ return anHasTxt(s.preNotes); });
+      if(sc.has("showObjectives")) mods.push(function(s){ return anHasTxt(s.objective); });
+      if(sc.has("showChecklist")) mods.push(function(s){ return anCheckFull(s); });
+      if(sc.has("showMood")) mods.push(function(s){ return s.moodBefore>0; });
+      if(mods.length<2) return;
+      var full=rows.filter(function(o){ return mods.every(function(f){ return f(o.s); }); });
+      var part=rows.filter(function(o){ return !mods.every(function(f){ return f(o.s); }); });
+      var pct=anPct(full.length,rows.length);
+      var c=anCmp(sc,full,part);
+      out.push(anCardHtml({
+        ic:"🧱", title:"Ton rituel complet", span:"w2",
+        big:pct+"%", bigTone:pct>=60?"pos":pct>=30?"":"neg", bigSub:"de séances où tout le rituel est fait",
+        sub:"Rituel = "+mods.length+" gestes d'avant-séance activés sur tes comptes"+(c?", et ce qu'il change :":"."),
+        body:c?anVsD(c, "Rituel complet", "Rituel partiel"):"",
+        foot:"Un rituel n'a pas besoin d'être long ; il a besoin d'être identique à chaque fois."
+      }));
+    })();
+
+    // Playbooks
+    if(sc.accs.length===1 && sc.accs[0].showPlaybooks){
+      var a=sc.accs[0], list=pbList(a);
+      var pbRows=[], pbDisc=[];
+      list.forEach(function(pb){
+        var g=rows.filter(function(o){ return Array.isArray(o.s.playbooks) && o.s.playbooks.indexOf(pb.id)>=0; });
+        if(g.length<AN_MIN) return;
+        var p=anPerf(sc,g);
+        if(p.n>=AN_MIN) pbRows.push({label:pb.name+" ("+p.n+")", v:p.v, disp:p.disp, tone:sc.unit?anTone(p.v):(p.v>=50?"pos":"neg")});
+        var jr=g.filter(function(o){ return anJudged(o.s).length; });
+        if(jr.length>=AN_MIN){ var r=anRuleRate(jr); pbDisc.push({label:pb.name, pct:r, disp:r+"%", tone:r>=75?"pos":r>=50?"":"neg", note:anNb(jr.length,"séance")}); }
+      });
+      if(pbRows.length) out.push(anCardHtml({
+        ic:"📕", title:"Tes playbooks à l'épreuve", span:"w2",
+        sub:"Ton "+anMetricName(sc)+" selon le setup que tu as coché en séance.",
+        body:anBars(pbRows),
+        foot:"Un setup durablement en bas de cette liste mérite une relecture de sa fiche, ou une pause."
+      }));
+      if(pbDisc.length>=2) out.push(anCardHtml({
+        ic:"🧭", title:"Les setups qui te font déraper", span:"w2",
+        sub:"Taux de règles respectées selon le playbook joué.",
+        body:anMeters(pbDisc.sort(function(x,y){ return x.pct-y.pct; })),
+        foot:"Un setup peut être rentable sur le papier et te faire perdre ta discipline en séance : c'est ce que montre ce classement."
+      }));
+    } else if(sc.has("showPlaybooks")){
+      out.push(anCardHtml({ic:"📕", title:"Tes playbooks", sub:'<span class="an-empty">Les playbooks sont définis compte par compte : choisis un seul compte en haut de page pour voir leurs statistiques.</span>'}));
+    }
+    return out;
   }
 
-  function secDiscipline(scope){
-    if(scope.accounts.length!==1) return null;
-    var a=scope.accounts[0];
-    var judgedKeys=Object.keys(a.sessions).sort().filter(function(k){ return (a.sessions[k].rules||[]).some(function(r){return r&&(r.ok===true||r.ok===false);}); });
-    if(judgedKeys.length<5) return anInsufficient("Discipline dans le temps");
-    function rate(ks){ var resp=0,tot=0; ks.forEach(function(k){ (a.sessions[k].rules||[]).forEach(function(r){ if(r&&r.ok===true){resp++;tot++;} else if(r&&r.ok===false){tot++;} }); }); return tot?Math.round(resp/tot*100):null; }
-    var last=judgedKeys.slice(-10), before=judgedKeys.slice(0,-10);
-    var pLast=rate(last), pBefore=before.length>=3? rate(before):null;
-    var streak=disciplineStreak(a), txt;
-    if(pBefore!==null){ var d=pLast-pBefore, trend=d>3?'en progrès 📈':d<-3?'en baisse 📉':'stable'; txt='Série en cours : <b>'+streak+(streak>1?' séances':' séance')+'</b> sans faute. Sur tes 10 dernières séances tu respectes <b>'+pLast+'%</b> de tes règles, contre <b>'+pBefore+'%</b> avant — <b>'+trend+'</b>.'; }
-    else { txt='Série en cours : <b>'+streak+(streak>1?' séances':' séance')+'</b> sans faute. Tu respectes <b>'+pLast+'%</b> de tes règles sur tes dernières séances.'; }
-    return anCard('Discipline dans le temps', pLast+'%', pLast>=70?'pos':pLast>=40?'neutral':'neg', txt, null);
+  /* =====================================================================
+     SECTION 6 — RYTHME & CONTEXTE
+     ===================================================================== */
+  function anSecRythm(sc){
+    var out=[], rows=sc.rows;
+    if(rows.length<AN_MIN) return [anNote("Il faut au moins trois séances journalisées pour lire un rythme.")];
+
+    // Jours de la semaine
+    (function(){
+      var by={};
+      rows.forEach(function(o){ var d=anKeyDate(o.k).getDay(); (by[d]=by[d]||[]).push(o); });
+      var order=[1,2,3,4,5,6,0], perf=[], disc=[], mood=[];
+      order.forEach(function(d){
+        var g=by[d]||[]; if(g.length<AN_MIN) return;
+        var p=anPerf(sc,g);
+        if(p.n>=AN_MIN) perf.push({label:AN_DAYS[d]+" ("+p.n+")", v:p.v, disp:p.disp, tone:sc.unit?anTone(p.v):(p.v>=50?"pos":"neg")});
+        var jr=g.filter(function(o){ return anJudged(o.s).length; });
+        if(jr.length>=AN_MIN){ var r=anRuleRate(jr); disc.push({label:AN_DAYS[d], pct:r, disp:r+"%", tone:r>=75?"pos":r>=50?"":"neg", note:anNb(jr.length,"séance")}); }
+        var mr=g.filter(function(o){ return o.s.moodBefore>0; });
+        if(mr.length>=AN_MIN){ var mv=anAvg(mr.map(function(o){return o.s.moodBefore;})); mood.push({label:AN_DAYS[d], n:Math.round(mv*10), disp:anR1(mv)+"/5", tone:mv>=3.5?"pos":mv<=2.5?"neg":""}); }
+      });
+      if(perf.length>=2) out.push(anCardHtml({
+        ic:"📆", title:"Tes jours", span:"w2",
+        sub:"Ton "+anMetricName(sc)+" jour par jour.",
+        body:anBars(perf),
+        foot:"Un jour systématiquement en dessous des autres se supprime plus facilement qu'il ne se corrige."
+      }));
+      if(disc.length>=2) out.push(anCardHtml({
+        ic:"🛡️", title:"Ta discipline selon le jour",
+        sub:"Taux de règles respectées.",
+        body:anMeters(disc)
+      }));
+      if(mood.length>=2) out.push(anCardHtml({
+        ic:"🌤️", title:"Ton humeur selon le jour",
+        sub:"Humeur moyenne d'arrivée.",
+        body:anCols(mood)
+      }));
+    })();
+
+    // Régularité
+    (function(){
+      var reg=anRegularity(sc); if(!reg) return;
+      out.push(anCardHtml({
+        ic:"🗓️", title:"Ta régularité",
+        big:reg.pct+"%", bigTone:reg.pct>=60?"pos":reg.pct>=35?"":"neg", bigSub:"des jours ouvrés journalisés",
+        sub:"<b>"+reg.logged+"</b> journées écrites sur <b>"+reg.open+"</b> jours ouvrés de la période. Ta plus longue série de jours consécutifs : <b>"+anNb(reg.best,"jour")+"</b>.",
+        foot:"Journaliser n'est pas trader : une journée sans trade mérite aussi sa ligne."
+      }));
+    })();
+
+    // Séries de séances
+    (function(){
+      var scr=anScored(rows); if(scr.length<5) return;
+      var bw=0, bl=0, cw=0, cl2=0;
+      scr.forEach(function(o){
+        var v=sessionNet(o.s);
+        if(v>0){ cw++; cl2=0; } else if(v<0){ cl2++; cw=0; } else { cw=0; cl2=0; }
+        if(cw>bw) bw=cw; if(cl2>bl) bl=cl2;
+      });
+      out.push(anCardHtml({
+        ic:"🎢", title:"Tes enchaînements",
+        body:anVs("Meilleure série gagnante", String(bw), "pos", "Pire série perdante", String(bl), "neg"),
+        sub:"Sur <b>"+anNb(scr.length,"séance")+"</b> chiffrées. Une série perdante longue n'est pas un problème de stratégie tant que ta discipline tient — vérifie-la dans l'onglet Discipline.",
+        big:null
+      }));
+    })();
+
+    // Trades détaillés : horaires, durées, instruments
+    var trades=[];
+    rows.forEach(function(o){ (o.tr||[]).forEach(function(t){ trades.push({t:t, o:o}); }); });
+    if(trades.length>=6){
+      function tNet(t){ var v=parseFloat(String(t.result||"").replace(",",".")); return isNaN(v)?null:v; }
+      function tMin(hm){ var m=/^(\d{1,2}):(\d{2})/.exec(String(hm||"")); return m?(+m[1]*60 + +m[2]):null; }
+      // horaires d'entrée
+      var slots=[{l:"avant 9 h",a:0,b:540},{l:"9 h – 11 h",a:540,b:660},{l:"11 h – 14 h",a:660,b:840},{l:"14 h – 16 h",a:840,b:960},{l:"16 h – 18 h",a:960,b:1080},{l:"après 18 h",a:1080,b:1441}];
+      var hRows=[];
+      slots.forEach(function(s2){
+        var g=trades.filter(function(x){ var m=tMin(x.t.entryTime); return m!==null && m>=s2.a && m<s2.b && tNet(x.t)!==null; });
+        if(g.length<AN_MIN) return;
+        var vals=g.map(function(x){ return tNet(x.t); });
+        var avg=anAvg(vals), wr=anPct(vals.filter(function(v){return v>0;}).length, vals.length);
+        hRows.push({label:s2.l+" ("+g.length+" trades)", v:sc.unit?avg:wr, disp:sc.unit?anFmt(sc,avg):wr+"%", tone:sc.unit?anTone(avg):(wr>=50?"pos":"neg")});
+      });
+      if(hRows.length>=2) out.push(anCardHtml({
+        ic:"⏰", title:"Tes heures d'entrée", span:"w2",
+        sub:"Résultat de tes trades détaillés selon l'heure à laquelle tu entres.",
+        body:anBars(hRows),
+        foot:"Les créneaux les plus faibles sont souvent ceux où tu trades par ennui, pas par signal."
+      }));
+      // durées
+      var durW=[], durL=[];
+      trades.forEach(function(x){
+        var a2=tMin(x.t.entryTime), b2=tMin(x.t.exitTime), v=tNet(x.t);
+        if(a2===null||b2===null||v===null) return;
+        var d=b2-a2; if(d<0) d+=1440;
+        (v>0?durW:durL).push(d);
+      });
+      if(durW.length>=AN_MIN && durL.length>=AN_MIN){
+        var dw=anAvg(durW), dl=anAvg(durL);
+        out.push(anCardHtml({
+          ic:"⏱️", title:"Combien de temps tu tiens",
+          body:anVs("Trades gagnants ("+durW.length+")", Math.round(dw)+" min", "pos", "Trades perdants ("+durL.length+")", Math.round(dl)+" min", "neg"),
+          sub:dw<dl ? "Tu coupes tes gagnants plus vite que tes perdants (<b>"+Math.round(dl-dw)+" min</b> d'écart) — le réflexe le plus coûteux du métier, et le plus humain."
+                    : "Tu laisses respirer tes gagnants plus longtemps que tes perdants (<b>"+Math.round(dw-dl)+" min</b> d'écart). C'est le bon sens de la courbe."
+        }));
+      }
+      // instruments
+      var byI={};
+      trades.forEach(function(x){ var i=anTxt(x.t.instrument).toUpperCase(); if(!i) return; var v=tNet(x.t); if(v===null) return; (byI[i]=byI[i]||[]).push(v); });
+      var iRows=Object.keys(byI).filter(function(k){ return byI[k].length>=AN_MIN; }).map(function(k){
+        var vals=byI[k], avg=anAvg(vals), wr=anPct(vals.filter(function(v){return v>0;}).length, vals.length);
+        return {label:k+" ("+vals.length+" trades)", v:sc.unit?avg:wr, disp:sc.unit?anFmt(sc,avg):wr+"%", tone:sc.unit?anTone(avg):(wr>=50?"pos":"neg")};
+      }).sort(function(x,y){ return y.v-x.v; });
+      if(iRows.length>=2) out.push(anCardHtml({
+        ic:"🎯", title:"Tes instruments", span:"w2",
+        sub:"Résultat moyen par trade sur chaque instrument travaillé.",
+        body:anBars(iRows),
+        foot:"Rester sur deux ou trois instruments qu'on connaît par cœur bat presque toujours la dispersion."
+      }));
+      // sens
+      var buy=trades.filter(function(x){ return x.t.side==="buy" && tNet(x.t)!==null; }).map(function(x){ return tNet(x.t); });
+      var sell=trades.filter(function(x){ return x.t.side==="sell" && tNet(x.t)!==null; }).map(function(x){ return tNet(x.t); });
+      if(buy.length>=AN_MIN && sell.length>=AN_MIN) out.push(anCardHtml({
+        ic:"↕️", title:"Achat ou vente",
+        body:anVs("Achats ("+buy.length+")", sc.unit?anFmt(sc,anAvg(buy)):anPct(buy.filter(function(v){return v>0;}).length,buy.length)+"%", anAvg(buy)>0?"pos":"neg",
+                  "Ventes ("+sell.length+")", sc.unit?anFmt(sc,anAvg(sell)):anPct(sell.filter(function(v){return v>0;}).length,sell.length)+"%", anAvg(sell)>0?"pos":"neg"),
+        sub:"Un déséquilibre marqué entre les deux sens trahit souvent un biais de lecture plutôt qu'une réalité de marché."
+      }));
+    }
+    return out;
+  }
+
+  /* =====================================================================
+     SECTION 7 — ÉCRITURE
+     Relecture lexicale du journal libre (avant-séance, debrief, notes de
+     trade). Rien d'« intelligent » ici : un dictionnaire de familles de mots,
+     une recherche de sous-chaînes sur du texte sans accents. C'est assumé —
+     ce sont TES mots, pas une interprétation.
+     ===================================================================== */
+  var AN_LEX=[
+    {k:"peur",   ic:"😨", t:"Peur & hésitation",      w:["peur","hesit","doute","anxi","stress","crainte","frileu","ose pas","ai pas ose","pas ose","tremble","panique","inquiet"]},
+    {k:"fomo",   ic:"🏃", t:"FOMO & précipitation",   w:["fomo","impuls","precipit","trop vite","sans attendre","pas attendu","rater le","peur de rater","saut dedans","pulsion","force l'entree","force le trade"]},
+    {k:"tilt",   ic:"🔥", t:"Revanche & tilt",        w:["revanche","tilt","enerv","rage","frustr","colere","vener","me refaire","tout reprendre","venger","agac","furieux","rageur"]},
+    {k:"greed",  ic:"💰", t:"Avidité & sur-taille",   w:["gourmand","avide","trop gros","surdimension","double la taille","all in","tout mise","pas su sortir","laisse courir trop","cupid"]},
+    {k:"disc",   ic:"🛡️", t:"Discipline & patience",  w:["disciplin","rigueur","patien","attendu le","selectif","methodi","process","respecte mon plan","tenu mon plan","suivi mon plan","cadre"]},
+    {k:"conf",   ic:"💪", t:"Confiance & calme",      w:["confian","serein","calme","lucide","maitris","clair","a l'aise","fluide","solide","tranquille","detendu"]},
+    {k:"tired",  ic:"😴", t:"Fatigue & distraction",  w:["fatigu","creve","mal dormi","pas dormi","distrait","deconcentr","tete ailleurs","pas dedans","epuis","lourd","somnol"]},
+    {k:"regret", ic:"😞", t:"Regret & auto-critique", w:["regret","erreur","faute","nul","bete","stupide","decu","honte","aurais du","j'aurais","idiot","navrant","pas fier"]}
+  ];
+  var AN_STOP=("alors apres assez aussi autre autres avais avait avant avec avoir beaucoup bien cela celle celui cette ceux chaque chose comme comment dans depuis deux dire donc dont elle elles encore entre etais etait etaient etant etre eux fait faire fois font hier ici jamais juste leur leurs mais meme mien moins moment nous parce pareil pendant peut plus pour pourquoi quand quel quelle quelles quels quelque quelques qu'il qu'elle sans sera seulement soit sont sous suis sur tous tout toute toutes tres trop vers voir vous cest jai etait ainsi aussi donc alors alors puis puis alors bref alors").split(/\s+/);
+  function anNorm(s){
+    s=String(s||"").toLowerCase();
+    try{ s=s.normalize("NFD").replace(/[\u0300-\u036f]/g,""); }catch(e){}
+    return s;
+  }
+  function anTextOf(o){
+    var t=[o.s.preNotes||"", o.s.notes||"", o.s.objective||""];
+    (o.tr||[]).forEach(function(x){ if(x && x.note) t.push(x.note); });
+    return t.join(" \n ");
+  }
+  function anTokens(s){
+    return anNorm(s).replace(/[^a-z0-9àéèêç' -]/g," ").split(/[\s'\-]+/)
+      .filter(function(w){ return w.length>3 && AN_STOP.indexOf(w)<0 && !/^\d+$/.test(w); });
+  }
+  function anSecWords(sc){
+    var out=[], rows=sc.rows;
+    var texts=rows.map(function(o){ return {o:o, txt:anNorm(anTextOf(o))}; });
+    var written=texts.filter(function(x){ return x.txt.trim().length>0; });
+    if(written.length<AN_MIN) return [anNote("Écris quelques lignes dans ton avant-séance ou ton debrief : cette section relit tes propres mots, elle n'a rien à lire pour l'instant.")];
+
+    // Volume d'écriture
+    (function(){
+      var lens=written.map(function(x){ return x.txt.replace(/\s+/g," ").trim().length; });
+      var avgLen=Math.round(anAvg(lens));
+      var med=lens.slice().sort(function(a,b){return a-b;})[Math.floor(lens.length/2)];
+      var lng=written.filter(function(x){ return x.txt.length>=med; }).map(function(x){ return x.o; });
+      var shr=written.filter(function(x){ return x.txt.length<med; }).map(function(x){ return x.o; });
+      var c=anCmp(sc,lng,shr);
+      out.push(anCardHtml({
+        ic:"✍️", title:"Combien tu écris", span:"w2",
+        big:String(avgLen), bigSub:"caractères par séance écrite",
+        sub:"Tu écris sur <b>"+written.length+"</b> de tes <b>"+rows.length+"</b> séances (<b>"+anPct(written.length,rows.length)+"%</b>)."+
+            (c?" Séances les plus écrites : <b>"+c.A.disp+"</b> ("+c.A.n+"). Les plus laconiques : <b>"+c.B.disp+"</b> ("+c.B.n+").":""),
+        body:c?anVsD(c, "Séances détaillées", "Séances expédiées"):"",
+        foot:"Écrire beaucoup n'est pas un but ; écrire toujours, si."
+      }));
+    })();
+
+    // Familles de mots
+    (function(){
+      var fam=AN_LEX.map(function(L){
+        var hit=written.filter(function(x){ return L.w.some(function(w){ return x.txt.indexOf(anNorm(w))>=0; }); });
+        return {L:L, rows:hit.map(function(x){ return x.o; }), n:hit.length};
+      }).filter(function(f){ return f.n>0; }).sort(function(a,b){ return b.n-a.n; });
+      if(!fam.length) return;
+      out.push(anCardHtml({
+        ic:"🔤", title:"Le vocabulaire de ton journal", span:"w2",
+        sub:"Familles de mots repérées dans tes textes, de la plus présente à la plus rare — sur <b>"+anNb(written.length,"séance")+"</b> écrites.",
+        body:anMeters(fam.map(function(f){
+          return {label:f.L.ic+"  "+f.L.t, pct:anPct(f.n,written.length), disp:anPct(f.n,written.length)+"%", 
+            tone:(f.L.k==="disc"||f.L.k==="conf")?"pos":(f.L.k==="peur"||f.L.k==="fomo"||f.L.k==="tilt"||f.L.k==="greed"||f.L.k==="regret")?"neg":"",
+            note:"présente dans "+anNb(f.n,"séance")};
+        })),
+        foot:"Simple repérage de mots : c'est ton vocabulaire, pas un diagnostic."
+      }));
+      var imp=[];
+      fam.forEach(function(f){
+        var wo=written.filter(function(x){ return f.rows.indexOf(x.o)<0; }).map(function(x){ return x.o; });
+        var c=anCmp(sc,f.rows,wo); if(!c) return;
+        imp.push({t:f.L.ic+"  "+f.L.t, delta:c.delta, A:c.A, B:c.B});
+      });
+      if(imp.length>=2){
+        imp.sort(function(a,b){ return b.delta-a.delta; });
+        out.push(anCardHtml({
+          ic:"📉", title:"Les mots qui annoncent une mauvaise séance", span:"w2",
+          sub:"Écart de "+anMetricName(sc)+" entre les séances où la famille apparaît et les autres.",
+          body:anBars(imp.map(function(i){
+            return {label:i.t, v:i.delta, tone:i.delta>0?"pos":"neg",
+              disp:anDelta(sc,i.delta),
+              note:"avec : "+i.A.disp+" ("+i.A.n+") · sans : "+i.B.disp+" ("+i.B.n+")"};
+          })),
+          foot:"Repérer ces mots pendant que tu les écris, c'est déjà reprendre la main."
+        }));
+      }
+      // lien avec la discipline
+      var impD=[];
+      fam.forEach(function(f){
+        var jr=f.rows.filter(function(o){ return anJudged(o.s).length; });
+        if(jr.length<AN_MIN) return;
+        impD.push({t:f.L.ic+"  "+f.L.t, pct:anRuleRate(jr), n:jr.length});
+      });
+      if(impD.length>=2){
+        var base=anRuleRate(rows.filter(function(o){ return anJudged(o.s).length; }));
+        out.push(anCardHtml({
+          ic:"🧨", title:"Les mots des séances indisciplinées", span:"w2",
+          sub:"Taux de règles respectées quand la famille apparaît. Ta moyenne : <b>"+base+"%</b>.",
+          body:anMeters(impD.sort(function(a,b){ return a.pct-b.pct; }).map(function(i){
+            return {label:i.t, pct:i.pct, disp:i.pct+"%", tone:i.pct>=base+5?"pos":i.pct<=base-5?"neg":"", note:anNb(i.n,"séance")};
+          }))
+        }));
+      }
+    })();
+
+    // Mots qui distinguent les séances perdantes
+    (function(){
+      var win=[], los=[];
+      written.forEach(function(x){
+        if(!hasResult(x.o.s)) return;
+        (sessionNet(x.o.s)>0?win:los).push(x);
+      });
+      if(win.length<4 || los.length<4) return;
+      function count(list){
+        var m={};
+        list.forEach(function(x){
+          var seen={};
+          anTokens(x.txt).forEach(function(w){ if(seen[w]) return; seen[w]=1; m[w]=(m[w]||0)+1; });
+        });
+        return m;
+      }
+      var mw=count(win), ml=count(los), res=[];
+      Object.keys(ml).forEach(function(w){
+        var nl=ml[w], nw=mw[w]||0;
+        if(nl<2) return;
+        var pl=nl/los.length, pw=nw/win.length;
+        if(pl-pw<=0.12) return;
+        res.push({w:w, pl:pl, pw:pw, nl:nl, nw:nw});
+      });
+      if(res.length<2) return;
+      res.sort(function(a,b){ return (b.pl-b.pw)-(a.pl-a.pw); });
+      out.push(anCardHtml({
+        ic:"🔎", title:"Les mots de tes séances perdantes", span:"w2",
+        sub:"Mots nettement plus présents dans tes debriefs de séances perdantes ("+los.length+") que gagnantes ("+win.length+").",
+        body:anChips(res.slice(0,14).map(function(r){ return {t:r.w, n:r.nl, tone:"neg"}; })),
+        foot:"Ces mots-là sont tes signaux d'alerte personnels : ils reviennent quand ça se passe mal."
+      }));
+      var res2=[];
+      Object.keys(mw).forEach(function(w){
+        var nw=mw[w], nl=ml[w]||0;
+        if(nw<2) return;
+        var pw=nw/win.length, pl=nl/los.length;
+        if(pw-pl<=0.12) return;
+        res2.push({w:w, d:pw-pl, nw:nw});
+      });
+      if(res2.length>=2){
+        res2.sort(function(a,b){ return b.d-a.d; });
+        out.push(anCardHtml({
+          ic:"🌱", title:"Les mots de tes bonnes séances", span:"w2",
+          sub:"Ce que tu écris quand ça se passe bien.",
+          body:anChips(res2.slice(0,14).map(function(r){ return {t:r.w, n:r.nw, tone:"pos"}; })),
+          foot:"Relire ces mots avant d'ouvrir la plateforme vaut souvent mieux qu'une nouvelle règle."
+        }));
+      }
+    })();
+    return out;
+  }
+
+  /* =====================================================================
+     RENDU DE LA PAGE
+     ===================================================================== */
+  var AN_SEC={synth:anSecSynth, disc:anSecDisc, emo:anSecEmo, self:anSecSelf, prep:anSecPrep, rythm:anSecRythm, words:anSecWords};
+  function anTabAvailable(sc,k){
+    if(k==="synth") return true;
+    if(k==="disc")  return sc.has("showRules") || sc.has("showChecklist") || sc.has("showTracker");
+    if(k==="emo")   return sc.has("showMood") || sc.has("showTags");
+    if(k==="self")  return sc.has("showRating");
+    if(k==="prep")  return sc.has("showPreNotes") || sc.has("showObjectives") || sc.has("showNotes") || sc.has("showPlaybooks") || sc.has("showChecklist");
+    if(k==="rythm") return sc.rows.length>=AN_MIN;
+    if(k==="words") return sc.has("showNotes") || sc.has("showPreNotes") || sc.has("showObjectives");
+    return true;
+  }
+  function anSetTab(k){ view.anTab=k; try{ localStorage.setItem("edgioAnTab",k); }catch(e){} renderAnalysisScreen(); }
+  function anSetPeriod(d){ view.anPeriod=d; try{ localStorage.setItem("edgioAnPeriod",String(d)); }catch(e){} renderAnalysisScreen(); }
+  function anRestorePrefs(){
+    if(view.anTab==null){ try{ view.anTab=localStorage.getItem("edgioAnTab")||"synth"; }catch(e){ view.anTab="synth"; } }
+    if(view.anPeriod==null){ try{ var p=localStorage.getItem("edgioAnPeriod"); view.anPeriod=(p==null?0:parseInt(p,10)||0); }catch(e){ view.anPeriod=0; } }
   }
 
   function renderAnalysisScreen(){
-    var ids=view.anIds||[];
-    var accs=accounts.filter(function(a){return ids.indexOf(a.id)>=0;});
-    if(accs.length===0) accs=accounts.slice();
-    var pickBtn=el('anPickBtn');
+    anRestorePrefs();
+    var sc=anScope();
+    // en-tête : comptes analysés
+    var pickBtn=el("anPickBtn");
     if(pickBtn){
-      pickBtn.classList.toggle('hidden', accounts.length<=1);
-      var pickT=el('anPickBtnT');
-      if(pickT) pickT.textContent = accs.length===accounts.length ? "Tous les comptes" : (accs.length===1 ? accs[0].name : accs.length+" comptes");
+      pickBtn.classList.toggle("hidden", accounts.length<=1);
+      var pickT=el("anPickBtnT");
+      if(pickT) pickT.textContent = (sc.accs.length===accounts.length) ? "Tous les comptes" : (sc.accs.length===1 ? sc.accs[0].name : sc.accs.length+" comptes");
     }
-    var body=el('analysisBody'); body.innerHTML='';
-    if(accs.length===0){ body.innerHTML='<div class="an-card"><div class="an-txt"><span class="an-empty">Aucun compte à analyser.</span></div></div>'; return; }
-    var sessions=[]; accs.forEach(function(a){ Object.keys(a.sessions).forEach(function(k){ sessions.push(a.sessions[k]); }); });
-    var units={}; accs.forEach(function(a){ units[a.resultUnit]=true; });
-    var unit = (Object.keys(units).length===1) ? accs[0] : null;   // même unité -> résultat moyen ; sinon % gagnantes
-    var scope={accounts:accs, sessions:sessions, unit:unit};
-
-    var intro=document.createElement('div'); intro.className='an-intro';
-    intro.innerHTML="<b>Analyse comportementale</b> — ta discipline et ta psychologie. Les statistiques de résultat chiffrées, elles, restent dans la vue de chaque compte.";
-    body.appendChild(intro);
-    var who=document.createElement('div'); who.className='an-note';
-    who.textContent = (accs.length===1 ? "Compte analysé : "+accs[0].name : accs.length+" comptes analysés : "+accs.map(function(a){return a.name;}).join(", ")) + (unit? "" : " — unités différentes, comparaisons en % de séances gagnantes.");
-    body.appendChild(who);
-
-    var showRules=accs.some(function(a){return a.showRules;});
-    var showTags=accs.some(function(a){return a.showTags;});
-    var showMood=accs.some(function(a){return a.showMood;});
-    var showChecklist=accs.some(function(a){return a.showChecklist;});
-    function grp(title,cards){ cards=cards.filter(Boolean); if(!cards.length) return; var h=document.createElement('div'); h.className='an-group'; h.textContent=title; body.appendChild(h); cards.forEach(function(c){body.appendChild(c);}); }
-    var disc=[], psy=[];
-    if(showRules){ disc.push(secRulesRespect(scope)); disc.push(secCostliestRule(scope)); disc.push(secDiscipline(scope)); }
-    if(showChecklist){ disc.push(secChecklist(scope)); }
-    if(accs.some(function(a){return a.showPlaybooks;})){ disc.push(secPlaybooks(scope)); }
-    if(showMood){ psy.push(secMood(scope)); }
-    if(showTags){ psy.push(secTags(scope)); }
-    if(accs.some(function(a){return a.showRating;})){ psy.push(secSelfRating(scope)); psy.push(secRatingAxis(scope)); }
-    grp("Rigueur & discipline", disc);
-    grp("Psychologie", psy);
-    if(!showRules && !showTags && !showMood && !showChecklist && !accs.some(function(a){return a.showRating||a.showPlaybooks;})){
-      var e=document.createElement('div'); e.className='an-card';
-      e.innerHTML='<div class="an-txt"><span class="an-empty">Active des modules (règles, tags, humeur, check-list, auto-évaluation) sur au moins un compte et enregistre quelques séances : tes constats apparaîtront ici.</span></div>';
-      body.appendChild(e);
+    // période
+    var per=el("anPeriods");
+    if(per){
+      per.innerHTML="";
+      AN_PERIODS.forEach(function(p){
+        var b=document.createElement("button"); b.type="button";
+        b.className="an-pbtn"+(view.anPeriod===p.k?" on":""); b.textContent=p.t;
+        b.onclick=function(){ anSetPeriod(p.k); };
+        per.appendChild(b);
+      });
     }
+    var body=el("analysisBody"); if(!body) return;
+    var nav=el("anNav");
+
+    if(!sc.accs.length){
+      if(nav) nav.innerHTML="";
+      body.innerHTML='<div class="an-grid">'+anCardHtml({ic:"👤", title:"Aucun compte", sub:'<span class="an-empty">Crée un compte dans ton journal pour lancer l\'analyse.</span>'})+'</div>';
+      return;
+    }
+    // Période sans la moindre séance : inutile de dérouler les onglets, on le dit.
+    if(!sc.rows.length){
+      if(nav) nav.innerHTML="";
+      body.innerHTML='<div class="an-grid">'+anCardHtml({
+        ic:"🕳️", title:"Aucune séance sur cette période", span:"w2",
+        sub:sc.days ? "Rien de journalisé sur les <b>"+sc.days+" derniers jours</b> pour "+(sc.accs.length===1?"ce compte":"ces comptes")+". Choisis une période plus large en haut de page."
+                    : "Ton journal est encore vide pour "+(sc.accs.length===1?"ce compte":"ces comptes")+". Enregistre quelques séances : les constats apparaissent dès trois séances comparables.",
+        foot:"Cette page ne calcule rien à partir de rien — elle attend que tu remplisses."
+      })+'</div>';
+      return;
+    }
+    // onglets disponibles
+    var avail=AN_TABS.filter(function(t){ return anTabAvailable(sc,t.k); });
+    if(!avail.some(function(t){ return t.k===view.anTab; })) view.anTab=avail.length?avail[0].k:"synth";
+    if(nav){
+      nav.innerHTML="";
+      avail.forEach(function(t){
+        var b=document.createElement("button"); b.type="button";
+        b.className="an-tab"+(view.anTab===t.k?" on":"");
+        b.innerHTML='<span class="ant-ic">'+t.ic+'</span><span class="ant-tx"><span class="ant-t">'+esc(t.t)+'</span><span class="ant-s">'+esc(t.s)+'</span></span>';
+        b.onclick=function(){ anSetTab(t.k); };
+        nav.appendChild(b);
+      });
+    }
+    var cards=[];
+    try{ cards=(AN_SEC[view.anTab]||anSecSynth)(sc)||[]; }
+    catch(e){ console.warn("analyse",e); cards=[anNote("Un constat n'a pas pu être calculé. Réessaie après avoir enregistré une nouvelle séance.")]; }
+    cards=cards.filter(Boolean);
+    if(!cards.length) cards=[anNote("Rien à montrer ici pour l'instant sur cette période — élargis la période en haut de page, ou remplis quelques séances de plus.")];
+
+    var head='<div class="an-shead">'+
+      '<div class="an-sh-t">'+esc((AN_TABS.filter(function(t){return t.k===view.anTab;})[0]||AN_TABS[0]).t)+'</div>'+
+      '<div class="an-sh-s">'+esc(sc.accs.length===1 ? sc.accs[0].name : sc.accs.length+" comptes")+
+        " · "+anNb(sc.rows.length,"séance")+
+        (sc.days? " · "+(AN_PERIODS.filter(function(p){return p.k===sc.days;})[0]||{t:""}).t : " · tout l'historique")+
+        (sc.unit? "" : " · unités différentes : comparaisons en % de séances gagnantes")+
+      '</div></div>';
+    body.innerHTML=head+'<div class="an-grid">'+cards.join("")+'</div>';
   }
   // sélecteur de comptes pour l'analyse (vue cumulée)
   var anPickSel={};
