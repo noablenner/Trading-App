@@ -5022,36 +5022,30 @@
   });
   // sélecteur d'instrument
   function openInstrPicker(){ renderInstrList(""); el("instrSearch").value=""; el("instrDrawer").classList.add("open"); setTimeout(function(){ el("instrSearch").focus(); },250); }
+  // La liste "favoris" locale (INSTRUMENTS) a été retirée : la recherche live
+  // TradingView ci-dessous couvre déjà tous ces symboles, en mieux (et plus).
   function renderInstrList(q){
-    q=(q||"").toLowerCase().trim(); var box=el("instrList"); box.innerHTML="";
-    Object.keys(INSTRUMENTS).forEach(function(cat){
-      var items=INSTRUMENTS[cat].filter(function(sym){ return !q || sym.toLowerCase().indexOf(q)>=0 || cat.toLowerCase().indexOf(q)>=0; });
-      if(!items.length) return;
-      var h=document.createElement("div"); h.className="instr-cat"; h.textContent=cat; box.appendChild(h);
-      items.forEach(function(sym){
-        var it=document.createElement("div"); it.className="instr-item"+((editingTrade&&editingTrade.instrument===sym)?" sel":"");
-        it.innerHTML='<span class="ii-sym">'+esc(sym)+'</span>';
-        it.onclick=function(){ if(editingTrade){ editingTrade.instrument=sym; renderTradeFields(acc()); } el("instrDrawer").classList.remove("open"); };
-        box.appendChild(it);
-      });
-    });
-    if(q && !box.children.length){
-      var it=document.createElement("div"); it.className="instr-item"; it.innerHTML='<span class="ii-sym">« '+esc(q)+' »</span><span class="ii-name">utiliser tel quel</span>';
-      it.onclick=function(){ if(editingTrade){ editingTrade.instrument=q.toUpperCase(); renderTradeFields(acc()); } el("instrDrawer").classList.remove("open"); };
-      box.appendChild(it);
+    q=(q||"").trim(); var box=el("instrList"); box.innerHTML="";
+    if(!q){
+      box.innerHTML='<div class="le-empty">Tape le nom d\'un instrument pour le chercher sur TradingView.</div>';
+      return;
     }
+    var it=document.createElement("div"); it.className="instr-item"; it.innerHTML='<span class="ii-sym">« '+esc(q)+' »</span><span class="ii-name">utiliser tel quel</span>';
+    it.onclick=function(){ if(editingTrade){ editingTrade.instrument=q.toUpperCase(); renderTradeFields(acc()); } el("instrDrawer").classList.remove("open"); };
+    box.appendChild(it);
     renderTvSearchResults(q, box);
   }
   el("instrSearch").addEventListener("input",function(){ renderInstrList(this.value); });
 
-  // ---- recherche live TradingView (tous les symboles disponibles sur TradingView,
-  // en plus de notre liste "favoris" ci-dessus) ----
+  // ---- recherche live TradingView (tous les symboles disponibles sur TradingView) ----
   // Le navigateur ne peut pas interroger symbol-search.tradingview.com en direct
   // (CORS refusé côté TradingView) : on passe par notre fonction Supabase
   // "symbol-search" qui relaie l'appel côté serveur. Best-effort : si l'appel
-  // échoue (hors-ligne, fonction pas encore déployée…) on se contente de la
-  // liste locale ci-dessus, sans rien casser.
+  // échoue (hors-ligne, fonction pas encore déployée…) il ne reste que
+  // l'option "utiliser tel quel" ci-dessus, sans rien casser.
   var _tvSearchToken=0, _tvSearchTimer=null;
+  var II_NAME_MAX=20;
+  function truncName(s){ s=String(s||""); return s.length>II_NAME_MAX ? s.slice(0,II_NAME_MAX-1).trimEnd()+"…" : s; }
   function tvSearchSymbols(q){
     return db.functions.invoke('symbol-search', { body:{ q:q } }).then(function(r){
       if(r.error || !r.data || !Array.isArray(r.data.results)) return [];
@@ -5067,7 +5061,7 @@
     _tvSearchTimer=setTimeout(function(){
       tvSearchSymbols(q).then(function(results){
         if(token!==_tvSearchToken) return;                        // requête périmée (nouvelle frappe entre-temps)
-        if(el("instrSearch").value.toLowerCase().trim()!==q) return;
+        if(el("instrSearch").value.trim()!==q) return;
         var known={}; box.querySelectorAll(".ii-sym").forEach(function(e){ known[e.textContent.toUpperCase()]=true; });
         var fresh=results.filter(function(r){ return !known[r.display.toUpperCase()]; });
         if(!fresh.length) return;
@@ -5075,7 +5069,7 @@
         fresh.slice(0,25).forEach(function(r){
           TV_SYMBOLS[r.display]=r.full;                            // pour le bouton "Voir sur le graphique"
           var it=document.createElement("div"); it.className="instr-item"+((editingTrade&&editingTrade.instrument===r.display)?" sel":"");
-          it.innerHTML='<span class="ii-sym">'+esc(r.display)+'</span>'+(r.desc?'<span class="ii-name">'+esc(r.desc)+'</span>':'');
+          it.innerHTML='<span class="ii-sym">'+esc(r.display)+'</span>'+(r.desc?'<span class="ii-name" title="'+esc(r.desc)+'">'+esc(truncName(r.desc))+'</span>':'');
           it.onclick=function(){ if(editingTrade){ editingTrade.instrument=r.display; renderTradeFields(acc()); } el("instrDrawer").classList.remove("open"); };
           box.appendChild(it);
         });
