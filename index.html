@@ -914,8 +914,17 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* auth / loading screens */
-  #authScreen,#loadingScreen,#analysisLockScreen{position:fixed;inset:0;z-index:140;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;overflow-y:auto;}
+  #authScreen,#loadingScreen,#analysisLockScreen,#sourceScreen{position:fixed;inset:0;z-index:140;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;overflow-y:auto;}
   #analysisLockScreen .auth-card .sub-card{margin-top:20px;}
+  /* « Comment as-tu connu Edgio ? » — écran obligatoire à la 1re connexion */
+  #sourceScreen{z-index:150;}
+  .src-list{display:flex;flex-direction:column;gap:10px;margin-top:4px;}
+  .src-opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;color:var(--txt);font-family:inherit;font-size:15px;font-weight:700;padding:13px 14px;cursor:pointer;}
+  .src-opt:active{transform:scale(.99);}
+  .src-opt.sel{border-color:var(--accent);background:var(--accent-dim,var(--surface-2));box-shadow:inset 0 0 0 1px var(--accent);}
+  .src-opt .src-ic{width:26px;height:26px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:17px;}
+  .src-other{width:100%;margin-top:10px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:16px;padding:13px;}
+  .src-other:focus{outline:none;border-color:var(--accent);}
   .update-banner{position:fixed;left:0;right:0;top:0;z-index:160;max-width:var(--appW,520px);margin:0 auto;background:var(--accent);color:#fff;font-weight:700;font-size:13.5px;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top));display:none;align-items:center;justify-content:space-between;gap:10px;}
   .update-banner.show{display:flex;}
   .update-banner button{border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.15);color:#fff;font-family:inherit;font-weight:800;font-size:12.5px;padding:6px 12px;border-radius:20px;cursor:pointer;flex:0 0 auto;}
@@ -1487,6 +1496,29 @@
       <div class="sub-price">Sans engagement · résiliable à tout moment</div>
     </div>
     <button class="logout-btn" style="margin-top:14px;" id="analysisLockBackBtn">‹ Retour</button>
+  </div>
+</div>
+
+<!-- Provenance : écran obligatoire à la première connexion d'un nouveau compte.
+     La réponse est enregistrée dans profiles.signup_source (liée à l'utilisateur)
+     pour pouvoir être analysée (voir supabase_signup_source.sql). -->
+<div id="sourceScreen" style="display:none;">
+  <div class="auth-card">
+    <div style="text-align:center;"><img src="./icon-192.png" class="auth-logo" alt=""></div>
+    <h1>Une dernière question</h1>
+    <p class="a-sub">Comment as-tu entendu parler d'Edgio&nbsp;? Ça nous aide énormément.</p>
+    <div class="src-list" id="sourceList">
+      <button class="src-opt" type="button" data-src="instagram"><span class="src-ic">📸</span><span>Instagram</span></button>
+      <button class="src-opt" type="button" data-src="tiktok"><span class="src-ic">🎵</span><span>TikTok</span></button>
+      <button class="src-opt" type="button" data-src="x"><span class="src-ic">𝕏</span><span>X (Twitter)</span></button>
+      <button class="src-opt" type="button" data-src="google"><span class="src-ic">🔍</span><span>Google</span></button>
+      <button class="src-opt" type="button" data-src="youtube"><span class="src-ic">▶️</span><span>YouTube</span></button>
+      <button class="src-opt" type="button" data-src="friend"><span class="src-ic">👥</span><span>Un ami / bouche-à-oreille</span></button>
+      <button class="src-opt" type="button" data-src="other"><span class="src-ic">✨</span><span>Autre</span></button>
+    </div>
+    <input id="sourceOther" class="src-other hidden" type="text" maxlength="80" placeholder="Précise (facultatif)">
+    <div class="auth-err" id="sourceErr"></div>
+    <button class="auth-btn" id="sourceBtn" type="button">Continuer</button>
   </div>
 </div>
 
@@ -3146,10 +3178,66 @@
     if(m.indexOf('email not confirmed')>=0) return "Email pas encore confirmé. Regarde ta boîte mail.";
     return "Erreur : "+m;
   }
+  // ===================== PROVENANCE (« comment nous as-tu connus ? ») =====================
+  // Écran obligatoire, affiché une seule fois, juste après la création du compte.
+  // La réponse part dans profiles.signup_source (liée à l'utilisateur) — voir
+  // supabase_signup_source.sql. Verrouillée côté base dès qu'elle est posée.
+  var SOURCE_SELECTED=null;
+  function needsSignupSource(){
+    // Si la colonne n'existe pas encore en base (SQL pas encore lancé), la clé
+    // est absente du profil : on ne bloque personne.
+    return !!profile && ('signup_source' in profile) && !profile.signup_source;
+  }
+  function selectSource(v){
+    SOURCE_SELECTED=v;
+    var list=el('sourceList').querySelectorAll('.src-opt');
+    for(var i=0;i<list.length;i++) list[i].classList.toggle('sel', list[i].getAttribute('data-src')===v);
+    el('sourceOther').classList.toggle('hidden', v!=='other');
+    el('sourceErr').classList.remove('show');
+  }
+  function askSignupSource(){
+    return new Promise(function(resolve){
+      SOURCE_SELECTED=null;
+      el('sourceOther').value=''; el('sourceOther').classList.add('hidden');
+      el('sourceErr').classList.remove('show');
+      var list=el('sourceList').querySelectorAll('.src-opt');
+      for(var i=0;i<list.length;i++){
+        (function(b){ b.classList.remove('sel'); b.onclick=function(){ selectSource(b.getAttribute('data-src')); }; })(list[i]);
+      }
+      el('loadingScreen').style.display='none';
+      el('sourceScreen').style.display='flex';
+      var btn=el('sourceBtn');
+      btn.disabled=false; btn.textContent='Continuer';
+      btn.onclick=async function(){
+        if(!SOURCE_SELECTED){
+          var e=el('sourceErr'); e.textContent="Choisis une réponse pour continuer."; e.classList.add('show');
+          return;
+        }
+        btn.disabled=true; btn.textContent='…';
+        var detail = SOURCE_SELECTED==='other' ? (el('sourceOther').value.trim()||null) : null;
+        try{
+          var r=await db.from('profiles')
+            .update({signup_source:SOURCE_SELECTED, signup_source_detail:detail, signup_source_at:new Date().toISOString()})
+            .eq('id',currentUser.id).select().maybeSingle();
+          if(r.error) throw r.error;
+          if(r.data) profile=r.data;
+        }catch(err){
+          // Jamais bloquant : si l'enregistrement échoue (réseau, colonne
+          // manquante…), on laisse l'utilisateur entrer dans l'app.
+          console.warn('provenance inscription', err);
+          if(profile) profile.signup_source=SOURCE_SELECTED;
+        }
+        el('sourceScreen').style.display='none';
+        el('loadingScreen').style.display='flex';
+        resolve();
+      };
+    });
+  }
   async function enterApp(){
     el('authScreen').style.display='none';
     el('loadingScreen').style.display='flex';
     try{ await loadProfile(); }catch(e){ console.error(e); }
+    if(needsSignupSource()){ try{ await askSignupSource(); }catch(e){ console.error(e); } }
     var checkoutState=consumeCheckoutParam();
     if(checkoutState==='success' && !premiumActive()){ await pollProfileActive(); }
     try{ await loadAll(); }catch(e){ console.error(e); }
