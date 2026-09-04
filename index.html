@@ -227,7 +227,7 @@
      toute la hauteur sous le bandeau — fixe, non déplaçable. Sur mobile on
      retranche aussi la barre d'onglets du bas (fixe, en dehors du flux)
      pour que le bas du widget arrive pile au-dessus du menu, sans scroll. */
-  #screenChart{ height:calc(100vh - var(--topbarH,82px) - 4px - 98px - env(safe-area-inset-bottom)); display:flex; margin:-8px -20px 0; padding:3px; box-sizing:border-box; }
+  #screenChart{ height:calc(100vh - var(--topbarH,82px) - 4px - var(--tabbarH,98px)); display:flex; margin:-8px -20px 0; padding:3px; box-sizing:border-box; }
   .chart-full-wrap{position:relative;flex:1;min-height:420px;width:100%;overflow:hidden;background:var(--surface-2);}
   .chart-full-wrap iframe{ color-scheme: normal; }
   .poweredBy{margin-top:8px;font-size:11px;color:var(--txt-faint);}
