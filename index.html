@@ -1538,8 +1538,9 @@
       </div>
     </div>
     <div class="tb-right">
-      <!-- Boîte aux lettres : toujours accessible depuis le haut de l'écran sur
-           mobile/tablette (sur ordinateur, l'entrée vit dans la sidebar). -->
+      <!-- Boîte aux lettres : visible uniquement sur la page principale du
+           journal sur mobile/tablette (sur ordinateur, l'entrée vit dans la
+           sidebar). Le hidden/show est piloté par applyTab(). -->
       <div class="gear gear-mail hidden" id="mailBtn" role="button" tabindex="0" aria-label="Boîte aux lettres">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.6 6.8 12 13l8.4-6.2"/></svg>
         <span class="dot-badge" id="inboxBadgeTop"></span>
@@ -3014,6 +3015,7 @@
 
   // navigation (onglets)
   var view={tab:"journal", jlevel:"accounts", accId:null, editKey:null, anIds:[]};
+  var mailBtnLoaded=false;
   function setActiveAccount(id){ view.accId=id; try{ localStorage.setItem('activeAcct', id||""); }catch(e){} }
   function acc(){ return accounts.find(function(a){return a.id===view.accId;}); }
   function curSession(){ var a=acc(); if(!a) return null; if(!a.sessions[view.editKey]) a.sessions[view.editKey]=newSession(); return a.sessions[view.editKey]; }
@@ -3242,7 +3244,7 @@
     if(checkoutState==='success' && !premiumActive()){ await pollProfileActive(); }
     try{ await loadAll(); }catch(e){ console.error(e); }
     try{ await loadInbox(); }catch(e){ console.error(e); }
-    el('mailBtn').classList.remove('hidden');
+    mailBtnLoaded=true;
     applyUserBadges();
     var stored=null; try{ stored=localStorage.getItem('activeAcct'); }catch(e){}
     var active = accounts.find(function(a){return a.id===stored;}) || accounts[0] || null;
@@ -7188,7 +7190,7 @@
     document.querySelectorAll('#tabbar .tab[data-tab]').forEach(function(t){ t.classList.toggle("on", t.dataset.tab===tab); });
     // Sur mobile, la boîte aux lettres n'est pas dans la barre du bas : c'est
     // l'enveloppe du header qui prend l'état actif.
-    var mb=el("mailBtn"); if(mb) mb.classList.toggle("on", tab==="inbox");
+    var mb=el("mailBtn"); if(mb){ mb.classList.toggle("on", tab==="inbox"); mb.classList.toggle("hidden", !mailBtnLoaded || tab!=="journal"); }
     if(tab==="journal"){ renderJournalTab(); }
     else if(tab==="analysis"){ el("screenAnalysis").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Analyse","Discipline & psychologie", true); renderAnalysisScreen(); }
     else if(tab==="plan"){ el("screenPlan").classList.remove("hidden"); if(a){ setGearBadge("📋"); } else { el("gearBtn").classList.add("hidden"); } setTitle("Plan de trading", a?a.name:"", true); renderPlan(); }
