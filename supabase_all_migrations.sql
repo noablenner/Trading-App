@@ -323,13 +323,9 @@ create index if not exists profiles_signup_source_idx
   on public.profiles (signup_source);
 
 -- ----------------------------------------------------------------------------
--- 2) Backfill : les comptes créés AVANT cette migration ne doivent pas se voir
---    imposer la question à leur prochaine connexion -> marqués 'not_asked'.
---    (Seuls les nouveaux inscrits verront l'écran.)
+-- 2) Comptes existants : on les laisse à NULL (aucun backfill). Ils verront donc
+--    l'écran une fois, à leur prochaine connexion, comme les nouveaux inscrits.
 -- ----------------------------------------------------------------------------
-update public.profiles
-   set signup_source = 'not_asked'
- where signup_source is null;
 
 -- ----------------------------------------------------------------------------
 -- 3) Garde-fou : la réponse ne peut être écrite qu'UNE seule fois par
@@ -370,18 +366,18 @@ create trigger trg_guard_profiles_billing
 -- ----------------------------------------------------------------------------
 -- 4) Analyse : d'où viennent nos inscrits ?
 -- ----------------------------------------------------------------------------
--- Répartition globale (hors comptes antérieurs à la question) :
+-- Répartition globale :
 --   select signup_source, count(*) as inscrits,
 --          round(100.0*count(*)/sum(count(*)) over (), 1) as pct
 --   from public.profiles
---   where signup_source is not null and signup_source <> 'not_asked'
+--   where signup_source is not null
 --   group by signup_source
 --   order by inscrits desc;
 --
 -- Par mois :
 --   select date_trunc('month', created_at) as mois, signup_source, count(*)
 --   from public.profiles
---   where signup_source is not null and signup_source <> 'not_asked'
+--   where signup_source is not null
 --   group by 1,2 order by 1 desc, 3 desc;
 --
 -- Détail des réponses « Autre » :
