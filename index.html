@@ -100,6 +100,17 @@
   .gear{position:relative;}
   .gear-badge{position:absolute;top:-6px;right:-6px;font-size:12px;line-height:1;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:2px 3px;pointer-events:none;}
   .gear-badge:empty{display:none;}
+  /* Groupe de boutons à droite du titre (enveloppe + engrenage). */
+  .tb-right{display:flex;align-items:center;gap:8px;flex:0 0 auto;}
+  .gear-mail svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+  .gear-mail.hidden{display:none;}
+  .gear-mail.has-unread{color:var(--accent);border-color:var(--accent);}
+  .gear-mail.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+  /* Pastille de non-lus : un chiffre si la place le permet, sinon "9+". */
+  .dot-badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:20px;
+    background:var(--accent);color:var(--on-accent);font-size:10.5px;font-weight:800;line-height:18px;
+    text-align:center;padding:0 4px;box-sizing:border-box;border:2px solid var(--bg);pointer-events:none;}
+  .dot-badge:empty{display:none;}
   /* Repère "réglage personnalisé actif" : un simple point plein, pas le badge
      à emoji ci-dessus — plus discret, se lit comme un indicateur d'état. */
   .gear-dot{position:absolute;top:1px;right:1px;width:8px;height:8px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);pointer-events:none;display:none;}
@@ -617,6 +628,12 @@
      Sélecteur volontairement plus spécifique que .tab, qui est déclaré plus bas
      avec display:flex et l'emporterait autrement. */
   .tabbar .tb-settings{display:none;}
+  /* Boîte aux lettres : réservée à la sidebar ordinateur — sur mobile, elle est
+     atteinte par l'enveloppe du header, toujours visible. */
+  .tabbar .tb-inbox{display:none;}
+  .tb-badge{margin-left:auto;flex:0 0 auto;min-width:20px;height:20px;border-radius:20px;background:var(--accent);
+    color:var(--on-accent);font-size:11px;font-weight:800;line-height:20px;text-align:center;padding:0 5px;box-sizing:border-box;}
+  .tb-badge:empty{display:none;}
   /* Entrée verrouillée (Prop firm) : invisible sur la barre mobile, visible en
      bas de la sidebar ordinateur (voir la requête média plus bas). */
   .tabbar .tb-locked{display:none;}
@@ -639,6 +656,44 @@
   .tab.primary{color:var(--txt);} .tab.primary.on{color:var(--on-accent);background:var(--accent);}
   .tab.primary.on .ti{opacity:1;}
   .tab:active{transform:scale(.95);}
+  /* ===== BOÎTE AUX LETTRES ===== */
+  .ib-head{display:flex;align-items:center;gap:10px;margin:12px 0 4px;flex-wrap:wrap;}
+  .ib-head .ib-sp{flex:1 1 auto;}
+  .ib-btn{border:1px solid var(--line);background:var(--surface);color:var(--txt-dim);font-family:inherit;
+    font-size:12.5px;font-weight:700;border-radius:11px;padding:9px 12px;cursor:pointer;}
+  .ib-btn:hover{color:var(--txt);background:var(--surface-2);}
+  .ib-btn.solid{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+  .ib-list{margin-top:12px;display:flex;flex-direction:column;gap:10px;}
+  .ib-msg{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden;cursor:pointer;}
+  .ib-msg.unread{border-color:var(--accent);background:var(--surface);}
+  .ib-msg-top{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;}
+  .ib-ic{flex:0 0 auto;width:38px;height:38px;border-radius:11px;background:var(--accent-dim);
+    display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .ib-msg-txt{min-width:0;flex:1;}
+  .ib-t{font-weight:800;font-size:14.5px;display:flex;align-items:center;gap:7px;}
+  .ib-t .ib-new{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  .ib-meta{font-size:11.5px;color:var(--txt-faint);margin-top:3px;font-weight:600;}
+  .ib-prev{font-size:12.5px;color:var(--txt-dim);margin-top:5px;line-height:1.45;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .ib-msg.open .ib-prev{display:none;}
+  .ib-body{display:none;padding:0 16px 16px;font-size:13.5px;line-height:1.6;color:var(--txt);white-space:pre-wrap;}
+  .ib-msg.open .ib-body{display:block;}
+  .ib-cta{display:inline-block;margin-top:12px;text-decoration:none;background:var(--accent);color:var(--on-accent);
+    font-weight:800;font-size:13px;border-radius:11px;padding:10px 16px;}
+  .ib-foot{display:flex;gap:8px;padding:0 16px 14px;flex-wrap:wrap;}
+  .ib-msg:not(.open) .ib-foot{display:none;}
+  .ib-tag{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 7px;border-radius:20px;background:var(--surface-2);color:var(--txt-faint);border:1px solid var(--line);}
+  .ib-tag.draft{background:var(--amber);color:var(--on-amber);border-color:transparent;}
+  /* Atelier de rédaction (administrateurs) */
+  .ib-admin{border:1px dashed var(--accent);border-radius:var(--radius);background:var(--accent-dim);
+    padding:14px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;}
+  .ib-admin .ib-admin-t{font-weight:800;font-size:14px;flex:1 1 auto;min-width:160px;}
+  .ib-admin .ib-admin-s{font-size:12px;color:var(--txt-dim);font-weight:500;margin-top:2px;}
+  .ib-users{max-height:34vh;overflow-y:auto;border:1px solid var(--line);border-radius:12px;padding:6px 10px;}
+  .ib-count{font-size:12px;color:var(--txt-dim);margin-top:6px;}
+  #msgBody{resize:vertical;min-height:150px;line-height:1.5;}
+
   /* ===== Plan ===== */
   .plan-obj{display:flex;align-items:center;gap:10px;}
   .plan-obj input{flex:1;}
@@ -1155,11 +1210,26 @@
     /* ----- RÉGLAGES DU COMPTE : ancrés en bas de la sidebar -----
        margin-top:auto pousse l'élément tout en bas, avec un filet (::before)
        qui marque l'écart avec le reste des pages (dont Propfirm). */
-    .tabbar .tb-settings{ display:flex; margin-top:auto; position:relative; }
-    .tb-settings::before{
+    /* Boîte aux lettres + réglages forment le bloc du bas : c'est la boîte aux
+       lettres qui porte le margin-top:auto (elle vient en premier) et le filet
+       de séparation d'avec les pages au-dessus. */
+    .tabbar .tb-inbox{ display:flex; margin-top:auto; position:relative; }
+    .tb-inbox::before{
       content:""; position:absolute; left:-4px; right:-4px; top:-9px;
       border-top:1px solid var(--line);
     }
+    .tabbar .tb-settings{ display:flex; position:relative; }
+
+    /* Sidebar réduite : plus de place pour le compteur en bout de ligne — il
+       devient une pastille posée sur l'icône. */
+    html.sb-collapsed .tb-inbox .tb-badge{
+      position:absolute; top:6px; right:14px; margin:0; min-width:17px; height:17px;
+      line-height:17px; font-size:10px; padding:0 4px; border:2px solid var(--surface);
+    }
+
+    /* Sur ordinateur, l'enveloppe du header disparaît : l'entrée vit dans la
+       sidebar, où elle est déjà toujours visible. */
+    .gear-mail{ display:none; }
 
     /* Sur ordinateur, l'engrenage du header ne sert plus aux réglages globaux :
        ils vivent dans la sidebar. Il reste affiché pour les réglages du compte
@@ -1435,7 +1505,15 @@
         <div class="sub" id="screenSub">—</div>
       </div>
     </div>
-    <div class="gear" id="gearBtn">⚙<span class="gear-badge" id="gearBadge"></span></div>
+    <div class="tb-right">
+      <!-- Boîte aux lettres : toujours accessible depuis le haut de l'écran sur
+           mobile/tablette (sur ordinateur, l'entrée vit dans la sidebar). -->
+      <div class="gear gear-mail hidden" id="mailBtn" role="button" tabindex="0" aria-label="Boîte aux lettres">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.6 6.8 12 13l8.4-6.2"/></svg>
+        <span class="dot-badge" id="inboxBadgeTop"></span>
+      </div>
+      <div class="gear" id="gearBtn">⚙<span class="gear-badge" id="gearBadge"></span></div>
+    </div>
   </div>
 </div>
 
@@ -1614,6 +1692,16 @@
     </div>
   </div>
 
+  <!-- ========== BOÎTE AUX LETTRES (messages de l'équipe) ========== -->
+  <div id="screenInbox" class="hidden">
+    <div id="inboxAdmin"></div>
+    <div class="ib-head">
+      <div class="ib-sp"></div>
+      <button class="ib-btn hidden" id="inboxReadAllBtn" type="button">✓ Tout marquer comme lu</button>
+    </div>
+    <div class="ib-list" id="inboxList"></div>
+  </div>
+
   <!-- ========== GRAPHIQUE (analyse technique plein écran) ========== -->
   <div id="screenChart" class="hidden">
     <div id="chartFullWrap" class="chart-full-wrap"></div>
@@ -1769,6 +1857,11 @@
        mobile (la barre du bas n'a que 5 places) et présenté en bas de la
        sidebar ordinateur, cadenassé, pour annoncer ce qui arrive. -->
   <button class="tab tb-locked" data-locked="propfirm" type="button" aria-disabled="true" aria-label="Propfirm — prochainement"><span class="ti"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9.2 12l2 2 3.6-3.8"/></svg></span><span class="tt">Propfirm</span><span class="tb-lock" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><span class="tb-tip" role="status" aria-hidden="true">Prochainement</span></button>
+  <!-- Boîte aux lettres : messages et notifications envoyés par l'équipe.
+       Ancrée en bas de la sidebar, juste au-dessus des réglages du compte.
+       Invisible dans la barre d'onglets mobile (5 places), où elle est
+       remplacée par l'enveloppe du header. -->
+  <button class="tab tb-inbox" data-tab="inbox" type="button"><span class="ti"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.6 6.8 12 13l8.4-6.2"/></svg></span><span class="tt">Boîte aux lettres</span><span class="tb-badge" id="inboxBadgeSide"></span></button>
   <button class="tab tb-settings" id="sidebarSettingsBtn" type="button"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.1"/><path d="M19.1 14.4a1.5 1.5 0 0 0 .3 1.7l.05.05a1.9 1.9 0 1 1-2.65 2.65l-.05-.05a1.5 1.5 0 0 0-1.7-.3 1.5 1.5 0 0 0-.9 1.37v.13a1.9 1.9 0 1 1-3.8 0v-.07a1.5 1.5 0 0 0-.98-1.37 1.5 1.5 0 0 0-1.7.3l-.05.05A1.9 1.9 0 1 1 4.87 16.2l.05-.05a1.5 1.5 0 0 0 .3-1.7 1.5 1.5 0 0 0-1.37-.9h-.13a1.9 1.9 0 1 1 0-3.8h.07a1.5 1.5 0 0 0 1.37-.98 1.5 1.5 0 0 0-.3-1.7l-.05-.05A1.9 1.9 0 1 1 7.46 4.37l.05.05a1.5 1.5 0 0 0 1.7.3h.07a1.5 1.5 0 0 0 .9-1.37v-.13a1.9 1.9 0 1 1 3.8 0v.07a1.5 1.5 0 0 0 .9 1.37 1.5 1.5 0 0 0 1.7-.3l.05-.05a1.9 1.9 0 1 1 2.65 2.65l-.05.05a1.5 1.5 0 0 0-.3 1.7v.07a1.5 1.5 0 0 0 1.37.9h.13a1.9 1.9 0 1 1 0 3.8h-.07a1.5 1.5 0 0 0-1.37.9z"/></svg></span><span class="tt">Paramètres du compte</span></button>
 </nav>
 
@@ -1787,6 +1880,64 @@
   <div class="dsub">Choisis la date de la séance à ouvrir.</div>
   <div class="set-group"><div class="set-label">Date</div><input class="set-input" id="newSessDate" type="date"></div>
   <div class="drawer-foot"><button class="drawer-done" id="dateGo">Ouvrir la séance</button></div>
+  </div>
+</div>
+
+<!-- Boîte aux lettres : rédaction d'un message (administrateurs uniquement) -->
+<div class="drawer" id="msgDrawer">
+  <div class="grab"></div>
+  <div class="drawer-scroll">
+  <h3 id="msgDrawerTitle">Rédiger un message</h3>
+  <div class="dsub">Il apparaîtra dans la boîte aux lettres des comptes ciblés.</div>
+  <div class="set-group"><div class="set-label">Titre</div>
+    <input class="set-input" id="msgTitle" type="text" placeholder="Ex : Nouveauté — le calendrier économique arrive">
+  </div>
+  <div class="set-group"><div class="set-label">Message</div>
+    <textarea class="set-input" id="msgBody" rows="7" placeholder="Écris ton message. Les retours à la ligne sont conservés."></textarea>
+  </div>
+  <div class="set-group"><div class="set-label">Type</div>
+    <select class="set-input" id="msgCategory">
+      <option value="info">Information</option>
+      <option value="update">Nouveauté / mise à jour</option>
+      <option value="promo">Offre</option>
+      <option value="alert">Alerte importante</option>
+    </select>
+  </div>
+  <div class="set-group"><div class="set-label">Destinataires</div>
+    <select class="set-input" id="msgAudience">
+      <option value="all">Tous les utilisateurs</option>
+      <option value="premium">Premium (essai en cours ou abonné)</option>
+      <option value="trialing">En essai gratuit</option>
+      <option value="active">Abonnés payants</option>
+      <option value="free">Comptes gratuits (essai terminé)</option>
+      <option value="past_due">Paiement en échec</option>
+      <option value="canceled">Abonnements annulés</option>
+      <option value="list">Une liste de comptes précis…</option>
+    </select>
+    <div class="ib-count" id="msgAudienceHint"></div>
+  </div>
+  <div class="set-group hidden" id="msgUsersGroup">
+    <div class="set-label">Comptes ciblés</div>
+    <input class="set-input" id="msgUserSearch" type="text" placeholder="Filtrer par e-mail ou prénom" style="margin-bottom:8px;">
+    <div class="ib-users" id="msgUsers"></div>
+    <div class="ib-count" id="msgUsersCount"></div>
+  </div>
+  <div class="set-group"><div class="set-label">Bouton d'action (facultatif)</div>
+    <input class="set-input" id="msgCtaLabel" type="text" placeholder="Libellé du bouton — ex : Découvrir" style="margin-bottom:8px;">
+    <input class="set-input" id="msgCtaUrl" type="url" placeholder="https://…">
+  </div>
+  <div class="set-group"><div class="set-label">Expire le (facultatif)</div>
+    <input class="set-input" id="msgExpires" type="date">
+  </div>
+  <div class="toggle-row" id="msgPinnedRow" style="cursor:pointer;">
+    <div><div class="tl">Épingler en haut</div><div class="td">Le message reste au-dessus des autres.</div></div>
+    <div class="switch" id="msgPinned"><i></i></div>
+  </div>
+  <div class="drawer-foot">
+    <button class="drawer-done" id="msgPublish">Publier maintenant</button>
+    <button class="ib-btn" id="msgSaveDraft" type="button" style="width:100%;padding:14px;">Enregistrer comme brouillon</button>
+    <button class="danger-btn hidden" id="msgDelete" type="button">Supprimer ce message</button>
+  </div>
   </div>
 </div>
 
@@ -3002,6 +3153,8 @@
     var checkoutState=consumeCheckoutParam();
     if(checkoutState==='success' && !premiumActive()){ await pollProfileActive(); }
     try{ await loadAll(); }catch(e){ console.error(e); }
+    try{ await loadInbox(); }catch(e){ console.error(e); }
+    el('mailBtn').classList.remove('hidden');
     applyUserBadges();
     var stored=null; try{ stored=localStorage.getItem('activeAcct'); }catch(e){}
     var active = accounts.find(function(a){return a.id===stored;}) || accounts[0] || null;
@@ -6616,9 +6769,315 @@
     closeDrawer(); showTab("analysis");
   });
 
+  // ============ BOÎTE AUX LETTRES ============
+  // Messages et notifications envoyés par l'équipe, stockés dans `app_messages`
+  // (voir supabase_inbox.sql). Trois briques :
+  //   • app_messages        : le message + son audience (tous, un segment, une liste)
+  //   • user_message_state  : lu / archivé, propre à chaque utilisateur
+  //   • app_admins          : qui a le droit d'écrire (personne d'autre, RLS oblige)
+  // La RLS fait tout le ciblage côté serveur : le client se contente de lire
+  // `app_messages` et ne reçoit que ce qui le concerne. Un compte non admin ne
+  // peut ni voir les brouillons ni écrire quoi que ce soit.
+  var inbox = { msgs:[], read:{}, isAdmin:false, open:{}, users:null, editing:null, draft:null, userFilter:"" };
+
+  var IB_ICONS = { info:"💬", update:"✨", promo:"🎁", alert:"⚠️" };
+  var IB_CAT_LABEL = { info:"Information", update:"Nouveauté", promo:"Offre", alert:"Important" };
+  var IB_AUD_LABEL = {
+    all:"Tous les utilisateurs", premium:"Comptes premium", trialing:"En essai gratuit",
+    active:"Abonnés payants", free:"Comptes gratuits", past_due:"Paiement en échec",
+    canceled:"Abonnements annulés", list:"Liste de comptes"
+  };
+
+  function inboxUnread(){
+    return inbox.msgs.filter(function(m){ return m.published_at && !inbox.read[m.id]; }).length;
+  }
+  // Compteur affiché à deux endroits selon l'écran : la pastille de la sidebar
+  // (ordinateur) et celle de l'enveloppe du header (mobile/tablette).
+  function refreshInboxBadges(){
+    var n = inboxUnread(), txt = n>99 ? "99+" : (n? String(n) : "");
+    var a=el("inboxBadgeSide"), b=el("inboxBadgeTop");
+    if(a) a.textContent=txt;
+    if(b) b.textContent = n>9 ? "9+" : txt;
+    var mail=el("mailBtn"); if(mail) mail.classList.toggle("has-unread", n>0);
+  }
+
+  async function loadInbox(){
+    if(!currentUser) return;
+    try{
+      var adm = await db.from('app_admins').select('user_id').eq('user_id',currentUser.id).maybeSingle();
+      inbox.isAdmin = !!(adm && adm.data);
+    }catch(e){ inbox.isAdmin=false; }
+    try{
+      var r = await db.from('app_messages').select('*')
+        .order('pinned',{ascending:false})
+        .order('published_at',{ascending:false, nullsFirst:true})
+        .order('created_at',{ascending:false});
+      if(r.error) throw r.error;
+      inbox.msgs = r.data||[];
+      var sr = await db.from('user_message_state').select('message_id,read_at').eq('user_id',currentUser.id);
+      inbox.read = {};
+      (sr.data||[]).forEach(function(row){ if(row.read_at) inbox.read[row.message_id]=row.read_at; });
+    }catch(e){
+      // Table absente (migration pas encore passée) : on n'affiche rien plutôt
+      // que de casser le chargement de l'app.
+      console.warn('boîte aux lettres indisponible', e);
+      inbox.msgs=[]; inbox.read={};
+    }
+    refreshInboxBadges();
+  }
+
+  function markRead(id){
+    if(inbox.read[id] || !currentUser) return;
+    inbox.read[id]=new Date().toISOString();
+    refreshInboxBadges();
+    db.from('user_message_state').upsert(
+      {user_id:currentUser.id, message_id:id, read_at:inbox.read[id]},
+      {onConflict:'user_id,message_id'}
+    ).then(function(){},function(e){ console.warn('lu',e); });
+  }
+
+  function ibDate(iso){
+    if(!iso) return "";
+    var d=new Date(iso);
+    return d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+  }
+
+  function renderInbox(){
+    renderInboxAdminBar();
+    var box=el("inboxList"); if(!box) return;
+    box.innerHTML="";
+    var msgs = inbox.msgs.filter(function(m){ return inbox.isAdmin || m.published_at; });
+    var unread = inboxUnread();
+    var all=el("inboxReadAllBtn"); if(all) all.classList.toggle("hidden", unread===0);
+    if(msgs.length===0){
+      box.innerHTML='<div class="card"><div class="empty-note">Aucun message pour le moment. C\'est ici que tu recevras nos annonces et nouveautés.</div></div>';
+      return;
+    }
+    msgs.forEach(function(m){
+      var isDraft = !m.published_at;
+      var unreadM = !isDraft && !inbox.read[m.id];
+      var open = !!inbox.open[m.id];
+      var card=document.createElement("div");
+      card.className="ib-msg"+(unreadM?" unread":"")+(open?" open":"");
+      var meta=[];
+      if(isDraft) meta.push('<span class="ib-tag draft">Brouillon</span>');
+      else meta.push(ibDate(m.published_at));
+      meta.push(IB_CAT_LABEL[m.category]||m.category);
+      if(m.pinned) meta.push("📌 épinglé");
+      if(inbox.isAdmin) meta.push(IB_AUD_LABEL[m.audience]||m.audience);
+      var h = '<div class="ib-msg-top">'
+        + '<div class="ib-ic">'+(IB_ICONS[m.category]||"💬")+'</div>'
+        + '<div class="ib-msg-txt">'
+        +   '<div class="ib-t">'+(unreadM?'<span class="ib-new"></span>':'')+esc(m.title||"")+'</div>'
+        +   '<div class="ib-meta">'+meta.join(" · ")+'</div>'
+        +   '<div class="ib-prev">'+esc(m.body||"")+'</div>'
+        + '</div></div>'
+        + '<div class="ib-body">'+esc(m.body||"")
+        +   (m.cta_url ? '<div><a class="ib-cta" href="'+esc(m.cta_url)+'" target="_blank" rel="noopener">'+esc(m.cta_label||"En savoir plus")+'</a></div>' : '')
+        + '</div>';
+      card.innerHTML=h;
+      if(inbox.isAdmin){
+        var foot=document.createElement("div"); foot.className="ib-foot";
+        var edit=document.createElement("button"); edit.type="button"; edit.className="ib-btn"; edit.textContent="✎ Modifier";
+        edit.onclick=function(ev){ ev.stopPropagation(); openMsgComposer(m); };
+        foot.appendChild(edit);
+        if(isDraft){
+          var pub=document.createElement("button"); pub.type="button"; pub.className="ib-btn solid"; pub.textContent="↗ Publier";
+          pub.onclick=function(ev){ ev.stopPropagation(); publishExisting(m); };
+          foot.appendChild(pub);
+        }
+        card.appendChild(foot);
+      }
+      card.addEventListener("click",function(){
+        inbox.open[m.id]=!open;
+        if(!isDraft) markRead(m.id);
+        renderInbox();
+      });
+      box.appendChild(card);
+    });
+  }
+
+  function renderInboxAdminBar(){
+    var box=el("inboxAdmin"); if(!box) return;
+    if(!inbox.isAdmin){ box.innerHTML=""; return; }
+    box.innerHTML='<div class="ib-admin">'
+      + '<div class="ib-admin-t">Atelier de rédaction'
+      +   '<div class="ib-admin-s">Tu es administrateur : tu peux écrire à tous les utilisateurs ou à un groupe précis.</div>'
+      + '</div>'
+      + '<button class="ib-btn solid" id="inboxNewBtn" type="button">✍️ Rédiger un message</button>'
+      + '</div>';
+    el("inboxNewBtn").addEventListener("click",function(){ openMsgComposer(null); });
+  }
+
+  function markAllRead(){
+    var todo=inbox.msgs.filter(function(m){ return m.published_at && !inbox.read[m.id]; });
+    if(todo.length===0) return;
+    var now=new Date().toISOString();
+    todo.forEach(function(m){ inbox.read[m.id]=now; });
+    refreshInboxBadges(); renderInbox();
+    db.from('user_message_state').upsert(
+      todo.map(function(m){ return {user_id:currentUser.id, message_id:m.id, read_at:now}; }),
+      {onConflict:'user_id,message_id'}
+    ).then(function(){},function(e){ console.warn('lu',e); });
+  }
+
+  // ---- Rédaction (administrateurs) ----
+  function openMsgComposer(m){
+    inbox.editing = m || null;
+    inbox.draft = {
+      title:(m&&m.title)||"", body:(m&&m.body)||"", category:(m&&m.category)||"info",
+      audience:(m&&m.audience)||"all", ids:(m&&m.audience_user_ids)? m.audience_user_ids.slice() : [],
+      cta_label:(m&&m.cta_label)||"", cta_url:(m&&m.cta_url)||"",
+      expires:(m&&m.expires_at)? String(m.expires_at).slice(0,10) : "",
+      pinned:!!(m&&m.pinned)
+    };
+    inbox.userFilter="";
+    el("msgDrawerTitle").textContent = m ? "Modifier le message" : "Rédiger un message";
+    el("msgTitle").value=inbox.draft.title;
+    el("msgBody").value=inbox.draft.body;
+    el("msgCategory").value=inbox.draft.category;
+    el("msgAudience").value=inbox.draft.audience;
+    el("msgCtaLabel").value=inbox.draft.cta_label;
+    el("msgCtaUrl").value=inbox.draft.cta_url;
+    el("msgExpires").value=inbox.draft.expires;
+    el("msgUserSearch").value="";
+    el("msgPinned").classList.toggle("on", inbox.draft.pinned);
+    el("msgPublish").textContent = (m && m.published_at) ? "Enregistrer les modifications" : "Publier maintenant";
+    el("msgSaveDraft").classList.toggle("hidden", !!(m && m.published_at));
+    el("msgDelete").classList.toggle("hidden", !m);
+    syncAudienceUI();
+    el("overlay").classList.add("open");
+    el("msgDrawer").classList.add("open");
+  }
+
+  function syncAudienceUI(){
+    var aud=inbox.draft.audience;
+    el("msgUsersGroup").classList.toggle("hidden", aud!=="list");
+    var hint=el("msgAudienceHint");
+    hint.textContent = aud==="list"
+      ? "Coche les comptes qui recevront ce message."
+      : "Le ciblage est appliqué côté serveur : chaque utilisateur ne reçoit que ce qui le concerne.";
+    if(aud==="list") loadAdminUsers();
+  }
+
+  async function loadAdminUsers(){
+    if(inbox.users){ renderAdminUsers(); return; }
+    el("msgUsers").innerHTML='<div class="empty-note">Chargement…</div>';
+    try{
+      var r=await db.rpc('admin_list_users');
+      if(r.error) throw r.error;
+      inbox.users=r.data||[];
+    }catch(e){
+      console.warn('annuaire',e);
+      el("msgUsers").innerHTML='<div class="empty-note">Annuaire indisponible. Vérifie que la migration supabase_inbox.sql est passée.</div>';
+      return;
+    }
+    renderAdminUsers();
+  }
+
+  function renderAdminUsers(){
+    var box=el("msgUsers"); if(!box || !inbox.users) return;
+    var q=(inbox.userFilter||"").toLowerCase();
+    var list=inbox.users.filter(function(u){
+      if(!q) return true;
+      return [u.email,u.first_name,u.last_name].filter(Boolean).join(" ").toLowerCase().indexOf(q)>=0;
+    });
+    box.innerHTML="";
+    if(list.length===0){ box.innerHTML='<div class="empty-note">Aucun compte trouvé.</div>'; }
+    list.slice(0,300).forEach(function(u){
+      var on=inbox.draft.ids.indexOf(u.id)>=0;
+      var row=document.createElement("div"); row.className="cl-row"+(on?" on":"");
+      var bx=document.createElement("div"); bx.className="cl-box"; bx.textContent="✓";
+      var name=[u.first_name,u.last_name].filter(Boolean).join(" ");
+      var tx=document.createElement("div"); tx.className="cl-txt";
+      tx.textContent = name ? (name+" — "+(u.email||"")) : (u.email||u.id);
+      row.appendChild(bx); row.appendChild(tx);
+      row.onclick=function(){
+        var i=inbox.draft.ids.indexOf(u.id);
+        if(i>=0) inbox.draft.ids.splice(i,1); else inbox.draft.ids.push(u.id);
+        renderAdminUsers();
+      };
+      box.appendChild(row);
+    });
+    el("msgUsersCount").textContent = inbox.draft.ids.length+" compte(s) sélectionné(s)"
+      + (list.length>300 ? " · 300 premiers affichés, affine le filtre" : "");
+  }
+
+  function collectMsg(){
+    var d=inbox.draft;
+    d.title=el("msgTitle").value.trim();
+    d.body=el("msgBody").value;
+    d.category=el("msgCategory").value;
+    d.audience=el("msgAudience").value;
+    d.cta_label=el("msgCtaLabel").value.trim();
+    d.cta_url=el("msgCtaUrl").value.trim();
+    d.expires=el("msgExpires").value;
+    if(!d.title){ showToast("Donne un titre au message"); return null; }
+    if(!d.body.trim()){ showToast("Le message est vide"); return null; }
+    if(d.audience==="list" && d.ids.length===0){ showToast("Sélectionne au moins un compte"); return null; }
+    return {
+      title:d.title, body:d.body, category:d.category, audience:d.audience,
+      audience_user_ids: d.audience==="list" ? d.ids : [],
+      cta_label: d.cta_label||null, cta_url: d.cta_url||null,
+      expires_at: d.expires ? new Date(d.expires+"T23:59:59").toISOString() : null,
+      pinned: !!d.pinned
+    };
+  }
+
+  async function saveMsg(publish){
+    var row=collectMsg(); if(!row) return;
+    var m=inbox.editing;
+    if(publish) row.published_at = (m && m.published_at) ? m.published_at : new Date().toISOString();
+    else row.published_at = null;
+    try{
+      var r;
+      if(m){ r = await db.from('app_messages').update(row).eq('id',m.id).select().single(); }
+      else { row.created_by=currentUser.id; r = await db.from('app_messages').insert(row).select().single(); }
+      if(r.error) throw r.error;
+      closeDrawer();
+      await loadInbox();
+      renderInbox();
+      showToast(publish ? "Message publié ✓" : "Brouillon enregistré ✓");
+    }catch(e){
+      console.error('message',e);
+      showToast("Enregistrement impossible. Es-tu bien administrateur ?");
+    }
+  }
+
+  async function publishExisting(m){
+    try{
+      var r=await db.from('app_messages').update({published_at:new Date().toISOString()}).eq('id',m.id);
+      if(r.error) throw r.error;
+      await loadInbox(); renderInbox(); showToast("Message publié ✓");
+    }catch(e){ console.error('publication',e); showToast("Publication impossible."); }
+  }
+
+  async function deleteMsg(){
+    var m=inbox.editing; if(!m) return;
+    if(!confirm("Supprimer définitivement ce message ?")) return;
+    try{
+      var r=await db.from('app_messages').delete().eq('id',m.id);
+      if(r.error) throw r.error;
+      closeDrawer(); await loadInbox(); renderInbox(); showToast("Message supprimé");
+    }catch(e){ console.error('suppression',e); showToast("Suppression impossible."); }
+  }
+
+  el("msgAudience").addEventListener("change",function(){ inbox.draft.audience=this.value; syncAudienceUI(); });
+  el("msgUserSearch").addEventListener("input",function(){ inbox.userFilter=this.value; renderAdminUsers(); });
+  el("msgPinnedRow").addEventListener("click",function(){
+    inbox.draft.pinned=!inbox.draft.pinned;
+    el("msgPinned").classList.toggle("on", inbox.draft.pinned);
+  });
+  el("msgPublish").addEventListener("click",function(){ saveMsg(true); });
+  el("msgSaveDraft").addEventListener("click",function(){ saveMsg(false); });
+  el("msgDelete").addEventListener("click", deleteMsg);
+  el("inboxReadAllBtn").addEventListener("click", markAllRead);
+  el("mailBtn").addEventListener("click",function(){ showTab("inbox"); });
+  el("mailBtn").addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); showTab("inbox"); } });
+
   // ============ NAVIGATION PAR ONGLETS ============
   function saveJournal(){ var a=acc(); if(a && view.editKey) persistSession(a,view.editKey); }
-  function hideMainScreens(){ ["screenGlobal","screenAccount","screenSession","screenPlan","screenAnalysis","screenCalendar","screenPropfirm","screenTools","screenChart"].forEach(function(id){ el(id).classList.add("hidden"); }); }
+  function hideMainScreens(){ ["screenGlobal","screenAccount","screenSession","screenPlan","screenAnalysis","screenCalendar","screenPropfirm","screenTools","screenChart","screenInbox"].forEach(function(id){ el(id).classList.add("hidden"); }); }
   function setTitle(t,sub,big){ var e=el("screenTitle"); e.textContent=t; e.classList.toggle("big",!!big); el("screenSub").textContent=sub||""; }
 
   function updateTopbarHeight(){ var tb=document.querySelector(".topbar"); if(tb) document.documentElement.style.setProperty("--topbarH", tb.offsetHeight+"px"); }
@@ -6639,6 +7098,9 @@
     if(tab==="propfirm"){ tab="journal"; view.jlevel="accounts"; }
     view.tab=tab;
     document.querySelectorAll('#tabbar .tab[data-tab]').forEach(function(t){ t.classList.toggle("on", t.dataset.tab===tab); });
+    // Sur mobile, la boîte aux lettres n'est pas dans la barre du bas : c'est
+    // l'enveloppe du header qui prend l'état actif.
+    var mb=el("mailBtn"); if(mb) mb.classList.toggle("on", tab==="inbox");
     if(tab==="journal"){ renderJournalTab(); }
     else if(tab==="analysis"){ el("screenAnalysis").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Analyse","Discipline & psychologie", true); renderAnalysisScreen(); }
     else if(tab==="plan"){ el("screenPlan").classList.remove("hidden"); if(a){ setGearBadge("📋"); } else { el("gearBtn").classList.add("hidden"); } setTitle("Plan de trading", a?a.name:"", true); renderPlan(); }
@@ -6648,6 +7110,7 @@
       renderCalculators(el("toolsCalcBody"), false);
       twContract(el("toolsTicksBody")); twTimer(el("toolsTimerBody")); twClocks(el("toolsClocksBody"));
       toolsBoard.render(); }
+    else if(tab==="inbox"){ el("screenInbox").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Boîte aux lettres","Messages et notifications", true); renderInbox(); }
     else if(tab==="chart"){ el("screenChart").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); setTitle("Graphique","Analyse technique", true); buildFullChart(); }
     syncGearMode();
     refreshAds();
@@ -6666,7 +7129,7 @@
     else { el("backBtn").classList.remove("hidden"); el("gearBtn").classList.add("hidden"); var isToday=view.editKey===todayKey(); setTitle(isToday?"Séance du jour":labelKey(view.editKey), a.name+" · "+(isToday?"aujourd'hui":labelKey(view.editKey)), true); renderSession(); }
   }
   function currentScreenId(){
-    if(view.tab==="plan")return "screenPlan"; if(view.tab==="analysis")return "screenAnalysis"; if(view.tab==="calendar")return "screenCalendar"; if(view.tab==="propfirm")return "screenPropfirm"; if(view.tab==="tools")return "screenTools"; if(view.tab==="chart")return "screenChart";
+    if(view.tab==="plan")return "screenPlan"; if(view.tab==="analysis")return "screenAnalysis"; if(view.tab==="calendar")return "screenCalendar"; if(view.tab==="propfirm")return "screenPropfirm"; if(view.tab==="tools")return "screenTools"; if(view.tab==="chart")return "screenChart"; if(view.tab==="inbox")return "screenInbox";
     var lvl=view.jlevel||"accounts"; return lvl==="accounts"?"screenGlobal":lvl==="account"?"screenAccount":"screenSession";
   }
   function animateTab(){ var e=el(currentScreenId()); if(!e) return; e.classList.remove("anim-r","anim-l"); void e.offsetWidth; e.classList.add("anim-r"); window.scrollTo(0,0); }
@@ -7896,7 +8359,7 @@
     container.appendChild(add);
   }
   var onbActive=false;
-  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("toolsCatDrawer").classList.remove("open"); el("calCatDrawer").classList.remove("open"); el("pbDrawer").classList.remove("open"); el("noteDrawer").classList.remove("open"); el("chartDrawer").classList.remove("open"); }
+  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("toolsCatDrawer").classList.remove("open"); el("calCatDrawer").classList.remove("open"); el("pbDrawer").classList.remove("open"); el("noteDrawer").classList.remove("open"); el("chartDrawer").classList.remove("open"); el("msgDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   // Fermeture au glissement vers le bas (mobile) : le geste démarre soit sur la
   // poignée (.grab), soit n'importe où dans le tiroir tant que sa zone de contenu
