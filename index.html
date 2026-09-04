@@ -693,6 +693,44 @@
   .ib-users{max-height:34vh;overflow-y:auto;border:1px solid var(--line);border-radius:12px;padding:6px 10px;}
   .ib-count{font-size:12px;color:var(--txt-dim);margin-top:6px;}
   #msgBody{resize:vertical;min-height:150px;line-height:1.5;}
+  /* --- Formulaire de réponse dans un message (note + remarques) --- */
+  .ib-form{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);}
+  .ib-q{font-weight:800;font-size:13.5px;margin-bottom:10px;}
+  .ib-stars{display:flex;gap:4px;margin:-3px 0 12px -6px;}
+  .ib-star{width:36px;height:34px;border:none;background:none;padding:0;cursor:pointer;font-size:27px;line-height:1;
+    color:var(--txt-faint);transition:transform .08s,color .12s;-webkit-tap-highlight-color:transparent;}
+  .ib-star.on{color:#f4b740;}
+  .ib-star:active{transform:scale(.88);}
+  .ib-ta{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);
+    font-family:inherit;font-size:14px;padding:12px;min-height:96px;resize:vertical;line-height:1.5;}
+  .ib-ta:focus{outline:none;border-color:var(--accent);}
+  .ib-send{margin-top:10px;border:none;border-radius:12px;padding:13px 18px;font-family:inherit;font-size:14px;
+    font-weight:800;background:var(--accent);color:var(--on-accent);cursor:pointer;}
+  .ib-send:disabled{opacity:.5;cursor:default;}
+  .ib-anon{display:flex;align-items:center;gap:9px;margin-top:10px;font-size:12.5px;color:var(--txt-dim);cursor:pointer;}
+  .ib-anon .cl-box{flex:0 0 auto;width:22px;height:22px;font-size:13px;}
+  .ib-anon .cl-box.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+  .ib-done{margin-top:14px;padding:13px 15px;border-radius:12px;background:var(--green-dim);border:1px solid var(--green);}
+  .ib-done .ib-done-t{font-weight:800;font-size:13.5px;color:var(--green);}
+  .ib-done .ib-done-s{font-size:13px;color:var(--txt-dim);margin-top:6px;white-space:pre-wrap;}
+  .ib-done .ib-edit{margin-top:9px;font-size:12.5px;font-weight:700;color:var(--accent);cursor:pointer;display:inline-block;}
+  /* --- Dépouillement (administrateurs) --- */
+  .rs-kpis{display:flex;gap:10px;margin:4px 0 14px;flex-wrap:wrap;}
+  .rs-kpi{flex:1 1 90px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);padding:11px 13px;}
+  .rs-kpi .rs-v{font-size:22px;font-weight:800;letter-spacing:-.02em;}
+  .rs-kpi .rs-l{font-size:11px;color:var(--txt-faint);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+  .rs-bars{margin-bottom:16px;}
+  .rs-bar{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--txt-dim);margin-top:5px;}
+  .rs-bar .rs-n{width:26px;flex:0 0 auto;font-weight:700;}
+  .rs-bar .rs-track{flex:1;height:7px;border-radius:7px;background:var(--surface-2);overflow:hidden;}
+  .rs-bar .rs-fill{display:block;height:100%;background:#f4b740;}
+  .rs-bar .rs-c{width:26px;flex:0 0 auto;text-align:right;font-weight:700;}
+  .rs-item{border-top:1px solid var(--line);padding:13px 0;}
+  .rs-item-top{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
+  .rs-note{font-weight:800;font-size:13.5px;color:#f4b740;flex:0 0 auto;}
+  .rs-who{font-size:12.5px;font-weight:700;}
+  .rs-ctx{font-size:11.5px;color:var(--txt-faint);}
+  .rs-txt{font-size:13.5px;line-height:1.55;margin-top:6px;white-space:pre-wrap;}
 
   /* ===== Plan ===== */
   .plan-obj{display:flex;align-items:center;gap:10px;}
@@ -1936,6 +1974,22 @@
       <option value="alert">Alerte importante</option>
     </select>
   </div>
+  <div class="set-group"><div class="set-label">Réponse attendue</div>
+    <select class="set-input" id="msgResponse">
+      <option value="none">Aucune — simple annonce</option>
+      <option value="rating_text">Note sur 5 ★ + remarques</option>
+      <option value="rating">Note sur 5 ★ seulement</option>
+      <option value="text">Remarques seulement</option>
+    </select>
+  </div>
+  <div class="set-group hidden" id="msgResponseGroup">
+    <div class="set-label">Question posée</div>
+    <input class="set-input" id="msgResponsePrompt" type="text" placeholder="Ex : Comment trouves-tu l'application ?">
+    <div class="toggle-row" id="msgAnonRow" style="cursor:pointer;">
+      <div><div class="tl">Autoriser les réponses anonymes</div><div class="td">Plus francs, mais tu perds le contexte du compte.</div></div>
+      <div class="switch" id="msgAnon"><i></i></div>
+    </div>
+  </div>
   <div class="set-group"><div class="set-label">Destinataires</div>
     <select class="set-input" id="msgAudience">
       <option value="all">Tous les utilisateurs</option>
@@ -1970,6 +2024,20 @@
     <button class="drawer-done" id="msgPublish">Publier maintenant</button>
     <button class="ib-btn" id="msgSaveDraft" type="button" style="width:100%;padding:14px;">Enregistrer comme brouillon</button>
     <button class="danger-btn hidden" id="msgDelete" type="button">Supprimer ce message</button>
+  </div>
+  </div>
+</div>
+
+<!-- Boîte aux lettres : dépouillement des réponses (administrateurs) -->
+<div class="drawer" id="respDrawer">
+  <div class="grab"></div>
+  <div class="drawer-scroll">
+  <h3 id="respTitle">Réponses</h3>
+  <div class="dsub" id="respSub"></div>
+  <div id="respStats"></div>
+  <div id="respList"></div>
+  <div class="drawer-foot">
+    <button class="ib-btn" id="respExport" type="button" style="width:100%;padding:14px;">⬇ Exporter en CSV</button>
   </div>
   </div>
 </div>
@@ -6868,9 +6936,15 @@
   // La RLS fait tout le ciblage côté serveur : le client se contente de lire
   // `app_messages` et ne reçoit que ce qui le concerne. Un compte non admin ne
   // peut ni voir les brouillons ni écrire quoi que ce soit.
-  var inbox = { msgs:[], read:{}, isAdmin:false, open:{}, users:null, editing:null, draft:null, userFilter:"" };
+  var inbox = { msgs:[], read:{}, isAdmin:false, open:{}, users:null, editing:null, draft:null, userFilter:"",
+                myResp:{},      // mes réponses, par message : {rating, comment, anonymous}
+                formDraft:{},   // saisie en cours, par message (survit au re-rendu)
+                stats:{},       // admin : {message_id: {total, avg}}
+                allResp:null,   // admin : toutes les réponses, avec leur contexte
+                respMsg:null };
 
   var IB_ICONS = { info:"💬", update:"✨", promo:"🎁", alert:"⚠️" };
+  var IB_RESP_LABEL = { none:"", rating:"Note sur 5", text:"Remarques", rating_text:"Note + remarques" };
   var IB_CAT_LABEL = { info:"Information", update:"Nouveauté", promo:"Offre", alert:"Important" };
   var IB_AUD_LABEL = {
     all:"Tous les utilisateurs", premium:"Comptes premium", trialing:"En essai gratuit",
@@ -6907,6 +6981,21 @@
       var sr = await db.from('user_message_state').select('message_id,read_at').eq('user_id',currentUser.id);
       inbox.read = {};
       (sr.data||[]).forEach(function(row){ if(row.read_at) inbox.read[row.message_id]=row.read_at; });
+      // Mes propres réponses : pour réafficher ce que j'ai envoyé plutôt que de
+      // reproposer un formulaire vide.
+      try{
+        var rr = await db.from('message_responses').select('*').eq('user_id',currentUser.id);
+        inbox.myResp = {};
+        (rr.data||[]).forEach(function(row){ inbox.myResp[row.message_id]=row; });
+      }catch(e){ inbox.myResp={}; }
+      // Côté administrateur : les compteurs par message (« 12 réponses · 4,2 ★ »).
+      if(inbox.isAdmin){
+        try{
+          var st = await db.rpc('admin_response_stats');
+          inbox.stats={};
+          (st.data||[]).forEach(function(row){ inbox.stats[row.message_id]={total:row.total, avg:row.avg_rating}; });
+        }catch(e){ inbox.stats={}; }
+      }
     }catch(e){
       // Table absente (migration pas encore passée) : on n'affiche rien plutôt
       // que de casser le chargement de l'app.
@@ -6955,6 +7044,7 @@
       meta.push(IB_CAT_LABEL[m.category]||m.category);
       if(m.pinned) meta.push("📌 épinglé");
       if(inbox.isAdmin) meta.push(IB_AUD_LABEL[m.audience]||m.audience);
+      if(m.response_type && m.response_type!=='none' && !inbox.myResp[m.id]) meta.push("★ ton avis est demandé");
       var h = '<div class="ib-msg-top">'
         + '<div class="ib-ic">'+(IB_ICONS[m.category]||"💬")+'</div>'
         + '<div class="ib-msg-txt">'
@@ -6966,11 +7056,23 @@
         +   (m.cta_url ? '<div><a class="ib-cta" href="'+esc(m.cta_url)+'" target="_blank" rel="noopener">'+esc(m.cta_label||"En savoir plus")+'</a></div>' : '')
         + '</div>';
       card.innerHTML=h;
+      // Formulaire de réponse : seulement sur un message publié qui en attend une.
+      if(!isDraft && m.response_type && m.response_type!=='none'){
+        card.querySelector(".ib-body").appendChild(buildResponseForm(m));
+      }
       if(inbox.isAdmin){
         var foot=document.createElement("div"); foot.className="ib-foot";
         var edit=document.createElement("button"); edit.type="button"; edit.className="ib-btn"; edit.textContent="✎ Modifier";
         edit.onclick=function(ev){ ev.stopPropagation(); openMsgComposer(m); };
         foot.appendChild(edit);
+        if(m.response_type && m.response_type!=='none'){
+          var st=inbox.stats[m.id];
+          var see=document.createElement("button"); see.type="button"; see.className="ib-btn";
+          see.textContent = st ? ("📊 "+st.total+" réponse"+(st.total>1?"s":"")+(st.avg?(" · "+String(st.avg).replace(".",",")+" ★"):""))
+                               : "📊 Aucune réponse";
+          see.onclick=function(ev){ ev.stopPropagation(); openResponses(m); };
+          foot.appendChild(see);
+        }
         if(isDraft){
           var pub=document.createElement("button"); pub.type="button"; pub.className="ib-btn solid"; pub.textContent="↗ Publier";
           pub.onclick=function(ev){ ev.stopPropagation(); publishExisting(m); };
@@ -6985,6 +7087,190 @@
       });
       box.appendChild(card);
     });
+  }
+
+  // ---- Formulaire de réponse (note ★ et/ou remarques) ----
+  // Construit en DOM plutôt qu'en innerHTML : les clics sur les étoiles ne
+  // doivent pas remonter jusqu'à la carte (qui replierait le message).
+  function buildResponseForm(m){
+    var wrap=document.createElement("div"); wrap.className="ib-form";
+    wrap.addEventListener("click",function(e){ e.stopPropagation(); });
+    var mine=inbox.myResp[m.id];
+    var editing=!!inbox.formDraft[m.id];
+
+    // Déjà répondu, et pas en cours de correction : on affiche sa réponse.
+    if(mine && !editing){
+      var done=document.createElement("div"); done.className="ib-done";
+      var t=document.createElement("div"); t.className="ib-done-t"; t.textContent="Merci, ta réponse a bien été envoyée ✓";
+      done.appendChild(t);
+      var recap=[];
+      if(mine.rating) recap.push("★".repeat(mine.rating)+"☆".repeat(5-mine.rating));
+      if(mine.comment) recap.push(mine.comment);
+      if(mine.anonymous) recap.push("(envoyée anonymement)");
+      if(recap.length){ var sdiv=document.createElement("div"); sdiv.className="ib-done-s"; sdiv.textContent=recap.join("\n"); done.appendChild(sdiv); }
+      var ed=document.createElement("span"); ed.className="ib-edit"; ed.textContent="Modifier ma réponse";
+      ed.onclick=function(){ inbox.formDraft[m.id]={rating:mine.rating||0, comment:mine.comment||"", anonymous:!!mine.anonymous}; renderInbox(); };
+      done.appendChild(ed);
+      wrap.appendChild(done);
+      return wrap;
+    }
+
+    var d = inbox.formDraft[m.id] || (inbox.formDraft[m.id]={rating:0, comment:"", anonymous:false});
+    var q=document.createElement("div"); q.className="ib-q";
+    q.textContent = m.response_prompt || "Ton avis nous intéresse";
+    wrap.appendChild(q);
+
+    var wantsRating = m.response_type==='rating' || m.response_type==='rating_text';
+    var wantsText   = m.response_type==='text'   || m.response_type==='rating_text';
+
+    if(wantsRating){
+      var stars=document.createElement("div"); stars.className="ib-stars";
+      for(var i=1;i<=5;i++){
+        (function(n){
+          var b=document.createElement("button"); b.type="button";
+          b.className="ib-star"+(d.rating>=n?" on":"");
+          b.textContent = d.rating>=n ? "★" : "☆";
+          b.setAttribute("aria-label", n+" sur 5");
+          b.onclick=function(){ d.rating = (d.rating===n ? 0 : n); renderInbox(); };
+          stars.appendChild(b);
+        })(i);
+      }
+      wrap.appendChild(stars);
+    }
+
+    if(wantsText){
+      var ta=document.createElement("textarea"); ta.className="ib-ta";
+      ta.placeholder="Un bug, une idée, ce que tu aimerais voir arriver, ce qui te gêne…";
+      ta.value=d.comment;
+      ta.addEventListener("input",function(){ d.comment=ta.value; });
+      wrap.appendChild(ta);
+    }
+
+    if(m.allow_anonymous){
+      var an=document.createElement("div"); an.className="ib-anon";
+      var bx=document.createElement("div"); bx.className="cl-box"+(d.anonymous?" on":""); bx.textContent="✓";
+      var lb=document.createElement("span"); lb.textContent="Envoyer anonymement";
+      an.appendChild(bx); an.appendChild(lb);
+      an.onclick=function(){ d.anonymous=!d.anonymous; renderInbox(); };
+      wrap.appendChild(an);
+    }
+
+    var send=document.createElement("button"); send.type="button"; send.className="ib-send"; send.textContent="Envoyer";
+    send.onclick=function(){ submitResponse(m, send); };
+    wrap.appendChild(send);
+    return wrap;
+  }
+
+  async function submitResponse(m, btn){
+    var d=inbox.formDraft[m.id]||{};
+    var wantsRating = m.response_type==='rating' || m.response_type==='rating_text';
+    var wantsText   = m.response_type==='text'   || m.response_type==='rating_text';
+    if(wantsRating && !d.rating && !(wantsText && (d.comment||"").trim())){ showToast("Choisis une note"); return; }
+    if(!wantsRating && wantsText && !(d.comment||"").trim()){ showToast("Écris ta remarque"); return; }
+    btn.disabled=true; btn.textContent="Envoi…";
+    var row={ message_id:m.id, user_id:currentUser.id,
+              rating: wantsRating && d.rating ? d.rating : null,
+              comment: wantsText ? ((d.comment||"").trim()||null) : null,
+              anonymous: !!(m.allow_anonymous && d.anonymous) };
+    try{
+      var r=await db.from('message_responses').upsert(row,{onConflict:'message_id,user_id'}).select().single();
+      if(r.error) throw r.error;
+      inbox.myResp[m.id]=r.data;
+      delete inbox.formDraft[m.id];
+      markRead(m.id);
+      renderInbox();
+      showToast("Merci pour ton retour ✓");
+    }catch(e){
+      console.error('réponse',e);
+      btn.disabled=false; btn.textContent="Envoyer";
+      showToast("Envoi impossible. Réessaie.");
+    }
+  }
+
+  // ---- Dépouillement des réponses (administrateurs) ----
+  async function openResponses(m){
+    inbox.respMsg=m;
+    el("respTitle").textContent="Réponses";
+    el("respSub").textContent=m.title;
+    el("respStats").innerHTML='<div class="empty-note">Chargement…</div>';
+    el("respList").innerHTML="";
+    el("overlay").classList.add("open");
+    el("respDrawer").classList.add("open");
+    try{
+      var r=await db.rpc('admin_list_responses',{p_message_id:m.id});
+      if(r.error) throw r.error;
+      inbox.allResp=r.data||[];
+    }catch(e){
+      console.error('réponses',e);
+      el("respStats").innerHTML='<div class="empty-note">Lecture impossible. Vérifie que la migration supabase_feedback.sql est passée.</div>';
+      return;
+    }
+    renderResponses();
+  }
+
+  function renderResponses(){
+    var rows=inbox.allResp||[], box=el("respStats"), list=el("respList");
+    if(rows.length===0){
+      box.innerHTML='<div class="empty-note">Personne n\'a encore répondu.</div>';
+      list.innerHTML=""; return;
+    }
+    var rated=rows.filter(function(x){ return x.rating; });
+    var avg = rated.length ? (rated.reduce(function(a,x){return a+x.rating;},0)/rated.length) : 0;
+    var withText=rows.filter(function(x){ return x.comment; }).length;
+    var h='<div class="rs-kpis">'
+      + '<div class="rs-kpi"><div class="rs-v">'+rows.length+'</div><div class="rs-l">Réponses</div></div>'
+      + (rated.length? '<div class="rs-kpi"><div class="rs-v">'+avg.toFixed(1).replace(".",",")+' ★</div><div class="rs-l">Note moyenne</div></div>' : '')
+      + '<div class="rs-kpi"><div class="rs-v">'+withText+'</div><div class="rs-l">Remarques</div></div>'
+      + '</div>';
+    if(rated.length){
+      h+='<div class="rs-bars">';
+      for(var n=5;n>=1;n--){
+        var c=rated.filter(function(x){ return x.rating===n; }).length;
+        var pct = rated.length ? Math.round(c/rated.length*100) : 0;
+        h+='<div class="rs-bar"><span class="rs-n">'+n+' ★</span>'
+          +'<span class="rs-track"><i class="rs-fill" style="width:'+pct+'%"></i></span>'
+          +'<span class="rs-c">'+c+'</span></div>';
+      }
+      h+='</div>';
+    }
+    box.innerHTML=h;
+
+    var lh="";
+    rows.forEach(function(x){
+      var who = x.anonymous ? "Anonyme" : (x.user_name || x.user_email || "Compte supprimé");
+      var ctx=[];
+      if(!x.anonymous){
+        if(x.user_name && x.user_email) ctx.push(x.user_email);
+        if(x.subscription_status) ctx.push(x.subscription_status==='active'?"abonné":x.subscription_status==='trialing'?"essai":x.subscription_status);
+        if(x.sessions_count!=null) ctx.push(x.sessions_count+" séance"+(x.sessions_count>1?"s":""));
+      }
+      ctx.push(ibDate(x.created_at));
+      lh+='<div class="rs-item"><div class="rs-item-top">'
+        + (x.rating? '<span class="rs-note">'+"★".repeat(x.rating)+"☆".repeat(5-x.rating)+'</span>' : '')
+        + '<span class="rs-who">'+esc(who)+'</span>'
+        + '<span class="rs-ctx">'+esc(ctx.join(" · "))+'</span>'
+        + '</div>'
+        + (x.comment? '<div class="rs-txt">'+esc(x.comment)+'</div>' : '')
+        + '</div>';
+    });
+    list.innerHTML=lh;
+  }
+
+  // Export CSV : toutes les réponses du message ouvert. Séparateur point-virgule
+  // et BOM UTF-8 pour qu'Excel en français ouvre le fichier proprement.
+  function exportResponsesCsv(){
+    var rows=inbox.allResp||[];
+    if(rows.length===0){ showToast("Aucune réponse à exporter"); return; }
+    var cols=["created_at","message_title","rating","comment","anonymous","user_email","user_name","subscription_status","member_since","sessions_count"];
+    function cell(v){ if(v==null) return ""; return '"'+String(v).replace(/"/g,'""')+'"'; }
+    var csv="﻿"+cols.join(";")+"\n"
+      + rows.map(function(r){ return cols.map(function(c){ return cell(r[c]); }).join(";"); }).join("\n");
+    var blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+    var a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="avis-"+(inbox.respMsg?inbox.respMsg.id.slice(0,8):"edgio")+".csv";
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },500);
   }
 
   function renderInboxAdminBar(){
@@ -7019,7 +7305,10 @@
       audience:(m&&m.audience)||"all", ids:(m&&m.audience_user_ids)? m.audience_user_ids.slice() : [],
       cta_label:(m&&m.cta_label)||"", cta_url:(m&&m.cta_url)||"",
       expires:(m&&m.expires_at)? String(m.expires_at).slice(0,10) : "",
-      pinned:!!(m&&m.pinned)
+      pinned:!!(m&&m.pinned),
+      response:(m&&m.response_type)||"none",
+      prompt:(m&&m.response_prompt)||"",
+      anon:!!(m&&m.allow_anonymous)
     };
     inbox.userFilter="";
     el("msgDrawerTitle").textContent = m ? "Modifier le message" : "Rédiger un message";
@@ -7032,12 +7321,25 @@
     el("msgExpires").value=inbox.draft.expires;
     el("msgUserSearch").value="";
     el("msgPinned").classList.toggle("on", inbox.draft.pinned);
+    el("msgResponse").value=inbox.draft.response;
+    el("msgResponsePrompt").value=inbox.draft.prompt;
+    el("msgAnon").classList.toggle("on", inbox.draft.anon);
+    syncResponseUI();
     el("msgPublish").textContent = (m && m.published_at) ? "Enregistrer les modifications" : "Publier maintenant";
     el("msgSaveDraft").classList.toggle("hidden", !!(m && m.published_at));
     el("msgDelete").classList.toggle("hidden", !m);
     syncAudienceUI();
     el("overlay").classList.add("open");
     el("msgDrawer").classList.add("open");
+  }
+
+  // Le bloc « question posée » n'a de sens que si une réponse est attendue.
+  function syncResponseUI(){
+    var on = inbox.draft.response!=="none";
+    el("msgResponseGroup").classList.toggle("hidden", !on);
+    el("msgResponsePrompt").placeholder = inbox.draft.response==="rating"
+      ? "Ex : Quelle note donnes-tu à l'application ?"
+      : "Ex : Comment trouves-tu l'application ? Dis-nous tout.";
   }
 
   function syncAudienceUI(){
@@ -7102,6 +7404,8 @@
     d.cta_label=el("msgCtaLabel").value.trim();
     d.cta_url=el("msgCtaUrl").value.trim();
     d.expires=el("msgExpires").value;
+    d.response=el("msgResponse").value;
+    d.prompt=el("msgResponsePrompt").value.trim();
     if(!d.title){ showToast("Donne un titre au message"); return null; }
     if(!d.body.trim()){ showToast("Le message est vide"); return null; }
     if(d.audience==="list" && d.ids.length===0){ showToast("Sélectionne au moins un compte"); return null; }
@@ -7109,6 +7413,7 @@
       title:d.title, body:d.body, category:d.category, audience:d.audience,
       audience_user_ids: d.audience==="list" ? d.ids : [],
       cta_label: d.cta_label||null, cta_url: d.cta_url||null,
+      response_type: d.response, response_prompt: d.prompt||null, allow_anonymous: !!d.anon,
       expires_at: d.expires ? new Date(d.expires+"T23:59:59").toISOString() : null,
       pinned: !!d.pinned
     };
@@ -7153,6 +7458,12 @@
   }
 
   el("msgAudience").addEventListener("change",function(){ inbox.draft.audience=this.value; syncAudienceUI(); });
+  el("msgResponse").addEventListener("change",function(){ inbox.draft.response=this.value; syncResponseUI(); });
+  el("msgAnonRow").addEventListener("click",function(){
+    inbox.draft.anon=!inbox.draft.anon;
+    el("msgAnon").classList.toggle("on", inbox.draft.anon);
+  });
+  el("respExport").addEventListener("click", exportResponsesCsv);
   el("msgUserSearch").addEventListener("input",function(){ inbox.userFilter=this.value; renderAdminUsers(); });
   el("msgPinnedRow").addEventListener("click",function(){
     inbox.draft.pinned=!inbox.draft.pinned;
@@ -8449,7 +8760,7 @@
     container.appendChild(add);
   }
   var onbActive=false;
-  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("toolsCatDrawer").classList.remove("open"); el("calCatDrawer").classList.remove("open"); el("pbDrawer").classList.remove("open"); el("noteDrawer").classList.remove("open"); el("chartDrawer").classList.remove("open"); el("msgDrawer").classList.remove("open"); }
+  function closeDrawer(){ el("overlay").classList.remove("open"); el("drawer").classList.remove("open"); el("appDrawer").classList.remove("open"); el("analysisPicker").classList.remove("open"); el("tradeDrawer").classList.remove("open"); el("instrDrawer").classList.remove("open"); el("dateDrawer").classList.remove("open"); el("pfDrawer").classList.remove("open"); el("planDrawer").classList.remove("open"); el("profileDrawer").classList.remove("open"); el("sessQuotaDrawer").classList.remove("open"); el("widgetDrawer").classList.remove("open"); el("toolsCatDrawer").classList.remove("open"); el("calCatDrawer").classList.remove("open"); el("pbDrawer").classList.remove("open"); el("noteDrawer").classList.remove("open"); el("chartDrawer").classList.remove("open"); el("msgDrawer").classList.remove("open"); el("respDrawer").classList.remove("open"); }
   el("overlay").addEventListener("click",function(){ if(onbActive) return; closeDrawer(); });
   // Fermeture au glissement vers le bas (mobile) : le geste démarre soit sur la
   // poignée (.grab), soit n'importe où dans le tiroir tant que sa zone de contenu
